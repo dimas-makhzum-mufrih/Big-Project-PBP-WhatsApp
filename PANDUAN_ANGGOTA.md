@@ -26,6 +26,7 @@ Yang dipakai: **Git + VS Code + akun GitHub**. Tidak perlu GitHub Desktop.
 Cukup hafal ini saja:
 
 - `git --version`: Cek Git sudah terpasang
+- `git config --global user.name "Nama"` / `user.email "email"`: Atur identitas (sekali saja)
 - `git clone <link-repo>`: Download repo ke laptop (sekali saja)
 - `git checkout -b nama-fitur`: Bikin branch baru + langsung pindah ke sana
 - `git checkout nama-branch`: Pindah ke branch lain
@@ -33,9 +34,11 @@ Cukup hafal ini saja:
 - `git status`: Lihat file apa yang berubah
 - `git pull origin main`: Ambil update terbaru dari `main` di GitHub
 - `git merge main`: Masukkan update `main` ke branch kamu
+- `git merge --abort`: Batalkan merge yang lagi kacau / konflik
 - `git add .`: Tandai semua perubahan untuk disimpan
 - `git commit -m "pesan"`: Simpan perubahan dengan catatan
-- `git push origin nama-branch`: Kirim branch ke GitHub
+- `git push -u origin nama-branch`: Kirim branch ke GitHub **(push pertama)**
+- `git push`: Kirim commit berikutnya (setelah push pertama)
 - `git fetch`: Ambil info branch terbaru (termasuk punya teman)
 - `git diff`: Lihat isi perubahan
 - `git log --oneline`: Lihat riwayat commit
@@ -53,12 +56,24 @@ Cukup hafal ini saja:
 3. Restart VS Code
 4. Cek di terminal VS Code: `git --version`. Kalau muncul versinya, berarti sudah terpasang.
 
-### B. Terima undangan collaborator
+### B. Atur identitas Git (wajib, untuk semua cara)
+
+Git perlu tahu siapa yang commit. Jalankan di terminal VS Code (`` Ctrl+` ``), **walaupun nanti kamu pakai cara VS Code**:
+
+```bash
+git config --global user.name "Nama Kamu"
+git config --global user.email "emailgithubmu@gmail.com"
+```
+
+> Kalau lupa, commit pertamamu akan error: **"Please tell me who you are"**.
+> Pakai email yang sama dengan akun GitHub-mu.
+
+### C. Terima undangan collaborator
 
 Cek email / notifikasi GitHub, lalu klik **Accept invitation**.
 Kalau belum diterima, push kamu akan ditolak.
 
-### C. Clone repo
+### D. Clone repo
 
 **Cara VS Code (tanpa terminal):**
 
@@ -70,15 +85,13 @@ Kalau belum diterima, push kamu akan ditolak.
 **Cara Terminal:**
 
 ```bash
-git config --global user.name "Nama Kamu"
-git config --global user.email "emailgithubmu@gmail.com"
 git clone https://github.com/USERNAME/NAMA-REPO.git
 cd NAMA-REPO
 ```
 
-### D. Bikin branch sendiri
+### E. Bikin branch sendiri
 
-Format nama: `nama-fitur`, contoh `Dani-chat`, `Kevin-login`. Tanpa spasi.
+Format nama: `nama-fitur`, contoh `dani-chat`, `kevin-login`. Tanpa spasi.
 
 **Cara Terminal:**
 
@@ -110,6 +123,9 @@ git merge main               # masukkan update main ke branch kamu
 > **`git pull origin main`** = "ambil perubahan terbaru dari `main` di GitHub (`origin`), masukkan ke laptopku".
 > **`git merge main`** di sini beda dengan merge-nya leader. Arahnya dari `main` **ke branch kamu**, bukan ke `main`. Aman dilakukan siapa saja.
 
+> ⚠️ Kalau ada perubahan yang belum di-commit, Git bisa menolak pindah branch / merge.
+> Solusinya: **commit dulu**, atau `git stash` → lakukan langkah di atas → `git stash pop`.
+
 **Cara VS Code:**
 
 1. Pindah ke `main` (klik nama branch kiri bawah → pilih `main`)
@@ -121,21 +137,35 @@ git merge main               # masukkan update main ke branch kamu
 
 Ngoding di branch kamu. Fokus ke fitur yang dibagi leader.
 
+> Sebelum mulai, pastikan kamu **bukan** di `main` (cek pojok kiri bawah / `git branch`).
+
 ### Langkah 3 — Simpan & kirim
 
 **Cara Terminal:**
 
 ```bash
+git status                           # cek dulu file apa saja yang berubah
 git add .
 git commit -m "tambah halaman login"
-git push origin nama-fitur
+git push -u origin nama-fitur        # push PERTAMA kali untuk branch ini
 ```
 
-> Kalau error di push pertama, pakai: `git push -u origin nama-fitur`
+Untuk commit berikutnya di branch yang sama, cukup:
+
+```bash
+git add .
+git commit -m "pesan commit"
+git push
+```
+
+> `-u` memasangkan branch di laptopmu dengan branch di GitHub (cukup sekali).
+> Kalau lupa `-u` dan muncul error **"has no upstream branch"**, jalankan `git push -u origin nama-fitur`.
+
+> 🔍 **Biasakan `git status` sebelum `git add .`** supaya kelihatan kalau ada file yang tidak seharusnya ikut (misal `.env`, file besar, atau file acak).
 
 **Cara VS Code:**
 
-1. Tab **Source Control** → ketik pesan commit → klik **Commit**
+1. Tab **Source Control** → cek daftar file yang berubah → ketik pesan commit → klik **Commit**
 2. Push pertama kali: klik **Publish Branch**. Berikutnya: **Sync Changes**
 
 ### Langkah 4 — Buat Pull Request
@@ -145,6 +175,18 @@ git push origin nama-fitur
 3. Pastikan targetnya `main`, tulis judul + penjelasan singkat
 4. Klik **Create pull request**, lalu tunggu leader review
 5. Kalau diminta revisi: perbaiki, commit, push lagi (PR otomatis ikut ter-update)
+
+### Langkah 5 — Setelah PR di-merge leader
+
+PR-mu sudah masuk ke `main`. Jangan lanjut kerja di branch lama. Mulai fitur berikutnya dengan bersih:
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b nama-fitur-berikutnya
+```
+
+> Branch lama boleh dibiarkan, tidak perlu dihapus kecuali leader meminta.
 
 ---
 
@@ -176,8 +218,8 @@ Kalau diminta / diizinkan melanjutkan branch teman (misal `budi-chat`):
 
 ```bash
 git fetch
-git checkout Dani-chat
-git checkout -b namamu-lanjut-Dani-chat
+git checkout budi-chat
+git checkout -b namamu-lanjut-budi-chat
 ```
 
 **Cara VS Code:** klik branch kiri bawah → pilih `origin/budi-chat` → lalu bikin branch baru dari situ.
@@ -189,12 +231,37 @@ Kerjakan di branch barumu, lalu PR seperti biasa.
 
 ## 5. Kalau Ada Masalah
 
-- Salah edit file, belum commit: `git restore nama-file`
-- Mau pindah branch tapi ada perubahan belum disimpan: `git stash` → pindah branch → `git stash pop`
-- Salah ketik pesan commit terakhir (belum push): `git commit --amend -m "pesan baru"`
-- Muncul **CONFLICT**: Jangan panik. Buka file yang konflik, pilih kode yang benar (hapus tanda `<<<<<<<`, `=======`, `>>>>>>>`), lalu `git add .` → `git commit`. Bingung? Tanya leader.
-- Lupa di branch mana: `git branch`
-- Push ditolak: Cek sudah menerima undangan collaborator, dan kamu tidak sedang di `main`
+- **Salah edit file, belum commit:** `git restore nama-file`
+- **Mau pindah branch tapi ada perubahan belum disimpan:** `git stash` → pindah branch → `git stash pop`
+- **Salah ketik pesan commit terakhir (belum push):** `git commit --amend -m "pesan baru"`
+- **Lupa di branch mana:** `git branch`
+- **Push ditolak:** Cek sudah menerima undangan collaborator, dan kamu tidak sedang di `main`
+- **Error "has no upstream branch":** Jalankan `git push -u origin nama-branch`
+- **Error "Please tell me who you are":** Jalankan dua perintah `git config` di Persiapan bagian B
+- **Terlanjur ngoding di `main` (belum commit):** Jangan panik. Jalankan `git checkout -b nama-fitur`. Perubahanmu ikut pindah ke branch baru, lalu commit seperti biasa. `main` tetap bersih.
+- **Terlanjur commit di `main` (belum push):** Beri tahu leader sebelum melakukan apa pun. Jangan push.
+
+### Muncul CONFLICT
+
+Konflik artinya dua orang mengubah baris yang sama. Itu hal biasa, bukan kesalahan fatal.
+
+**Cara VS Code (paling mudah):**
+
+1. Buka file yang bertanda konflik di Source Control (bagian **Merge Changes**)
+2. Di atas bagian yang konflik ada pilihan:
+   - **Accept Current Change**: pakai versi kamu
+   - **Accept Incoming Change**: pakai versi dari `main`
+   - **Accept Both Changes**: pakai dua-duanya
+3. Pilih yang benar (kalau ragu, tanya leader), pastikan tanda `<<<<<<<`, `=======`, `>>>>>>>` sudah hilang
+4. Simpan file, lalu `git add .` → `git commit`
+
+**Kalau terasa makin kacau**, batalkan semuanya dan ulangi dari awal:
+
+```bash
+git merge --abort
+```
+
+Ini mengembalikan branch-mu ke kondisi sebelum merge. Tidak ada kerjaanmu yang hilang.
 
 ---
 
@@ -214,11 +281,12 @@ Kerjakan di branch barumu, lalu PR seperti biasa.
 
 1. ❌ **DILARANG merge ke `main`.** Hanya leader.
 2. ❌ **DILARANG kerja langsung di `main`.** Selalu di branch sendiri.
-3. 💡 **Punya ide / mau tambah fitur / mau ubah struktur → TANYA LEADER DULU**, jangan langsung dikerjakan.
-4. 📁 **Kerjakan hanya bagian/fitur yang dibagi ke kamu.** Mau edit file orang lain atau file umum (`README.md`, `.gitignore`) → izin dulu.
-5. ⬇️ **Selalu ambil update dari `main` sebelum mulai kerja** (Langkah 1).
-6. 📝 **Pesan commit harus jelas.** Bagus: `tambah halaman login`. Jelek: `update`, `fix`, `asdf`.
-7. 🔁 **Fitur selesai → langsung PR.** Jangan menumpuk berhari-hari.
-8. 🔒 **Jangan commit data rahasia** (password, token, file `.env`).
-9. 🤝 **Boleh melanjutkan kerjaan teman**, tapi lewat branch baru dan dengan izin.
-10. 🙋 **Ragu / error / bingung → tanya**, jangan dipaksa.
+3. ❌ **DILARANG `git push --force` (atau `-f`).** Ini bisa menimpa dan menghapus kerjaan orang lain.
+4. 💡 **Punya ide / mau tambah fitur / mau ubah struktur → TANYA LEADER DULU**, jangan langsung dikerjakan.
+5. 📁 **Kerjakan hanya bagian/fitur yang dibagi ke kamu.** Mau edit file orang lain atau file umum (`README.md`, `.gitignore`) → izin dulu.
+6. ⬇️ **Selalu ambil update dari `main` sebelum mulai kerja** (Langkah 1).
+7. 📝 **Pesan commit harus jelas.** Bagus: `tambah halaman login`. Jelek: `update`, `fix`, `asdf`.
+8. 🔁 **Fitur selesai → langsung PR.** Jangan menumpuk berhari-hari.
+9. 🔒 **Jangan commit data rahasia** (password, token, file `.env`). Cek `git status` sebelum `git add .`.
+10. 🤝 **Boleh melanjutkan kerjaan teman**, tapi lewat branch baru dan dengan izin.
+11. 🙋 **Ragu / error / bingung → tanya**, jangan dipaksa.
