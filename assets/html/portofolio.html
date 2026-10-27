@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muhammad Kevin Bayu Maulidi | Portofolio</title>
+<style>
+:root{--bg:#fff;--surface:#f3f5f9;--text:#151a24;--muted:#5b6475;--accent:#3b5bdb;--on-accent:#fff;--border:#e1e5ee}
+@media (prefers-color-scheme:dark){:root{--bg:#0f131c;--surface:#181e2b;--text:#eef1f7;--muted:#9aa4b8;--accent:#748ffc;--on-accent:#0f131c;--border:#263048}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+a{color:inherit;text-decoration:none}
+.nav{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:14px 6vw;background:var(--bg);border-bottom:1px solid var(--border)}
+.brand{font-weight:700;font-size:1.15rem;color:var(--accent)}
+.nav nav a{margin-left:22px;color:var(--muted)}
+.nav nav a:hover{color:var(--text)}
+
+main{max-width:960px;margin:0 auto;padding:0 6vw}
+.hero{padding:14vh 0 10vh}
+.eyebrow{color:var(--accent);font-weight:600;margin:0}
+.hero h1{font-size:clamp(2rem,6vw,3.6rem);line-height:1.15;margin:8px 0 12px}
+.lead{color:var(--muted);font-size:1.15rem;margin:0 0 28px}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;padding:11px 22px;border-radius:10px;background:var(--accent);color:var(--on-accent);font-weight:600;border:1px solid var(--accent)}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--border)}
+.btn:hover{opacity:.9}
+.section{padding:56px 0;border-top:1px solid var(--border);scroll-margin-top:70px}
+.section h2{margin:0 0 14px;font-size:1.6rem}
+.section p{color:var(--muted);max-width:62ch}
+.chips{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:18px 0 0}
+.chips li{padding:5px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-size:.9rem}
+.chips.small li{font-size:.78rem;padding:2px 10px}
+.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px}
+.card h3{margin:0 0 8px}
+.card p{margin:0;font-size:.95rem}
+.footer{text-align:center;padding:28px 6vw;color:var(--muted);font-size:.88rem;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="#atas">Kepin</a>
+  <nav>
+    <a href="#tentang">Tentang</a>
+    <a href="#proyek">Proyek</a>
+    <a href="#kontak">Kontak</a>
+  </nav>
+</header>
+
+<main id="atas">
+  <section class="hero">
+    <p class="eyebrow">Halo, saya</p>
+    <h1>Muhammad Kevin Bayu Maulidi</h1>
+    <p class="lead">Mahasiswa Teknik Informatika · Mobile &amp; Web Developer</p>
+    <div class="actions">
+      <a class="btn" href="#proyek">Lihat Proyek</a>
+      <a class="btn ghost" href="#kontak">Hubungi Saya</a>
+    </div>
+  </section>
+
+  <section id="tentang" class="section">
+    <h2>Tentang</h2>
+    <p>Mahasiswa semester 6 Teknik Informatika di Universitas Muhammadiyah Gresik. Saya suka membangun aplikasi yang benar-benar dipakai, dari mobile, web, sampai metode numerik.</p>
+    <ul class="chips">
+      <li>Mobile Development</li>
+      <li>Web Development</li>
+      <li>Struktur Data</li>
+      <li>Metode Numerik</li>
+    </ul>
+  </section>
+
+  <section id="proyek" class="section">
+    <h2>Proyek</h2>
+    <div class="grid">
+      <article class="card">
+        <h3>Joara Delivery</h3>
+        <p>Aplikasi pesan-antar untuk restoran mi, dengan fitur admin dan pelanggan.</p>
+        <ul class="chips small"><li>Aplikasi</li><li>Admin</li><li>Pelanggan</li></ul>
+      </article>
+      <article class="card">
+        <h3>Integrasi Gauss-Legendre</h3>
+        <p>Artikel ilmiah dan aplikasi Android untuk integrasi numerik metode Gauss-Legendre.</p>
+        <ul class="chips small"><li>Android</li><li>Numerik</li></ul>
+      </article>
+      <article class="card">
+        <h3>Manajemen Tugas &amp; Seminar</h3>
+        <p>Aplikasi catatan tugas dan seminar pribadi, proyek kelompok dengan dokumen SRS.</p>
+        <ul class="chips small"><li>SRS</li><li>Kelompok</li></ul>
+      </article>
+    </div>
+  </section>
+
+  <section id="kontak" class="section">
+    <h2>Kontak</h2>
+    <p>Tertarik berkolaborasi? Kirim pesan kapan saja.</p>
+    <div class="actions">
+      <a class="btn" href="mailto:email@contoh.com">email@contoh.com</a>
+      <a class="btn ghost" href="https://github.com/username">GitHub</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">&copy; 2026 Kepin. Dibuat dengan HTML &amp; CSS.</footer>
+</body>
+</html>
