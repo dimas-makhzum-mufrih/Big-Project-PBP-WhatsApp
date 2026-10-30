@@ -32,3 +32,8 @@ Aplikasi chat berbasis web, nanti di-convert ke mobile dan desktop.
 - Kerja di branch sendiri (`nama-fitur`), jangan di `main`
 - Semua perubahan lewat Pull Request, merge hanya oleh leader
 - Ada ide atau mau ubah struktur → tanya leader dulu
+
+## Demo prototipe
+
+[[Demo Ngobrol] https://youtu.be/2HXMDIzdVOc?si=JHfcA0j_2R3co4Zo](https://youtu.be/2HXMDIzdVOc?si=JHfcA0j_2R3co4Zo)
+Klik link untuk menonton.
