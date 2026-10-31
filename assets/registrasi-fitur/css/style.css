@@ -1,4 +1,3 @@
-/* ===== warna ===== */
 :root {
   --bg: #f4f5f7;
   --kotak: #ffffff;
@@ -21,7 +20,9 @@
     --hijau-tua: #0e4a5c;
   }
 
-  .tombol:not(.kosong) { color: #042f3a; }
+  .tombol:not(.kosong) {
+    color: #042f3a;
+  }
 }
 
 * {
@@ -37,17 +38,12 @@ body {
   font-size: 15px;
 }
 
-/* ===== susunan utama (versi hp: atas-bawah) ===== */
 .layar {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Latar hero: urutan lapisan dari atas ke bawah
-   1. gradasi gelap biar teks terbaca
-   2. img/foto.jpg  (taruh fotomu di sini, kalau belum ada otomatis dilewati)
-   3. img/latar.svg (ilustrasi bawaan) */
 :root {
   --latar-gelap: linear-gradient(to top, rgba(4, 38, 50, 0.92) 0%, rgba(4, 38, 50, 0.45) 55%, rgba(4, 38, 50, 0.6) 100%);
   --latar-foto: var(--latar-gelap), url(../img/foto.jpg), url(../img/latar.svg);
@@ -66,9 +62,18 @@ body {
   justify-content: flex-end;
 }
 
-.hero .logo svg { width: 44px; height: 44px; }
-.hero .tagline { margin: 0; }
-.hero .fitur { display: none; }
+.hero .logo svg {
+  width: 44px;
+  height: 44px;
+}
+
+.hero .tagline {
+  margin: 0;
+}
+
+.hero .fitur {
+  display: none;
+}
 
 .logo svg {
   width: 64px;
@@ -112,7 +117,6 @@ body {
   font-size: 14px;
 }
 
-/* ===== gelembung chat hiasan di atas foto ===== */
 .obrolan {
   display: flex;
   flex-direction: column;
@@ -125,15 +129,29 @@ body {
   color: #1b1f24;
 }
 
-.obrolan > * {
+.obrolan>* {
   animation: naik 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
 }
-.obrolan > :nth-child(1) { animation-delay: 1.9s; }
-.obrolan > :nth-child(2) { animation-delay: 2.5s; }
-.obrolan > :nth-child(3) { animation-delay: 3.1s; }
-.obrolan > :nth-child(4) { animation-delay: 3.6s; }
 
-.ada-foto .obrolan { display: none; }
+.obrolan> :nth-child(1) {
+  animation-delay: 1.9s;
+}
+
+.obrolan> :nth-child(2) {
+  animation-delay: 2.5s;
+}
+
+.obrolan> :nth-child(3) {
+  animation-delay: 3.1s;
+}
+
+.obrolan> :nth-child(4) {
+  animation-delay: 3.6s;
+}
+
+.ada-foto .obrolan {
+  display: none;
+}
 
 .grup-chip {
   display: flex;
@@ -157,12 +175,31 @@ body {
   align-items: center;
   justify-content: center;
 }
-.a1 { background: #f59e0b; }
-.a2 { background: #6a4fd8; }
-.a3 { background: #0891b2; margin-right: 0; }
 
-.grup-teks { display: flex; flex-direction: column; line-height: 1.2; font-size: 13px; }
-.grup-teks small { color: #6b7280; font-size: 11px; }
+.a1 {
+  background: #f59e0b;
+}
+
+.a2 {
+  background: #6a4fd8;
+}
+
+.a3 {
+  background: #0891b2;
+  margin-right: 0;
+}
+
+.grup-teks {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  font-size: 13px;
+}
+
+.grup-teks small {
+  color: #6b7280;
+  font-size: 11px;
+}
 
 .gabung {
   background: #0891b2;
@@ -181,10 +218,32 @@ body {
   line-height: 1.35;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
-.bub .jam { display: block; text-align: right; font-size: 10px; color: #6b7280; margin-top: 2px; }
-.bub .nama { display: block; font-size: 12px; font-weight: bold; color: #6a4fd8; }
-.bub.kirim { align-self: flex-end; background: #cffafe; border-bottom-right-radius: 4px; }
-.bub.terima { background: #fff; border-bottom-left-radius: 4px; }
+
+.bub .jam {
+  display: block;
+  text-align: right;
+  font-size: 10px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.bub .nama {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  color: #6a4fd8;
+}
+
+.bub.kirim {
+  align-self: flex-end;
+  background: #cffafe;
+  border-bottom-right-radius: 4px;
+}
+
+.bub.terima {
+  background: #fff;
+  border-bottom-left-radius: 4px;
+}
 
 .reaksi {
   margin-top: -4px;
@@ -196,11 +255,17 @@ body {
 }
 
 @keyframes naik {
-  from { opacity: 0; transform: translateY(16px) scale(0.92); }
-  to   { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-/* ikon vektor umum (dipakai di fitur dan tombol kembali) */
 .ikon {
   width: 20px;
   height: 20px;
@@ -216,13 +281,11 @@ body {
   flex: 1;
   background: var(--kotak);
   padding: 28px 22px 40px;
-  /* di hp bagian bawah dibuat melengkung naik ke atas hero */
   margin-top: -22px;
   border-radius: 24px 24px 0 0;
   position: relative;
 }
 
-/* ===== halaman yang bisa berganti ===== */
 .halaman {
   display: none;
   width: 100%;
@@ -266,7 +329,6 @@ h2 {
   margin-top: 18px;
 }
 
-/* di hp, kalau lagi isi form hero disembunyikan biar tidak makan tempat */
 .layar.mode-form .hero {
   display: none;
 }
@@ -276,7 +338,6 @@ h2 {
   border-radius: 0;
 }
 
-/* ===== form ===== */
 label {
   display: block;
   margin-top: 12px;
@@ -292,7 +353,7 @@ input {
   border-radius: 8px;
   background: var(--bg);
   color: var(--teks);
-  font-size: 16px; /* 16px biar iPhone tidak zoom sendiri */
+  font-size: 16px;
 }
 
 input:focus {
@@ -300,7 +361,6 @@ input:focus {
   border-color: var(--hijau);
 }
 
-/* kelas ini ditambah lewat js kalau isiannya salah */
 input.salah {
   border-color: var(--merah);
 }
@@ -345,7 +405,6 @@ input.salah {
   margin-bottom: 14px;
 }
 
-/* ===== tombol ===== */
 .tombol {
   display: block;
   width: 100%;
@@ -399,13 +458,11 @@ input.salah {
   text-align: center;
 }
 
-/* ===== layar lebar (tablet / desktop: kiri-kanan) ===== */
 @media (min-width: 800px) {
   .layar {
     flex-direction: row;
   }
 
-  /* hero selalu tampil di kiri, meskipun lagi isi form */
   .hero,
   .layar.mode-form .hero {
     display: flex;
@@ -417,10 +474,23 @@ input.salah {
     text-align: left;
   }
 
-  .hero .logo svg { width: 56px; height: 56px; }
-  .hero .fitur { display: block; }
-  .obrolan { max-width: 380px; }
-  .bub { font-size: 15px; max-width: 290px; }
+  .hero .logo svg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .hero .fitur {
+    display: block;
+  }
+
+  .obrolan {
+    max-width: 380px;
+  }
+
+  .bub {
+    font-size: 15px;
+    max-width: 290px;
+  }
 
   .tagline {
     margin: 0;
@@ -456,7 +526,6 @@ input.salah {
   }
 }
 
-/* hp yang layarnya sangat kecil */
 @media (max-width: 360px) {
   .isi {
     padding: 22px 16px 32px;
@@ -467,7 +536,6 @@ input.salah {
   }
 }
 
-/* ===== splash screen ===== */
 #splash {
   position: fixed;
   inset: 0;
@@ -523,8 +591,13 @@ input.salah {
   animation: loncat 1.2s infinite;
 }
 
-.splash-logo .t2 { animation-delay: 0.15s; }
-.splash-logo .t3 { animation-delay: 0.3s; }
+.splash-logo .t2 {
+  animation-delay: 0.15s;
+}
+
+.splash-logo .t3 {
+  animation-delay: 0.3s;
+}
 
 #splash h1 {
   margin: 0 0 6px;
@@ -538,24 +611,41 @@ input.salah {
 }
 
 @keyframes muncul {
-  from { opacity: 0; transform: translateY(14px) scale(0.95); }
-  to   { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @keyframes loncat {
-  0%, 100% { transform: translateY(0); }
-  40%      { transform: translateY(-2px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-2px);
+  }
 }
 
-/* buat yang matiin animasi di pengaturan perangkatnya */
 @media (prefers-reduced-motion: reduce) {
-  .splash-isi, .splash-logo .titik {
+
+  .splash-isi,
+  .splash-logo .titik {
     animation: none;
   }
-  .obrolan > * { animation: none; }
+
+  .obrolan>* {
+    animation: none;
+  }
 }
 
-/* ===== pilihan kode negara di kolom nomor HP ===== */
 .kolom-hp {
   position: relative;
   display: flex;
@@ -563,7 +653,10 @@ input.salah {
   align-items: stretch;
 }
 
-.kolom-hp > input { flex: 1; min-width: 0; }
+.kolom-hp>input {
+  flex: 1;
+  min-width: 0;
+}
 
 .pilih-negara {
   display: inline-flex;
@@ -580,9 +673,16 @@ input.salah {
 }
 
 .pilih-negara:focus-visible,
-.pilih-negara[aria-expanded="true"] { outline: none; border-color: var(--hijau); }
+.pilih-negara[aria-expanded="true"] {
+  outline: none;
+  border-color: var(--hijau);
+}
 
-.pilih-negara .ikon { width: 16px; height: 16px; color: var(--abu); }
+.pilih-negara .ikon {
+  width: 16px;
+  height: 16px;
+  color: var(--abu);
+}
 
 .bendera {
   width: 24px;
@@ -606,7 +706,9 @@ input.salah {
   overflow: hidden;
 }
 
-.daftar-negara[hidden] { display: none; }
+.daftar-negara[hidden] {
+  display: none;
+}
 
 .daftar-negara input {
   border: none;
@@ -632,9 +734,26 @@ input.salah {
 }
 
 .daftar-negara li:hover,
-.daftar-negara li.dipilih { background: var(--bg); }
+.daftar-negara li.dipilih {
+  background: var(--bg);
+}
 
-.daftar-negara li.dipilih .nama-negara { color: var(--hijau); font-weight: bold; }
-.daftar-negara li.kosong { color: var(--abu); cursor: default; justify-content: center; }
-.nama-negara { flex: 1; }
-.kode-negara { color: var(--abu); font-size: 14px; }
+.daftar-negara li.dipilih .nama-negara {
+  color: var(--hijau);
+  font-weight: bold;
+}
+
+.daftar-negara li.kosong {
+  color: var(--abu);
+  cursor: default;
+  justify-content: center;
+}
+
+.nama-negara {
+  flex: 1;
+}
+
+.kode-negara {
+  color: var(--abu);
+  font-size: 14px;
+}
