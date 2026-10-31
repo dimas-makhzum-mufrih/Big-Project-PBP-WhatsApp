@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Chat • Ngobrol</title>
+        <link rel="stylesheet" href="../assets/css/prototype.css" />
+        <script src="../assets/js/chat.js" defer></script>
+    </head>
+    <body class="chat-page">
+        <div class="app-shell" id="app">
+            <aside class="rail" aria-label="Navigasi utama">
+                <a class="rail-logo" href="chat.html" aria-label="Ngobrol">✳</a>
+                <nav class="rail-nav" aria-label="Bagian aplikasi">
+                    <button
+                        class="rail-button active"
+                        data-tab="chats"
+                        title="Chat"
+                        aria-label="Chat"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M20 11.5a8 8 0 0 1-8 8 8.7 8.7 0 0 1-3.6-.8L4 20l1.3-4.4A8 8 0 1 1 20 11.5Z"
+                            />
+                        </svg>
+                    </button>
+                    <button
+                        class="rail-button"
+                        data-tab="groups"
+                        title="Grup"
+                        aria-label="Grup"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="9" cy="8" r="3" />
+                            <path
+                                d="M3.5 19v-2a5.5 5.5 0 0 1 11 0v2ZM16 5.3a3 3 0 0 1 0 5.4M17 13a5 5 0 0 1 3.5 4.8V19"
+                            />
+                        </svg>
+                    </button>
+                    <button
+                        class="rail-button"
+                        data-tab="contacts"
+                        title="Kontak"
+                        aria-label="Kontak"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <rect x="4" y="3" width="16" height="18" rx="2" />
+                            <circle cx="12" cy="10" r="2.5" />
+                            <path d="M7.5 17a4.5 4.5 0 0 1 9 0" />
+                        </svg>
+                    </button>
+                </nav>
+                <div class="rail-bottom">
+                    <button
+                        id="logout"
+                        class="rail-button"
+                        title="Keluar"
+                        aria-label="Keluar"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M14 16l4-4-4-4M18 12H8"
+                            />
+                        </svg>
+                    </button>
+                    <div class="my-avatar" id="my-avatar" title="Profil saya">
+                        S
+                    </div>
+                </div>
+            </aside>
+            <aside class="sidebar" aria-label="Daftar percakapan">
+                <div class="sidebar-top">
+                    <div class="sidebar-heading">
+                        <div>
+                            <span class="eyebrow">PESANMU, CERITAMU</span>
+                            <h1 id="list-title">Chat</h1>
+                        </div>
+                        <span class="heading-spark" aria-hidden="true">✳</span>
+                    </div>
+                    <label class="search-box"
+                        ><svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="10.7" cy="10.7" r="6.7" />
+                            <path d="m16 16 5 5" /></svg
+                        ><span class="sr-only">Cari percakapan</span
+                        ><input
+                            id="search"
+                            type="search"
+                            placeholder="Cari percakapan..."
+                            autocomplete="off"
+                    /></label>
+                </div>
+                <nav class="section-tabs" aria-label="Filter daftar">
+                    <button class="section-tab active" data-tab="chats">
+                        Semua chat</button
+                    ><button class="section-tab" data-tab="groups">Grup</button
+                    ><button class="section-tab" data-tab="contacts">
+                        Kontak
+                    </button>
+                </nav>
+                <div class="list-meta">
+                    <span id="list-label">PERCAKAPAN TERBARU</span
+                    ><span id="list-count"></span>
+                </div>
+                <div class="conversation-list" id="conversation-list"></div>
+                <div class="sidebar-footer">
+                    <span class="online-indicator"></span> Ruang ngobrolmu,
+                    versi demo
+                </div>
+            </aside>
+            <main
+                class="conversation"
+                id="conversation"
+                aria-label="Percakapan"
+            >
+                <header class="conversation-header">
+                    <button
+                        id="back-button"
+                        class="back-button"
+                        aria-label="Kembali ke daftar"
+                    >
+                        ←
+                    </button>
+                    <div id="header-avatar" class="avatar avatar-large"></div>
+                    <div class="conversation-title">
+                        <strong id="chat-name"></strong
+                        ><span id="chat-status"></span>
+                    </div>
+                    <span class="header-badge">✳ &nbsp; Ngobrol</span>
+                </header>
+                <div
+                    class="message-area"
+                    id="message-area"
+                    role="log"
+                    aria-live="polite"
+                    aria-label="Pesan"
+                >
+                    <div class="date-divider"><span>HARI INI<</span>span></div>
+                    <div class="messages" id="messages"></div>
+                </div>
+                <form id="message-form" class="composer">
+                    <input
+                        id="message-input"
+                        type="text"
+                        maxlength="2000"
+                        placeholder="Tulis pesan..."
+                        aria-label="Tulis pesan"
+                        autocomplete="off"
+                        required
+                    /><button
+                        type="submit"
+                        aria-label="Kirim pesan"
+                        class="send-button"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="m3 11.5 18-8-5.5 17-3.7-6-8.8-3ZM11.8 14.5 21 3.5"
+                            />
+                        </svg>
+                    </button>
+                </form>
+                <p class="demo-footer">
+                    Pesan tersimpan di server · Terhubung secara real-time
+                </p>
+            </main>
+        </div>
+    </body>
+</html>
