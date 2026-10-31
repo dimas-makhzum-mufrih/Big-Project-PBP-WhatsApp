@@ -1,6 +1,3 @@
-// splash.js
-// Splash screen: tampil sebentar waktu aplikasi dibuka, lalu hilang sendiri.
-
 var lamaSplash = 2200; // dalam milidetik
 
 function tutupSplash() {
@@ -19,5 +16,5 @@ window.addEventListener('load', function () {
   setTimeout(tutupSplash, lamaSplash);
 });
 
-// kalau di-klik / ditekan, langsung lewati
+//jika klik skip
 document.getElementById('splash').addEventListener('click', tutupSplash);

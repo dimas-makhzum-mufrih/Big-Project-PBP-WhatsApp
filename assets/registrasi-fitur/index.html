@@ -8,7 +8,6 @@
 </head>
 <body>
 
-<!-- SPLASH SCREEN: tampil pertama kali, hilang sendiri lewat js/splash.js -->
 <div id="splash">
   <div class="splash-isi">
     <div class="splash-logo">
@@ -26,9 +25,7 @@
 
 <div class="layar" id="layar">
 
-  <!-- bagian kiri (desktop) / atas (hp): nama dan penjelasan aplikasi -->
   <aside class="hero">
-    <!-- hiasan chat (otomatis hilang kalau img/foto.jpg ada) -->
     <div class="obrolan" aria-hidden="true">
       <div class="grup-chip">
         <span class="avatar a1">B</span><span class="avatar a2">R</span><span class="avatar a3">D</span>
@@ -66,10 +63,8 @@
     </ul>
   </aside>
 
-  <!-- bagian kanan (desktop) / bawah (hp): isi yang bisa berganti -->
   <main class="isi">
 
-    <!-- 1. halaman awal -->
     <section class="halaman aktif" id="halaman-awal">
       <h2>Selamat datang</h2>
       <p class="sub">Daftar dulu biar bisa mulai ngumpul bareng teman-temanmu.</p>
@@ -78,7 +73,6 @@
       <p class="kecil">Dengan lanjut, kamu menyetujui syarat dan kebijakan privasi.</p>
     </section>
 
-    <!-- 2. form daftar -->
     <section class="halaman" id="form-daftar">
       <button class="kembali" id="btn-kembali">
         <svg class="ikon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
@@ -128,7 +122,6 @@
       <p class="bawah">Sudah punya akun? <a href="login.html">Masuk</a></p>
     </section>
 
-    <!-- 3. berhasil daftar -->
     <section class="halaman tengah" id="halaman-sukses">
       <svg class="centang" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="10"/>
@@ -144,7 +137,6 @@
 
 <div id="toast"></div>
 
-<!-- urutan penting: storage dulu, lalu halaman, lalu register -->
 <script src="js/foto.js"></script>
 <script src="js/splash.js"></script>
 <script src="js/storage.js"></script>

@@ -1,10 +1,8 @@
-// register.js
-// Fitur 1: registrasi akun (nama, no hp, email, sandi)
+// fitur registrasi akun (nama, no hp, email, sandi)
 
 var daftarKolom = ['nama', 'hp', 'email', 'sandi', 'ulang'];
 
-// ---------- validasi ----------
-// tiap fungsi return pesan error, kalau aman return string kosong
+// validasi
 var cek = {
   nama: function (v) {
     v = v.trim();
@@ -53,7 +51,7 @@ function tampilError(id, pesan) {
   document.getElementById(id).classList.toggle('salah', pesan !== '');
 }
 
-// cek 1 kolom, sekalian tampilkan errornya
+// cek kolom
 function cekKolom(id) {
   var pesan = cek[id](document.getElementById(id).value);
   tampilError(id, pesan);
@@ -71,7 +69,7 @@ function toast(teks) {
   }, 2000);
 }
 
-// ---------- proses daftar ----------
+//  daftar 
 async function daftar() {
   // cek semua kolom, fokus ke kolom salah yang paling atas
   var kolomSalah = null;
@@ -107,7 +105,7 @@ async function daftar() {
     }
   }
 
-  // kunci tombol biar tidak kepencet dua kali
+  //kunci tombol
   var tombol = document.getElementById('btn-daftar');
   tombol.disabled = true;
   tombol.textContent = 'Memproses...';
@@ -139,16 +137,15 @@ function tampilSukses(user) {
     'Halo, ' + user.nama + '! Akun kamu sudah terdaftar dengan nomor ' + user.hp + '.';
 }
 
-// ---------- pasang event ----------
+//event
 daftarKolom.forEach(function (id) {
   var input = document.getElementById(id);
 
-  // cek pas keluar dari kolom
+  
   input.addEventListener('blur', function () {
     if (input.value !== '') cekKolom(id);
   });
 
-  // kalau lagi merah, cek ulang biar merahnya hilang pas sudah benar
   input.addEventListener('input', function () {
     if (input.classList.contains('salah')) cekKolom(id);
   });
@@ -158,7 +155,6 @@ daftarKolom.forEach(function (id) {
   });
 });
 
-// tombol lihat / sembunyikan sandi
 document.querySelectorAll('.lihat').forEach(function (btn) {
   btn.addEventListener('click', function () {
     var input = document.getElementById(btn.dataset.target);
@@ -174,7 +170,6 @@ document.querySelectorAll('.lihat').forEach(function (btn) {
 
 document.getElementById('btn-daftar').addEventListener('click', daftar);
 
-// TODO: arahkan ke halaman chat kalau halaman utamanya sudah jadi
 document.getElementById('btn-mulai').addEventListener('click', function () {
   toast('Halaman chat belum dibuat');
 });

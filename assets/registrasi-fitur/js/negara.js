@@ -1,8 +1,3 @@
-// negara.js
-// Pilihan kode negara (bendera + kode telepon) di kolom Nomor HP.
-// Bendera ada di img/flags/xx.svg. Mau tambah negara? Tambah 1 baris di daftar NEGARA
-// dan taruh file benderanya di folder itu. Format: [kode-bendera, nama, kode-telepon]
-
 var NEGARA = [
   ["id", "Indonesia", "62"],
   ["za", "Afrika Selatan", "27"],

@@ -1,13 +1,6 @@
-// storage.js
-// Fungsi buat simpan & ambil data akun dari localStorage.
-// File ini dipakai bareng sama halaman login juga (tinggal panggil getUsers dan hashSandi).
-//
-// Bentuk data 1 akun:
-// { id, nama, hp, email, sandi (sudah di-hash), dibuat }
-
 var KEY_USERS = 'ngumpul_users';
 
-// ambil semua akun, kalau belum ada balikin array kosong
+// ambil semua akun
 function getUsers() {
   try {
     var data = localStorage.getItem(KEY_USERS);
@@ -17,7 +10,7 @@ function getUsers() {
   }
 }
 
-// simpan semua akun, return true kalau berhasil
+// simpan semua akun
 function simpanUsers(list) {
   try {
     localStorage.setItem(KEY_USERS, JSON.stringify(list));
@@ -27,7 +20,7 @@ function simpanUsers(list) {
   }
 }
 
-// sandi jangan disimpan polos, jadi di-hash dulu
+// sandi jangan disimpan polos
 async function hashSandi(teks) {
   // crypto.subtle cuma jalan di https atau localhost
   if (!window.crypto || !crypto.subtle) {
@@ -41,7 +34,7 @@ async function hashSandi(teks) {
   return hasil;
 }
 
-// ubah +6281.. / 6281.. / 0812-xxxx jadi 0812xxxx
+// ubah +6281.. / 6281.. / 0812-xxxx ke 0812xxxx
 function rapikanHp(hp) {
   var x = hp.replace(/[\s\-().]/g, '');
   if (x.startsWith('+62')) {
@@ -57,9 +50,7 @@ function buatId() {
 }
 
 
-// ---------- nomor HP internasional ----------
-// ambil angka nomornya saja: buang kode negara, 0 di depan, spasi, strip, dll
-// contoh (kode 62): "0812-3456-7890" / "+62 812 3456 7890" -> "81234567890"
+// bersihkan nomor hp
 function digitNomor(teks, kode) {
   var x = teks.replace(/[^\d+]/g, '');
   if (x.startsWith('+' + kode)) {
@@ -72,7 +63,7 @@ function digitNomor(teks, kode) {
   return x.replace(/\D/g, '').replace(/^0+/, '');
 }
 
-// bentuk yang disimpan di akun: +6281234567890
+// disimpan di akun: +6281234567890
 function hpInternasional(kode, teks) {
   return '+' + kode + digitNomor(teks, kode);
 }

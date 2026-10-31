@@ -1,5 +1,4 @@
-// awal.js
-// Ngatur halaman mana yang tampil: halaman awal, form daftar, atau halaman sukses
+// halaman awal, form daftar, atau halaman sukses
 
 var semuaHalaman = ['halaman-awal', 'form-daftar', 'halaman-sukses'];
 
@@ -8,7 +7,7 @@ function tampilHalaman(id) {
     document.getElementById(h).classList.toggle('aktif', h === id);
   });
 
-  // class ini dipakai css buat nyembunyiin hero di hp pas lagi isi form
+  // mode form
   document.getElementById('layar').classList.toggle('mode-form', id === 'form-daftar');
 
   window.scrollTo(0, 0);
