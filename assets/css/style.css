@@ -1,14 +1,4 @@
-/* =====================================================================
-   FILE  : assets/css/style.css
-   TUGAS : Tampilan dasar: warna, tata letak 2 kolom, dan komponen umum
-           (tombol, daftar, bubble, pop-up). Nama elemennya sama dengan
-           prototipe (#list, #main, .row, .m, dst).
-   CATATAN: Ini cuma titik awal. Ubah atau tambah sesukamu. Untuk fitur
-           sendiri, lebih aman bikin file CSS baru (assets/css/nama-fitur.css)
-           daripada mengubah file ini, supaya tidak bentrok di Git.
-   ===================================================================== */
-
-/* ---------- 1. WARNA ---------- */
+/*  1. WARNA  */
 :root {
     --bg: #f4f5f7;
     /* latar halaman */
@@ -90,7 +80,7 @@ button {
     cursor: pointer;
 }
 
-/* ---------- 3. TATA LETAK 2 KOLOM ----------
+/*  3. TATA LETAK 2 KOLOM 
    [ #list (340px) ] [ #main (sisanya) ]
    #list = daftar di kiri (judul, tab, isi)   #main = percakapan di kanan */
 #app {
@@ -99,7 +89,7 @@ button {
     height: 100%;
 }
 
-/* ---------- 4. KOLOM KIRI (#list) ---------- */
+/*  4. KOLOM KIRI (#list) */
 #list {
     background: var(--panel);
     border-right: 1px solid var(--line);
@@ -409,7 +399,7 @@ header .ti small {
     font-weight: 700;
 }
 
-/* ---------- 6. LEMBAR GESER KANAN (#sheet): pengaturan, info ---------- */
+/*  6. LEMBAR GESER KANAN (#sheet): pengaturan, info  */
 #sheet {
     position: fixed;
     top: 0;
@@ -499,7 +489,7 @@ header .ti small {
     font-weight: 600;
 }
 
-/* ---------- 7. DIALOG KECIL (#dlg) ---------- */
+/*  7. DIALOG KECIL (#dlg)  */
 #dlg {
     position: fixed;
     inset: 0;
@@ -570,7 +560,7 @@ header .ti small {
     background: var(--bg);
 }
 
-/* ---------- 8. LAYAR PENUH: masuk (#login) dan panggilan (#call) ---------- */
+/*  8. LAYAR PENUH: masuk (#login) dan panggilan (#call)  */
 #login {
     position: fixed;
     inset: 0;
@@ -642,7 +632,7 @@ header .ti small {
     padding: 16px;
 }
 
-/* ---------- 9. NOTIFIKASI KECIL (toast) ---------- */
+/*  9. NOTIFIKASI KECIL (toast)  */
 #toast {
     position: fixed;
     left: 50%;
@@ -657,7 +647,7 @@ header .ti small {
     display: none;
 }
 
-/* ---------- 10. TAMPILAN HP (layar sempit) ----------
+/*  10. TAMPILAN HP (layar sempit) 
    Daftar dan percakapan bergantian: buka chat = daftar disembunyikan. */
 @media (max-width: 800px) {
     #app {
