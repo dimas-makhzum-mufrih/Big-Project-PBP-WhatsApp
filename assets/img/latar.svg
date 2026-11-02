@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#062a36"/><stop offset=".55" stop-color="#0b5f78"/><stop offset="1" stop-color="#12384a"/>
+    </linearGradient>
+    <filter id="b1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="b2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#e0fbff" stop-opacity=".55"/><stop offset="1" stop-color="#e0fbff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="badan"><path d="M110 900C120 720 230 655 340 655s220 65 230 245z"/></clipPath>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <!-- bokeh lampu kafe -->
+  <g filter="url(#b1)">
+    <circle cx="760" cy="170" r="70" fill="#ffd58a" opacity=".55"/>
+    <circle cx="930" cy="120" r="48" fill="#fff3cf" opacity=".5"/>
+    <circle cx="1080" cy="260" r="80" fill="#ffb066" opacity=".4"/>
+    <circle cx="640" cy="330" r="56" fill="#67e8f9" opacity=".35"/>
+    <circle cx="880" cy="420" r="90" fill="#ffe3a6" opacity=".35"/>
+    <circle cx="1030" cy="560" r="60" fill="#ff9d7a" opacity=".35"/>
+    <circle cx="760" cy="600" r="70" fill="#67e8f9" opacity=".3"/>
+    <circle cx="560" cy="120" r="40" fill="#fff" opacity=".35"/>
+    <circle cx="1120" cy="80" r="50" fill="#ffd58a" opacity=".4"/>
+  </g>
+  <g filter="url(#b2)" opacity=".55">
+    <circle cx="700" cy="480" r="16" fill="#ffe9b8"/><circle cx="980" cy="330" r="12" fill="#fff"/>
+    <circle cx="840" cy="250" r="10" fill="#ffd58a"/><circle cx="1150" cy="430" r="14" fill="#ffd58a"/>
+    <circle cx="620" cy="560" r="9" fill="#fff"/>
+  </g>
+  <!-- tiang & jendela buram -->
+  <rect x="690" y="0" width="26" height="900" fill="#000" opacity=".18"/>
+  <rect x="0" y="780" width="1200" height="120" fill="#000" opacity=".25"/>
+  <!-- sosok sedang main hp -->
+  <g>
+    <ellipse cx="330" cy="560" rx="260" ry="320" fill="url(#glow)"/>
+    <path d="M232 520C222 395 330 350 405 395c55 35 45 135 35 215l-10 110H250c8-70-8-130-18-200z" fill="#3b2418"/>
+    <rect x="305" y="600" width="64" height="80" fill="#d9a07c"/>
+    <path d="M110 900C120 720 230 655 340 655s220 65 230 245z" fill="#222834"/>
+    <g clip-path="url(#badan)" stroke="#f1f1f1" stroke-width="12" opacity=".75">
+      <path d="M90 720h500M90 770h500M90 820h500M90 870h500"/>
+    </g>
+    <ellipse cx="340" cy="530" rx="82" ry="98" fill="#e6b08c"/>
+    <path d="M252 505C255 420 330 408 382 430c40 18 50 60 46 95-24-52-95-70-176-20z" fill="#5a3322"/>
+    <path d="M296 548q14 8 28 0M362 548q14 8 28 0" stroke="#3a2a22" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M318 596q22 14 44 0" stroke="#b5655a" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <g transform="rotate(-14 500 790)">
+      <rect x="450" y="700" width="104" height="180" rx="16" fill="#ece6d8"/>
+      <rect x="458" y="710" width="88" height="160" rx="10" fill="#cffafe"/>
+      <rect x="468" y="730" width="50" height="16" rx="8" fill="#fff"/>
+      <rect x="486" y="756" width="50" height="16" rx="8" fill="#67e8f9"/>
+    </g>
+    <ellipse cx="470" cy="835" rx="52" ry="24" fill="#e6b08c" transform="rotate(-18 470 835)"/>
+  </g>
+</svg>
