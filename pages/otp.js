@@ -10,8 +10,8 @@
   var MASA_BERLAKU   = 5 * 60 * 1000;  // kode kedaluwarsa setelah 5 menit
   var JEDA_KIRIM     = 60;             // detik sebelum boleh kirim ulang
   var MAKS_SALAH     = 5;              // batas salah input per kode
-  var HALAMAN_TUJUAN = 'login.html';   // tujuan setelah berhasil
-  var HALAMAN_DAFTAR = '../index.html';   // tujuan jika data pendaftaran tidak ada
+  var HALAMAN_TUJUAN = '../assets/index.html';   // tujuan setelah berhasil
+  var HALAMAN_DAFTAR = '../assets/index.html';   // tujuan jika data pendaftaran tidak ada
 
   var KUNCI_PENDING = 'ngumpul_pending';
   var KUNCI_OTP     = 'ngumpul_otp';
