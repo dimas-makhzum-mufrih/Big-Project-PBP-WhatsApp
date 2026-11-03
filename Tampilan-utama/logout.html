@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda - Ngumpul</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      color: #008ba3;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #666;
+    }
+    .btn-logout {
+      margin-top: 20px;
+      background-color: #ff5252;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Selamat Datang di Ngumpul! 🎉</h1>
+    <p>Anda telah berhasil masuk ke halaman utama.</p>
+    <button class="btn-logout" onclick="logout()">Keluar</button>
+  </div>
+
+  <script>
+    function logout() {
+      // Kembali ke halaman login
+      window.location.href = 'login.html';
+    }
+  </script>
+
+</body>
+</html>
