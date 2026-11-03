@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Simulasi delay sedikit untuk animasi toast sebelum pindah halaman
         setTimeout(() => {
-          window.location.href = "beranda.html";
+          window.location.href = "dashboard.html";
         }, 1200);
       } else {
         tampilkanToast("Silakan periksa kembali data Anda.");
