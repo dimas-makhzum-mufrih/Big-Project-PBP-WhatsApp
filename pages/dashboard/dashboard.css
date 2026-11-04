@@ -1,0 +1,521 @@
+/* Dashboard Ngumpul - satu tema TERANG tetap (tidak ikut mode gelap/terang perangkat).
+   Warna disamakan dengan halaman registrasi/login (cyan). */
+:root {
+    color-scheme: light;
+    --warna-utama: #0891b2;
+    --warna-utama-hover: #0e7490;
+    --warna-tipis: #e0f4f8;
+    --bg-putih: #fff;
+    --bg-abu-terang: #f4f5f7;
+    --bg-abu-input: #eef0f3;
+    --teks-gelap: #1b1f24;
+    --teks-redup: #6b7280;
+    --bub-kirim: #cffafe;
+    --bub-terima: #fff;
+    --border-warna: #e2e5ea;
+    --merah: #e5484d;
+}
+
+* {
+    box-sizing: border-box
+}
+
+html {
+    background: var(--bg-abu-terang)
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: var(--bg-abu-terang);
+    color: var(--teks-gelap);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+}
+
+button,
+input {
+    font-family: inherit
+}
+
+.ikon {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round
+}
+
+/* ---------- kerangka ---------- */
+.dashboard-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-putih)
+}
+
+.sisi-kiri {
+    width: 32%;
+    min-width: 320px;
+    max-width: 450px;
+    background: var(--bg-putih);
+    border-right: 1px solid var(--border-warna);
+    display: flex;
+    flex-direction: column;
+    position: relative
+}
+
+.sisi-kanan {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg-abu-terang);
+    display: flex;
+    position: relative
+}
+
+/* ---------- header + menu titik tiga ---------- */
+.header-kiri {
+    height: 65px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-warna)
+}
+
+.header-kiri h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0
+}
+
+.menu-wa-style {
+    position: relative
+}
+
+.btn-menu-titik3 {
+    background: none;
+    border: 0;
+    color: var(--teks-redup);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.btn-menu-titik3:hover {
+    background: var(--bg-abu-input)
+}
+
+.dropdown-box {
+    position: absolute;
+    top: 46px;
+    right: 0;
+    width: 232px;
+    padding: 6px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    border: 1px solid var(--border-warna);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px #00000020;
+    z-index: 200
+}
+
+.dropdown-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: .95rem;
+    color: var(--teks-gelap);
+    cursor: default
+}
+
+.dropdown-option:hover {
+    background: var(--bg-abu-terang)
+}
+
+.dropdown-option.utama {
+    font-weight: 600;
+    cursor: pointer
+}
+
+.dropdown-option .ikon {
+    width: 18px;
+    height: 18px;
+    color: var(--warna-utama)
+}
+
+.dropdown-sekat {
+    height: 1px;
+    margin: 6px 8px;
+    background: var(--border-warna)
+}
+
+/* ---------- tab Chat / Grup / Telepon / Kontak ---------- */
+.tab-nav {
+    display: flex;
+    padding: 0 6px;
+    border-bottom: 1px solid var(--border-warna)
+}
+
+.tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 0 6px;
+    font-size: .75rem;
+    color: var(--teks-redup);
+    border-bottom: 3px solid transparent;
+    cursor: default
+}
+
+.tab.aktif {
+    color: var(--warna-utama);
+    border-color: var(--warna-utama);
+    font-weight: 600
+}
+
+/* ---------- cari + daftar chat ---------- */
+.search-box-wrapper {
+    padding: 12px 16px
+}
+
+.search-bar-input {
+    width: 100%;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: .9rem
+}
+
+.search-bar-input:focus {
+    outline: 2px solid var(--warna-utama)
+}
+
+.chat-scroll-area {
+    flex: 1;
+    overflow-y: auto
+}
+
+.chat-card {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-warna);
+    transition: background .2s
+}
+
+.chat-card:hover,
+.chat-card.aktif {
+    background: var(--bg-abu-terang)
+}
+
+.circle-avatar {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 16px;
+    color: #fff;
+    font-size: 1.1rem
+}
+
+.card-meta {
+    flex: 1;
+    overflow: hidden
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 1rem
+}
+
+.card-preview {
+    color: var(--teks-redup);
+    font-size: .88rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+/* ---------- sisi kanan: sambutan + ruang chat ---------- */
+.welcome-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--teks-redup);
+    text-align: center;
+    background: var(--bg-abu-terang);
+    padding: 20px
+}
+
+.welcome-screen h2 {
+    color: var(--warna-utama);
+    margin-bottom: 10px;
+    font-size: 1.8rem
+}
+
+.active-chat-room {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: #e9f1f4
+}
+
+.active-chat-header {
+    height: 65px;
+    flex-shrink: 0;
+    background: var(--bg-putih);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border-warna);
+    gap: 14px
+}
+
+.active-header-info h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600
+}
+
+.active-header-info p {
+    margin: 2px 0 0;
+    font-size: .8rem;
+    color: var(--warna-utama)
+}
+
+.messages-container {
+    flex: 1;
+    padding: 24px 6%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px
+}
+
+.chat-bubble {
+    max-width: 65%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: .95rem;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    overflow-wrap: anywhere;
+    box-shadow: 0 1px 1px #0000000f
+}
+
+.chat-bubble.kirim {
+    background: var(--bub-kirim);
+    align-self: flex-end;
+    border-top-right-radius: 0
+}
+
+.chat-bubble.terima {
+    background: var(--bub-terima);
+    align-self: flex-start;
+    border-top-left-radius: 0
+}
+
+.timestamp {
+    font-size: .7rem;
+    color: var(--teks-redup);
+    align-self: flex-end;
+    margin-top: 5px
+}
+
+.active-chat-footer {
+    height: 65px;
+    flex-shrink: 0;
+    background: var(--bg-putih);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 16px;
+    border-top: 1px solid var(--border-warna)
+}
+
+.chat-input-field {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: .95rem
+}
+
+.chat-input-field:focus {
+    outline: 2px solid var(--warna-utama)
+}
+
+.send-action-btn {
+    background: var(--warna-utama);
+    border: 0;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600
+}
+
+.send-action-btn:hover {
+    background: var(--warna-utama-hover)
+}
+
+/* ---------- panel pengaturan ---------- */
+.settings-slide-panel {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-abu-terang);
+    color: var(--teks-gelap);
+    z-index: 300;
+    display: none;
+    flex-direction: column
+}
+
+.settings-panel-header {
+    height: 65px;
+    flex-shrink: 0;
+    background: var(--warna-utama);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 16px;
+    color: #fff
+}
+
+.settings-back-btn {
+    background: none;
+    border: 0;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.3rem;
+    font-weight: bold
+}
+
+.settings-list-flow {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 28px
+}
+
+.settings-card {
+    max-width: 640px;
+    margin: 0 auto 14px;
+    padding: 6px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 14px
+}
+
+.settings-row-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: default
+}
+
+.settings-item-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border-radius: 12px;
+    background: var(--warna-tipis);
+    color: var(--warna-utama)
+}
+
+.settings-item-text {
+    flex: 1;
+    min-width: 0
+}
+
+.settings-item-text b {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600
+}
+
+.settings-item-text small {
+    color: var(--teks-redup);
+    font-size: .85rem
+}
+
+.settings-arrow {
+    width: 18px;
+    height: 18px;
+    color: var(--teks-redup)
+}
+
+.settings-logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 12px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--merah);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer
+}
+
+.settings-logout-btn:hover {
+    background: #fff1f1
+}
+
+@media (max-width: 700px) {
+    .sisi-kiri {
+        width: 100%;
+        min-width: 0;
+        max-width: none
+    }
+
+    .sisi-kanan {
+        display: none
+    }
+
+    .sisi-kiri.room-open {
+        display: none
+    }
+
+    .sisi-kanan.room-open {
+        display: flex
+    }
+}

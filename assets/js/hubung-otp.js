@@ -18,7 +18,7 @@
       kode: kodeEl ? kodeEl.textContent.trim() : '+62',
       email: ambil('email')
     }));
-    location.href = '../pages/Verifikasi/otp.html';
+    location.href = 'pages/auth/otp.html';
   }
 
   new MutationObserver(function () {
