@@ -52,6 +52,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+    // notifikasi setelah disimpan
+    let timerToast;
+    function tampilkanToast() {
+        const toast = document.getElementById('toast-simpan');
+        if (!toast) return;
+
+        // reset supaya animasi bisa diulang kalau diklik berkali-kali
+        clearTimeout(timerToast);
+        toast.classList.remove('tampil');
+        void toast.offsetWidth;
+
+        toast.classList.add('tampil');
+        timerToast = setTimeout(() => toast.classList.remove('tampil'), 3000);
+    }
+
 // SIMPAN SEMUA DATA PROFIL KE LOCALSTORAGE
 const btnSave = document.getElementById('btn-save-profile');
 if (btnSave) {
@@ -66,7 +81,7 @@ if (btnSave) {
         localStorage.setItem('user_bio_profil', bioVal);
         localStorage.setItem('user_phone_profil', phoneVal);
 
-        alert('Perubahan profil berjaya disimpan!');
+       tampilkanToast();
     });
 }
 
