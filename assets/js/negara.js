@@ -89,7 +89,7 @@ var negaraTerpilih = NEGARA[0]; // default: Indonesia (+62)
       img.className = 'bendera';
       img.loading = 'lazy';
       img.alt = '';
-      img.src = 'img/flags/' + n[0] + '.svg';
+      img.src = 'assets/img/flags/' + n[0] + '.svg';
       var nama = document.createElement('span');
       nama.className = 'nama-negara';
       nama.textContent = n[1];
@@ -129,7 +129,7 @@ var negaraTerpilih = NEGARA[0]; // default: Indonesia (+62)
     for (var i = 0; i < NEGARA.length; i++) {
       if (NEGARA[i][0] === kodeBendera) negaraTerpilih = NEGARA[i];
     }
-    document.getElementById('bendera-terpilih').src = 'img/flags/' + negaraTerpilih[0] + '.svg';
+    document.getElementById('bendera-terpilih').src = 'assets/img/flags/' + negaraTerpilih[0] + '.svg';
     document.getElementById('kode-terpilih').textContent = '+' + negaraTerpilih[2];
     inputHp.placeholder = negaraTerpilih[2] === '62' ? '81234567890' : 'Nomor telepon';
     tutup();

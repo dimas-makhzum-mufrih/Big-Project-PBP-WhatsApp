@@ -117,155 +117,6 @@ body {
   font-size: 14px;
 }
 
-.obrolan {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  width: 100%;
-  max-width: 330px;
-  margin-bottom: auto;
-  padding-bottom: 28px;
-  color: #1b1f24;
-}
-
-.obrolan>* {
-  animation: naik 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-}
-
-.obrolan> :nth-child(1) {
-  animation-delay: 1.9s;
-}
-
-.obrolan> :nth-child(2) {
-  animation-delay: 2.5s;
-}
-
-.obrolan> :nth-child(3) {
-  animation-delay: 3.1s;
-}
-
-.obrolan> :nth-child(4) {
-  animation-delay: 3.6s;
-}
-
-.ada-foto .obrolan {
-  display: none;
-}
-
-.grup-chip {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 8px 7px 10px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.93);
-}
-
-.avatar {
-  width: 24px;
-  height: 24px;
-  margin-right: -12px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  font-size: 11px;
-  font-weight: bold;
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.a1 {
-  background: #f59e0b;
-}
-
-.a2 {
-  background: #6a4fd8;
-}
-
-.a3 {
-  background: #0891b2;
-  margin-right: 0;
-}
-
-.grup-teks {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-  font-size: 13px;
-}
-
-.grup-teks small {
-  color: #6b7280;
-  font-size: 11px;
-}
-
-.gabung {
-  background: #0891b2;
-  color: #fff;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 6px 12px;
-  border-radius: 16px;
-}
-
-.bub {
-  max-width: 250px;
-  padding: 8px 12px 6px;
-  border-radius: 14px;
-  font-size: 14px;
-  line-height: 1.35;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.bub .jam {
-  display: block;
-  text-align: right;
-  font-size: 10px;
-  color: #6b7280;
-  margin-top: 2px;
-}
-
-.bub .nama {
-  display: block;
-  font-size: 12px;
-  font-weight: bold;
-  color: #6a4fd8;
-}
-
-.bub.kirim {
-  align-self: flex-end;
-  background: #cffafe;
-  border-bottom-right-radius: 4px;
-}
-
-.bub.terima {
-  background: #fff;
-  border-bottom-left-radius: 4px;
-}
-
-.reaksi {
-  margin-top: -4px;
-  margin-left: 8px;
-  padding: 3px 8px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.93);
-  font-size: 13px;
-}
-
-@keyframes naik {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.92);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 .ikon {
   width: 20px;
   height: 20px;
@@ -483,15 +334,6 @@ input.salah {
     display: block;
   }
 
-  .obrolan {
-    max-width: 380px;
-  }
-
-  .bub {
-    font-size: 15px;
-    max-width: 290px;
-  }
-
   .tagline {
     margin: 0;
     font-size: 18px;
@@ -641,9 +483,6 @@ input.salah {
     animation: none;
   }
 
-  .obrolan>* {
-    animation: none;
-  }
 }
 
 .kolom-hp {
