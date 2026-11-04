@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Ngumpul - Ruang Chat</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="i-user" viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+        </symbol>
+        <symbol id="i-tema" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4" />
+            <path
+                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </symbol>
+        <symbol id="i-chat" viewBox="0 0 24 24">
+            <path
+                d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" />
+        </symbol>
+        <symbol id="i-bell" viewBox="0 0 24 24">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </symbol>
+        <symbol id="i-phone" viewBox="0 0 24 24">
+            <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+        </symbol>
+        <symbol id="i-disk" viewBox="0 0 24 24">
+            <path d="M22 12H2" />
+            <path
+                d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+            <path d="M6 16h.01M10 16h.01" />
+        </symbol>
+        <symbol id="i-grup" viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+        </symbol>
+        <symbol id="i-help" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" />
+        </symbol>
+        <symbol id="i-next" viewBox="0 0 24 24">
+            <path d="M9 18l6-6-6-6" />
+        </symbol>
+        <symbol id="i-out" viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+        </symbol>
+        <symbol id="i-gear" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3" />
+            <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </symbol>
+        <symbol id="i-kontak" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <circle cx="9" cy="11" r="2.5" />
+            <path d="M5.5 17c.6-1.7 2-2.5 3.5-2.5s2.9.8 3.5 2.5M15 9h3M15 13h3" />
+        </symbol>
+    </svg>
+    <div class="dashboard-container">
+        <aside class="sisi-kiri" id="panel-sisi-kiri">
+            <div class="header-kiri">
+                <h2>Obrolan</h2>
+                <div class="menu-wa-style">
+                    <button class="btn-menu-titik3" id="trigger-menu-utama" aria-label="Buka Menu"><svg width="24"
+                            height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                        </svg></button>
+                    <div class="dropdown-box" id="box-dropdown-utama" style="display:none">
+                        <div class="dropdown-option utama" id="opt-buka-setelan"><svg class="ikon" aria-hidden="true">
+                                <use href="#i-gear" />
+                            </svg>Pengaturan</div>
+                        <div class="dropdown-sekat"></div>
+                        <div class="dropdown-option" data-fitur="grup-baru" title="Segera hadir">Grup baru</div>
+                        <div class="dropdown-option" data-fitur="berbintang" title="Segera hadir">Pesan berbintang</div>
+                        <div class="dropdown-option" data-fitur="tandai-baca" title="Segera hadir">Tandai semua dibaca
+                        </div>
+                        <div class="dropdown-option" data-fitur="arsip" title="Segera hadir">Arsipkan semua chat</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Tab di bawah baru tampilan (belum fungsional). Pasang aksi lewat data-fitur. -->
+            <nav class="tab-nav" aria-label="Menu utama">
+                <div class="tab aktif" data-fitur="tab-chat"><svg class="ikon" aria-hidden="true">
+                        <use href="#i-chat" />
+                    </svg>Chat</div>
+                <div class="tab" data-fitur="tab-grup" title="Segera hadir"><svg class="ikon" aria-hidden="true">
+                        <use href="#i-grup" />
+                    </svg>Grup</div>
+                <div class="tab" data-fitur="tab-telepon" title="Segera hadir"><svg class="ikon" aria-hidden="true">
+                        <use href="#i-phone" />
+                    </svg>Telepon</div>
+                <div class="tab" data-fitur="tab-kontak" title="Segera hadir"><svg class="ikon" aria-hidden="true">
+                        <use href="#i-kontak" />
+                    </svg>Kontak</div>
+            </nav>
+            <div class="search-box-wrapper"><input class="search-bar-input" id="input-cari-chat" type="search"
+                    placeholder="Cari atau mulai chat baru"></div>
+            <div class="chat-scroll-area">
+            </div>
+        </aside>
+        <main class="sisi-kanan" id="panel-sisi-kanan">
+            <div class="welcome-screen" id="panel-chat-kosong">
+                <h2>Selamat Datang di Ngumpul</h2>
+                <p>Pilih salah satu teman di sebelah kiri untuk mulai melakukan obrolan.<br>Menu setelan dan keluar
+                    dapat diakses melalui tombol titik tiga.</p>
+            </div>
+            <section class="active-chat-room" id="panel-chat-aktif">
+                <header class="active-chat-header">
+                    <div class="circle-avatar" id="avatar-header-kanan" style="margin:0;background:#3984bd">Z</div>
+                    <div class="active-header-info">
+                        <h3 id="nama-header-kanan">Nama Kontak</h3>
+                        <p>online</p>
+                    </div>
+                </header>
+                <div class="messages-container" id="box-list-pesan"></div>
+                <footer class="active-chat-footer"><input class="chat-input-field" id="input-teks-kirim" type="text"
+                        placeholder="Ketik pesan..." autocomplete="off"><button class="send-action-btn"
+                        id="btn-kirim-pesan">Kirim</button></footer>
+            </section>
+            <div class="settings-slide-panel" id="panel-layer-setelan">
+                <header class="settings-panel-header"><button class="settings-back-btn" id="btn-kembali-ke-chat"
+                        aria-label="Kembali">←</button><strong>Pengaturan</strong></header>
+                <div class="settings-list-flow">
+                    <!-- Baris di bawah baru tampilan (belum fungsional). Anggota yang kebagian: pasang aksi lewat atribut data-fitur. -->
+                    <div class="settings-card">
+                        <div class="settings-row-item" data-fitur="akun" title="Segera hadir"><span
+                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-user" />
+                                </svg></span>
+                            <div class="settings-item-text"><b>Akun</b><small>Profil dan keamanan</small></div><svg
+                                class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
+                        <div class="settings-row-item" data-fitur="tema" title="Segera hadir"><span
+                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-tema" />
+                                </svg></span>
+                            <div class="settings-item-text"><b>Tema &amp; tampilan</b><small>Tema, ukuran huruf,
+                                    bahasa</small></div><svg class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
+                        <div class="settings-row-item" data-fitur="chat" title="Segera hadir"><span
+                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-chat" />
+                                </svg></span>
+                            <div class="settings-item-text"><b>Chat</b><small>Pengiriman pesan, tautan, media</small>
+                            </div><svg class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
+                        <div class="settings-row-item" data-fitur="notifikasi" title="Segera hadir"><span
+                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-bell" />
+                                </svg></span>
+                            <div class="settings-item-text"><b>Notifikasi</b><small>Pesan, grup, panggilan</small></div>
+                            <svg class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
+                        <div class="settings-row-item" data-fitur="privasi" title="Segera hadir"><span
+                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-lock" />
+                                </svg></span>
+                            <div class="settings-item-text"><b>Privasi</b><small>Siapa yang bisa melihat dan
+                                    menghubungi</small></div><svg class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
+                        <div class="settings-row-item" data-fitur="panggilan" title="Segera hadir"><span
+                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-phone" />
+                                </svg></span>
+                            <div class="settings-item-text"><b>Panggilan</b><small>Telepon dan video</small></div><svg
+                                class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
+                        <div class="settings-row-item" data-fitur="penyimpanan" title="Segera hadir"><span
+                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-disk" />
+                                </svg></span>
+                            <div class="settings-item-text"><b>Penyimpanan &amp; data</b><small>Memori dan pemakaian
+                                    data</small></div><svg class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
+                        <div class="settings-row-item" data-fitur="grup-server" title="Segera hadir"><span
+                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-grup" />
+                                </svg></span>
+                            <div class="settings-item-text"><b>Grup &amp; server</b><small>Undangan dan tampilan
+                                    channel</small></div><svg class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
+                        <div class="settings-row-item" data-fitur="bantuan" title="Segera hadir"><span
+                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-help" />
+                                </svg></span>
+                            <div class="settings-item-text"><b>Bantuan</b><small>Pusat bantuan dan tentang</small></div>
+                            <svg class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="settings-card"><button class="settings-logout-btn" id="btn-keluar-akun"><svg
+                                class="ikon" aria-hidden="true">
+                                <use href="#i-out" />
+                            </svg>Keluar akun</button></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>
