@@ -6,6 +6,7 @@
   'use strict';
 
   // ===== Pengaturan =====
+ HEAD:pages/Verifikasi/otp.js
   var PANJANG_KODE    = 6;
   var MASA_BERLAKU    = 5 * 60 * 1000;  // kode kedaluwarsa setelah 5 menit
   var JEDA_KIRIM      = 60;             // detik sebelum boleh kirim ulang
