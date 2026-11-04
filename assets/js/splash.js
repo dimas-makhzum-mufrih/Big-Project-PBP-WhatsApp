@@ -1,20 +1,38 @@
 var lamaSplash = 2200; // dalam milidetik
 
-function tutupSplash() {
-  var splash = document.getElementById('splash');
-  if (!splash) return;
+function tutupSplash(mode = "instant") {
+    var splash = document.getElementById('splash');
 
-  splash.classList.add('hilang');
+    if (!splash) return;
 
-  // tunggu animasi fade selesai baru dibuang dari halaman
-  setTimeout(function () {
-    splash.remove();
-  }, 500);
+    splash.classList.add('hilang');
+
+    if (mode === "instant") {
+        splash.style.display = "none";
+    } else {
+        setTimeout(function () {
+            splash.style.display = "none";
+        }, 500);
+    }
 }
 
 window.addEventListener('load', function () {
-  setTimeout(tutupSplash, lamaSplash);
-});
 
-//jika klik skip
-document.getElementById('splash').addEventListener('click', tutupSplash);
+    var params = new URLSearchParams(window.location.search);
+    var splashParam = params.get('splash');
+
+    if (splashParam === 'none') {
+        tutupSplash();
+    } else {
+        setTimeout(function () {
+            tutupSplash("smooth");
+        }, lamaSplash);
+    }
+
+    var elemenSplash = document.getElementById('splash');
+
+    if (elemenSplash) {
+        elemenSplash.addEventListener('click', tutupSplash);
+    }
+
+});
