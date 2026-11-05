@@ -6,8 +6,28 @@ btnKembaliKeChat=document.getElementById('btn-kembali-ke-chat');
 
 triggerMenuUtama.addEventListener('click',e=>{e.stopPropagation();boxDropdownUtama.style.display=boxDropdownUtama.style.display==='none'?'block':'none'});
 document.addEventListener('click',()=>{boxDropdownUtama.style.display='none'});
-optBukaSetelan.addEventListener('click',()=>{panelLayerSetelan.style.display='flex';boxDropdownUtama.style.display='none'});
-btnKembaliKeChat.addEventListener('click',()=>{panelLayerSetelan.style.display='none'});
+function bukaSetelan() {
+    panelLayerSetelan.style.display = 'flex';
+    // untuk layar mobile: panel ada di dalam .sisi-kanan yang disembunyikan CSS
+    document.getElementById('panel-sisi-kiri').classList.add('room-open');
+    document.getElementById('panel-sisi-kanan').classList.add('room-open');
+}
+function tutupSetelan() {
+    panelLayerSetelan.style.display = 'none';
+    document.getElementById('panel-sisi-kiri').classList.remove('room-open');
+    document.getElementById('panel-sisi-kanan').classList.remove('room-open');
+    // bersihkan hash supaya refresh tidak membuka panel lagi
+    history.replaceState(null, '', location.pathname + location.search);
+}
+
+optBukaSetelan.addEventListener('click', () => {
+    bukaSetelan();
+    boxDropdownUtama.style.display = 'none';
+});
+btnKembaliKeChat.addEventListener('click', tutupSetelan);
+
+// buka otomatis jika datang dari halaman lain dengan #settings
+if (location.hash === '#settings') bukaSetelan();
 
 document.getElementById('btn-keluar-akun').addEventListener('click',()=>{
     try{localStorage.clear();sessionStorage.clear()}catch(e){}
@@ -34,12 +54,18 @@ document.addEventListener('click', (e) => {
 document.addEventListener('DOMContentLoaded', () => {
     const namaTersimpan = localStorage.getItem('user_nama_profil');
     if (namaTersimpan) {
-        // Mencari elemen teks nama di kartu profil dashboard
-        const elemNamaDashboard = document.querySelector('#btn-buka-edit-profil b');
-        if (elemNamaDashboard) {
-            elemNamaDashboard.textContent = namaTersimpan;
-        }
+    // Mencari elemen teks nama di kartu profil dashboard
+    const elemNamaDashboard = document.querySelector('#btn-buka-edit-profil b');
+    if (elemNamaDashboard) {
+        elemNamaDashboard.textContent = namaTersimpan;
     }
+
+    // Huruf di lingkaran avatar ikut berubah
+    const elemAvatar = document.querySelector('#btn-buka-edit-profil .circle-avatar');
+    if (elemAvatar) {
+        elemAvatar.textContent = namaTersimpan.charAt(0).toUpperCase();
+    }
+}
 });
 
 // Muat data profil secara dinamik ke dashboard
@@ -64,59 +90,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash === '#settings') {
-        const panelSetelan = document.getElementById('panel-layer-setelan');
-        if (panelSetelan) {
-            panelSetelan.classList.add('active');
-        }
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash === '#settings') {
-        const panelSetelan = document.getElementById('panel-layer-setelan');
-        if (panelSetelan) {
-            panelSetelan.style.transform = 'translateX(0)';
-            panelSetelan.style.display = 'block';
-        }
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash === '#settings') {
-        const panel = document.getElementById('panel-layer-setelan');
-        if (panel) {
-            panel.style.visibility = 'visible';
-            panel.style.transform = 'translateX(0)';
-            panel.style.opacity = '1';
-        }
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash === '#settings' || new URLSearchParams(window.location.search).get('buka_setelan') === 'true') {
-        const panelSetelan = document.getElementById('panel-layer-setelan');
-        if (panelSetelan) {
-            panelSetelan.style.display = 'block';
-            panelSetelan.style.transform = 'translateX(0)';
-            panelSetelan.style.visibility = 'visible';
-            panelSetelan.style.opacity = '1';
-            panelSetelan.classList.add('active', 'open', 'show');
-        }
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash === '#settings') {
-        const panelSetelan = document.getElementById('panel-layer-setelan');
-        if (panelSetelan) {
-            panelSetelan.style.setProperty('display', 'block', 'important');
-            panelSetelan.style.setProperty('transform', 'translateX(0)', 'important');
-            panelSetelan.style.setProperty('left', '0', 'important');
-            panelSetelan.style.setProperty('visibility', 'visible', 'important');
-            panelSetelan.style.setProperty('opacity', '1', 'important');
-            panelSetelan.style.setProperty('z-index', '9999', 'important');
-        }
-    }
-});
+// Buang draft Edit Profil yang belum disimpan
+try { sessionStorage.removeItem('draft_profil_edit'); } catch (e) {}

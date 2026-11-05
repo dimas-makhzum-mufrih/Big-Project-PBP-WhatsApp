@@ -1,21 +1,73 @@
+const KUNCI = {
+    nama: 'user_nama_profil',
+    username: 'user_username_profil',
+    bio: 'user_bio_profil',
+    phone: 'user_phone_profil'
+};
+const KUNCI_DRAFT = 'draft_profil_edit';
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Tombol kembali ke Dashboard Utama
+    const inputNama = document.getElementById('input-nama-user');
+    const valEl = {
+        username: document.getElementById('val-username'),
+        bio: document.getElementById('val-bio'),
+        phone: document.getElementById('val-phone')
+    };
+
+    // ===== Draft: simpan sementara & pulihkan =====
+    function simpanDraft() {
+        try {
+            sessionStorage.setItem(KUNCI_DRAFT, JSON.stringify({
+                nama: inputNama.value,
+                username: valEl.username.textContent,
+                bio: valEl.bio.textContent,
+                phone: valEl.phone.textContent
+            }));
+        } catch (e) {}
+    }
+    function hapusDraft() {
+        try { sessionStorage.removeItem(KUNCI_DRAFT); } catch (e) {}
+    }
+
+    // ===== Muat data: draft dulu, kalau tidak ada pakai data tersimpan =====
+    let draft = null;
+    try { draft = JSON.parse(sessionStorage.getItem(KUNCI_DRAFT)); } catch (e) {}
+
+    function ambil(field) {
+        if (draft && draft[field] != null) return draft[field];
+        return localStorage.getItem(KUNCI[field]);
+    }
+
+    const namaAwal = ambil('nama');
+    if (namaAwal && inputNama) inputNama.value = namaAwal;
+
+    ['username', 'bio', 'phone'].forEach(field => {
+        const nilai = ambil(field);
+        if (nilai && valEl[field]) valEl[field].textContent = nilai;
+    });
+
+    // Nama diketik -> draft ikut diperbarui
+    if (inputNama) inputNama.addEventListener('input', simpanDraft);
+
+    // ===== Tombol kembali ke Panel Pengaturan (draft dibuang) =====
     const btnBack = document.getElementById('btn-back-dashboard');
     if (btnBack) {
         btnBack.addEventListener('click', () => {
-            window.location.href = '../dashboard/dashboard.html';
+            hapusDraft();
+            window.location.href = '../dashboard/dashboard.html#settings';
         });
     }
 
-    // Tombol navigasi dari Profil menuju Halaman Tautan Media Sosial (Layar 3)
+    // ===== Menuju Tautan Media Sosial (draft dipertahankan) =====
     const navToSocial = document.getElementById('nav-to-social');
     if (navToSocial) {
         navToSocial.addEventListener('click', () => {
+            simpanDraft();
             window.location.href = 'social-links.html';
         });
     }
 
-    // Preview Banner & Avatar
+    // ===== Preview Banner & Avatar =====
     const inputBanner = document.getElementById('input-banner');
     const bannerContainer = document.getElementById('banner-preview-container');
     if (inputBanner) {
@@ -39,55 +91,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Interaksi ubah data teks
+    // ===== Edit langsung di tempat (inline) =====
     document.querySelectorAll('.info-row-item[data-field]').forEach(row => {
+        const field = row.getAttribute('data-field');
+        const span = row.querySelector('.field-value');
+
         row.addEventListener('click', () => {
-            const field = row.getAttribute('data-field');
-            const valueSpan = row.querySelector('.field-value');
-            const inputBaru = prompt(`Ubah ${field.toUpperCase()}:`, valueSpan.textContent);
-            if (inputBaru !== null && inputBaru.trim() !== '') {
-                valueSpan.textContent = inputBaru;
-            }
+            if (row.querySelector('input')) return; // sudah aktif
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'social-input-field';
+            input.value = span.textContent;
+            if (field === 'phone') input.inputMode = 'tel';
+
+            span.style.display = 'none';
+            span.after(input);
+            input.focus();
+            input.select();
+
+            let selesai = false;
+            const tutup = (terima) => {
+                if (selesai) return;
+                selesai = true;
+                let baru = input.value.trim();
+                if (terima && baru) {
+                    if (field === 'username' && !baru.startsWith('@')) baru = '@' + baru;
+                    span.textContent = baru;
+                    simpanDraft();
+                }
+                input.remove();
+                span.style.display = '';
+            };
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') tutup(true);
+                if (e.key === 'Escape') tutup(false);
+            });
+            input.addEventListener('blur', () => tutup(true));
         });
     });
-});
 
-    // notifikasi setelah disimpan
+    // ===== Notifikasi toast =====
     let timerToast;
     function tampilkanToast() {
         const toast = document.getElementById('toast-simpan');
         if (!toast) return;
-
-        // reset supaya animasi bisa diulang kalau diklik berkali-kali
         clearTimeout(timerToast);
         toast.classList.remove('tampil');
         void toast.offsetWidth;
-
         toast.classList.add('tampil');
         timerToast = setTimeout(() => toast.classList.remove('tampil'), 3000);
     }
 
-// SIMPAN SEMUA DATA PROFIL KE LOCALSTORAGE
-const btnSave = document.getElementById('btn-save-profile');
-if (btnSave) {
-    btnSave.addEventListener('click', () => {
-        const namaVal = document.getElementById('input-nama-user').value;
-        const usernameVal = document.getElementById('val-username').textContent;
-        const bioVal = document.getElementById('val-bio').textContent;
-        const phoneVal = document.getElementById('val-phone').textContent;
+    // ===== Simpan semua data profil =====
+    const btnSave = document.getElementById('btn-save-profile');
+    if (btnSave) {
+        btnSave.addEventListener('click', () => {
+            // tutup kolom ketik yang masih aktif supaya nilainya ikut terambil
+            if (document.activeElement) document.activeElement.blur();
 
-        localStorage.setItem('user_nama_profil', namaVal);
-        localStorage.setItem('user_username_profil', usernameVal);
-        localStorage.setItem('user_bio_profil', bioVal);
-        localStorage.setItem('user_phone_profil', phoneVal);
+            localStorage.setItem(KUNCI.nama, inputNama.value.trim());
+            localStorage.setItem(KUNCI.username, valEl.username.textContent);
+            localStorage.setItem(KUNCI.bio, valEl.bio.textContent);
+            localStorage.setItem(KUNCI.phone, valEl.phone.textContent);
 
-       tampilkanToast();
-    });
-}
-
-const btnBack = document.getElementById('btn-back-dashboard');
-if (btnBack) {
-    btnBack.addEventListener('click', () => {
-        window.location.href = '../dashboard/dashboard.html#settings';
-    });
-}
+            hapusDraft(); // sudah resmi tersimpan, draft tidak diperlukan lagi
+            tampilkanToast();
+        });
+    }
+});
