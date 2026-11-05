@@ -11,6 +11,7 @@
   var JEDA_KIRIM     = 60;             // detik sebelum boleh kirim ulang
   var MAKS_SALAH     = 5;              // batas salah input per kode
   var HALAMAN_TUJUAN = 'login.html';   // tujuan setelah berhasil
+
   // tujuan tombol Kembali, dan tujuan jika data pendaftaran tidak ada
   var HALAMAN_DAFTAR = '../../index.html?halaman=form-daftar&splash=none';
 
