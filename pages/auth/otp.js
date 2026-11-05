@@ -20,8 +20,14 @@
   var JEDA_KIRIM     = 60;             // detik sebelum boleh kirim ulang
   var MAKS_SALAH     = 5;              // batas salah input per kode
   var HALAMAN_TUJUAN = 'login.html';   // tujuan setelah berhasil
+<<<<<<< HEAD
   var HALAMAN_DAFTAR = '../../index.html';   // tujuan jika data pendaftaran tidak ada
 >>>>>>> 2e7f8b3fcf53b5a52dc81e4b4f31814daab9c07a:pages/auth/otp.js
+=======
+
+  // tujuan tombol Kembali, dan tujuan jika data pendaftaran tidak ada
+  var HALAMAN_DAFTAR = '../../index.html?halaman=form-daftar&splash=none';
+>>>>>>> d8e89e352000db7b4ff16710470f9fe566f242d6
 
   var KUNCI_PENDING = 'ngumpul_pending';
   var KUNCI_OTP     = 'ngumpul_otp';
@@ -205,13 +211,21 @@
     }, 1200);
   }
 
+<<<<<<< HEAD
+=======
+  // ===== Tombol =====
+>>>>>>> d8e89e352000db7b4ff16710470f9fe566f242d6
   btnOk.addEventListener('click', verifikasi);
   btnUlang.addEventListener('click', kirimKode);
   document.getElementById('btn-kembali').addEventListener('click', function () {
     location.href = HALAMAN_DAFTAR;
   });
 
+<<<<<<< HEAD
   // Mulai: pakai kode lama jika masih berlaku
+=======
+  // Mulai: pakai kode lama jika masih berlaku (mis. halaman di-refresh)
+>>>>>>> d8e89e352000db7b4ff16710470f9fe566f242d6
   var lama = baca(sessionStorage, KUNCI_OTP);
   if (lama && Date.now() - lama.dibuat < MASA_BERLAKU) {
     mulaiTimerExp(); mulaiTimerKirim(); digits[0].focus();
