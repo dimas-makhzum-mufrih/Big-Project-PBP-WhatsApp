@@ -6,12 +6,22 @@
   'use strict';
 
   // ===== Pengaturan =====
+<<<<<<< HEAD:pages/Verifikasi/otp.js
+  var PANJANG_KODE    = 6;
+  var MASA_BERLAKU    = 5 * 60 * 1000;  // kode kedaluwarsa setelah 5 menit
+  var JEDA_KIRIM      = 60;             // detik sebelum boleh kirim ulang
+  var MAKS_SALAH      = 5;              // batas salah input per kode
+  
+  var HALAMAN_TUJUAN = '../../Tampilan-utama/login.html';   // tujuan setelah berhasil
+  var HALAMAN_DAFTAR = '../assets/index.html';   // tujuan jika data pendaftaran tidak ada
+=======
   var PANJANG_KODE   = 6;
   var MASA_BERLAKU   = 5 * 60 * 1000;  // kode kedaluwarsa setelah 5 menit
   var JEDA_KIRIM     = 60;             // detik sebelum boleh kirim ulang
   var MAKS_SALAH     = 5;              // batas salah input per kode
   var HALAMAN_TUJUAN = 'login.html';   // tujuan setelah berhasil
   var HALAMAN_DAFTAR = '../../index.html';   // tujuan jika data pendaftaran tidak ada
+>>>>>>> 2e7f8b3fcf53b5a52dc81e4b4f31814daab9c07a:pages/auth/otp.js
 
   var KUNCI_PENDING = 'ngumpul_pending';
   var KUNCI_OTP     = 'ngumpul_otp';
@@ -62,9 +72,6 @@
     mulaiTimerExp();
   }
 
-  // Simulasi SMS: tanpa server, kode ditampilkan di notifikasi.
-  // Saat memakai backend/SMS gateway, hapus tampilkanNotif() dan
-  // panggil API kirim OTP di sini.
   function tampilkanNotif(kode) {
     notif.innerHTML = 'Pesan masuk dari Ngumpul:<br>Kode verifikasi kamu <b>' + kode + '</b>';
     notif.classList.add('tampil');
@@ -176,15 +183,12 @@
     }
 
     // Berhasil
-    // Berhasil
     var daftar = baca(localStorage, KUNCI_OK) || {};
-
     daftar[hp] = {
-    nama: data.nama,
-    email: data.email,
-    waktu: Date.now()
+      nama: data.nama,
+      email: data.email,
+      waktu: Date.now()
     };
-
     tulis(localStorage, KUNCI_OK, daftar);
 
     sessionStorage.removeItem(KUNCI_OTP);
@@ -194,16 +198,20 @@
     clearInterval(timerExp);
 
     btnOk.disabled = true;
-
     tampilPesan('Akun berhasil diverifikasi. Mengalihkan ke halaman login...', true);
 
     setTimeout(function () {
-    window.location.href = HALAMAN_TUJUAN;
+      window.location.href = HALAMAN_TUJUAN;
     }, 1200);
-
   }
 
-  // Mulai: pakai kode lama jika masih berlaku (mis. halaman di-refresh)
+  btnOk.addEventListener('click', verifikasi);
+  btnUlang.addEventListener('click', kirimKode);
+  document.getElementById('btn-kembali').addEventListener('click', function () {
+    location.href = HALAMAN_DAFTAR;
+  });
+
+  // Mulai: pakai kode lama jika masih berlaku
   var lama = baca(sessionStorage, KUNCI_OTP);
   if (lama && Date.now() - lama.dibuat < MASA_BERLAKU) {
     mulaiTimerExp(); mulaiTimerKirim(); digits[0].focus();

@@ -13,3 +13,11 @@ document.getElementById('btn-keluar-akun').addEventListener('click',()=>{
     try{localStorage.clear();sessionStorage.clear()}catch(e){}
     window.location.href='../../index.html?splash=none';
 });
+
+const btnMenuAkun = document.querySelector('.settings-row-item[data-fitur="akun"]');
+if (btnMenuAkun) {
+    btnMenuAkun.style.cursor = 'pointer';
+    btnMenuAkun.addEventListener('click', () => {
+        window.location.href = '../account/account.html';
+    });
+}
