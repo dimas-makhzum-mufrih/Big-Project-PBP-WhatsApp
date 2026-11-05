@@ -1,11 +1,18 @@
-const triggerMenuUtama=document.getElementById('trigger-menu-utama'),
-boxDropdownUtama=document.getElementById('box-dropdown-utama'),
-optBukaSetelan=document.getElementById('opt-buka-setelan'),
-panelLayerSetelan=document.getElementById('panel-layer-setelan'),
-btnKembaliKeChat=document.getElementById('btn-kembali-ke-chat');
+// ===== Elemen utama =====
+const triggerMenuUtama = document.getElementById('trigger-menu-utama'),
+    boxDropdownUtama = document.getElementById('box-dropdown-utama'),
+    optBukaSetelan = document.getElementById('opt-buka-setelan'),
+    panelLayerSetelan = document.getElementById('panel-layer-setelan'),
+    btnKembaliKeChat = document.getElementById('btn-kembali-ke-chat');
 
-triggerMenuUtama.addEventListener('click',e=>{e.stopPropagation();boxDropdownUtama.style.display=boxDropdownUtama.style.display==='none'?'block':'none'});
-document.addEventListener('click',()=>{boxDropdownUtama.style.display='none'});
+// ===== Menu titik tiga =====
+triggerMenuUtama.addEventListener('click', e => {
+    e.stopPropagation();
+    boxDropdownUtama.style.display = boxDropdownUtama.style.display === 'none' ? 'block' : 'none';
+});
+document.addEventListener('click', () => { boxDropdownUtama.style.display = 'none'; });
+
+// ===== Panel Pengaturan =====
 function bukaSetelan() {
     panelLayerSetelan.style.display = 'flex';
     // untuk layar mobile: panel ada di dalam .sisi-kanan yang disembunyikan CSS
@@ -29,11 +36,13 @@ btnKembaliKeChat.addEventListener('click', tutupSetelan);
 // buka otomatis jika datang dari halaman lain dengan #settings
 if (location.hash === '#settings') bukaSetelan();
 
-document.getElementById('btn-keluar-akun').addEventListener('click',()=>{
-    try{localStorage.clear();sessionStorage.clear()}catch(e){}
-    window.location.href='../../index.html?splash=none';
+// ===== Keluar akun =====
+document.getElementById('btn-keluar-akun').addEventListener('click', () => {
+    try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
+    window.location.href = '../../index.html?splash=none';
 });
 
+// ===== Menu "Akun" -> halaman akun =====
 const btnMenuAkun = document.querySelector('.settings-row-item[data-fitur="akun"]');
 if (btnMenuAkun) {
     btnMenuAkun.style.cursor = 'pointer';
@@ -42,7 +51,7 @@ if (btnMenuAkun) {
     });
 }
 
-// 2. Menghubungkan kartu/tombol "Edit Profil" ke halaman edit-profile.html
+// ===== Kartu "Edit Profil" -> halaman edit-profile =====
 document.addEventListener('click', (e) => {
     const targetEdit = e.target.closest('[data-fitur="edit-profil"], #btn-buka-edit-profil, .profile-card-trigger');
     if (targetEdit) {
@@ -50,43 +59,27 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Otomatis update nama di kartu profil dashboard saat halaman dimuat
+// ===== Muat data profil ke kartu profil dashboard =====
 document.addEventListener('DOMContentLoaded', () => {
-    const namaTersimpan = localStorage.getItem('user_nama_profil');
-    if (namaTersimpan) {
-    // Mencari elemen teks nama di kartu profil dashboard
-    const elemNamaDashboard = document.querySelector('#btn-buka-edit-profil b');
-    if (elemNamaDashboard) {
-        elemNamaDashboard.textContent = namaTersimpan;
-    }
+    const nama = localStorage.getItem('user_nama_profil');
+    const username = localStorage.getItem('user_username_profil');
+    const bio = localStorage.getItem('user_bio_profil');
 
-    // Huruf di lingkaran avatar ikut berubah
-    const elemAvatar = document.querySelector('#btn-buka-edit-profil .circle-avatar');
-    if (elemAvatar) {
-        elemAvatar.textContent = namaTersimpan.charAt(0).toUpperCase();
-    }
-}
-});
-
-// Muat data profil secara dinamik ke dashboard
-document.addEventListener('DOMContentLoaded', () => {
-    const namaTersimpan = localStorage.getItem('user_nama_profil');
-    const usernameTersimpan = localStorage.getItem('user_username_profil');
-    const bioTersimpan = localStorage.getItem('user_bio_profil');
-
-    if (namaTersimpan) {
+    if (nama) {
         const elemNama = document.querySelector('#btn-buka-edit-profil b');
-        if (elemNama) elemNama.textContent = namaTersimpan;
-    }
+        if (elemNama) elemNama.textContent = nama;
 
-    if (usernameTersimpan) {
+        // huruf di lingkaran avatar ikut berubah
+        const elemAvatar = document.querySelector('#btn-buka-edit-profil .circle-avatar');
+        if (elemAvatar) elemAvatar.textContent = nama.charAt(0).toUpperCase();
+    }
+    if (username) {
         const elemUsername = document.querySelector('#btn-buka-edit-profil small:nth-of-type(1)');
-        if (elemUsername) elemUsername.textContent = usernameTersimpan;
+        if (elemUsername) elemUsername.textContent = username;
     }
-
-    if (bioTersimpan) {
+    if (bio) {
         const elemBio = document.querySelector('#btn-buka-edit-profil small:nth-of-type(2)');
-        if (elemBio) elemBio.textContent = bioTersimpan;
+        if (elemBio) elemBio.textContent = bio;
     }
 });
 
