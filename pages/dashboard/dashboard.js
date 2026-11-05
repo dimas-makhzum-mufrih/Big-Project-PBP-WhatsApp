@@ -1,3 +1,7 @@
+// ===== Penjaga: harus login dulu =====
+const userAktif = getUserAktif();
+if (!userAktif) { location.replace('../auth/login.html'); }
+
 // ===== Elemen utama =====
 const triggerMenuUtama = document.getElementById('trigger-menu-utama'),
     boxDropdownUtama = document.getElementById('box-dropdown-utama'),
@@ -10,9 +14,6 @@ triggerMenuUtama.addEventListener('click', e => {
     e.stopPropagation();
     boxDropdownUtama.style.display = boxDropdownUtama.style.display === 'none' ? 'block' : 'none';
 });
-<<<<<<< HEAD
-
-=======
 document.addEventListener('click', () => { boxDropdownUtama.style.display = 'none'; });
 
 // ===== Panel Pengaturan =====
@@ -39,23 +40,19 @@ btnKembaliKeChat.addEventListener('click', tutupSetelan);
 // buka otomatis jika datang dari halaman lain dengan #settings
 if (location.hash === '#settings') bukaSetelan();
 
-// ===== Keluar akun =====
+// ===== Keluar akun: hanya menghapus sesi tab ini, data akun tetap aman =====
 document.getElementById('btn-keluar-akun').addEventListener('click', () => {
-    try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
-    window.location.href = '../../index.html?splash=none';
+    hapusSesi();
+    window.location.href = '../auth/login.html';
 });
 
 // ===== Menu "Akun" -> halaman akun =====
->>>>>>> d8e89e352000db7b4ff16710470f9fe566f242d6
 const btnMenuAkun = document.querySelector('.settings-row-item[data-fitur="akun"]');
 if (btnMenuAkun) {
     btnMenuAkun.style.cursor = 'pointer';
     btnMenuAkun.addEventListener('click', () => {
         window.location.href = '../account/account.html';
     });
-<<<<<<< HEAD
-}
-=======
 }
 
 // ===== Kartu "Edit Profil" -> halaman edit-profile =====
@@ -66,30 +63,21 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// ===== Muat data profil ke kartu profil dashboard =====
-document.addEventListener('DOMContentLoaded', () => {
-    const nama = localStorage.getItem('user_nama_profil');
-    const username = localStorage.getItem('user_username_profil');
-    const bio = localStorage.getItem('user_bio_profil');
-
-    if (nama) {
-        const elemNama = document.querySelector('#btn-buka-edit-profil b');
-        if (elemNama) elemNama.textContent = nama;
-
-        // huruf di lingkaran avatar ikut berubah
-        const elemAvatar = document.querySelector('#btn-buka-edit-profil .circle-avatar');
-        if (elemAvatar) elemAvatar.textContent = nama.charAt(0).toUpperCase();
+// ===== Isi kartu profil dengan data AKUN YANG SEDANG LOGIN =====
+if (userAktif) {
+    const profil = getProfil(userAktif.id);
+    const kartu = document.getElementById('btn-buka-edit-profil');
+    if (kartu) {
+        const elemNama = kartu.querySelector('b');
+        const elemAvatar = kartu.querySelector('.circle-avatar');
+        const elemUsername = kartu.querySelector('small:nth-of-type(1)');
+        const elemBio = kartu.querySelector('small:nth-of-type(2)');
+        if (elemNama) elemNama.textContent = profil.nama;
+        if (elemAvatar) elemAvatar.textContent = profil.nama.charAt(0).toUpperCase();
+        if (elemUsername) elemUsername.textContent = profil.username;
+        if (elemBio) elemBio.textContent = profil.bio;
     }
-    if (username) {
-        const elemUsername = document.querySelector('#btn-buka-edit-profil small:nth-of-type(1)');
-        if (elemUsername) elemUsername.textContent = username;
-    }
-    if (bio) {
-        const elemBio = document.querySelector('#btn-buka-edit-profil small:nth-of-type(2)');
-        if (elemBio) elemBio.textContent = bio;
-    }
-});
+}
 
 // Buang draft Edit Profil yang belum disimpan
 try { sessionStorage.removeItem('draft_profil_edit'); } catch (e) {}
->>>>>>> d8e89e352000db7b4ff16710470f9fe566f242d6
