@@ -519,3 +519,216 @@ input {
         display: flex
     }
 }
+
+/* ==========================================
+   NGUMPUL - DARK MODE
+========================================== */
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --warna-utama: #22b8d2;
+    --warna-utama-hover: #0891b2;
+    --warna-tipis: #203b43;
+
+    --bg-putih: #202c33;
+    --bg-abu-terang: #111b21;
+    --bg-abu-input: #2a3942;
+
+    --teks-gelap: #e9edef;
+    --teks-redup: #aebac1;
+
+    --bub-kirim: #005c4b;
+    --bub-terima: #202c33;
+
+    --border-warna: #374045;
+    --merah: #ff6b6b;
+}
+
+/* Background ruang chat */
+html[data-theme="dark"] .active-chat-room {
+    background: var(--bg-abu-terang);
+}
+
+/* Pesan */
+html[data-theme="dark"] .chat-bubble.kirim {
+    color: #e9edef;
+}
+
+html[data-theme="dark"] .chat-bubble.terima {
+    color: #e9edef;
+}
+
+/* Dropdown */
+html[data-theme="dark"] .dropdown-box {
+    box-shadow: 0 8px 24px #00000060;
+}
+
+/* Tombol logout */
+html[data-theme="dark"] .settings-logout-btn:hover {
+    background: #3a2528;
+}
+
+/* ==========================================
+   PENGATURAN TEMA
+========================================== */
+
+.settings-row-item[data-fitur="tema"] {
+    cursor: pointer;
+}
+
+.settings-row-item[data-fitur="tema"]:hover {
+    background: var(--bg-abu-terang);
+}
+
+.settings-theme-page {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 24px;
+}
+
+.theme-description {
+    max-width: 640px;
+    margin: 0 auto 24px;
+}
+
+.theme-description h3 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: var(--teks-gelap);
+}
+
+.theme-description p {
+    margin: 0;
+    color: var(--teks-redup);
+    font-size: .9rem;
+}
+
+.theme-options {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.theme-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+}
+
+.theme-option:hover {
+    border-color: var(--warna-utama);
+}
+
+.theme-option.aktif {
+    border: 2px solid var(--warna-utama);
+    background: var(--warna-tipis);
+}
+
+.theme-preview {
+    width: 90px;
+    height: 65px;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 9px;
+    border-radius: 8px;
+}
+
+.theme-preview span {
+    display: block;
+    width: 65%;
+    height: 7px;
+    border-radius: 5px;
+}
+
+.light-preview {
+    background: #f1f5f9;
+    border: 1px solid #dce2e8;
+}
+
+.light-preview span {
+    background: #cbd5e1;
+}
+
+.light-preview span:nth-child(2) {
+    background: #a5e6d5;
+    align-self: flex-end;
+}
+
+.dark-preview {
+    background: #111b21;
+    border: 1px solid #374045;
+}
+
+.dark-preview span {
+    background: #475569;
+}
+
+.dark-preview span:nth-child(2) {
+    background: #005c4b;
+    align-self: flex-end;
+}
+
+.theme-option-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.theme-option-info b {
+    font-size: 1rem;
+}
+
+.theme-option-info small {
+    color: var(--teks-redup);
+    font-size: .85rem;
+}
+
+.theme-check {
+    display: none;
+    color: var(--warna-utama);
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.theme-option.aktif .theme-check {
+    display: block;
+}
+
+.theme-note {
+    max-width: 640px;
+    margin: 20px auto 0;
+    color: var(--teks-redup);
+    font-size: .8rem;
+}
+
+/* Pastikan atribut hidden berfungsi */
+.settings-theme-page[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 700px) {
+    .settings-theme-page {
+        padding: 20px 14px;
+    }
+
+    .theme-preview {
+        width: 72px;
+        height: 58px;
+    }
+}
