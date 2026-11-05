@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnBack) {
         btnBack.addEventListener('click', () => {
             // Mengarahkan kembali ke file dashboard.html
-            window.location.href = '../dashboard/dashboard.html';
+           window.location.href = '../dashboard/dashboard.html#settings';
         });
     }
 
