@@ -1,12 +1,11 @@
-const KUNCI = {
-    nama: 'user_nama_profil',
-    username: 'user_username_profil',
-    bio: 'user_bio_profil',
-    phone: 'user_phone_profil'
-};
 const KUNCI_DRAFT = 'draft_profil_edit';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // harus login; profil dibaca dan ditulis per akun
+    const user = getUserAktif();
+    if (!user) { location.replace('../auth/login.html'); return; }
+    const profil = getProfil(user.id);
+
     const inputNama = document.getElementById('input-nama-user');
     const valEl = {
         username: document.getElementById('val-username'),
@@ -35,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function ambil(field) {
         if (draft && draft[field] != null) return draft[field];
-        return localStorage.getItem(KUNCI[field]);
+        return profil[field];
     }
 
     const namaAwal = ambil('nama');
@@ -151,10 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // tutup kolom ketik yang masih aktif supaya nilainya ikut terambil
             if (document.activeElement) document.activeElement.blur();
 
-            localStorage.setItem(KUNCI.nama, inputNama.value.trim());
-            localStorage.setItem(KUNCI.username, valEl.username.textContent);
-            localStorage.setItem(KUNCI.bio, valEl.bio.textContent);
-            localStorage.setItem(KUNCI.phone, valEl.phone.textContent);
+            simpanProfil(user.id, {
+                nama: inputNama.value.trim() || user.nama,
+                username: valEl.username.textContent,
+                bio: valEl.bio.textContent,
+                phone: valEl.phone.textContent
+            });
 
             hapusDraft(); // sudah resmi tersimpan, draft tidak diperlukan lagi
             tampilkanToast();
