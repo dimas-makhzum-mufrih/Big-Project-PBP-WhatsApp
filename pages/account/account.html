@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Ngumpul - Pengaturan Akun</title>
+    <link rel="stylesheet" href="account.css">
+</head>
+
+<body>
+    <!-- Koleksi Ikon SVG Inline (Selaras dengan Ikon Dashboard) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="i-key" viewBox="0 0 24 24">
+            <path d="M21 2l-2 2m-1.5 1.5l-3 3m-2 2l-3 3m2-2l-3-3m5 5l-2.5 2.5a2.5 2.5 0 0 1-3.5 0L3 14a2.5 2.5 0 0 1 0-3.5L5.5 8a2.5 2.5 0 0 1 3.5 0L10.5 9.5" />
+            <circle cx="17" cy="7" r="3" />
+        </symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="m9 12 2 2 4-4" />
+        </symbol>
+        <symbol id="i-device" viewBox="0 0 24 24">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+        </symbol>
+        <symbol id="i-history" viewBox="0 0 24 24">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M12 7v5l4 2" />
+        </symbol>
+        <symbol id="i-user-delete" viewBox="0 0 24 24">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="8.5" cy="7" r="4" />
+            <line x1="18" y1="8" x2="23" y2="13" />
+            <line x1="23" y1="8" x2="18" y2="13" />
+        </symbol>
+        <symbol id="i-next" viewBox="0 0 24 24">
+            <path d="M9 18l6-6-6-6" />
+        </symbol>
+        <symbol id="i-back" viewBox="0 0 24 24">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+        </symbol>
+    </svg>
+
+    <div class="account-container">
+        <!-- Header Navigasi -->
+        <header class="account-header">
+            <button class="btn-back" id="btn-back-to-dashboard" aria-label="Kembali ke Dashboard">
+                <svg class="ikon" aria-hidden="true"><use href="#i-back" /></svg>
+            </button>
+            <h2>Akun</h2>
+        </header>
+
+        <!-- Main Content Flow -->
+        <main class="account-content">
+            <div class="account-card">
+                
+                <!-- 1. Keamanan Akun -->
+                <div class="account-row-item" data-action="keamanan">
+                    <span class="account-item-icon">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-key" /></svg>
+                    </span>
+                    <div class="account-item-text">
+                        <b>Keamanan akun</b>
+                        <small>Pengaturan keamanan dan perlindungan akun</small>
+                    </div>
+                    <svg class="ikon account-arrow" aria-hidden="true"><use href="#i-next" /></svg>
+                </div>
+
+                <!-- 2. Ubah Kata Sandi -->
+                <div class="account-row-item" data-action="ubah-sandi">
+                    <span class="account-item-icon">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-lock" /></svg>
+                    </span>
+                    <div class="account-item-text">
+                        <b>Ubah kata sandi</b>
+                        <small>Mengganti kata sandi akun</small>
+                    </div>
+                    <svg class="ikon account-arrow" aria-hidden="true"><use href="#i-next" /></svg>
+                </div>
+
+                <!-- 3. Verifikasi Dua Langkah -->
+                <div class="account-row-item" data-action="2fa">
+                    <span class="account-item-icon">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-shield" /></svg>
+                    </span>
+                    <div class="account-item-text">
+                        <b>Verifikasi dua langkah</b>
+                        <small>Menambahkan lapisan keamanan saat login</small>
+                    </div>
+                    <svg class="ikon account-arrow" aria-hidden="true"><use href="#i-next" /></svg>
+                </div>
+
+                <!-- 4. Perangkat Tertaut -->
+                <div class="account-row-item" data-action="perangkat">
+                    <span class="account-item-icon">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-device" /></svg>
+                    </span>
+                    <div class="account-item-text">
+                        <b>Perangkat tertaut</b>
+                        <small>Melihat perangkat yang terhubung dengan akun</small>
+                    </div>
+                    <svg class="ikon account-arrow" aria-hidden="true"><use href="#i-next" /></svg>
+                </div>
+
+                <!-- 5. Riwayat Aktivitas Login -->
+                <div class="account-row-item" data-action="riwayat">
+                    <span class="account-item-icon">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-history" /></svg>
+                    </span>
+                    <div class="account-item-text">
+                        <b>Riwayat aktivitas login</b>
+                        <small>Melihat aktivitas masuk akun terakhir</small>
+                    </div>
+                    <svg class="ikon account-arrow" aria-hidden="true"><use href="#i-next" /></svg>
+                </div>
+
+                <!-- 6. Hapus Akun -->
+                <div class="account-row-item danger-row" data-action="hapus-akun">
+                    <span class="account-item-icon danger-icon">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-user-delete" /></svg>
+                    </span>
+                    <div class="account-item-text">
+                        <b>Hapus akun</b>
+                        <small>Menghapus akun secara permanen</small>
+                    </div>
+                    <svg class="ikon account-arrow" aria-hidden="true"><use href="#i-next" /></svg>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="account.js"></script>
+</body>
+
+</html>
