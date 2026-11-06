@@ -527,3 +527,208 @@ input {
         display: flex
     }
 }
+
+/* =====================================================================
+   REVISI: Tata Letak Profil di Panel Pengaturan
+   ===================================================================== */
+.profil-atas {
+    position: relative;
+    max-width: 640px;
+    margin: 0 auto 14px;
+    transform-origin: top center;
+    will-change: opacity, transform;
+}
+
+/* Card Utama Profil Ala WhatsApp (Banner di atas, foto di tengah) */
+.settings-profile-whatsapp-card {
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s;
+    padding-bottom: 20px;
+}
+
+.settings-profile-whatsapp-card:hover {
+    border-color: var(--warna-utama);
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.1);
+}
+
+.settings-profile-whatsapp-card:focus-visible,
+.btn-ganti-akun:focus-visible,
+.akun-menu-aksi:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px;
+}
+
+/* Banner Profil di Bagian Atas Card */
+.settings-profile-banner {
+    width: 100%;
+    height: 110px;
+    background: var(--warna-tipis);
+    background-size: cover;
+    background-position: center;
+}
+
+/* Wrapper Foto Profil Bulat di Tengah (Menimpa Banner) */
+.settings-profile-avatar-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: -42px;
+    position: relative;
+}
+
+.settings-profile-avatar-circle {
+    width: 84px;
+    height: 84px;
+    background: var(--warna-tipis);
+    border: 4px solid var(--bg-putih);
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--warna-utama);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Teks Identitas di Bawah Foto Profil */
+.settings-profile-info-text {
+    text-align: center;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0 16px;
+}
+
+.settings-profile-info-text .name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.settings-profile-info-text .name-row span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--teks-gelap);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Tombol Dropdown Ganti Akun */
+.btn-ganti-akun {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--teks-redup);
+    cursor: pointer;
+}
+
+.btn-ganti-akun:hover {
+    background: var(--bg-abu-input);
+    color: var(--warna-utama);
+}
+
+.btn-ganti-akun .ikon {
+    width: 18px;
+    height: 18px;
+    transition: transform .2s;
+}
+
+.btn-ganti-akun[aria-expanded="true"] .ikon {
+    transform: rotate(180deg);
+}
+
+.profil-username {
+    color: var(--warna-utama);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.profil-bio {
+    color: var(--teks-redup);
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+/* Menu ganti akun (dropdown kecil) */
+.akun-menu {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    width: 260px;
+    max-width: calc(100% - 40px);
+    padding: 6px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.akun-menu[hidden] {
+    display: none;
+}
+
+.akun-menu-aktif {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 8px 12px;
+}
+
+.akun-menu-label {
+    font-size: .72rem;
+    color: var(--teks-redup);
+}
+
+.akun-menu-aktif b {
+    font-size: .95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.akun-menu-aktif small {
+    color: var(--warna-utama);
+    font-size: .8rem;
+}
+
+.akun-menu-aksi {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: .92rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.akun-menu-aksi:hover {
+    background: var(--bg-abu-terang);
+}
+
+.akun-menu-aksi .ikon {
+    width: 18px;
+    height: 18px;
+    color: var(--warna-utama);
+}
