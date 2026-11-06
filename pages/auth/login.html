@@ -76,16 +76,72 @@
         </div>
         <div class="error" id="error-login-sandi"></div>
 
-        <button type="button" class="tombol">Masuk</button>
+        <p class="bawah lupa-baris"><a href="#lupa-sandi" id="tautan-lupa-sandi">Lupa sandi?</a></p>
+
+        <button type="button" class="tombol" id="btn-masuk">Masuk</button>
 
         <p class="bawah">
           Belum punya akun?
           <a href="../../index.html?halaman=form-daftar&splash=none">Daftar sekarang</a>
         </p>
       </section>
+
+      <section class="halaman" id="form-reset-nomor">
+        <button type="button" class="kembali tombol-kembali" data-kembali="form-login">&larr; Kembali ke login</button>
+        <h2>Lupa sandi?</h2>
+        <p class="sub">Masukkan nomor HP atau alamat Gmail yang terhubung ke akunmu.</p>
+
+        <label for="reset-nomor">Nomor HP atau Gmail</label>
+        <input type="text" id="reset-nomor" placeholder="081234567890 atau nama@gmail.com" autocomplete="username" />
+        <div class="error" id="error-reset-nomor" role="alert"></div>
+        <p class="catatan-demo">OTP hanya simulasi antarmuka. Tidak ada SMS atau email yang benar-benar dikirim.</p>
+        <button type="button" class="tombol" id="btn-kirim-otp-reset">Minta kode OTP</button>
+      </section>
+
+      <section class="halaman" id="form-reset-otp">
+        <button type="button" class="kembali tombol-kembali" data-kembali="form-reset-nomor">&larr; Ganti kontak</button>
+        <h2>Verifikasi kontak</h2>
+        <p class="sub">Masukkan kode 6 angka untuk <b id="reset-nomor-tersamar">kontak kamu</b>.</p>
+
+        <div class="kotak-otp-reset" id="kotak-otp-reset" role="group" aria-label="Kode OTP 6 angka">
+          <input class="digit-reset" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Angka 1" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 2" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 3" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 4" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 5" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 6" />
+        </div>
+        <div class="error" id="error-reset-otp" role="alert"></div>
+        <button type="button" class="tombol" id="btn-verifikasi-reset" disabled>Verifikasi OTP</button>
+      </section>
+
+      <section class="halaman" id="form-sandi-baru">
+        <button type="button" class="kembali tombol-kembali" data-kembali="form-reset-otp">&larr; Kembali</button>
+        <h2>Buat sandi baru</h2>
+        <p class="sub">Gunakan sandi baru untuk akunmu.</p>
+
+        <label for="reset-sandi-baru">Sandi baru</label>
+        <div class="kolom-sandi">
+          <input type="password" id="reset-sandi-baru" placeholder="Masukkan sandi baru" autocomplete="new-password" />
+          <button type="button" class="lihat" data-target="reset-sandi-baru">Lihat</button>
+        </div>
+        <div class="error" id="error-reset-sandi-baru" role="alert"></div>
+
+        <label for="reset-sandi-konfirmasi">Ulangi sandi baru</label>
+        <div class="kolom-sandi">
+          <input type="password" id="reset-sandi-konfirmasi" placeholder="Masukkan ulang sandi baru" autocomplete="new-password" />
+          <button type="button" class="lihat" data-target="reset-sandi-konfirmasi">Lihat</button>
+        </div>
+        <div class="error" id="error-reset-sandi-konfirmasi" role="alert"></div>
+        <button type="button" class="tombol" id="btn-simpan-sandi">Ubah sandi</button>
+      </section>
     </main>
   </div>
 
+  <div id="notif-otp-reset" role="status" aria-live="polite" aria-atomic="true">
+    <p>Pesan masuk dari Ngumpul:</p>
+    <p>Kode verifikasi kamu <b id="kode-otp-reset"></b></p>
+  </div>
   <div id="toast"></div>
 
   <script src="../../assets/js/storage.js"></script>
