@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputNomorReset = document.getElementById("reset-nomor");
   const inputDigitReset = Array.from(document.querySelectorAll(".digit-reset"));
   const tombolVerifikasiReset = document.getElementById("btn-verifikasi-reset");
+  let userReset = null;
   let kodeOtpReset = "";
   let timerNotifOtpReset;
 
@@ -69,6 +70,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const nomorValid = /^[+\d][\d\s()-]{7,18}$/.test(kontakReset);
     if (!gmailValid && !nomorValid) {
       error.textContent = "Masukkan nomor HP yang valid atau alamat Gmail @gmail.com.";
+      inputNomorReset.focus();
+      return;
+    }
+
+    userReset = cariUser(kontakReset);
+    if (!userReset) {
+      error.textContent = "Akun dengan nomor HP atau Gmail tersebut tidak ditemukan.";
       inputNomorReset.focus();
       return;
     }
@@ -132,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("reset-sandi-baru").focus();
   });
 
-  document.getElementById("btn-simpan-sandi").addEventListener("click", () => {
+  document.getElementById("btn-simpan-sandi").addEventListener("click", async () => {
     const sandiBaru = document.getElementById("reset-sandi-baru");
     const konfirmasi = document.getElementById("reset-sandi-konfirmasi");
     const errorSandiBaru = document.getElementById("error-reset-sandi-baru");
@@ -151,11 +159,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    tampilkanToast("Berhasil (simulasi). Sandi tidak disimpan ke akun.");
+    const users = getUsers();
+    const indexUser = users.findIndex((user) => user.id === userReset?.id);
+    if (indexUser === -1) {
+      errorSandiBaru.textContent = "Akun tidak ditemukan. Ulangi proses lupa sandi.";
+      return;
+    }
+
+    users[indexUser].sandi = await hashSandi(sandiBaru.value);
+    if (!simpanUsers(users)) {
+      tampilkanToast("Sandi gagal disimpan. Silakan coba lagi.");
+      return;
+    }
+
+    tampilkanToast("Sandi berhasil diubah. Silakan masuk dengan sandi baru.");
     sandiBaru.value = "";
     konfirmasi.value = "";
     inputNomorReset.value = "";
     inputDigitReset.forEach((input) => { input.value = ""; });
+    userReset = null;
     kodeOtpReset = "";
     bukaHalaman("form-login");
   });
