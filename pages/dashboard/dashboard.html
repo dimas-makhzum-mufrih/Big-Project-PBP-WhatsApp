@@ -54,6 +54,15 @@
             <circle cx="12" cy="12" r="10" />
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" />
         </symbol>
+                <symbol id="i-chevron-down" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+        </symbol>
+        <symbol id="i-swap" viewBox="0 0 24 24">
+            <path d="M17 1l4 4-4 4" />
+            <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+            <path d="M7 23l-4-4 4-4" />
+            <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+        </symbol>
         <symbol id="i-next" viewBox="0 0 24 24">
             <path d="M9 18l6-6-6-6" />
         </symbol>
@@ -142,30 +151,53 @@
                 </header>
                 <div class="settings-list-flow">
                     <!-- Baris di bawah baru tampilan (belum fungsional). Anggota yang kebagian: pasang aksi lewat atribut data-fitur. -->
-                    <!-- KARTU PROFIL UTAMA -->
-                    <div class="settings-card profile-card-trigger" id="btn-buka-edit-profil" style="cursor: pointer;">
-                        <div class="settings-row-item" style="padding: 6px 4px;">
-                            <div class="circle-avatar"
-                                style="width: 52px; height: 52px; background: var(--warna-utama); font-size: 1.2rem; margin-right: 14px;">
-                                A</div>
-                            <div class="settings-item-text">
-                                <b style="font-size: 1.05rem;">Arif Fathur Rohman</b>
-                                <small style="color: var(--warna-utama); font-weight: 500;">@ariffathur</small>
-                                <small style="margin-top: 2px;">Mahasiswa Teknik Informatika</small>
+                    <!-- KARTU PROFIL UTAMA: Tata letak gaya WhatsApp (Banner + Foto di tengah) -->
+                    <div class="profil-atas" id="profil-atas">
+                        <div class="settings-profile-whatsapp-card profile-card-trigger" id="btn-buka-edit-profil" role="button"
+                            tabindex="0" aria-label="Buka edit profil">
+                            
+                            <!-- Banner Profil di Bagian Atas -->
+                            <div class="settings-profile-banner" id="setting-banner-preview"></div>
+                            
+                            <!-- Foto Profil Bulat di Tengah (Menimpa Banner) -->
+                            <div class="settings-profile-avatar-wrapper">
+                                <div class="settings-profile-avatar-circle" id="setting-avatar-container">
+                                    <svg class="ikon settings-default-user-icon" id="setting-default-user-icon" style="width: 36px; height: 36px;"><use href="#i-user"/></svg>
+                                    <img id="setting-img-avatar-output" src="" alt="Foto Profil" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                                </div>
                             </div>
-                            <svg class="ikon settings-arrow" aria-hidden="true">
-                                <use href="#i-next" />
-                            </svg>
+
+                            <!-- Nama, Username, dan Tombol Dropdown Ganti Akun -->
+                            <div class="settings-profile-info-text">
+                                <div class="name-row">
+                                    <span id="setting-display-name">Arif Fathur Rohman</span>
+                                    <button type="button" class="btn-ganti-akun" id="btn-ganti-akun"
+                                        aria-label="Opsi ganti akun" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation();">
+                                        <svg class="ikon" aria-hidden="true">
+                                            <use href="#i-chevron-down" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <small class="profil-username" id="setting-display-username">@ariffathur</small>
+                                <small class="profil-bio" id="setting-display-bio">Mahasiswa Teknik Informatika</small>
+                            </div>
                         </div>
-                        <div
-                            style="border-top: 1px solid var(--border-warna); margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 0.82rem; color: var(--teks-redup); padding-left: 4px;">Foto profil,
-                                nama, banner, bio, dan informasi lainnya.</span>
-                            <span
-                                style="color: var(--warna-utama); font-size: 0.85rem; font-weight: 600; background: var(--warna-tipis); padding: 4px 10px; border-radius: 6px; white-space: nowrap;">Edit
-                                profil</span>
+
+                        <!-- Menu ganti akun: di luar kartu supaya kliknya tidak membuka Edit Profil -->
+                        <div class="akun-menu" id="menu-ganti-akun" role="menu" hidden>
+                            <div class="akun-menu-aktif">
+                                <span class="akun-menu-label">Akun aktif</span>
+                                <b id="akun-menu-nama">-</b>
+                                <small id="akun-menu-username">-</small>
+                            </div>
+                            <div class="dropdown-sekat"></div>
+                            <button type="button" class="akun-menu-aksi" id="btn-masuk-akun-lain" role="menuitem">
+                                <svg class="ikon" aria-hidden="true">
+                                    <use href="#i-swap" />
+                                </svg>Masuk dengan akun lain
+                            </button>
                         </div>
-                    </div>
+                    </div>                    
                     <div class="settings-card">
                         <div class="settings-row-item" data-fitur="akun" title="Segera hadir"><span
                                 class="settings-item-icon"><svg class="ikon" aria-hidden="true">
