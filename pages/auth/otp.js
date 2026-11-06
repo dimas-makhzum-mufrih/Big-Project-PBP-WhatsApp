@@ -6,7 +6,10 @@
   'use strict';
 
   // ===== Pengaturan =====
+<<<<<<< HEAD
   upstream
+=======
+>>>>>>> main
  HEAD:pages/Verifikasi/otp.js
   var PANJANG_KODE    = 6;
   var MASA_BERLAKU    = 5 * 60 * 1000;  // kode kedaluwarsa setelah 5 menit
@@ -15,6 +18,7 @@
   
   var HALAMAN_TUJUAN = '../../Tampilan-utama/login.html';   // tujuan setelah berhasil
   var HALAMAN_DAFTAR = '../assets/index.html';   // tujuan jika data pendaftaran tidak ada
+<<<<<<< HEAD
 
   changes
   var PANJANG_KODE   = 6;
@@ -29,6 +33,8 @@
   var HALAMAN_DAFTAR = '../../index.html';   // tujuan jika data pendaftaran tidak ada
  2e7/auth/otp.js
   changes
+=======
+>>>>>>> main
 
   var KUNCI_PENDING = 'ngumpul_pending';
   var KUNCI_OTP     = 'ngumpul_otp';
