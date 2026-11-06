@@ -273,6 +273,86 @@ input.salah {
   color: var(--hijau);
 }
 
+.lupa-baris {
+  margin: 8px 0 0;
+  text-align: right;
+}
+
+.tombol-kembali {
+  margin: 0 0 14px;
+  font-family: inherit;
+}
+
+.catatan-demo {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--abu);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.kotak-otp-reset {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin: 20px 0 10px;
+}
+
+.digit-reset {
+  min-width: 0;
+  height: 48px;
+  padding: 6px;
+  text-align: center;
+  font-size: 20px;
+}
+
+.kotak-otp-reset.salah .digit-reset {
+  border-color: var(--merah);
+}
+
+#notif-otp-reset {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  z-index: 20;
+  width: calc(100% - 32px);
+  max-width: 570px;
+  padding: 12px 20px;
+  border-radius: 18px;
+  background: #0f2a30;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1.45;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: translate(-50%, calc(-100% - 20px));
+  transition: transform 0.3s ease;
+}
+
+#notif-otp-reset p {
+  margin: 0;
+}
+
+#notif-otp-reset p + p {
+  margin-top: 6px;
+}
+
+#notif-otp-reset.tampil {
+  transform: translate(-50%, 0);
+}
+
+#notif-otp-reset b {
+  color: #00e5ff;
+  font-size: 1.2em;
+  letter-spacing: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #notif-otp-reset {
+    transition: none;
+  }
+}
+
 /* ---------- Toast ---------- */
 #toast {
   position: fixed;

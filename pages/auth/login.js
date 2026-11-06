@@ -17,11 +17,148 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // --- Elemen form ---
-  const tombolMasuk = document.querySelector(".tombol");
+  const tombolMasuk = document.getElementById("btn-masuk");
   const inputIdentifier = document.getElementById("login-identifier");
   const inputSandi = document.getElementById("login-sandi");
   const errIdentifier = document.getElementById("error-login-identifier");
   const errSandi = document.getElementById("error-login-sandi");
+
+  // --- Alur UI lupa sandi ---
+  const halamanReset = ["form-login", "form-reset-nomor", "form-reset-otp", "form-sandi-baru"];
+  const inputNomorReset = document.getElementById("reset-nomor");
+  const inputDigitReset = Array.from(document.querySelectorAll(".digit-reset"));
+  const tombolVerifikasiReset = document.getElementById("btn-verifikasi-reset");
+  let kodeOtpReset = "";
+  let timerNotifOtpReset;
+
+  function tampilkanNotifOtpReset(kode) {
+    const notif = document.getElementById("notif-otp-reset");
+    document.getElementById("kode-otp-reset").textContent = kode;
+    notif.classList.add("tampil");
+    clearTimeout(timerNotifOtpReset);
+    timerNotifOtpReset = setTimeout(() => notif.classList.remove("tampil"), 8000);
+  }
+
+  function bukaHalaman(id) {
+    halamanReset.forEach((halaman) => {
+      document.getElementById(halaman).classList.toggle("aktif", halaman === id);
+    });
+  }
+
+  document.getElementById("tautan-lupa-sandi").addEventListener("click", (event) => {
+    event.preventDefault();
+    bukaHalaman("form-reset-nomor");
+    inputNomorReset.focus();
+  });
+
+  document.querySelectorAll(".tombol-kembali").forEach((tombol) => {
+    tombol.addEventListener("click", () => bukaHalaman(tombol.dataset.kembali));
+  });
+
+  document.getElementById("btn-kirim-otp-reset").addEventListener("click", () => {
+    const error = document.getElementById("error-reset-nomor");
+    const kontakReset = inputNomorReset.value.trim();
+    error.textContent = "";
+
+    if (!kontakReset) {
+      error.textContent = "Nomor HP atau Gmail tidak boleh kosong.";
+      inputNomorReset.focus();
+      return;
+    }
+    const gmailValid = /^[^\s@]+@gmail\.com$/i.test(kontakReset);
+    const nomorValid = /^[+\d][\d\s()-]{7,18}$/.test(kontakReset);
+    if (!gmailValid && !nomorValid) {
+      error.textContent = "Masukkan nomor HP yang valid atau alamat Gmail @gmail.com.";
+      inputNomorReset.focus();
+      return;
+    }
+
+    const kontakTersamar = gmailValid
+      ? kontakReset[0] + "•••@gmail.com"
+      : "••••••" + kontakReset.replace(/\D/g, "").slice(-3);
+    document.getElementById("reset-nomor-tersamar").textContent = kontakTersamar;
+    kodeOtpReset = String(Math.floor(Math.random() * 1000000)).padStart(6, "0");
+    inputDigitReset.forEach((input) => { input.value = ""; });
+    document.getElementById("error-reset-otp").textContent = "";
+    tampilkanNotifOtpReset(kodeOtpReset);
+    tombolVerifikasiReset.disabled = true;
+    bukaHalaman("form-reset-otp");
+    inputDigitReset[0].focus();
+  });
+
+  function kodeResetTerisi() {
+    tombolVerifikasiReset.disabled = inputDigitReset.some((input) => !input.value);
+  }
+
+  inputDigitReset.forEach((input, index) => {
+    input.addEventListener("input", () => {
+      input.value = input.value.replace(/\D/g, "").slice(-1);
+      document.getElementById("error-reset-otp").textContent = "";
+      document.getElementById("kotak-otp-reset").classList.remove("salah");
+      if (input.value && index < inputDigitReset.length - 1) {
+        inputDigitReset[index + 1].focus();
+      }
+      kodeResetTerisi();
+    });
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Backspace" && !input.value && index > 0) {
+        inputDigitReset[index - 1].focus();
+      }
+      if (event.key === "Enter" && !tombolVerifikasiReset.disabled) {
+        tombolVerifikasiReset.click();
+      }
+    });
+    input.addEventListener("paste", (event) => {
+      event.preventDefault();
+      const kode = (event.clipboardData || window.clipboardData)
+        .getData("text").replace(/\D/g, "").slice(0, 6);
+      inputDigitReset.forEach((digit, digitIndex) => {
+        digit.value = kode[digitIndex] || "";
+      });
+      inputDigitReset[Math.min(kode.length, inputDigitReset.length - 1)].focus();
+      kodeResetTerisi();
+    });
+  });
+
+  tombolVerifikasiReset.addEventListener("click", () => {
+    const kodeMasuk = inputDigitReset.map((input) => input.value).join("");
+    if (kodeMasuk !== kodeOtpReset) {
+      document.getElementById("error-reset-otp").textContent = "Kode OTP tidak sesuai.";
+      document.getElementById("kotak-otp-reset").classList.add("salah");
+      return;
+    }
+    document.getElementById("kotak-otp-reset").classList.remove("salah");
+    bukaHalaman("form-sandi-baru");
+    document.getElementById("reset-sandi-baru").focus();
+  });
+
+  document.getElementById("btn-simpan-sandi").addEventListener("click", () => {
+    const sandiBaru = document.getElementById("reset-sandi-baru");
+    const konfirmasi = document.getElementById("reset-sandi-konfirmasi");
+    const errorSandiBaru = document.getElementById("error-reset-sandi-baru");
+    const errorKonfirmasi = document.getElementById("error-reset-sandi-konfirmasi");
+    errorSandiBaru.textContent = "";
+    errorKonfirmasi.textContent = "";
+
+    if (!sandiBaru.value) {
+      errorSandiBaru.textContent = "Sandi baru tidak boleh kosong.";
+      sandiBaru.focus();
+      return;
+    }
+    if (sandiBaru.value !== konfirmasi.value) {
+      errorKonfirmasi.textContent = "Ulangi sandi dengan sama persis.";
+      konfirmasi.focus();
+      return;
+    }
+
+    tampilkanToast("Berhasil (simulasi). Sandi tidak disimpan ke akun.");
+    sandiBaru.value = "";
+    konfirmasi.value = "";
+    inputNomorReset.value = "";
+    inputDigitReset.forEach((input) => { input.value = ""; });
+    kodeOtpReset = "";
+    bukaHalaman("form-login");
+  });
 
   // --- Toast ---
   let timerToast;
