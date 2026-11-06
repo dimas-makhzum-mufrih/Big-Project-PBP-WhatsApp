@@ -6,13 +6,29 @@
   'use strict';
 
   // ===== Pengaturan =====
+  upstream
+ HEAD:pages/Verifikasi/otp.js
+  var PANJANG_KODE    = 6;
+  var MASA_BERLAKU    = 5 * 60 * 1000;  // kode kedaluwarsa setelah 5 menit
+  var JEDA_KIRIM      = 60;             // detik sebelum boleh kirim ulang
+  var MAKS_SALAH      = 5;              // batas salah input per kode
+  
+  var HALAMAN_TUJUAN = '../../Tampilan-utama/login.html';   // tujuan setelah berhasil
+  var HALAMAN_DAFTAR = '../assets/index.html';   // tujuan jika data pendaftaran tidak ada
+
+  changes
   var PANJANG_KODE   = 6;
   var MASA_BERLAKU   = 5 * 60 * 1000;  // kode kedaluwarsa setelah 5 menit
   var JEDA_KIRIM     = 60;             // detik sebelum boleh kirim ulang
   var MAKS_SALAH     = 5;              // batas salah input per kode
   var HALAMAN_TUJUAN = 'login.html';   // tujuan setelah berhasil
+  upstream
   // tujuan tombol Kembali, dan tujuan jika data pendaftaran tidak ada
   var HALAMAN_DAFTAR = '../../index.html?halaman=form-daftar&splash=none';
+
+  var HALAMAN_DAFTAR = '../../index.html';   // tujuan jika data pendaftaran tidak ada
+ 2e7/auth/otp.js
+  changes
 
   var KUNCI_PENDING = 'ngumpul_pending';
   var KUNCI_OTP     = 'ngumpul_otp';
