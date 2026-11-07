@@ -16,6 +16,8 @@ const judulPanelSetelan = document.getElementById("judul-panel-setelan");
 const tombolPilihanTema = document.querySelectorAll("[data-set-theme]");
 const menuTema = document.querySelector('[data-fitur="tema"]');
 
+let panelAktif = null;
+
 // Membuka dan menutup menu titik tiga
 triggerMenuUtama.addEventListener("click", e => {
     e.stopPropagation();
@@ -145,9 +147,17 @@ const triggerMenuUtama = document.getElementById('trigger-menu-utama'),
 // ===== Menu titik tiga =====
 triggerMenuUtama.addEventListener('click', e => {
     e.stopPropagation();
-    boxDropdownUtama.style.display = boxDropdownUtama.style.display === 'none' ? 'block' : 'none';
+
+    const sedangTerbuka =
+        getComputedStyle(boxDropdownUtama).display !== 'none';
+
+    boxDropdownUtama.style.display =
+        sedangTerbuka ? 'none' : 'block';
 });
-document.addEventListener('click', () => { boxDropdownUtama.style.display = 'none'; });
+
+document.addEventListener('click', () => {
+    boxDropdownUtama.style.display = 'none';
+});
 
 // ===== Panel Pengaturan =====
 function bukaSetelan() {
@@ -170,6 +180,7 @@ function tutupSetelan() {
     // bersihkan hash supaya refresh tidak membuka panel lagi
     history.replaceState(null, '', location.pathname + location.search);
 }
+
 
 optBukaSetelan.addEventListener('click', () => {
     bukaSetelan();
