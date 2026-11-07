@@ -1,20 +1,5 @@
 /* Dashboard Ngumpul - satu tema TERANG tetap (tidak ikut mode gelap/terang perangkat).
    Warna disamakan dengan halaman registrasi/login (cyan). */
-:root {
-    color-scheme: light;
-    --warna-utama: #0891b2;
-    --warna-utama-hover: #0e7490;
-    --warna-tipis: #e0f4f8;
-    --bg-putih: #fff;
-    --bg-abu-terang: #f4f5f7;
-    --bg-abu-input: #eef0f3;
-    --teks-gelap: #1b1f24;
-    --teks-redup: #6b7280;
-    --bub-kirim: #cffafe;
-    --bub-terima: #fff;
-    --border-warna: #e2e5ea;
-    --merah: #e5484d;
-}
 
 * {
     box-sizing: border-box
@@ -123,7 +108,7 @@ input {
     color: var(--teks-gelap);
     border: 1px solid var(--border-warna);
     border-radius: 12px;
-    box-shadow: 0 8px 24px #00000020;
+    box-shadow: var(--bayangan-dropdown);
     z-index: 200
 }
 
@@ -233,7 +218,7 @@ input {
     justify-content: center;
     font-weight: bold;
     margin-right: 16px;
-    color: #fff;
+    color: var(--teks-kontras);
     font-size: 1.1rem
 }
 
@@ -288,7 +273,7 @@ input {
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background: #e9f1f4
+    background: var(--bg-chat);
 }
 
 .active-chat-header {
@@ -331,8 +316,7 @@ input {
     line-height: 1.4;
     display: flex;
     flex-direction: column;
-    overflow-wrap: anywhere;
-    box-shadow: 0 1px 1px #0000000f
+    box-shadow: var(--bayangan-card);
 }
 
 .chat-bubble.kirim {
@@ -383,7 +367,7 @@ input {
 .send-action-btn {
     background: var(--warna-utama);
     border: 0;
-    color: #fff;
+    color: var(--teks-kontras);
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
@@ -413,13 +397,13 @@ input {
     align-items: center;
     padding: 0 20px;
     gap: 16px;
-    color: #fff
+    color: var(--teks-kontras);
 }
 
 .settings-back-btn {
     background: none;
     border: 0;
-    color: #fff;
+    color: var(--teks-kontras);
     cursor: pointer;
     padding: 6px;
     border-radius: 50%;
@@ -429,7 +413,7 @@ input {
 }
 
 .settings-back-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--bg-hover-header);
 }
 
 .settings-list-flow {
@@ -505,7 +489,7 @@ input {
 }
 
 .settings-logout-btn:hover {
-    background: #fff1f1
+    background: var(--bg-hover-merah);
 }
 
 @media (max-width: 700px) {
@@ -528,6 +512,171 @@ input {
     }
 }
 
+
+/* ==========================================
+   PENGATURAN TEMA
+========================================== */
+
+.settings-row-item[data-fitur="tema"] {
+    cursor: pointer;
+}
+
+.settings-row-item[data-fitur="tema"]:hover {
+    background: var(--bg-abu-terang);
+}
+
+.settings-theme-page {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 24px;
+}
+
+.theme-description {
+    max-width: 640px;
+    margin: 0 auto 24px;
+}
+
+.theme-description h3 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: var(--teks-gelap);
+}
+
+.theme-description p {
+    margin: 0;
+    color: var(--teks-redup);
+    font-size: .9rem;
+}
+
+.theme-options {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.theme-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+}
+
+.theme-option:hover {
+    border-color: var(--warna-utama);
+}
+
+.theme-option.aktif {
+    border: 2px solid var(--warna-utama);
+    background: var(--warna-tipis);
+}
+
+.theme-preview {
+    width: 90px;
+    height: 65px;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 9px;
+    border-radius: 8px;
+}
+
+.theme-preview span {
+    display: block;
+    width: 65%;
+    height: 7px;
+    border-radius: 5px;
+}
+
+.light-preview {
+    background: var(--preview-light-bg);
+    border: 1px solid var(--preview-light-border);
+}
+
+.light-preview span {
+    background: var(--preview-light-line);
+}
+
+.light-preview span:nth-child(2) {
+    background: var(--preview-light-accent);
+    align-self: flex-end;
+}
+
+.dark-preview {
+    background: var(--preview-dark-bg);
+    border: 1px solid var(--preview-dark-border);
+}
+
+.dark-preview span {
+    background: var(--preview-dark-line);
+}
+
+.dark-preview span:nth-child(2) {
+    background: var(--preview-dark-accent);
+    align-self: flex-end;
+}
+
+.theme-option-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.theme-option-info b {
+    font-size: 1rem;
+}
+
+.theme-option-info small {
+    color: var(--teks-redup);
+    font-size: .85rem;
+}
+
+.theme-check {
+    display: none;
+    color: var(--warna-utama);
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.theme-option.aktif .theme-check {
+    display: block;
+}
+
+.theme-note {
+    max-width: 640px;
+    margin: 20px auto 0;
+    color: var(--teks-redup);
+    font-size: .8rem;
+}
+
+/* Pastikan atribut hidden berfungsi */
+.settings-theme-page[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 700px) {
+    .settings-theme-page {
+        padding: 20px 14px;
+    }
+
+    .theme-preview {
+        width: 72px;
+        height: 58px;
+    }
+    
+}
 /* =====================================================================
    REVISI: Tata Letak Profil di Panel Pengaturan
    ===================================================================== */
@@ -552,7 +701,7 @@ input {
 
 .settings-profile-whatsapp-card:hover {
     border-color: var(--warna-utama);
-    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.1);
+    box-shadow: var(--bayangan-hover-profil);
 }
 
 .settings-profile-whatsapp-card:focus-visible,
@@ -590,7 +739,7 @@ input {
     align-items: center;
     justify-content: center;
     color: var(--warna-utama);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--bayangan-profil);
 }
 
 /* Teks Identitas di Bawah Foto Profil */
@@ -675,7 +824,7 @@ input {
     background: var(--bg-putih);
     border: 1px solid var(--border-warna);
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--bayangan-dropdown);
 }
 
 .akun-menu[hidden] {
@@ -731,4 +880,5 @@ input {
     width: 18px;
     height: 18px;
     color: var(--warna-utama);
+>>>>>>> origin/main
 }
