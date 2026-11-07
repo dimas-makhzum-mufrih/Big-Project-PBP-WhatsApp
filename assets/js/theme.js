@@ -6,7 +6,7 @@
 (function () {
     "use strict";
 
-    const STORAGE_KEY = "ngumpul-theme";
+    const STORAGE_KEY = "ngumpul_tema";
 
     function getSavedTheme() {
         try {

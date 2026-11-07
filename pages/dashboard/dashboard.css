@@ -1,20 +1,5 @@
 /* Dashboard Ngumpul - satu tema TERANG tetap (tidak ikut mode gelap/terang perangkat).
    Warna disamakan dengan halaman registrasi/login (cyan). */
-:root {
-    color-scheme: light;
-    --warna-utama: #0891b2;
-    --warna-utama-hover: #0e7490;
-    --warna-tipis: #e0f4f8;
-    --bg-putih: #fff;
-    --bg-abu-terang: #f4f5f7;
-    --bg-abu-input: #eef0f3;
-    --teks-gelap: #1b1f24;
-    --teks-redup: #6b7280;
-    --bub-kirim: #cffafe;
-    --bub-terima: #fff;
-    --border-warna: #e2e5ea;
-    --merah: #e5484d;
-}
 
 * {
     box-sizing: border-box
@@ -39,6 +24,7 @@ input {
 }
 
 .ikon {
+
     width: 22px;
     height: 22px;
     flex: none;
@@ -122,7 +108,7 @@ input {
     color: var(--teks-gelap);
     border: 1px solid var(--border-warna);
     border-radius: 12px;
-    box-shadow: 0 8px 24px #00000020;
+    box-shadow: var(--bayangan-dropdown);
     z-index: 200
 }
 
@@ -232,7 +218,7 @@ input {
     justify-content: center;
     font-weight: bold;
     margin-right: 16px;
-    color: #fff;
+    color: var(--teks-kontras);
     font-size: 1.1rem
 }
 
@@ -287,7 +273,7 @@ input {
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background: #e9f1f4
+    background: var(--bg-chat);
 }
 
 .active-chat-header {
@@ -330,8 +316,7 @@ input {
     line-height: 1.4;
     display: flex;
     flex-direction: column;
-    overflow-wrap: anywhere;
-    box-shadow: 0 1px 1px #0000000f
+    box-shadow: var(--bayangan-card);
 }
 
 .chat-bubble.kirim {
@@ -382,7 +367,7 @@ input {
 .send-action-btn {
     background: var(--warna-utama);
     border: 0;
-    color: #fff;
+    color: var(--teks-kontras);
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
@@ -412,16 +397,23 @@ input {
     align-items: center;
     padding: 0 20px;
     gap: 16px;
-    color: #fff
+    color: var(--teks-kontras);
 }
 
 .settings-back-btn {
     background: none;
     border: 0;
-    color: #fff;
+    color: var(--teks-kontras);
     cursor: pointer;
-    font-size: 1.3rem;
-    font-weight: bold
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-back-btn:hover {
+    background: var(--bg-hover-header);
 }
 
 .settings-list-flow {
@@ -497,7 +489,7 @@ input {
 }
 
 .settings-logout-btn:hover {
-    background: #fff1f1
+    background: var(--bg-hover-merah);
 }
 
 @media (max-width: 700px) {
@@ -520,54 +512,6 @@ input {
     }
 }
 
-/* ==========================================
-   NGUMPUL - DARK MODE
-========================================== */
-
-html[data-theme="dark"] {
-    color-scheme: dark;
-
-    --warna-utama: #22b8d2;
-    --warna-utama-hover: #0891b2;
-    --warna-tipis: #203b43;
-
-    --bg-putih: #202c33;
-    --bg-abu-terang: #111b21;
-    --bg-abu-input: #2a3942;
-
-    --teks-gelap: #e9edef;
-    --teks-redup: #aebac1;
-
-    --bub-kirim: #005c4b;
-    --bub-terima: #202c33;
-
-    --border-warna: #374045;
-    --merah: #ff6b6b;
-}
-
-/* Background ruang chat */
-html[data-theme="dark"] .active-chat-room {
-    background: var(--bg-abu-terang);
-}
-
-/* Pesan */
-html[data-theme="dark"] .chat-bubble.kirim {
-    color: #e9edef;
-}
-
-html[data-theme="dark"] .chat-bubble.terima {
-    color: #e9edef;
-}
-
-/* Dropdown */
-html[data-theme="dark"] .dropdown-box {
-    box-shadow: 0 8px 24px #00000060;
-}
-
-/* Tombol logout */
-html[data-theme="dark"] .settings-logout-btn:hover {
-    background: #3a2528;
-}
 
 /* ==========================================
    PENGATURAN TEMA
@@ -656,30 +600,30 @@ html[data-theme="dark"] .settings-logout-btn:hover {
 }
 
 .light-preview {
-    background: #f1f5f9;
-    border: 1px solid #dce2e8;
+    background: var(--preview-light-bg);
+    border: 1px solid var(--preview-light-border);
 }
 
 .light-preview span {
-    background: #cbd5e1;
+    background: var(--preview-light-line);
 }
 
 .light-preview span:nth-child(2) {
-    background: #a5e6d5;
+    background: var(--preview-light-accent);
     align-self: flex-end;
 }
 
 .dark-preview {
-    background: #111b21;
-    border: 1px solid #374045;
+    background: var(--preview-dark-bg);
+    border: 1px solid var(--preview-dark-border);
 }
 
 .dark-preview span {
-    background: #475569;
+    background: var(--preview-dark-line);
 }
 
 .dark-preview span:nth-child(2) {
-    background: #005c4b;
+    background: var(--preview-dark-accent);
     align-self: flex-end;
 }
 
@@ -731,4 +675,210 @@ html[data-theme="dark"] .settings-logout-btn:hover {
         width: 72px;
         height: 58px;
     }
+    
+}
+/* =====================================================================
+   REVISI: Tata Letak Profil di Panel Pengaturan
+   ===================================================================== */
+.profil-atas {
+    position: relative;
+    max-width: 640px;
+    margin: 0 auto 14px;
+    transform-origin: top center;
+    will-change: opacity, transform;
+}
+
+/* Card Utama Profil Ala WhatsApp (Banner di atas, foto di tengah) */
+.settings-profile-whatsapp-card {
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s;
+    padding-bottom: 20px;
+}
+
+.settings-profile-whatsapp-card:hover {
+    border-color: var(--warna-utama);
+    box-shadow: var(--bayangan-hover-profil);
+}
+
+.settings-profile-whatsapp-card:focus-visible,
+.btn-ganti-akun:focus-visible,
+.akun-menu-aksi:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px;
+}
+
+/* Banner Profil di Bagian Atas Card */
+.settings-profile-banner {
+    width: 100%;
+    height: 110px;
+    background: var(--warna-tipis);
+    background-size: cover;
+    background-position: center;
+}
+
+/* Wrapper Foto Profil Bulat di Tengah (Menimpa Banner) */
+.settings-profile-avatar-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: -42px;
+    position: relative;
+}
+
+.settings-profile-avatar-circle {
+    width: 84px;
+    height: 84px;
+    background: var(--warna-tipis);
+    border: 4px solid var(--bg-putih);
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--warna-utama);
+    box-shadow: var(--bayangan-profil);
+}
+
+/* Teks Identitas di Bawah Foto Profil */
+.settings-profile-info-text {
+    text-align: center;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0 16px;
+}
+
+.settings-profile-info-text .name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.settings-profile-info-text .name-row span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--teks-gelap);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Tombol Dropdown Ganti Akun */
+.btn-ganti-akun {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--teks-redup);
+    cursor: pointer;
+}
+
+.btn-ganti-akun:hover {
+    background: var(--bg-abu-input);
+    color: var(--warna-utama);
+}
+
+.btn-ganti-akun .ikon {
+    width: 18px;
+    height: 18px;
+    transition: transform .2s;
+}
+
+.btn-ganti-akun[aria-expanded="true"] .ikon {
+    transform: rotate(180deg);
+}
+
+.profil-username {
+    color: var(--warna-utama);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.profil-bio {
+    color: var(--teks-redup);
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+/* Menu ganti akun (dropdown kecil) */
+.akun-menu {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    width: 260px;
+    max-width: calc(100% - 40px);
+    padding: 6px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 12px;
+    box-shadow: var(--bayangan-dropdown);
+}
+
+.akun-menu[hidden] {
+    display: none;
+}
+
+.akun-menu-aktif {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 8px 12px;
+}
+
+.akun-menu-label {
+    font-size: .72rem;
+    color: var(--teks-redup);
+}
+
+.akun-menu-aktif b {
+    font-size: .95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.akun-menu-aktif small {
+    color: var(--warna-utama);
+    font-size: .8rem;
+}
+
+.akun-menu-aksi {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: .92rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.akun-menu-aksi:hover {
+    background: var(--bg-abu-terang);
+}
+
+.akun-menu-aksi .ikon {
+    width: 18px;
+    height: 18px;
+    color: var(--warna-utama);
+>>>>>>> origin/main
 }

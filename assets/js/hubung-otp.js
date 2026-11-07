@@ -14,7 +14,7 @@
     var kodeEl = document.getElementById('kode-terpilih');
     sessionStorage.setItem('ngumpul_pending', JSON.stringify({
       nama: ambil('nama'),
-      hp: ambil('hp'),
+      hp: hpInternasional(negaraTerpilih[2], ambil('hp')),
       kode: kodeEl ? kodeEl.textContent.trim() : '+62',
       email: ambil('email')
     }));

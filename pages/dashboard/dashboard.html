@@ -6,12 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>Ngumpul - Ruang Chat</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
     <script src="../../assets/js/theme.js"></script>
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 
 <body>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="i-back" viewBox="0 0 24 24">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+        </symbol>
         <symbol id="i-user" viewBox="0 0 24 24">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />
@@ -51,6 +55,15 @@
         <symbol id="i-help" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" />
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" />
+        </symbol>
+                <symbol id="i-chevron-down" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+        </symbol>
+        <symbol id="i-swap" viewBox="0 0 24 24">
+            <path d="M17 1l4 4-4 4" />
+            <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+            <path d="M7 23l-4-4 4-4" />
+            <path d="M21 13v2a4 4 0 0 1-4 4H3" />
         </symbol>
         <symbol id="i-next" viewBox="0 0 24 24">
             <path d="M9 18l6-6-6-6" />
@@ -132,6 +145,7 @@
                         id="btn-kirim-pesan">Kirim</button></footer>
             </section>
             <div class="settings-slide-panel" id="panel-layer-setelan">
+
                     <header class="settings-panel-header">
         <button
             class="settings-back-btn"
@@ -141,14 +155,69 @@
 
         <strong id="judul-panel-setelan">Pengaturan</strong>
     </header>
+
+                <header class="settings-panel-header">
+                    <button class="settings-back-btn" id="btn-kembali-ke-chat" aria-label="Kembali"><svg class="ikon">
+                            <use href="#i-back" />
+                        </svg></button>
+                    <strong>Pengaturan</strong>
+                </header>
+>>>>>>> origin/main
                 <div class="settings-list-flow">
                     <!-- Baris di bawah baru tampilan (belum fungsional). Anggota yang kebagian: pasang aksi lewat atribut data-fitur. -->
+                    <!-- KARTU PROFIL UTAMA: Tata letak gaya WhatsApp (Banner + Foto di tengah) -->
+                    <div class="profil-atas" id="profil-atas">
+                        <div class="settings-profile-whatsapp-card profile-card-trigger" id="btn-buka-edit-profil" role="button"
+                            tabindex="0" aria-label="Buka edit profil">
+                            
+                            <!-- Banner Profil di Bagian Atas -->
+                            <div class="settings-profile-banner" id="setting-banner-preview"></div>
+                            
+                            <!-- Foto Profil Bulat di Tengah (Menimpa Banner) -->
+                            <div class="settings-profile-avatar-wrapper">
+                                <div class="settings-profile-avatar-circle" id="setting-avatar-container">
+                                    <svg class="ikon settings-default-user-icon" id="setting-default-user-icon" style="width: 36px; height: 36px;"><use href="#i-user"/></svg>
+                                    <img id="setting-img-avatar-output" src="" alt="Foto Profil" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                            </div>
+
+                            <!-- Nama, Username, dan Tombol Dropdown Ganti Akun -->
+                            <div class="settings-profile-info-text">
+                                <div class="name-row">
+                                    <span id="setting-display-name">Arif Fathur Rohman</span>
+                                    <button type="button" class="btn-ganti-akun" id="btn-ganti-akun"
+                                        aria-label="Opsi ganti akun" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation();">
+                                        <svg class="ikon" aria-hidden="true">
+                                            <use href="#i-chevron-down" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <small class="profil-username" id="setting-display-username">@ariffathur</small>
+                                <small class="profil-bio" id="setting-display-bio">Mahasiswa Teknik Informatika</small>
+                            </div>
+                        </div>
+
+                        <!-- Menu ganti akun: di luar kartu supaya kliknya tidak membuka Edit Profil -->
+                        <div class="akun-menu" id="menu-ganti-akun" role="menu" hidden>
+                            <div class="akun-menu-aktif">
+                                <span class="akun-menu-label">Akun aktif</span>
+                                <b id="akun-menu-nama">-</b>
+                                <small id="akun-menu-username">-</small>
+                            </div>
+                            <div class="dropdown-sekat"></div>
+                            <button type="button" class="akun-menu-aksi" id="btn-masuk-akun-lain" role="menuitem">
+                                <svg class="ikon" aria-hidden="true">
+                                    <use href="#i-swap" />
+                                </svg>Masuk dengan akun lain
+                            </button>
+                        </div>
+                    </div>                    
                     <div class="settings-card">
                         <div class="settings-row-item" data-fitur="akun" title="Segera hadir"><span
                                 class="settings-item-icon"><svg class="ikon" aria-hidden="true">
                                     <use href="#i-user" />
                                 </svg></span>
-                            <div class="settings-item-text"><b>Akun</b><small>Profil dan keamanan</small></div><svg
+                            <div class="settings-item-text"><b>Akun</b><small>Notifikasi keamanan, ganti nomor</small></div><svg
                                 class="ikon settings-arrow" aria-hidden="true">
                                 <use href="#i-next" />
                             </svg>
@@ -238,7 +307,7 @@
                             </svg>Keluar akun</button></div>
                 </div>
                 <!-- Halaman Pengaturan Tema -->
-<div class="settings-theme-page" id="panel-pengaturan-tema" hidden>
+<div class="settings-theme-page" id="panel-setelan-tema" hidden>
 
     <div class="theme-description">
         <h3>Tampilan aplikasi</h3>
@@ -295,6 +364,7 @@
             </div>
         </main>
     </div>
+    <script src="../../assets/js/storage.js"></script>
     <script src="dashboard.js"></script>
 </body>
 
