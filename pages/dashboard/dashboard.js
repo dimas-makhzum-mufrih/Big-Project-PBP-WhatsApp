@@ -140,6 +140,286 @@ if (kartuProfil) {
 // Buang draft Edit Profil yang belum disimpan
 try { sessionStorage.removeItem('draft_profil_edit'); } catch (e) {}
 
+// ===== Kontak tersimpan per akun =====
+if (userAktif) {
+    const KEY_KONTAK = 'ngumpul_kontak_';
+    const tabChat = document.querySelector('.tab[data-fitur="tab-chat"]');
+    const tabKontak = document.getElementById('tab-kontak');
+    const areaChat = document.querySelector('.chat-scroll-area');
+    const areaKontak = document.getElementById('contact-list-area');
+    const judulSisiKiri = document.querySelector('.header-kiri h2');
+    const inputCariKontak = document.getElementById('input-cari-chat');
+    const daftarKontak = document.getElementById('daftar-kontak');
+    const formKontak = document.getElementById('form-tambah-kontak');
+    const inputNamaKontak = document.getElementById('input-nama-kontak');
+    const inputNomorKontak = document.getElementById('input-nomor-kontak');
+    const tombolTambahKontak = document.getElementById('btn-tambah-kontak');
+    const statusKontak = document.getElementById('contact-status');
+
+    function tampilkanStatusKontak(teks, error) {
+        statusKontak.textContent = teks;
+        statusKontak.dataset.error = error ? 'true' : 'false';
+    }
+
+    function bacaKontak() {
+        try {
+            const data = localStorage.getItem(KEY_KONTAK + userAktif.id);
+            if (!data) return [];
+            const daftar = JSON.parse(data);
+            if (!Array.isArray(daftar)) throw new Error('Format daftar kontak tidak valid.');
+            return daftar.filter(item =>
+                typeof item === 'string' ||
+                (item && typeof item.phone === 'string')
+            );
+        } catch (error) {
+            tampilkanStatusKontak('Daftar kontak tidak dapat dibaca dari penyimpanan lokal.', true);
+            return null;
+        }
+    }
+
+    function normalisasiNomorKontak(nomor) {
+        const nomorBersih = String(nomor || '').replace(/[^\d+]/g, '');
+        if (nomorBersih.startsWith('+')) return '+' + nomorBersih.slice(1).replace(/\D/g, '');
+        if (nomorBersih.startsWith('00')) return '+' + nomorBersih.slice(2).replace(/\D/g, '');
+        if (nomorBersih.startsWith('0')) return '+62' + nomorBersih.slice(1).replace(/\D/g, '');
+        if (nomorBersih.startsWith('62')) return '+' + nomorBersih;
+        return '+62' + nomorBersih.replace(/\D/g, '');
+    }
+
+    function nomorDariKontak(item) {
+        if (typeof item === 'string') {
+            const user = getUserById(item);
+            return user ? normalisasiNomorKontak(user.hp) : '';
+        }
+        return normalisasiNomorKontak(item.phone);
+    }
+
+    function userDenganNomorKontak(nomor) {
+        const pengguna = getUsers();
+        for (let i = 0; i < pengguna.length; i++) {
+            if (samakanHp(pengguna[i].hp, nomor)) return pengguna[i];
+        }
+        return null;
+    }
+
+    function kunciKontak(item) {
+        return typeof item === 'string' ? 'id:' + item : 'phone:' + nomorDariKontak(item);
+    }
+
+    function simpanKontak(daftar) {
+        try {
+            localStorage.setItem(KEY_KONTAK + userAktif.id, JSON.stringify(daftar));
+            return true;
+        } catch (error) {
+            tampilkanStatusKontak('Kontak gagal disimpan. Periksa ruang penyimpanan browser.', true);
+            return false;
+        }
+    }
+
+    function renderKontak() {
+        const daftar = bacaKontak();
+        daftarKontak.replaceChildren();
+        if (daftar === null) {
+            daftarKontak.appendChild(buatPesanKosong('Kontak belum dapat ditampilkan.'));
+            return;
+        }
+
+        const kataKunci = inputCariKontak.value.trim().toLowerCase();
+        const kontak = daftar.map(item => {
+            const phone = nomorDariKontak(item);
+            const user = typeof item === 'string' ? getUserById(item) : userDenganNomorKontak(phone);
+            if (user && user.id === userAktif.id) return null;
+            const profil = user ? getProfil(user.id) : null;
+            return {
+                key: kunciKontak(item),
+                user: user,
+                nama: typeof item === 'string'
+                    ? (profil ? profil.nama : phone)
+                    : (item.name || (profil ? profil.nama : phone)),
+                phone: profil && profil.phone ? profil.phone : phone
+            };
+        })
+            .filter(item => item && item.phone)
+            .sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+        const hasil = kontak.filter(item =>
+            item.nama.toLowerCase().includes(kataKunci) ||
+            item.phone.toLowerCase().includes(kataKunci)
+        );
+
+        if (!hasil.length) {
+            const teks = kataKunci
+                ? 'Kontak tidak ditemukan.'
+                : 'Belum ada kontak. Tambahkan nomor HP untuk menyimpannya di browser.';
+            daftarKontak.appendChild(buatPesanKosong(teks));
+            return;
+        }
+
+        const warnaAvatar = ['#3984bd', '#8e63aa', '#d17b45', '#368c72', '#bd5d70'];
+        hasil.forEach(item => {
+            const kartu = document.createElement('div');
+            kartu.className = 'contact-card';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'contact-avatar';
+            avatar.textContent = item.nama.trim().charAt(0).toUpperCase() || '?';
+            let indeksWarna = 0;
+            const sumberWarna = item.user ? item.user.id : item.phone;
+            for (let i = 0; i < sumberWarna.length; i++) indeksWarna += sumberWarna.charCodeAt(i);
+            avatar.style.backgroundColor = warnaAvatar[indeksWarna % warnaAvatar.length];
+
+            const detail = document.createElement('div');
+            detail.className = 'contact-details';
+            const nama = document.createElement('span');
+            nama.className = 'contact-name';
+            nama.textContent = item.nama;
+            const nomor = document.createElement('span');
+            nomor.className = 'contact-phone';
+            nomor.textContent = item.phone;
+            detail.append(nama, nomor);
+
+            const tombolHapus = document.createElement('button');
+            tombolHapus.className = 'contact-remove-button';
+            tombolHapus.type = 'button';
+            tombolHapus.dataset.hapusKontak = item.key;
+            tombolHapus.textContent = 'Hapus';
+            tombolHapus.setAttribute('aria-label', 'Hapus kontak ' + item.nama);
+
+            const aksi = document.createElement('div');
+            aksi.className = 'contact-card-actions';
+
+            const tombolChatKontak = document.createElement('button');
+            tombolChatKontak.className = 'contact-chat-button';
+            tombolChatKontak.type = 'button';
+            tombolChatKontak.dataset.chatKontak = item.key;
+            tombolChatKontak.textContent = 'Chat';
+            tombolChatKontak.setAttribute('aria-label', 'Chat dengan ' + item.nama);
+
+            const tombolTelepon = document.createElement('button');
+            tombolTelepon.className = 'contact-call-button';
+            tombolTelepon.type = 'button';
+            tombolTelepon.textContent = 'Telepon';
+            tombolTelepon.setAttribute('aria-label', 'Telepon suara ' + item.nama);
+
+            const tombolVideo = document.createElement('button');
+            tombolVideo.className = 'contact-call-button';
+            tombolVideo.type = 'button';
+            tombolVideo.textContent = 'Video call';
+            tombolVideo.setAttribute('aria-label', 'Video call ' + item.nama);
+
+            aksi.append(tombolChatKontak, tombolTelepon, tombolVideo, tombolHapus);
+            kartu.append(avatar, detail, aksi);
+            daftarKontak.appendChild(kartu);
+        });
+    }
+
+    function buatPesanKosong(teks) {
+        const pesan = document.createElement('p');
+        pesan.className = 'contact-empty';
+        pesan.textContent = teks;
+        return pesan;
+    }
+
+    function aturTampilanKontak(aktif) {
+        areaChat.hidden = aktif;
+        areaKontak.hidden = !aktif;
+        tabKontak.classList.toggle('aktif', aktif);
+        tabKontak.setAttribute('aria-pressed', String(aktif));
+        if (tabChat) {
+            tabChat.classList.toggle('aktif', !aktif);
+            tabChat.setAttribute('aria-pressed', String(!aktif));
+        }
+        judulSisiKiri.textContent = aktif ? 'Kontak' : 'Obrolan';
+        inputCariKontak.placeholder = aktif ? 'Cari kontak...' : 'Cari atau mulai chat baru';
+        inputCariKontak.setAttribute('aria-label', aktif ? 'Cari kontak' : 'Cari atau mulai chat baru');
+        inputCariKontak.value = '';
+        if (aktif) renderKontak();
+    }
+
+    tabKontak.addEventListener('click', () => aturTampilanKontak(true));
+    if (tabChat) tabChat.addEventListener('click', () => aturTampilanKontak(false));
+    inputCariKontak.addEventListener('input', () => {
+        if (!areaKontak.hidden) renderKontak();
+    });
+
+    tombolTambahKontak.addEventListener('click', () => {
+        formKontak.hidden = !formKontak.hidden;
+        tombolTambahKontak.setAttribute('aria-expanded', String(!formKontak.hidden));
+        tampilkanStatusKontak('', false);
+        if (!formKontak.hidden) inputNomorKontak.focus();
+    });
+
+    inputNomorKontak.addEventListener('input', () => {
+        inputNomorKontak.value = inputNomorKontak.value.replace(/\D/g, '').slice(0, 15);
+    });
+
+    formKontak.addEventListener('submit', event => {
+        event.preventDefault();
+        const nama = inputNamaKontak.value.trim();
+        const nomor = inputNomorKontak.value.trim();
+        if (!nama) {
+            tampilkanStatusKontak('Nama kontak tidak boleh kosong.', true);
+            inputNamaKontak.focus();
+            return;
+        }
+        const jumlahDigit = nomor.replace(/\D/g, '').length;
+        if (!/^\d{8,15}$/.test(nomor) || jumlahDigit < 8 || jumlahDigit > 15) {
+            tampilkanStatusKontak('Masukkan nomor HP yang valid (8–15 digit).', true);
+            inputNomorKontak.focus();
+            return;
+        }
+
+        const nomorTersimpan = normalisasiNomorKontak(nomor);
+        const user = userDenganNomorKontak(nomorTersimpan);
+        if (user && user.id === userAktif.id) {
+            tampilkanStatusKontak('Kamu tidak dapat menambahkan akun sendiri.', true);
+            inputNomorKontak.focus();
+            return;
+        }
+
+        const daftar = bacaKontak();
+        if (daftar === null) return;
+        const indexSudahAda = daftar.findIndex(item =>
+            (user && typeof item === 'string' && item === user.id) ||
+            nomorDariKontak(item) === nomorTersimpan
+        );
+        const kontakBaru = { phone: nomorTersimpan, userId: user ? user.id : null, name: nama };
+        let pesanSukses = 'Kontak berhasil disimpan di browser.';
+        if (indexSudahAda !== -1) {
+            daftar[indexSudahAda] = kontakBaru;
+            pesanSukses = 'Nama kontak berhasil diperbarui.';
+        } else {
+            daftar.push(kontakBaru);
+        }
+        if (!simpanKontak(daftar)) return;
+
+        inputNamaKontak.value = '';
+        inputNomorKontak.value = '';
+        tampilkanStatusKontak(pesanSukses, false);
+        renderKontak();
+    });
+
+    daftarKontak.addEventListener('click', event => {
+        const tombolChatKontak = event.target.closest('[data-chat-kontak]');
+        if (tombolChatKontak) {
+            aturTampilanKontak(false);
+            return;
+        }
+
+        const tombol = event.target.closest('[data-hapus-kontak]');
+        if (!tombol) return;
+        const daftar = bacaKontak();
+        if (daftar === null) return;
+        const daftarBaru = daftar.filter(item => kunciKontak(item) !== tombol.dataset.hapusKontak);
+        if (daftarBaru.length === daftar.length) return;
+        if (!simpanKontak(daftarBaru)) return;
+        tampilkanStatusKontak('Kontak berhasil dihapus dari browser.', false);
+        renderKontak();
+    });
+
+    window.addEventListener('storage', event => {
+        if (event.key === KEY_KONTAK + userAktif.id && !areaKontak.hidden) renderKontak();
+    });
+}
 
 // ===== Panah (v) di kartu profil: menu ganti akun =====
 const btnGantiAkun = document.getElementById('btn-ganti-akun');
