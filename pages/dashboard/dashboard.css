@@ -732,3 +732,330 @@ input {
     height: 18px;
     color: var(--warna-utama);
 }
+
+/* =====================================================================
+   FITUR: emoji picker dan reaksi pesan
+   ===================================================================== */
+
+/* ---------- Emoji Picker di Input Area ---------- */
+.emoji-input-wrapper {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background: var(--bg-abu-input);
+    border-radius: 8px;
+    overflow: visible;
+}
+
+.emoji-input-wrapper .chat-input-field {
+    background: transparent;
+    border-radius: 0 8px 8px 0;
+}
+
+.btn-emoji-toggle {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px 0 0 8px;
+    background: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    opacity: .65;
+    transition: opacity .2s;
+}
+
+.btn-emoji-toggle:hover {
+    opacity: 1;
+}
+
+.emoji-toggle-keyboard {
+    display: none;
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.btn-emoji-toggle.panel-terbuka .emoji-toggle-face {
+    display: none;
+}
+
+.btn-emoji-toggle.panel-terbuka .emoji-toggle-keyboard {
+    display: block;
+}
+
+/* Panel Emoji Picker */
+.emoji-picker-popup {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    width: 340px;
+    max-height: 380px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: emojiSlideUp .18s ease-out;
+}
+
+@keyframes emojiSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.emoji-picker-header {
+    padding: 10px 12px 6px;
+    flex-shrink: 0;
+}
+
+.emoji-search-input {
+    width: 100%;
+    padding: 8px 14px;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    font-size: .88rem;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+}
+
+.emoji-search-input:focus {
+    outline: 2px solid var(--warna-utama);
+    border-color: transparent;
+}
+
+.emoji-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 4px 10px;
+    border-bottom: 1px solid var(--border-warna);
+    flex-shrink: 0;
+}
+
+.emoji-tab {
+    flex: 1;
+    padding: 5px 0;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 6px 6px 0 0;
+    transition: background .15s;
+}
+
+.emoji-tab:hover {
+    background: var(--bg-abu-terang);
+}
+
+.emoji-tab.aktif {
+    border-bottom-color: var(--warna-utama);
+    background: var(--warna-tipis);
+}
+
+.emoji-kategori-label {
+    padding: 6px 14px 2px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--teks-redup);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    flex-shrink: 0;
+}
+
+.emoji-grid {
+    flex: 1;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2px;
+    padding: 6px 10px 10px;
+}
+
+.emoji-grid button {
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    font-size: 1.35rem;
+    cursor: pointer;
+    transition: background .12s, transform .12s;
+    aspect-ratio: 1;
+}
+
+.emoji-grid button:hover {
+    background: var(--bg-abu-terang);
+    transform: scale(1.2);
+}
+
+/* ---------- Chat Bubble dengan Reaction ---------- */
+
+.chat-bubble-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 65%;
+    position: relative;
+}
+
+.chat-bubble-wrapper.kirim {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.chat-bubble-wrapper.terima {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+
+.chat-bubble-wrapper .chat-bubble {
+    max-width: 100%;
+    position: relative;
+}
+
+/* Tombol reaksi muncul saat hover pada bubble */
+.btn-react-trigger {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    display: none;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--bg-putih);
+    box-shadow: 0 1px 4px rgba(0,0,0,.15);
+    font-size: .85rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: background .15s, transform .15s;
+}
+
+.chat-bubble-wrapper.kirim .btn-react-trigger {
+    left: -36px;
+}
+
+.chat-bubble-wrapper.terima .btn-react-trigger {
+    right: -36px;
+}
+
+.chat-bubble-wrapper:hover .btn-react-trigger {
+    display: grid;
+}
+
+.btn-react-trigger:hover {
+    background: var(--bg-abu-terang);
+    transform: translateY(-50%) scale(1.15);
+}
+
+/* Baris reaction di bawah bubble */
+.reaction-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: -4px;
+    padding: 0 6px;
+}
+
+.reaction-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 12px;
+    font-size: .8rem;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.reaction-badge:hover {
+    background: var(--warna-tipis);
+    border-color: var(--warna-utama);
+}
+
+.reaction-badge.mine {
+    border-color: var(--warna-utama);
+    background: var(--warna-tipis);
+}
+
+.reaction-badge .reaction-emoji {
+    font-size: 1rem;
+}
+
+.reaction-badge .reaction-count {
+    font-size: .72rem;
+    font-weight: 600;
+    color: var(--teks-redup);
+}
+
+/* ---------- Popup Quick Reaction Picker ---------- */
+.reaction-picker-popup {
+    position: absolute;
+    display: flex;
+    gap: 4px;
+    padding: 6px 8px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 24px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.16);
+    z-index: 600;
+    animation: reactionPop .15s ease-out;
+}
+
+@keyframes reactionPop {
+    from { opacity: 0; transform: scale(.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.reaction-quick {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: background .12s, transform .12s;
+}
+
+.reaction-quick:hover {
+    background: var(--bg-abu-terang);
+    transform: scale(1.25);
+}
+
+.reaction-quick.reaction-more {
+    font-size: 1rem;
+    color: var(--teks-redup);
+}
+
+/* ---------- Responsif emoji picker ---------- */
+@media (max-width: 500px) {
+    .emoji-picker-popup {
+        width: calc(100vw - 40px);
+        max-width: 340px;
+    }
+
+    .emoji-grid {
+        grid-template-columns: repeat(7, 1fr);
+    }
+}

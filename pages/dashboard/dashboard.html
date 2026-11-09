@@ -138,9 +138,50 @@
                     </div>
                 </header>
                 <div class="messages-container" id="box-list-pesan"></div>
-                <footer class="active-chat-footer"><input class="chat-input-field" id="input-teks-kirim" type="text"
-                        placeholder="Ketik pesan..." autocomplete="off"><button class="send-action-btn"
-                        id="btn-kirim-pesan">Kirim</button></footer>
+                <footer class="active-chat-footer">
+                    <div class="emoji-input-wrapper">
+                        <button class="btn-emoji-toggle" id="btn-emoji-toggle" type="button" aria-label="Pilih emoji" title="Emoji">
+                           <span class="emoji-toggle-face" aria-hidden="true">😊</span>
+                            <svg class="emoji-toggle-keyboard" aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                                <rect x="2.5" y="5" width="19" height="14" rx="2" />
+                                <path d="M6 9h.01M9 9h.01M12 9h.01M15 9h.01M18 9h.01M6 12h.01M9 12h.01M12 12h.01M15 12h.01M18 12h.01M8 15h8" />
+                            </svg>
+                        </button>
+                        <div class="emoji-picker-popup" id="emoji-picker-popup" style="display:none">
+                            <div class="emoji-picker-header">
+                                <input class="emoji-search-input" id="emoji-search-input" type="search" placeholder="Cari emoji..." autocomplete="off">
+                            </div>
+                            <div class="emoji-tabs" id="emoji-tabs">
+                                <button class="emoji-tab aktif" data-kategori="smileys" title="Wajah & Emosi">😀</button>
+                                <button class="emoji-tab" data-kategori="gestures" title="Tangan & Isyarat">👋</button>
+                                <button class="emoji-tab" data-kategori="people" title="Orang">👤</button>
+                                <button class="emoji-tab" data-kategori="animals" title="Hewan & Alam">🐾</button>
+                                <button class="emoji-tab" data-kategori="food" title="Makanan & Minuman">🍕</button>
+                                <button class="emoji-tab" data-kategori="travel" title="Perjalanan & Tempat">✈️</button>
+                                <button class="emoji-tab" data-kategori="activities" title="Aktivitas">⚽</button>
+                                <button class="emoji-tab" data-kategori="objects" title="Objek">💡</button>
+                                <button class="emoji-tab" data-kategori="symbols" title="Simbol">❤️</button>
+                                <button class="emoji-tab" data-kategori="flags" title="Bendera">🏁</button>
+                            </div>
+                            <div class="emoji-kategori-label" id="emoji-kategori-label">Wajah & Emosi</div>
+                            <div class="emoji-grid" id="emoji-grid"></div>
+                        </div>
+                        <input class="chat-input-field" id="input-teks-kirim" type="text"
+                            placeholder="Ketik pesan..." autocomplete="off">
+                    </div>
+                    <button class="send-action-btn" id="btn-kirim-pesan">Kirim</button>
+                </footer>
+
+                <!-- Popup reaksi dan hover pesan -->
+                <div class="reaction-picker-popup" id="reaction-picker-popup" style="display:none">
+                    <button class="reaction-quick" data-emoji="👍">👍</button>
+                    <button class="reaction-quick" data-emoji="❤️">❤️</button>
+                    <button class="reaction-quick" data-emoji="😂">😂</button>
+                    <button class="reaction-quick" data-emoji="😮">😮</button>
+                    <button class="reaction-quick" data-emoji="😢">😢</button>
+                    <button class="reaction-quick" data-emoji="🙏">🙏</button>
+                    <button class="reaction-quick reaction-more" id="btn-reaction-more" title="Emoji lainnya">➕</button>
+                </div>
             </section>
             <div class="settings-slide-panel" id="panel-layer-setelan">
                 <header class="settings-panel-header">
