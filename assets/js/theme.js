@@ -8,19 +8,17 @@
 
     const STORAGE_KEY = "ngumpul_tema";
 
-    function getSavedTheme() {
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-
-            if (saved === "light" || saved === "dark") {
-                return saved;
-            }
-        } catch (error) {
-            console.warn("Gagal membaca tema:", error);
-        }
-
-        return "light";
+function getSavedTheme() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved === "light" || saved === "dark") return saved;
+    } catch (e) {}
+    // fallback ke device
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        return "dark";
     }
+    return "light";
+}
 
     function applyTheme(theme) {
         const selectedTheme = theme === "dark" ? "dark" : "light";
