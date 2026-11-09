@@ -2,6 +2,17 @@
 const userAktif = getUserAktif();
 if (!userAktif) { location.replace('../auth/login.html'); }
 
+// Continue a contact-originated chat request after the dashboard page loads.
+const idChatTertunda = new URLSearchParams(location.hash.slice(1)).get('buka-chat');
+if (userAktif && idChatTertunda) {
+    window.setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('ngumpul:buka-chat', {
+            detail: { idLawan: idChatTertunda }
+        }));
+        history.replaceState(null, '', location.pathname + location.search);
+    }, 0);
+}
+
 // ===== Elemen utama =====
 const triggerMenuUtama = document.getElementById('trigger-menu-utama'),
     boxDropdownUtama = document.getElementById('box-dropdown-utama'),
@@ -139,7 +150,6 @@ if (kartuProfil) {
 
 // Buang draft Edit Profil yang belum disimpan
 try { sessionStorage.removeItem('draft_profil_edit'); } catch (e) {}
-
 
 // ===== Panah (v) di kartu profil: menu ganti akun =====
 const btnGantiAkun = document.getElementById('btn-ganti-akun');
