@@ -134,8 +134,8 @@
                         maxlength="60" placeholder="Contoh: Budi" required>
                     <label for="input-nomor-kontak">Nomor HP kontak</label>
                     <div class="contact-form-row">
-                        <input id="input-nomor-kontak" type="tel" inputmode="numeric" autocomplete="tel"
-                            pattern="[0-9]{8,15}" placeholder="Contoh: 081234567890" required>
+                        <input id="input-nomor-kontak" type="tel" inputmode="tel" autocomplete="tel"
+                             placeholder="Contoh: 081234567890 atau +60123456789" required>
                         <button type="submit">Tambah</button>
                     </div>
                     <small class="contact-hint">Nomor tetap tersimpan meskipun belum terdaftar di Ngumpul.</small>
@@ -191,7 +191,7 @@
                             <!-- Nama, Username, dan Tombol Dropdown Ganti Akun -->
                             <div class="settings-profile-info-text">
                                 <div class="name-row">
-                                    <span id="setting-display-name">Arif Fathur Rohman</span>
+                                    <span id="setting-display-name">Nama pengguna</span>
                                     <button type="button" class="btn-ganti-akun" id="btn-ganti-akun"
                                         aria-label="Opsi ganti akun" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation();">
                                         <svg class="ikon" aria-hidden="true">
@@ -199,7 +199,7 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <small class="profil-username" id="setting-display-username">@ariffathur</small>
+                                <small class="profil-username" id="setting-display-username">@username</small>
                                 <small class="profil-bio" id="setting-display-bio">Mahasiswa Teknik Informatika</small>
                             </div>
                         </div>
@@ -311,6 +311,8 @@
         </main>
     </div>
     <script src="../../assets/js/storage.js"></script>
+    <script src="../../assets/js/kontak-data.js"></script>
+    <script src="kontak.js"></script>
     <script src="dashboard.js"></script>
 </body>
 

@@ -436,7 +436,7 @@ input {
 }
 
 .contact-remove-button:hover {
-    background: #fff1f1
+    background: var(--bg-abu-terang)
 }
 
 .contact-chat-button:focus-visible,
@@ -748,7 +748,7 @@ input {
 }
 
 .settings-logout-btn:hover {
-    background: #fff1f1
+    background: var(--bg-abu-terang)
 }
 
 @media (max-width: 700px) {
