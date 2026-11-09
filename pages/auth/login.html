@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Masuk ke Ngumpul - Chat, grup, dan telepon</title>
+  <link rel="stylesheet" href="../../assets/css/variables.css">
+  <link rel="stylesheet" href="login.css" />
+  
+  <script src="../../assets/js/theme.js"></script>
+</head>
+
+<body>
+  <div class="layar mode-form" id="layar">
+    <aside class="hero">
+
+      <div class="logo">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" />
+          <circle cx="8.5" cy="12" r="1.2" class="isi-titik" />
+          <circle cx="12" cy="12" r="1.2" class="isi-titik" />
+          <circle cx="15.5" cy="12" r="1.2" class="isi-titik" />
+        </svg>
+      </div>
+      <h1>Ngumpul</h1>
+      <p class="tagline">
+        Ngobrol, bikin grup, dan telepon teman dalam satu aplikasi.
+      </p>
+
+      <ul class="fitur">
+        <li>
+          <svg class="ikon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" />
+          </svg>
+          Chat pribadi dan grup kelas
+        </li>
+        <li>
+          <svg class="ikon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M11 5L6 9H2v6h4l5 4z" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+          Ruang suara buat belajar bareng
+        </li>
+        <li>
+          <svg class="ikon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+          </svg>
+          Telepon suara dan video
+        </li>
+      </ul>
+    </aside>
+
+    <main class="isi">
+      <section class="halaman aktif" id="form-login">
+        <a class="kembali" href="../../index.html?splash=none">
+          <svg class="ikon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Kembali
+        </a>
+        <h2>Masuk ke Ngumpul</h2>
+        <p class="sub">Silakan masuk dengan akun yang sudah terdaftar</p>
+
+        <label for="login-identifier">Email atau Nomor HP</label>
+        <input type="text" id="login-identifier" placeholder="Masukkan Email atau Nomor HP" autocomplete="username" />
+        <div class="error" id="error-login-identifier"></div>
+
+        <label for="login-sandi">Sandi</label>
+        <div class="kolom-sandi">
+          <input type="password" id="login-sandi" placeholder="Masukkan kata sandi Anda"
+            autocomplete="current-password" />
+          <button type="button" class="lihat" data-target="login-sandi">
+            Lihat
+          </button>
+        </div>
+        <div class="error" id="error-login-sandi"></div>
+
+        <p class="bawah lupa-baris"><a href="#lupa-sandi" id="tautan-lupa-sandi">Lupa sandi?</a></p>
+
+        <button type="button" class="tombol" id="btn-masuk">Masuk</button>
+
+        <p class="bawah">
+          Belum punya akun?
+          <a href="../../index.html?halaman=form-daftar&splash=none">Daftar sekarang</a>
+        </p>
+      </section>
+
+      <section class="halaman" id="form-reset-nomor">
+        <button type="button" class="kembali tombol-kembali" data-kembali="form-login">&larr; Kembali ke login</button>
+        <h2>Lupa sandi?</h2>
+        <p class="sub">Masukkan nomor HP atau alamat Gmail yang terhubung ke akunmu.</p>
+
+        <label for="reset-nomor">Nomor HP atau Gmail</label>
+        <input type="text" id="reset-nomor" placeholder="081234567890 atau nama@gmail.com" autocomplete="username" />
+        <div class="error" id="error-reset-nomor" role="alert"></div>
+        <p class="catatan-demo">OTP hanya simulasi antarmuka. Tidak ada SMS atau email yang benar-benar dikirim.</p>
+        <button type="button" class="tombol" id="btn-kirim-otp-reset">Minta kode OTP</button>
+      </section>
+
+      <section class="halaman" id="form-reset-otp">
+        <button type="button" class="kembali tombol-kembali" data-kembali="form-reset-nomor">&larr; Ganti kontak</button>
+        <h2>Verifikasi kontak</h2>
+        <p class="sub">Masukkan kode 6 angka untuk <b id="reset-nomor-tersamar">kontak kamu</b>.</p>
+
+        <div class="kotak-otp-reset" id="kotak-otp-reset" role="group" aria-label="Kode OTP 6 angka">
+          <input class="digit-reset" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Angka 1" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 2" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 3" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 4" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 5" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 6" />
+        </div>
+        <div class="error" id="error-reset-otp" role="alert"></div>
+        <button type="button" class="tombol" id="btn-verifikasi-reset" disabled>Verifikasi OTP</button>
+      </section>
+
+      <section class="halaman" id="form-sandi-baru">
+        <button type="button" class="kembali tombol-kembali" data-kembali="form-reset-otp">&larr; Kembali</button>
+        <h2>Buat sandi baru</h2>
+        <p class="sub">Gunakan sandi baru untuk akunmu.</p>
+
+        <label for="reset-sandi-baru">Sandi baru</label>
+        <div class="kolom-sandi">
+          <input type="password" id="reset-sandi-baru" placeholder="Masukkan sandi baru" autocomplete="new-password" />
+          <button type="button" class="lihat" data-target="reset-sandi-baru">Lihat</button>
+        </div>
+        <div class="error" id="error-reset-sandi-baru" role="alert"></div>
+
+        <label for="reset-sandi-konfirmasi">Ulangi sandi baru</label>
+        <div class="kolom-sandi">
+          <input type="password" id="reset-sandi-konfirmasi" placeholder="Masukkan ulang sandi baru" autocomplete="new-password" />
+          <button type="button" class="lihat" data-target="reset-sandi-konfirmasi">Lihat</button>
+        </div>
+        <div class="error" id="error-reset-sandi-konfirmasi" role="alert"></div>
+        <button type="button" class="tombol" id="btn-simpan-sandi">Ubah sandi</button>
+      </section>
+    </main>
+  </div>
+
+  <div id="notif-otp-reset" role="status" aria-live="polite" aria-atomic="true">
+    <p>Pesan masuk dari Ngumpul:</p>
+    <p>Kode verifikasi kamu <b id="kode-otp-reset"></b></p>
+  </div>
+  <div id="toast"></div>
+
+  <script src="../../assets/js/storage.js"></script>
+  <script src="login.js"></script>
+</body>
+
+</html>

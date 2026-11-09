@@ -10,8 +10,9 @@
   var MASA_BERLAKU   = 5 * 60 * 1000;  // kode kedaluwarsa setelah 5 menit
   var JEDA_KIRIM     = 60;             // detik sebelum boleh kirim ulang
   var MAKS_SALAH     = 5;              // batas salah input per kode
-  var HALAMAN_TUJUAN = '../assets/index.html';  // tujuan setelah berhasil
-  var HALAMAN_DAFTAR = '../assets/index.html';  // tujuan tombol Kembali
+  var HALAMAN_TUJUAN = 'login.html';   // tujuan setelah berhasil
+  // tujuan tombol Kembali, dan tujuan jika data pendaftaran tidak ada
+  var HALAMAN_DAFTAR = '../../index.html?halaman=form-daftar&splash=none';
 
   var KUNCI_PENDING = 'ngumpul_pending';
   var KUNCI_OTP     = 'ngumpul_otp';
@@ -201,17 +202,26 @@
     }
 
     var daftar = baca(localStorage, KUNCI_OK) || {};
-    daftar[hp] = { nama: data.nama, email: data.email, waktu: Date.now() };
+    daftar[hp] = {
+      nama: data.nama,
+      email: data.email,
+      waktu: Date.now()
+    };
     tulis(localStorage, KUNCI_OK, daftar);
+
     sessionStorage.removeItem(KUNCI_OTP);
     sessionStorage.removeItem(KUNCI_PENDING);
     clearInterval(timerKirim); clearInterval(timerExp);
     sembunyikanSemuaNotif();
     btnOk.disabled = true;
-    tampilPesan('Akun berhasil diverifikasi. Mengalihkan…', true);
-    setTimeout(function () { location.href = HALAMAN_TUJUAN; }, 1200);
+    tampilPesan('Akun berhasil diverifikasi. Mengalihkan ke halaman login...', true);
+
+    setTimeout(function () {
+      window.location.href = HALAMAN_TUJUAN;
+    }, 1200);
   }
 
+  // ===== Tombol =====
   btnOk.addEventListener('click', verifikasi);
   btnUlang.addEventListener('click', kirimKode);
   document.getElementById('btn-kembali').addEventListener('click', function () {
