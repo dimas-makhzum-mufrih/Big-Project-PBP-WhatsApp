@@ -11,6 +11,8 @@ Aplikasi chat berbasis web, nanti di-convert ke mobile dan desktop.
 | `assets/js/`         | File JavaScript (logika di sisi browser)                            |
 | `assets/img/`        | Gambar bawaan aplikasi (logo, ikon, dll)                            |
 | `pages/`             | Halaman aplikasi: login, chat, status, profil                       |
+| `pages/dashboard/kontak.html`, `kontak.css`, `kontak.js`, `kontak-data.js` | Tampilan, alur, dan penyimpanan fitur kontak |
+| `assets/js/negara-data.js` | Daftar kode negara bersama untuk registrasi dan kontak |
 | `config/`            | Pengaturan, misal koneksi database. **Jangan commit password asli** |
 | `uploads/`           | Gambar yang dikirim user. Isinya **tidak ikut di-upload** ke GitHub |
 | `.gitignore`         | Daftar file yang tidak ikut ke GitHub (hanya leader yang edit)      |
