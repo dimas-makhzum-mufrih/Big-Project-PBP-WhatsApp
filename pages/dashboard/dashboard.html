@@ -105,23 +105,24 @@
                     </div>
                 </div>
             </div>
-            <!-- Tab di bawah baru tampilan (belum fungsional). Pasang aksi lewat data-fitur. -->
+            <!-- Grup dan Telepon masih berupa tab tampilan. -->
             <nav class="tab-nav" aria-label="Menu utama">
-                <div class="tab aktif" data-fitur="tab-chat"><svg class="ikon" aria-hidden="true">
+                <button class="tab aktif" id="tab-chat" type="button" data-fitur="tab-chat"
+                    aria-pressed="true"><svg class="ikon" aria-hidden="true">
                         <use href="#i-chat" />
-                    </svg>Chat</div>
+                    </svg>Chat</button>
                 <div class="tab" data-fitur="tab-grup" title="Segera hadir"><svg class="ikon" aria-hidden="true">
                         <use href="#i-grup" />
                     </svg>Grup</div>
                 <div class="tab" data-fitur="tab-telepon" title="Segera hadir"><svg class="ikon" aria-hidden="true">
                         <use href="#i-phone" />
                     </svg>Telepon</div>
-                <div class="tab" data-fitur="tab-kontak" title="Segera hadir"><svg class="ikon" aria-hidden="true">
+                <a class="tab" id="tab-kontak" href="kontak.html"><svg class="ikon" aria-hidden="true">
                         <use href="#i-kontak" />
-                    </svg>Kontak</div>
+                    </svg>Kontak</a>
             </nav>
             <div class="search-box-wrapper"><input class="search-bar-input" id="input-cari-chat" type="search"
-                    placeholder="Cari atau mulai chat baru"></div>
+                    placeholder="Cari atau mulai chat baru" aria-label="Cari atau mulai chat baru"></div>
             <div class="chat-scroll-area">
             </div>
         </aside>
