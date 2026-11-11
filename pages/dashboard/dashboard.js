@@ -2,23 +2,20 @@
 const userAktif = getUserAktif();
 if (!userAktif) { location.replace('../auth/login.html'); }
 
-// Continue a contact-originated chat request after the dashboard page loads.
-const idChatTertunda = new URLSearchParams(location.hash.slice(1)).get('buka-chat');
-if (userAktif && idChatTertunda) {
-    window.setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('ngumpul:buka-chat', {
-            detail: { idLawan: idChatTertunda }
-        }));
-        history.replaceState(null, '', location.pathname + location.search);
-    }, 0);
-}
+// ===== Elemen menu utama =====
+const triggerMenuUtama = document.getElementById("trigger-menu-utama");
+const boxDropdownUtama = document.getElementById("box-dropdown-utama");
+const optBukaSetelan = document.getElementById("opt-buka-setelan");
 
-// ===== Elemen utama =====
-const triggerMenuUtama = document.getElementById('trigger-menu-utama'),
-    boxDropdownUtama = document.getElementById('box-dropdown-utama'),
-    optBukaSetelan = document.getElementById('opt-buka-setelan'),
-    panelLayerSetelan = document.getElementById('panel-layer-setelan'),
-    btnKembaliKeChat = document.getElementById('btn-kembali-ke-chat');
+const panelLayerSetelan = document.getElementById("panel-layer-setelan");
+const btnKembaliKeChat = document.getElementById("btn-kembali-ke-chat");
+
+const daftarPengaturan = document.querySelector(".settings-list-flow");
+const panelPengaturanTema = document.getElementById("panel-setelan-tema");
+const judulPanelSetelan = document.getElementById("judul-panel-setelan");
+
+const tombolPilihanTema = document.querySelectorAll("[data-set-theme]");
+const menuTema = document.querySelector('[data-fitur="tema"]');
 
 // ===== Menu titik tiga =====
 triggerMenuUtama.addEventListener("click", e => {
@@ -219,6 +216,7 @@ if (kartuProfil) {
 
 // Buang draft Edit Profil yang belum disimpan
 try { sessionStorage.removeItem('draft_profil_edit'); } catch (e) {}
+
 
 // ===== Panah (v) di kartu profil: menu ganti akun =====
 const btnGantiAkun = document.getElementById('btn-ganti-akun');
