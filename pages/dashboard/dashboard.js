@@ -2,35 +2,30 @@
 const userAktif = getUserAktif();
 if (!userAktif) { location.replace('../auth/login.html'); }
 
-// ===== Elemen menu utama =====
-const triggerMenuUtama = document.getElementById("trigger-menu-utama");
-const boxDropdownUtama = document.getElementById("box-dropdown-utama");
-const optBukaSetelan = document.getElementById("opt-buka-setelan");
+// Continue a contact-originated chat request after the dashboard page loads.
+const idChatTertunda = new URLSearchParams(location.hash.slice(1)).get('buka-chat');
+if (userAktif && idChatTertunda) {
+    window.setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('ngumpul:buka-chat', {
+            detail: { idLawan: idChatTertunda }
+        }));
+        history.replaceState(null, '', location.pathname + location.search);
+    }, 0);
+}
 
-const panelLayerSetelan = document.getElementById("panel-layer-setelan");
-const btnKembaliKeChat = document.getElementById("btn-kembali-ke-chat");
-
-const daftarPengaturan = document.querySelector(".settings-list-flow");
-const panelPengaturanTema = document.getElementById("panel-setelan-tema");
-const judulPanelSetelan = document.getElementById("judul-panel-setelan");
-
-const tombolPilihanTema = document.querySelectorAll("[data-set-theme]");
-const menuTema = document.querySelector('[data-fitur="tema"]');
+// ===== Elemen utama =====
+const triggerMenuUtama = document.getElementById('trigger-menu-utama'),
+    boxDropdownUtama = document.getElementById('box-dropdown-utama'),
+    optBukaSetelan = document.getElementById('opt-buka-setelan'),
+    panelLayerSetelan = document.getElementById('panel-layer-setelan'),
+    btnKembaliKeChat = document.getElementById('btn-kembali-ke-chat');
 
 // ===== Menu titik tiga =====
-triggerMenuUtama.addEventListener("click", e => {
+triggerMenuUtama.addEventListener('click', e => {
     e.stopPropagation();
-
-    const sedangTerbuka =
-        getComputedStyle(boxDropdownUtama).display !== 'none';
-
-    boxDropdownUtama.style.display =
-        sedangTerbuka ? 'none' : 'block';
+    boxDropdownUtama.style.display = boxDropdownUtama.style.display === 'none' ? 'block' : 'none';
 });
-
-document.addEventListener("click", () => {
-    boxDropdownUtama.style.display = 'none';
-});
+document.addEventListener('click', () => { boxDropdownUtama.style.display = 'none'; });
 
 // ===== Panel Pengaturan =====
 function bukaSetelan() {
@@ -38,9 +33,14 @@ function bukaSetelan() {
     // untuk layar mobile: panel ada di dalam .sisi-kanan yang disembunyikan CSS
     document.getElementById('panel-sisi-kiri').classList.add('room-open');
     document.getElementById('panel-sisi-kanan').classList.add('room-open');
-    perbaruiEfekKartuProfil();
+    function bukaSetelan() {
+    panelLayerSetelan.style.display = 'flex';
+    // untuk layar mobile: panel ada di dalam .sisi-kanan yang disembunyikan CSS
+    document.getElementById('panel-sisi-kiri').classList.add('room-open');
+    document.getElementById('panel-sisi-kanan').classList.add('room-open');
+    perbaruiEfekKartuProfil(); // <-- BARIS BARU
 }
-
+}
 function tutupSetelan() {
     panelLayerSetelan.style.display = 'none';
     document.getElementById('panel-sisi-kiri').classList.remove('room-open');
@@ -53,82 +53,16 @@ optBukaSetelan.addEventListener('click', () => {
     bukaSetelan();
     boxDropdownUtama.style.display = 'none';
 });
-
-btnKembaliKeChat.addEventListener('click', () => {
-    if (!panelPengaturanTema.hidden) {
-        panelPengaturanTema.hidden = true;
-        daftarPengaturan.style.display = 'block';
-        judulPanelSetelan.textContent = 'Pengaturan';
-    } else {
-        tutupSetelan();
-    }
-});
+btnKembaliKeChat.addEventListener('click', tutupSetelan);
 
 // buka otomatis jika datang dari halaman lain dengan #settings
 if (location.hash === '#settings') bukaSetelan();
 
-// ===== Keluar akun: pertahankan tema, hapus hanya sesi =====
-document.getElementById("btn-keluar-akun").addEventListener("click", () => {
-    try {
-        // Pertahankan preferensi tema ketika keluar.
-        const temaTersimpan = localStorage.getItem("ngumpul_tema");
-
-        hapusSesi();
-        sessionStorage.clear();
-
-        if (temaTersimpan) {
-            localStorage.setItem("ngumpul_tema", temaTersimpan);
-        }
-    } catch (error) {
-        console.warn("Gagal membersihkan penyimpanan:", error);
-    }
-
+// ===== Keluar akun: hanya menghapus sesi tab ini, data akun tetap aman =====
+document.getElementById('btn-keluar-akun').addEventListener('click', () => {
+    hapusSesi();
     window.location.href = '../auth/login.html';
 });
-
-// ===== Membuka halaman Tema & Tampilan =====
-function bukaPengaturanTema() {
-    daftarPengaturan.style.display = 'none';
-    panelPengaturanTema.hidden = false;
-
-    judulPanelSetelan.textContent = 'Tema & Tampilan';
-}
-
-menuTema.addEventListener('click', bukaPengaturanTema);
-
-menuTema.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        bukaPengaturanTema();
-    }
-});
-
-// Memperbarui tampilan pilihan tema
-function perbaruiPilihanTema() {
-    const temaAktif = window.NgumpulTheme ? window.NgumpulTheme.getTheme() : null;
-
-    tombolPilihanTema.forEach(button => {
-        const temaButton = button.dataset.setTheme;
-        const aktif = temaButton === temaAktif;
-
-        button.classList.toggle('aktif', aktif);
-        button.setAttribute('aria-pressed', String(aktif));
-    });
-}
-
-// Memilih tema
-tombolPilihanTema.forEach(button => {
-    button.addEventListener('click', () => {
-        const tema = button.dataset.setTheme;
-        if (window.NgumpulTheme) {
-            window.NgumpulTheme.setTheme(tema);
-        }
-        perbaruiPilihanTema();
-    });
-});
-
-// Inisialisasi pilihan tema
-perbaruiPilihanTema();
 
 // ===== Menu "Akun" -> halaman akun =====
 const btnMenuAkun = document.querySelector('.settings-row-item[data-fitur="akun"]');
@@ -216,7 +150,6 @@ if (kartuProfil) {
 
 // Buang draft Edit Profil yang belum disimpan
 try { sessionStorage.removeItem('draft_profil_edit'); } catch (e) {}
-
 
 // ===== Panah (v) di kartu profil: menu ganti akun =====
 const btnGantiAkun = document.getElementById('btn-ganti-akun');
