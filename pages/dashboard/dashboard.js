@@ -42,7 +42,9 @@ const panelPengaturanTema = document.getElementById('panel-setelan-tema');
 const judulPanelSetelan = document.getElementById('judul-panel-setelan');
 
 const tombolPilihanTema = document.querySelectorAll('[data-set-theme]');
-const menuTema = document.querySelector('.settings-row-item[data-fitur="tema"]');
+const menuTema = document.querySelector(
+    '.settings-row-item[data-fitur="tema"]'
+);
 
 // ===== Menu titik tiga =====
 if (triggerMenuUtama && boxDropdownUtama) {
@@ -106,7 +108,7 @@ if (optBukaSetelan) {
     });
 }
 
-// Tombol kembali: pertahankan navigasi subpanel tema dari Kiki
+// ===== Tombol kembali: navigasi subpanel tema =====
 if (btnKembaliKeChat) {
     btnKembaliKeChat.addEventListener('click', () => {
         if (panelPengaturanTema && !panelPengaturanTema.hidden) {
@@ -125,18 +127,17 @@ if (btnKembaliKeChat) {
     });
 }
 
-// Buka otomatis jika datang dari halaman lain dengan #settings
+// ===== Buka otomatis jika URL menggunakan #settings =====
 if (location.hash === '#settings') {
     bukaSetelan();
 }
 
-// ===== Keluar akun: pertahankan tema, hapus hanya sesi =====
+// ===== Keluar akun: pertahankan tema, hapus sesi =====
 const btnKeluarAkun = document.getElementById('btn-keluar-akun');
 
 if (btnKeluarAkun) {
     btnKeluarAkun.addEventListener('click', () => {
         try {
-            // Pertahankan preferensi tema
             const temaTersimpan = localStorage.getItem('ngumpul_tema');
 
             hapusSesi();
@@ -222,6 +223,11 @@ if (btnMenuAkun) {
 
 // ===== Kartu Edit Profil =====
 document.addEventListener('click', e => {
+    // Jangan anggap klik menu ganti akun sebagai klik kartu profil
+    if (e.target.closest('#btn-ganti-akun, #menu-ganti-akun')) {
+        return;
+    }
+
     const targetEdit = e.target.closest(
         '[data-fitur="edit-profil"], #btn-buka-edit-profil, .profile-card-trigger'
     );
@@ -341,7 +347,7 @@ if (kartuProfil) {
     });
 }
 
-// Buang draft Edit Profil yang belum disimpan
+// ===== Buang draft Edit Profil yang belum disimpan =====
 try {
     sessionStorage.removeItem('draft_profil_edit');
 } catch (e) {}
