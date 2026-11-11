@@ -105,25 +105,46 @@
                     </div>
                 </div>
             </div>
-            <!-- Tab di bawah baru tampilan (belum fungsional). Pasang aksi lewat data-fitur. -->
+            <!-- Grup dan Telepon masih berupa tab tampilan. -->
             <nav class="tab-nav" aria-label="Menu utama">
-                <div class="tab aktif" data-fitur="tab-chat"><svg class="ikon" aria-hidden="true">
+                <button class="tab aktif" id="tab-chat" type="button" data-fitur="tab-chat"
+                    aria-pressed="true"><svg class="ikon" aria-hidden="true">
                         <use href="#i-chat" />
-                    </svg>Chat</div>
+                    </svg>Chat</button>
                 <div class="tab" data-fitur="tab-grup" title="Segera hadir"><svg class="ikon" aria-hidden="true">
                         <use href="#i-grup" />
                     </svg>Grup</div>
                 <div class="tab" data-fitur="tab-telepon" title="Segera hadir"><svg class="ikon" aria-hidden="true">
                         <use href="#i-phone" />
                     </svg>Telepon</div>
-                <div class="tab" data-fitur="tab-kontak" title="Segera hadir"><svg class="ikon" aria-hidden="true">
+                <button class="tab" id="tab-kontak" type="button" aria-pressed="false"><svg class="ikon" aria-hidden="true">
                         <use href="#i-kontak" />
-                    </svg>Kontak</div>
+                    </svg>Kontak</button>
             </nav>
             <div class="search-box-wrapper"><input class="search-bar-input" id="input-cari-chat" type="search"
-                    placeholder="Cari atau mulai chat baru"></div>
+                    placeholder="Cari atau mulai chat baru" aria-label="Cari atau mulai chat baru"></div>
             <div class="chat-scroll-area">
             </div>
+            <section class="contact-list-area" id="contact-list-area" aria-label="Daftar kontak" hidden>
+                <div class="contact-actions">
+                    <button class="contact-add-button" id="btn-tambah-kontak" type="button" aria-expanded="false"
+                        aria-controls="form-tambah-kontak">+ Tambah kontak</button>
+                </div>
+                <form class="contact-form" id="form-tambah-kontak" hidden>
+                    <label for="input-nama-kontak">Nama kontak</label>
+                    <input class="contact-name-input" id="input-nama-kontak" type="text" autocomplete="name"
+                        maxlength="60" placeholder="Contoh: Budi" required>
+                    <label for="input-nomor-kontak">Nomor HP kontak</label>
+                    <div class="contact-form-row">
+                        <input id="input-nomor-kontak" type="tel" inputmode="tel" autocomplete="tel"
+                             placeholder="Contoh: 081234567890 atau +60123456789" required>
+                        <button type="submit">Tambah</button>
+                    </div>
+                    <small class="contact-hint">Nomor tetap tersimpan meskipun belum terdaftar di Ngumpul.</small>
+                    <p class="contact-status" id="contact-status" role="status" aria-live="polite"></p>
+                </form>
+                <div class="contact-list" id="daftar-kontak"></div>
+            </section>
         </aside>
         <main class="sisi-kanan" id="panel-sisi-kanan">
             <div class="welcome-screen" id="panel-chat-kosong">
@@ -173,7 +194,7 @@
                             <!-- Nama, Username, dan Tombol Dropdown Ganti Akun -->
                             <div class="settings-profile-info-text">
                                 <div class="name-row">
-                                    <span id="setting-display-name">Arif Fathur Rohman</span>
+                                    <span id="setting-display-name">Nama pengguna</span>
                                     <button type="button" class="btn-ganti-akun" id="btn-ganti-akun"
                                         aria-label="Opsi ganti akun" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation();">
                                         <svg class="ikon" aria-hidden="true">
@@ -181,7 +202,7 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <small class="profil-username" id="setting-display-username">@ariffathur</small>
+                                <small class="profil-username" id="setting-display-username">@username</small>
                                 <small class="profil-bio" id="setting-display-bio">Mahasiswa Teknik Informatika</small>
                             </div>
                         </div>
@@ -354,6 +375,8 @@
         </main>
     </div>
     <script src="../../assets/js/storage.js"></script>
+    <script src="../../assets/js/kontak-data.js"></script>
+    <script src="kontak.js"></script>
     <script src="dashboard.js"></script>
 </body>
 

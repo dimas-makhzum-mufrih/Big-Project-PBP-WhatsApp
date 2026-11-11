@@ -161,7 +161,27 @@ input {
     font-size: .75rem;
     color: var(--teks-redup);
     border-bottom: 3px solid transparent;
-    cursor: default
+    cursor: default;
+    background: none;
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
+    font-family: inherit
+}
+
+.tab:focus-visible,
+.contact-add-button:focus-visible,
+.contact-form button:focus-visible,
+.contact-chat-button:focus-visible,
+.contact-call-button:focus-visible,
+.contact-remove-button:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+.tab#tab-kontak,
+.tab#tab-chat {
+    cursor: pointer
 }
 
 .tab.aktif {
@@ -192,6 +212,229 @@ input {
 .chat-scroll-area {
     flex: 1;
     overflow-y: auto
+}
+
+.contact-list-area {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto
+}
+
+.contact-list-area[hidden],
+.contact-form[hidden] {
+    display: none
+}
+
+.contact-actions {
+    padding: 12px 16px 4px
+}
+
+.contact-add-button,
+.contact-form button,
+.contact-chat-button {
+    border: 0;
+    border-radius: 8px;
+    background: var(--warna-utama);
+    color: #fff;
+    padding: 10px 14px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer
+}
+
+.contact-add-button:hover,
+.contact-form button:hover,
+.contact-chat-button:hover {
+    background: var(--warna-utama-hover)
+}
+
+.contact-form {
+    margin: 8px 16px 12px;
+    padding: 14px;
+    background: var(--bg-abu-terang);
+    border: 1px solid var(--border-warna);
+    border-radius: 10px
+}
+
+.contact-form label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 8px;
+    font-size: .88rem;
+    font-weight: 600
+}
+
+.contact-form label:first-child {
+    margin-top: 0
+}
+
+.contact-name-input {
+    width: 100%;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    padding: 10px 12px;
+    font: inherit;
+    font-size: .9rem
+}
+
+.contact-name-input:focus {
+    outline: 2px solid var(--warna-utama)
+}
+
+.contact-hint {
+    display: block;
+    margin-top: 8px;
+    color: var(--teks-redup);
+    font-size: .8rem
+}
+
+.contact-form-row {
+    display: flex;
+    gap: 8px
+}
+
+.contact-form-row input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    padding: 10px 12px;
+    font-size: .9rem
+}
+
+.contact-form-row input:focus {
+    outline: 2px solid var(--warna-utama)
+}
+
+.contact-status {
+    min-height: 1.2em;
+    margin: 8px 0 0;
+    color: var(--teks-redup);
+    font-size: .84rem
+}
+
+.contact-status[data-error="true"] {
+    color: var(--merah)
+}
+
+.contact-list {
+    flex: 1
+}
+
+.contact-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-warna)
+}
+
+.contact-avatar {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: grid;
+    place-items: center;
+    margin-right: 12px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700
+}
+
+.contact-details {
+    flex: 1;
+    min-width: 0
+}
+
+.contact-name,
+.contact-phone {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.contact-name {
+    font-weight: 600
+}
+
+.contact-phone {
+    margin-top: 3px;
+    color: var(--teks-redup);
+    font-size: .84rem
+}
+
+.contact-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px 0 0 56px
+}
+
+.contact-chat-button,
+.contact-call-button,
+.contact-remove-button {
+    padding: 7px 9px;
+    border-radius: 7px;
+    font: inherit;
+    font-size: .78rem;
+    cursor: pointer
+}
+
+.contact-chat-button,
+.contact-call-button {
+    border: 1px solid var(--border-warna);
+    background: var(--bg-putih);
+    color: var(--teks-gelap)
+}
+
+.contact-chat-button {
+    border-color: var(--warna-utama);
+    background: var(--warna-utama);
+    color: #fff
+}
+
+.contact-chat-button:hover {
+    background: var(--warna-utama-hover)
+}
+
+.contact-call-button:hover {
+    background: var(--bg-abu-terang)
+}
+
+.contact-remove-button {
+    margin-left: auto;
+    border: 0;
+    background: transparent;
+    color: var(--merah);
+    font: inherit;
+    font-size: .84rem;
+    cursor: pointer
+}
+
+.contact-remove-button:hover {
+    background: var(--bg-abu-terang)
+}
+
+.contact-chat-button:focus-visible,
+.contact-call-button:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+.contact-empty {
+    margin: 28px 20px;
+    color: var(--teks-redup);
+    font-size: .9rem;
+    text-align: center
 }
 
 .chat-card {
