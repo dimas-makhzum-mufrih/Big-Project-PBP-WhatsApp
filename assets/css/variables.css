@@ -1,0 +1,108 @@
+
+/* =================================
+   NGUMPUL - GLOBAL THEME VARIABLES
+================================= */
+
+:root {
+    color-scheme: light;
+
+    /* Warna dasar */
+    --bg: #f4f5f7;
+    --kotak: #ffffff;
+    --teks: #1b1f24;
+    --abu: #6b7280;
+    --garis: #e2e5ea;
+
+    /* Warna utama */
+    --hijau: #0891b2;
+    --hijau-tua: #155e75;
+    --merah: #e5484d;
+
+    /* Kompatibilitas dashboard */
+    --warna-utama: #0891b2;
+    --warna-utama-hover: #155e75;
+    --warna-tipis: #e0f2f5;
+
+    --bg-putih: #ffffff;
+    --bg-abu-terang: #f4f5f7;
+    --bg-abu-input: #f4f5f7;
+
+    --teks-gelap: #1b1f24;
+    --teks-redup: #6b7280;
+    --teks-kontras: #ffffff;
+
+    --bub-kirim: #d9fdd3;
+    --bub-terima: #ffffff;
+    --teks-bubble: #1b1f24;
+
+    --border-warna: #e2e5ea;
+
+    /* Background dan interaksi */
+    --bg-chat: #e9f1f4;
+    --bg-hover-merah: #fff1f1;
+
+    /* Bayangan */
+    --bayangan-dropdown: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --bayangan-card: 0 1px 1px rgba(0, 0, 0, 0.06);
+    --bayangan-profil: 0 2px 8px rgba(0, 0, 0, 0.12);
+    --bayangan-hover-profil: 0 4px 12px rgba(8, 145, 178, 0.1);
+
+    /* Preview tema */
+    --preview-light-bg: #f1f5f9;
+    --preview-light-border: #dce2e8;
+    --preview-light-line: #cbd5e1;
+    --preview-light-accent: #a5e6d5;
+
+    --preview-dark-bg: #111b21;
+    --preview-dark-border: #374045;
+    --preview-dark-line: #475569;
+    --preview-dark-accent: #005c4b;
+
+    --bg-hover-header: rgba(255, 255, 255, 0.15);
+}
+
+/* =================================
+   DARK MODE
+================================= */
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg: #111b21;
+    --kotak: #202c33;
+    --teks: #e9edef;
+    --abu: #aebac1;
+    --garis: #374045;
+
+    --hijau: #22b8d2;
+    --hijau-tua: #0891b2;
+    --merah: #ff6b6b;
+
+    --warna-utama: #22b8d2;
+    --warna-utama-hover: #0891b2;
+    --warna-tipis: #203b43;
+
+    --bg-putih: #202c33;
+    --bg-abu-terang: #111b21;
+    --bg-abu-input: #2a3942;
+
+    --teks-gelap: #e9edef;
+    --teks-redup: #aebac1;
+    --teks-kontras: #ffffff;
+
+    --bub-kirim: #005c4b;
+    --bub-terima: #202c33;
+    --teks-bubble: #e9edef;
+
+    --border-warna: #374045;
+
+    --bg-chat: #111b21;
+    --bg-hover-merah: #3a2528;
+
+    --bayangan-dropdown: 0 8px 24px rgba(0, 0, 0, 0.38);
+    --bayangan-card: 0 1px 1px rgba(0, 0, 0, 0.12);
+    --bayangan-profil: 0 2px 8px rgba(0, 0, 0, 0.12);
+    --bayangan-hover-profil: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    --bg-hover-header: rgba(255, 255, 255, 0.15);
+}

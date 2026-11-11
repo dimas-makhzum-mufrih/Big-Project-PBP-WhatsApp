@@ -21,11 +21,19 @@ const triggerMenuUtama = document.getElementById('trigger-menu-utama'),
     btnKembaliKeChat = document.getElementById('btn-kembali-ke-chat');
 
 // ===== Menu titik tiga =====
-triggerMenuUtama.addEventListener('click', e => {
+triggerMenuUtama.addEventListener("click", e => {
     e.stopPropagation();
-    boxDropdownUtama.style.display = boxDropdownUtama.style.display === 'none' ? 'block' : 'none';
+
+    const sedangTerbuka =
+        getComputedStyle(boxDropdownUtama).display !== 'none';
+
+    boxDropdownUtama.style.display =
+        sedangTerbuka ? 'none' : 'block';
 });
-document.addEventListener('click', () => { boxDropdownUtama.style.display = 'none'; });
+
+document.addEventListener("click", () => {
+    boxDropdownUtama.style.display = 'none';
+});
 
 // ===== Panel Pengaturan =====
 function bukaSetelan() {
@@ -33,14 +41,9 @@ function bukaSetelan() {
     // untuk layar mobile: panel ada di dalam .sisi-kanan yang disembunyikan CSS
     document.getElementById('panel-sisi-kiri').classList.add('room-open');
     document.getElementById('panel-sisi-kanan').classList.add('room-open');
-    function bukaSetelan() {
-    panelLayerSetelan.style.display = 'flex';
-    // untuk layar mobile: panel ada di dalam .sisi-kanan yang disembunyikan CSS
-    document.getElementById('panel-sisi-kiri').classList.add('room-open');
-    document.getElementById('panel-sisi-kanan').classList.add('room-open');
-    perbaruiEfekKartuProfil(); // <-- BARIS BARU
+    perbaruiEfekKartuProfil();
 }
-}
+
 function tutupSetelan() {
     panelLayerSetelan.style.display = 'none';
     document.getElementById('panel-sisi-kiri').classList.remove('room-open');
@@ -53,16 +56,82 @@ optBukaSetelan.addEventListener('click', () => {
     bukaSetelan();
     boxDropdownUtama.style.display = 'none';
 });
-btnKembaliKeChat.addEventListener('click', tutupSetelan);
+
+btnKembaliKeChat.addEventListener('click', () => {
+    if (!panelPengaturanTema.hidden) {
+        panelPengaturanTema.hidden = true;
+        daftarPengaturan.style.display = 'block';
+        judulPanelSetelan.textContent = 'Pengaturan';
+    } else {
+        tutupSetelan();
+    }
+});
 
 // buka otomatis jika datang dari halaman lain dengan #settings
 if (location.hash === '#settings') bukaSetelan();
 
-// ===== Keluar akun: hanya menghapus sesi tab ini, data akun tetap aman =====
-document.getElementById('btn-keluar-akun').addEventListener('click', () => {
-    hapusSesi();
+// ===== Keluar akun: pertahankan tema, hapus hanya sesi =====
+document.getElementById("btn-keluar-akun").addEventListener("click", () => {
+    try {
+        // Pertahankan preferensi tema ketika keluar.
+        const temaTersimpan = localStorage.getItem("ngumpul_tema");
+
+        hapusSesi();
+        sessionStorage.clear();
+
+        if (temaTersimpan) {
+            localStorage.setItem("ngumpul_tema", temaTersimpan);
+        }
+    } catch (error) {
+        console.warn("Gagal membersihkan penyimpanan:", error);
+    }
+
     window.location.href = '../auth/login.html';
 });
+
+// ===== Membuka halaman Tema & Tampilan =====
+function bukaPengaturanTema() {
+    daftarPengaturan.style.display = 'none';
+    panelPengaturanTema.hidden = false;
+
+    judulPanelSetelan.textContent = 'Tema & Tampilan';
+}
+
+menuTema.addEventListener('click', bukaPengaturanTema);
+
+menuTema.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        bukaPengaturanTema();
+    }
+});
+
+// Memperbarui tampilan pilihan tema
+function perbaruiPilihanTema() {
+    const temaAktif = window.NgumpulTheme ? window.NgumpulTheme.getTheme() : null;
+
+    tombolPilihanTema.forEach(button => {
+        const temaButton = button.dataset.setTheme;
+        const aktif = temaButton === temaAktif;
+
+        button.classList.toggle('aktif', aktif);
+        button.setAttribute('aria-pressed', String(aktif));
+    });
+}
+
+// Memilih tema
+tombolPilihanTema.forEach(button => {
+    button.addEventListener('click', () => {
+        const tema = button.dataset.setTheme;
+        if (window.NgumpulTheme) {
+            window.NgumpulTheme.setTheme(tema);
+        }
+        perbaruiPilihanTema();
+    });
+});
+
+// Inisialisasi pilihan tema
+perbaruiPilihanTema();
 
 // ===== Menu "Akun" -> halaman akun =====
 const btnMenuAkun = document.querySelector('.settings-row-item[data-fitur="akun"]');

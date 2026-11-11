@@ -9,21 +9,6 @@
   --merah: #e5484d;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #14171b;
-    --kotak: #1c2026;
-    --teks: #eceff3;
-    --abu: #9aa3af;
-    --garis: #2b3038;
-    --hijau: #22d3ee;
-    --hijau-tua: #0e4a5c;
-  }
-
-  .tombol:not(.kosong) {
-    color: #042f3a;
-  }
-}
 
 * {
   box-sizing: border-box;
