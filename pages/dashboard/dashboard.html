@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light">
+    <meta name="color-scheme" content="light dark">
     <title>Ngumpul - Ruang Chat</title>
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <script src="../../assets/js/theme.js"></script>
     <link rel="stylesheet" href="dashboard.css">
 </head>
 
@@ -148,8 +150,9 @@
                     <button class="settings-back-btn" id="btn-kembali-ke-chat" aria-label="Kembali"><svg class="ikon">
                             <use href="#i-back" />
                         </svg></button>
-                    <strong>Pengaturan</strong>
+                    <strong id="judul-panel-setelan">Pengaturan</strong>
                 </header>
+
                 <div class="settings-list-flow">
                     <!-- Baris di bawah baru tampilan (belum fungsional). Anggota yang kebagian: pasang aksi lewat atribut data-fitur. -->
                     <!-- KARTU PROFIL UTAMA: Tata letak gaya WhatsApp (Banner + Foto di tengah) -->
@@ -209,15 +212,21 @@
                                 <use href="#i-next" />
                             </svg>
                         </div>
-                        <div class="settings-row-item" data-fitur="tema" title="Segera hadir"><span
-                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
-                                    <use href="#i-tema" />
-                                </svg></span>
-                            <div class="settings-item-text"><b>Tema &amp; tampilan</b><small>Tema, ukuran huruf,
-                                    bahasa</small></div><svg class="ikon settings-arrow" aria-hidden="true">
-                                <use href="#i-next" />
-                            </svg>
-                        </div>
+                        <!-- TEMA -->
+            <div class="settings-row-item" data-fitur="tema" role="button" tabindex="0">
+                <span class="settings-item-icon">
+                    <svg class="ikon" aria-hidden="true">
+                        <use href="#i-tema" />
+                    </svg>
+                </span>
+                <div class="settings-item-text">
+                    <b>Tema &amp; tampilan</b>
+                    <small>Tema, ukuran huruf, bahasa</small>
+                </div>
+                <svg class="ikon settings-arrow" aria-hidden="true">
+                    <use href="#i-next" />
+                </svg>
+            </div>
                         <div class="settings-row-item" data-fitur="chat" title="Segera hadir"><span
                                 class="settings-item-icon"><svg class="ikon" aria-hidden="true">
                                     <use href="#i-chat" />
@@ -287,6 +296,61 @@
                                 <use href="#i-out" />
                             </svg>Keluar akun</button></div>
                 </div>
+                <!-- Halaman Pengaturan Tema -->
+<div class="settings-theme-page" id="panel-setelan-tema" hidden>
+
+    <div class="theme-description">
+        <h3>Tampilan aplikasi</h3>
+        <p>Pilih tema yang nyaman untuk digunakan.</p>
+    </div>
+
+    <div class="theme-options">
+
+        <button
+            type="button"
+            class="theme-option"
+            data-set-theme="light"
+        >
+            <span class="theme-preview light-preview">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+
+            <span class="theme-option-info">
+                <b>Terang</b>
+                <small>Tampilan cerah dan bersih</small>
+            </span>
+
+            <span class="theme-check">✓</span>
+        </button>
+
+        <button
+            type="button"
+            class="theme-option"
+            data-set-theme="dark"
+        >
+            <span class="theme-preview dark-preview">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+
+            <span class="theme-option-info">
+                <b>Gelap</b>
+                <small>Tampilan gelap dan nyaman</small>
+            </span>
+
+            <span class="theme-check">✓</span>
+        </button>
+
+    </div>
+
+    <p class="theme-note">
+        Pilihan tema akan disimpan secara otomatis.
+    </p>
+
+</div>
             </div>
         </main>
     </div>

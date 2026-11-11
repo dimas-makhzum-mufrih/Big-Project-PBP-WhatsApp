@@ -1,4 +1,3 @@
-
 // ===== Penjaga: harus login dulu =====
 const userAktif = getUserAktif();
 
@@ -69,7 +68,7 @@ function bukaSetelan() {
 
     panelLayerSetelan.style.display = 'flex';
 
-    // Untuk layar mobile
+    // Untuk layar mobile: panel ada di dalam .sisi-kanan yang disembunyikan CSS
     document.getElementById('panel-sisi-kiri')
         ?.classList.add('room-open');
 
@@ -90,7 +89,7 @@ function tutupSetelan() {
     document.getElementById('panel-sisi-kanan')
         ?.classList.remove('room-open');
 
-    // Bersihkan hash
+    // Bersihkan hash supaya refresh tidak membuka panel lagi
     history.replaceState(
         null,
         '',
@@ -138,6 +137,7 @@ const btnKeluarAkun = document.getElementById('btn-keluar-akun');
 if (btnKeluarAkun) {
     btnKeluarAkun.addEventListener('click', () => {
         try {
+            // Pertahankan preferensi tema ketika keluar
             const temaTersimpan = localStorage.getItem('ngumpul_tema');
 
             hapusSesi();
@@ -237,7 +237,7 @@ document.addEventListener('click', e => {
     }
 });
 
-// ===== Media profil =====
+// ===== Media profil (avatar & banner dari halaman Edit Profil) =====
 const KUNCI_MEDIA = 'ngumpul_media_';
 
 function bacaMedia(idUser) {
@@ -333,11 +333,12 @@ if (userAktif) {
     }
 }
 
-// ===== Kartu profil bisa dibuka dengan keyboard =====
+// ===== Kartu profil bisa dibuka dengan keyboard (Enter / Spasi) =====
 const kartuProfil = document.getElementById('btn-buka-edit-profil');
 
 if (kartuProfil) {
     kartuProfil.addEventListener('keydown', e => {
+        // Abaikan tombol di dalam kartu (panah v)
         if (e.target !== kartuProfil) return;
 
         if (e.key === 'Enter' || e.key === ' ') {
@@ -352,7 +353,7 @@ try {
     sessionStorage.removeItem('draft_profil_edit');
 } catch (e) {}
 
-// ===== Menu ganti akun =====
+// ===== Panah (v) di kartu profil: menu ganti akun =====
 const btnGantiAkun = document.getElementById('btn-ganti-akun');
 const menuGantiAkun = document.getElementById('menu-ganti-akun');
 
@@ -368,6 +369,7 @@ function tutupMenuGantiAkun() {
 
 if (btnGantiAkun && menuGantiAkun) {
     btnGantiAkun.addEventListener('click', e => {
+        // Jangan ikut membuka halaman Edit Profil
         e.stopPropagation();
 
         const buka = menuGantiAkun.hidden;
@@ -389,7 +391,7 @@ if (btnGantiAkun && menuGantiAkun) {
         }
     });
 
-    // Beralih akun
+    // Beralih akun: akhiri sesi tab ini lalu masuk dengan akun lain
     const btnMasukAkunLain = document.getElementById(
         'btn-masuk-akun-lain'
     );
@@ -403,6 +405,8 @@ if (btnGantiAkun && menuGantiAkun) {
 }
 
 // ===== Efek scroll khusus kartu profil =====
+// Kartu ada di paling atas daftar pengaturan: saat digulir ke bawah ia
+// memudar & hilang, saat digulir ke atas muncul lagi.
 function perbaruiEfekKartuProfil() {
     const profilAtas = document.getElementById('profil-atas');
     const daftar = document.querySelector('.settings-list-flow');
@@ -411,6 +415,7 @@ function perbaruiEfekKartuProfil() {
 
     const tinggi = profilAtas.offsetHeight || 1;
 
+    // 0 = terlihat, 1 = hilang
     const p = Math.min(
         Math.max(daftar.scrollTop / tinggi, 0),
         1
