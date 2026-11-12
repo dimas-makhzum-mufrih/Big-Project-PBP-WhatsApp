@@ -26,6 +26,18 @@
         return pesan;
     }
 
+    // ===== Baca media profil (avatar/banner) dari localStorage =====
+    const KUNCI_MEDIA = 'ngumpul_media_';
+    function bacaMedia(idUser) {
+        try {
+            return JSON.parse(
+                localStorage.getItem(KUNCI_MEDIA + idUser)
+            ) || {};
+        } catch (e) {
+            return {};
+        }
+    }
+
     function cariPengguna(nomor) {
         const pengguna = getUsers();
         for (let i = 0; i < pengguna.length; i++) {
@@ -74,11 +86,25 @@
 
             const avatar = document.createElement('div');
             avatar.className = 'contact-avatar';
-            avatar.textContent = item.name.trim().charAt(0).toUpperCase() || '?';
-            const sumberWarna = item.user ? item.user.id : item.phone;
-            let indeksWarna = 0;
-            for (let i = 0; i < sumberWarna.length; i++) indeksWarna += sumberWarna.charCodeAt(i);
-            avatar.style.backgroundColor = warnaAvatar[indeksWarna % warnaAvatar.length];
+
+            // Cek apakah user punya foto profil (avatar) tersimpan di localStorage
+            const media = item.user ? bacaMedia(item.user.id) : {};
+            if (media.avatar && typeof media.avatar === 'string' && media.avatar.startsWith('data:image/')) {
+                const img = document.createElement('img');
+                img.src = media.avatar;
+                img.alt = item.name;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '50%';
+                avatar.appendChild(img);
+            } else {
+                avatar.textContent = item.name.trim().charAt(0).toUpperCase() || '?';
+                const sumberWarna = item.user ? item.user.id : item.phone;
+                let indeksWarna = 0;
+                for (let i = 0; i < sumberWarna.length; i++) indeksWarna += sumberWarna.charCodeAt(i);
+                avatar.style.backgroundColor = warnaAvatar[indeksWarna % warnaAvatar.length];
+            }
 
             const detail = document.createElement('div');
             detail.className = 'contact-details';
