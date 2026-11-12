@@ -5,12 +5,31 @@ if (!userAktif) {
     location.replace('../auth/login.html');
 }
 
-// ===== Integrasi chat dari halaman kontak Nazwa =====
-// Format URL: dashboard.html#buka-chat=ID_USER
-const idChatTertunda = new URLSearchParams(
-    location.hash.slice(1)
-).get('buka-chat');
+// ===== Tab Chat / Kontak di dalam dashboard =====
+const tabChat = document.getElementById('tab-chat');
+const tabKontak = document.getElementById('tab-kontak');
+const panelTabChat = document.getElementById('panel-tab-chat');
+const panelTabKontak = document.getElementById('panel-tab-kontak');
 
+function pilihTabDashboard(kontakAktif) {
+    panelTabChat.hidden = kontakAktif;
+    panelTabKontak.hidden = !kontakAktif;
+    tabChat.classList.toggle('aktif', !kontakAktif);
+    tabKontak.classList.toggle('aktif', kontakAktif);
+    tabChat.setAttribute('aria-pressed', String(!kontakAktif));
+    tabKontak.setAttribute('aria-pressed', String(kontakAktif));
+}
+
+tabChat.addEventListener('click', () => pilihTabDashboard(false));
+tabKontak.addEventListener('click', () => pilihTabDashboard(true));
+document.getElementById('btn-kembali-dari-kontak').addEventListener('click', () => {
+    pilihTabDashboard(false);
+    tabChat.focus();
+});
+document.addEventListener('ngumpul:buka-chat', () => pilihTabDashboard(false));
+
+// Continue a contact-originated chat request after the dashboard page loads.
+const idChatTertunda = new URLSearchParams(location.hash.slice(1)).get('buka-chat');
 if (userAktif && idChatTertunda) {
     window.setTimeout(() => {
         document.dispatchEvent(
