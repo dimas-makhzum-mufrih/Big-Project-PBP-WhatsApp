@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
     <title>Ngumpul - Ruang Chat</title>
+    <link rel="stylesheet" href="kontak.css">
     <link rel="stylesheet" href="dashboard.css">
 </head>
 
@@ -106,7 +107,7 @@
             <!-- Grup dan Telepon masih berupa tab tampilan. -->
             <nav class="tab-nav" aria-label="Menu utama">
                 <button class="tab aktif" id="tab-chat" type="button" data-fitur="tab-chat"
-                    aria-pressed="true"><svg class="ikon" aria-hidden="true">
+                    aria-pressed="true" aria-controls="panel-tab-chat"><svg class="ikon" aria-hidden="true">
                         <use href="#i-chat" />
                     </svg>Chat</button>
                 <div class="tab" data-fitur="tab-grup" title="Segera hadir"><svg class="ikon" aria-hidden="true">
@@ -115,14 +116,48 @@
                 <div class="tab" data-fitur="tab-telepon" title="Segera hadir"><svg class="ikon" aria-hidden="true">
                         <use href="#i-phone" />
                     </svg>Telepon</div>
-                <a class="tab" id="tab-kontak" href="kontak.html"><svg class="ikon" aria-hidden="true">
+                <button class="tab" id="tab-kontak" type="button" data-fitur="tab-kontak"
+                    aria-pressed="false" aria-controls="panel-tab-kontak"><svg class="ikon" aria-hidden="true">
                         <use href="#i-kontak" />
-                    </svg>Kontak</a>
+                    </svg>Kontak</button>
             </nav>
-            <div class="search-box-wrapper"><input class="search-bar-input" id="input-cari-chat" type="search"
-                    placeholder="Cari atau mulai chat baru" aria-label="Cari atau mulai chat baru"></div>
-            <div class="chat-scroll-area">
+            <div class="dashboard-tab-panel" id="panel-tab-chat" aria-label="Chat">
+                <div class="search-box-wrapper"><input class="search-bar-input" id="input-cari-chat" type="search"
+                        placeholder="Cari atau mulai chat baru" aria-label="Cari atau mulai chat baru"></div>
+                <div class="chat-scroll-area"></div>
             </div>
+            <section class="contact-page dashboard-tab-panel" id="panel-tab-kontak" aria-labelledby="judul-kontak" hidden>
+                <header class="contact-header">
+                    <button class="contact-back" id="btn-kembali-dari-kontak" type="button" aria-label="Kembali ke Chat">
+                        <svg class="contact-back-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <h2 id="judul-kontak">Kontak</h2>
+                    <button class="contact-add-button" id="btn-tambah-kontak" type="button" aria-expanded="false"
+                        aria-controls="form-tambah-kontak">+ Tambah kontak</button>
+                </header>
+                <div class="contact-content">
+                    <label class="sr-only" for="input-cari-kontak">Cari kontak</label>
+                    <input class="contact-search" id="input-cari-kontak" type="search" placeholder="Cari kontak..."
+                        autocomplete="off">
+                    <form class="contact-form" id="form-tambah-kontak" hidden>
+                        <label for="input-nama-kontak">Nama kontak</label>
+                        <input class="contact-name-input" id="input-nama-kontak" type="text" autocomplete="name"
+                            maxlength="60" placeholder="Contoh: Budi" required>
+                        <label for="input-nomor-kontak">Nomor HP kontak</label>
+                        <div class="contact-form-row">
+                            <select id="kode-negara-kontak" aria-label="Kode negara nomor kontak"></select>
+                            <input id="input-nomor-kontak" type="tel" inputmode="numeric" autocomplete="tel-national"
+                                pattern="[0-9]{6,14}" maxlength="15" placeholder="81234567890" required>
+                            <button type="submit">Tambah</button>
+                        </div>
+                        
+                    </form>
+                    <p class="contact-status" id="contact-status" role="status" aria-live="polite"></p>
+                    <div class="contact-list" id="daftar-kontak"></div>
+                </div>
+            </section>
         </aside>
         <main class="sisi-kanan" id="panel-sisi-kanan">
             <div class="welcome-screen" id="panel-chat-kosong">
@@ -291,7 +326,10 @@
         </main>
     </div>
     <script src="../../assets/js/storage.js"></script>
+    <script src="../../assets/js/negara-data.js"></script>
+    <script src="kontak-data.js"></script>
     <script src="dashboard.js"></script>
+    <script src="kontak.js"></script>
 </body>
 
 </html>

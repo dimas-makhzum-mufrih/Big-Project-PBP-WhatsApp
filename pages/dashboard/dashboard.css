@@ -204,6 +204,67 @@ input {
     font-weight: 600
 }
 
+/* ---------- isi tab di sidebar dashboard ---------- */
+.dashboard-tab-panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden
+}
+
+.dashboard-tab-panel[hidden] {
+    display: none
+}
+
+#panel-tab-kontak {
+    max-width: none;
+    margin: 0;
+    border: 0
+}
+
+#panel-tab-kontak .contact-header {
+    flex-shrink: 0;
+    gap: 8px;
+    padding: 10px
+}
+
+#panel-tab-kontak .contact-header h2 {
+    flex: 1;
+    margin: 0;
+    font-size: 1.2rem
+}
+
+#panel-tab-kontak .contact-back {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer
+}
+
+#panel-tab-kontak .contact-back:hover {
+    background: var(--bg-abu-input)
+}
+
+#panel-tab-kontak .contact-add-button {
+    padding: 9px 10px;
+    font-size: .85rem
+}
+
+#panel-tab-kontak .contact-form-row {
+    flex-wrap: wrap
+}
+
+#panel-tab-kontak .contact-form-row select {
+    width: 100%;
+    max-width: none
+}
+
+#panel-tab-kontak .contact-card-actions {
+    flex-wrap: wrap;
+    padding-left: 0
+}
+
 /* ---------- cari + daftar chat ---------- */
 .search-box-wrapper {
     padding: 12px 16px
