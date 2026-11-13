@@ -1,94 +1,181 @@
 /**
  * NGUMPUL - Theme Manager
- * Mengelola Light Mode dan Dark Mode seluruh aplikasi.
+ * Tema dasar (light, dark) + tema premium (Celeste & Mint) + Sky Cycle.
+ *
+ * Atribut yang dipasang di <html>:
+ *   data-theme  : id tema (light, dark, skyscape, cumulus, coolmint, ...)
+ *   data-tone   : light | dark  (untuk hal generik)
+ *   data-phase  : day | night   (hanya tema Celeste)
+ *
+ * Kunci localStorage:
+ *   ngumpul_tema, ngumpul_sky_mode, ngumpul_premium_<idAkun>
+ *
+ * API lama tetap ada: getTheme(), setTheme(), toggleTheme().
  */
-
 (function () {
     "use strict";
 
-    const STORAGE_KEY = "ngumpul_tema";
+    var KEY_TEMA = "ngumpul_tema";
+    var KEY_SKY = "ngumpul_sky_mode";
+    var JAM_SIANG = 6;   // siang mulai 06:00
+    var JAM_MALAM = 18;  // malam mulai 18:00
 
-function getSavedTheme() {
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved === "light" || saved === "dark") return saved;
-    } catch (e) {}
-    // fallback ke device
-    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        return "dark";
+    var TEMA = {
+        light:     { nama: "Terang",     pack: "dasar",   tone: "light" },
+        dark:      { nama: "Gelap",      pack: "dasar",   tone: "dark" },
+        skyscape:  { nama: "Skyscape",   pack: "celeste", premium: true, sky: true },
+        cumulus:   { nama: "Cumulus",    pack: "celeste", premium: true, sky: true },
+        coolmint:  { nama: "Cool Mint",  pack: "mint",    premium: true, tone: "light" },
+        chocomint: { nama: "Choco Mint", pack: "mint",    premium: true, tone: "dark" },
+        windmint:  { nama: "Wind Mint",  pack: "mint",    premium: true, tone: "light" },
+        coldmint:  { nama: "Cold Mint",  pack: "mint",    premium: true, tone: "light" }
+    };
+
+    var MODE_SKY = ["auto", "day", "night", "reverse"];
+    var timer;
+
+    function baca(k) {
+        try { return localStorage.getItem(k); } catch (e) { return null; }
     }
-    return "light";
-}
 
-    function applyTheme(theme) {
-        const selectedTheme = theme === "dark" ? "dark" : "light";
+    function tulis(k, v) {
+        try { localStorage.setItem(k, v); } catch (e) {
+            console.warn("Gagal menyimpan tema:", e);
+        }
+    }
 
-        document.documentElement.setAttribute(
-            "data-theme",
-            selectedTheme
-        );
+    function getTheme() {
+        var s = baca(KEY_TEMA);
+        if (s && TEMA[s]) return s;
+        // fallback ke pengaturan perangkat
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            return "dark";
+        }
+        return "light";
+    }
 
-        document.documentElement.style.colorScheme = selectedTheme;
+    function getSkyMode() {
+        var m = baca(KEY_SKY);
+        return MODE_SKY.indexOf(m) !== -1 ? m : "auto";
+    }
 
-        // Sinkronisasi tombol tema jika tersedia.
-        document.querySelectorAll("[data-theme-toggle]").forEach(button => {
-            button.textContent = selectedTheme === "dark" ? "☀️" : "🌙";
+    // Simulasi premium (tanpa server): kunci per akun di localStorage
+    function isPremium() {
+        try {
+            var id = sessionStorage.getItem("ngumpul_sesi");
+            return !!id && localStorage.getItem("ngumpul_premium_" + id) === "1";
+        } catch (e) {
+            return false;
+        }
+    }
 
+    // Fase siang/malam sesuai mode Sky Cycle
+    function getPhase(mode, tgl) {
+        var jam = (tgl || new Date()).getHours();
+        var siang = jam >= JAM_SIANG && jam < JAM_MALAM;
+
+        if (mode === "day") return "day";
+        if (mode === "night") return "night";
+        if (mode === "reverse") return siang ? "night" : "day";
+        return siang ? "day" : "night"; // auto
+    }
+
+    function apply() {
+        var id = getTheme();
+        var def = TEMA[id];
+        var el = document.documentElement;
+
+        var mode = getSkyMode();
+        var phase = def.sky ? getPhase(mode) : "";
+        var tone = def.sky ? (phase === "night" ? "dark" : "light") : def.tone;
+
+        el.setAttribute("data-theme", id);
+        el.setAttribute("data-tone", tone);
+
+        if (phase) {
+            el.setAttribute("data-phase", phase);
+        } else {
+            el.removeAttribute("data-phase");
+        }
+
+        el.style.colorScheme = tone;
+
+        // Sinkronkan tombol tema sederhana (jika ada)
+        document.querySelectorAll("[data-theme-toggle]").forEach(function (button) {
+            button.textContent = tone === "dark" ? "☀️" : "🌙";
             button.setAttribute(
                 "aria-label",
-                selectedTheme === "dark"
-                    ? "Aktifkan Light Mode"
-                    : "Aktifkan Dark Mode"
+                tone === "dark" ? "Aktifkan Light Mode" : "Aktifkan Dark Mode"
             );
-
-            button.setAttribute(
-                "aria-pressed",
-                String(selectedTheme === "dark")
-            );
+            button.setAttribute("aria-pressed", String(tone === "dark"));
         });
 
-        return selectedTheme;
-    }
+        document.dispatchEvent(new CustomEvent("ngumpul:tema-berubah", {
+            detail: { tema: id, fase: phase, tone: tone, sky: !!def.sky }
+        }));
 
-    function saveTheme(theme) {
-        try {
-            localStorage.setItem(STORAGE_KEY, theme);
-        } catch (error) {
-            console.warn("Gagal menyimpan tema:", error);
+        // Cek ulang tiap menit hanya jika fase mengikuti jam
+        clearInterval(timer);
+        if (def.sky && (mode === "auto" || mode === "reverse")) {
+            timer = setInterval(apply, 60000);
         }
     }
 
-    function setTheme(theme) {
-        if (theme !== "light" && theme !== "dark") {
-            return;
-        }
+    // Mengembalikan true kalau berhasil, false kalau tema tidak ada / terkunci
+    function setTheme(id) {
+        var def = TEMA[id];
+        if (!def) return false;
+        if (def.premium && !isPremium()) return false;
 
-        saveTheme(theme);
-        applyTheme(theme);
+        tulis(KEY_TEMA, id);
+        apply();
+        return true;
     }
 
+    function setSkyMode(mode) {
+        if (MODE_SKY.indexOf(mode) === -1) return false;
+
+        tulis(KEY_SKY, mode);
+        apply();
+        return true;
+    }
+
+    // Tombol bulan/matahari: bolak-balik antara terang dan gelap dasar
     function toggleTheme() {
-        const currentTheme = getSavedTheme();
-
-        setTheme(currentTheme === "dark" ? "light" : "dark");
+        var gelap = document.documentElement.getAttribute("data-tone") === "dark";
+        setTheme(gelap ? "light" : "dark");
     }
 
-    // Terapkan tema ketika script dijalankan.
-    applyTheme(getSavedTheme());
+    // Terapkan langsung saat script jalan (di <head>) supaya tidak berkedip
+    apply();
 
     document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll("[data-theme-toggle]").forEach(button => {
+        document.querySelectorAll("[data-theme-toggle]").forEach(function (button) {
             button.addEventListener("click", toggleTheme);
         });
 
-        applyTheme(getSavedTheme());
+        apply();
     });
 
-    // API untuk digunakan halaman lain.
-    window.NgumpulTheme = {
-        getTheme: getSavedTheme,
-        setTheme: setTheme,
-        toggleTheme: toggleTheme
-    };
+    // Kembali ke tab / bangun dari sleep: cek fase lagi
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) apply();
+    });
 
+    // Sinkron antar tab
+    window.addEventListener("storage", function (e) {
+        if (e.key === KEY_TEMA || e.key === KEY_SKY) apply();
+    });
+
+    // API untuk halaman lain
+    window.NgumpulTheme = {
+        daftar: TEMA,
+        isPremium: isPremium,
+        getTheme: getTheme,
+        setTheme: setTheme,
+        toggleTheme: toggleTheme,
+        getSkyMode: getSkyMode,
+        setSkyMode: setSkyMode,
+        getPhase: function () { return getPhase(getSkyMode()); }
+    };
 })();

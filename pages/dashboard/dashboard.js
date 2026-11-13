@@ -20,11 +20,18 @@ function pilihTabDashboard(kontakAktif) {
     tabKontak.setAttribute('aria-pressed', String(kontakAktif));
 }
 
-tabChat.addEventListener('click', () => pilihTabDashboard(false));
-tabKontak.addEventListener('click', () => pilihTabDashboard(true));
+tabChat.addEventListener('click', () => {
+    pilihTabDashboard(false);
+    catatLangkahTab('chat');
+});
+tabKontak.addEventListener('click', () => {
+    pilihTabDashboard(true);
+    catatLangkahTab('kontak');
+});
 document.getElementById('btn-kembali-dari-kontak').addEventListener('click', () => {
     pilihTabDashboard(false);
     tabChat.focus();
+    catatLangkahTab('chat');
 });
 document.addEventListener('ngumpul:buka-chat', () => pilihTabDashboard(false));
 
@@ -211,21 +218,214 @@ function perbaruiPilihanTema() {
     });
 }
 
+// ===== Toast kecil untuk tema =====
+let timerToastTema;
+
+function tampilToastTema(teks) {
+    let el = document.getElementById('tema-toast');
+
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'tema-toast';
+        el.className = 'tema-toast';
+        el.setAttribute('role', 'status');
+        document.body.appendChild(el);
+    }
+
+    el.textContent = teks;
+    el.classList.add('tampil');
+
+    clearTimeout(timerToastTema);
+    timerToastTema = setTimeout(() => el.classList.remove('tampil'), 2500);
+}
+
+// ===== Tanda kunci di kartu tema premium =====
+function perbaruiKunciTema() {
+    if (!window.NgumpulTheme || !NgumpulTheme.daftar) return;
+
+    const premium = NgumpulTheme.isPremium();
+
+    tombolPilihanTema.forEach(button => {
+        const def = NgumpulTheme.daftar[button.dataset.setTheme];
+        button.classList.toggle('terkunci', !!(def && def.premium && !premium));
+    });
+
+}
+
+// ===== Panel Sky Cycle (hanya tampil untuk tema Celeste) =====
+const panelSky = document.getElementById('panel-sky-cycle');
+
+function perbaruiPanelSky() {
+    if (!panelSky || !window.NgumpulTheme || !NgumpulTheme.daftar) return;
+
+    const def = NgumpulTheme.daftar[NgumpulTheme.getTheme()];
+    panelSky.hidden = !(def && def.sky);
+
+    const mode = NgumpulTheme.getSkyMode();
+    panelSky.querySelectorAll('[data-sky-mode]').forEach(b => {
+        const aktif = b.dataset.skyMode === mode;
+        b.classList.toggle('aktif', aktif);
+        b.setAttribute('aria-pressed', String(aktif));
+    });
+
+    const malam = NgumpulTheme.getPhase() === 'night';
+    const status = document.getElementById('sky-status');
+
+    if (status) status.textContent = 'Sekarang tampil ' + (malam ? 'malam' : 'siang');
+}
+
+if (panelSky) {
+    panelSky.querySelectorAll('[data-sky-mode]').forEach(b => {
+        b.addEventListener('click', () => {
+            if (window.NgumpulTheme) NgumpulTheme.setSkyMode(b.dataset.skyMode);
+        });
+    });
+}
+
 // ===== Memilih tema =====
 tombolPilihanTema.forEach(button => {
     button.addEventListener('click', () => {
-        const tema = button.dataset.setTheme;
+        if (!window.NgumpulTheme) return;
 
-        if (window.NgumpulTheme) {
-            window.NgumpulTheme.setTheme(tema);
+        const berhasil = NgumpulTheme.setTheme(button.dataset.setTheme);
+
+        if (!berhasil) {
+            tampilToastTema('Tema ini khusus Ngumpul Plus');
         }
 
         perbaruiPilihanTema();
     });
 });
 
+// ===== Buka kunci Ngumpul Plus (rahasia) =====
+// Syarat: foto profil + banner sudah dipasang.
+// Lalu di dashboard klik tab Chat, tab Kontak, kembali ke tab Chat.
+const KUNCI_PREMIUM = 'ngumpul_premium_';
+let urutanTab = [];
+
+function syaratPlusTerpenuhi() {
+    if (!userAktif) return false;
+
+    const media = bacaMedia(userAktif.id);
+    const adaGambar = v => typeof v === 'string' && v.startsWith('data:image/');
+
+    return adaGambar(media.avatar) && adaGambar(media.banner);
+}
+
+function catatLangkahTab(langkah) {
+    if (!userAktif || !window.NgumpulTheme || NgumpulTheme.isPremium()) return;
+
+    urutanTab.push(langkah);
+    urutanTab = urutanTab.slice(-3);
+
+    if (urutanTab.join(',') === 'chat,kontak,chat' && syaratPlusTerpenuhi()) {
+        urutanTab = [];
+        bukaNgumpulPlus();
+    }
+}
+
+function bukaNgumpulPlus() {
+    try {
+        localStorage.setItem(KUNCI_PREMIUM + userAktif.id, '1');
+    } catch (e) {
+        return;
+    }
+
+    perbaruiPilihanTema();
+    perbaruiKunciTema();
+    perbaruiPanelSky();
+    tampilPopupPlus();
+}
+
+function tampilPopupPlus() {
+    if (document.getElementById('plus-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'plus-overlay';
+    overlay.className = 'plus-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'plus-judul');
+
+    const dialog = document.createElement('div');
+    dialog.className = 'plus-dialog';
+
+    // Riak garis emas. Isinya konstanta, bukan input pengguna.
+    const riak = document.createElement('div');
+    riak.className = 'plus-riak';
+    riak.setAttribute('aria-hidden', 'true');
+    riak.innerHTML =
+        '<span></span><span></span><span></span>' +
+        '<i class="plus-pusat"><svg viewBox="0 0 24 24">' +
+        '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>' +
+        '</svg></i>';
+
+    const judul = document.createElement('h3');
+    judul.id = 'plus-judul';
+    judul.className = 'plus-judul';
+    judul.textContent = 'Ngumpul Plus terbuka';
+
+    const teks = document.createElement('p');
+    teks.className = 'plus-teks';
+    teks.textContent = 'Tema Celeste dan Mint sekarang bisa kamu pakai, lengkap dengan Sky Cycle.';
+
+    const aksi = document.createElement('div');
+    aksi.className = 'plus-aksi';
+
+    const btnLihat = document.createElement('button');
+    btnLihat.type = 'button';
+    btnLihat.className = 'plus-btn';
+    btnLihat.textContent = 'Lihat tema';
+
+    const btnTutup = document.createElement('button');
+    btnTutup.type = 'button';
+    btnTutup.className = 'plus-btn plus-btn-garis';
+    btnTutup.textContent = 'Nanti saja';
+
+    aksi.append(btnLihat, btnTutup);
+    dialog.append(riak, judul, teks, aksi);
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+
+    function tutup() {
+        overlay.classList.remove('tampil');
+        document.removeEventListener('keydown', saatTekan);
+        setTimeout(() => overlay.remove(), 300);
+    }
+
+    function saatTekan(e) {
+        if (e.key === 'Escape') tutup();
+    }
+
+    btnTutup.addEventListener('click', tutup);
+    btnLihat.addEventListener('click', () => {
+        tutup();
+        bukaSetelan();
+        bukaPengaturanTema();
+    });
+    overlay.addEventListener('click', e => {
+        if (e.target === overlay) tutup();
+    });
+    document.addEventListener('keydown', saatTekan);
+
+    // Dua frame supaya transisi muncul terpicu
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        overlay.classList.add('tampil');
+        btnLihat.focus();
+    }));
+}
+
+// Setiap tema berubah (termasuk ganti fase otomatis), segarkan UI
+document.addEventListener('ngumpul:tema-berubah', () => {
+    perbaruiPilihanTema();
+    perbaruiKunciTema();
+    perbaruiPanelSky();
+});
+
 // Inisialisasi pilihan tema
 perbaruiPilihanTema();
+perbaruiKunciTema();
+perbaruiPanelSky();
 
 // ===== Menu Akun -> halaman akun =====
 const btnMenuAkun = document.querySelector(

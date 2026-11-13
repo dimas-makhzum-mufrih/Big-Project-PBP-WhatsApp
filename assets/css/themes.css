@@ -1,0 +1,342 @@
+/* =====================================================================
+   NGUMPUL - THEMES (tema premium)
+   Muat SETELAH variables.css:
+     <link rel="stylesheet" href="../../assets/css/variables.css">
+     <link rel="stylesheet" href="../../assets/css/themes.css">
+
+   Berisi: Skyscape, Cumulus (pack Celeste, ada fase day/night)
+           Cool Mint, Choco Mint, Wind Mint, Cold Mint (pack Mint)
+   Terang & Gelap dasar tetap di variables.css.
+
+   Variabel baru yang HARUS juga ada di variables.css (lihat panduan):
+   --teks-header, --teks-di-utama, --header-bg, --notif-bg, --overlay,
+   --merah-tipis, --bg-chat-gambar
+   ===================================================================== */
+
+/* Latar area chat: default = warna datar --bg-chat.
+   Tema langit menimpanya dengan gradien. Cara pakai nanti di chat:
+   background: var(--bg-chat-gambar);  */
+:root {
+    --bg-chat-gambar: linear-gradient(var(--bg-chat), var(--bg-chat));
+}
+
+/* ---------------------------------------------------------------------
+   Pengaturan bersama untuk tema bernada GELAP
+   (Choco Mint, Skyscape malam, Cumulus malam)
+   --------------------------------------------------------------------- */
+html[data-theme="chocomint"],
+html[data-theme="skyscape"][data-phase="night"],
+html[data-theme="cumulus"][data-phase="night"] {
+    --merah: #ff7b6b;
+    --merah-tipis: #3a2528;
+    --bg-hover-merah: #3a2528;
+    --overlay: rgba(0, 0, 0, 0.7);
+    --bayangan-dropdown: 0 8px 24px rgba(0, 0, 0, 0.38);
+    --bayangan-card: 0 1px 1px rgba(0, 0, 0, 0.12);
+    --bayangan-profil: 0 2px 8px rgba(0, 0, 0, 0.12);
+    --bayangan-hover-profil: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --bg-hover-header: rgba(255, 255, 255, 0.12);
+}
+
+/* =====================================================================
+   PACK CELESTE
+   ===================================================================== */
+
+/* ---------- Skyscape (siang): langit biru, kartu & bubble = awan putih ---------- */
+html[data-theme="skyscape"][data-phase="day"] {
+    --bg: #8ecdf5;
+    --kotak: #ffffff;
+    --teks: #0f2a44;
+    --abu: #3d6485;
+    --garis: #b9def5;
+
+    --hijau: #1a78c8;
+    --hijau-tua: #115a9a;
+    --warna-utama: #1a78c8;
+    --warna-utama-hover: #115a9a;
+    --warna-tipis: #e1f1fd;
+
+    --bg-putih: #ffffff;
+    --bg-abu-terang: #8ecdf5;
+    --bg-abu-input: #e9f5fe;
+
+    --teks-gelap: #0f2a44;
+    --teks-redup: #3d6485;
+    --teks-di-utama: #ffffff;
+    --teks-kontras: #ffffff;
+    --teks-header: #ffffff;
+    --header-bg: #1a78c8;
+
+    --bub-kirim: #ffffff;
+    --bub-terima: #eaf6ff;
+    --teks-bubble: #0f2a44;
+
+    --border-warna: #b9def5;
+    --bg-chat: #a9d9f7;
+    --bg-chat-gambar: linear-gradient(180deg, #6fb9ee 0%, #a9d9f7 55%, #d7eefc 100%);
+
+    --notif-bg: #0f2a44;
+    --overlay: rgba(15, 42, 68, 0.55);
+    --bayangan-dropdown: 0 8px 24px rgba(15, 80, 140, 0.22);
+    --bayangan-hover-profil: 0 4px 12px rgba(26, 120, 200, 0.18);
+}
+
+/* ---------- Skyscape (malam): langit malam, aksen biru muda ---------- */
+html[data-theme="skyscape"][data-phase="night"] {
+    --bg: #050a18;
+    --kotak: #0c1530;
+    --teks: #e6eeff;
+    --abu: #8fa6cf;
+    --garis: #17234a;
+
+    --hijau: #6aa6f5;
+    --hijau-tua: #4a8be0;
+    --warna-utama: #6aa6f5;
+    --warna-utama-hover: #4a8be0;
+    --warna-tipis: #111d40;
+
+    --bg-putih: #0c1530;
+    --bg-abu-terang: #050a18;
+    --bg-abu-input: #121c3d;
+
+    --teks-gelap: #e6eeff;
+    --teks-redup: #8fa6cf;
+    --teks-di-utama: #04102a;
+    --teks-kontras: #04102a;
+    --teks-header: #e6eeff;
+    --header-bg: #0f1b3d;
+
+    --bub-kirim: #1b3266;
+    --bub-terima: #0c1530;
+    --teks-bubble: #e6eeff;
+
+    --border-warna: #17234a;
+    --bg-chat: #050a18;
+    --bg-chat-gambar: linear-gradient(180deg, #02050f 0%, #050a18 55%, #0b1633 100%);
+
+    --notif-bg: #02050f;
+}
+
+/* ---------- Cumulus (siang): kebalikan Skyscape, putih dengan aksen biru ---------- */
+html[data-theme="cumulus"][data-phase="day"] {
+    --bg: #f5faff;
+    --kotak: #ffffff;
+    --teks: #10253a;
+    --abu: #5a7490;
+    --garis: #dbe8f5;
+
+    --hijau: #1a78c8;
+    --hijau-tua: #115a9a;
+    --warna-utama: #1a78c8;
+    --warna-utama-hover: #115a9a;
+    --warna-tipis: #e3f1ff;
+
+    --bg-putih: #ffffff;
+    --bg-abu-terang: #f5faff;
+    --bg-abu-input: #eaf3fc;
+
+    --teks-gelap: #10253a;
+    --teks-redup: #5a7490;
+    --teks-di-utama: #ffffff;
+    --teks-kontras: #ffffff;
+    --teks-header: #ffffff;
+    --header-bg: #1a78c8;
+
+    --bub-kirim: #cfe8ff;
+    --bub-terima: #ffffff;
+    --teks-bubble: #10253a;
+
+    --border-warna: #dbe8f5;
+    --bg-chat: #e6f1fb;
+    --bg-chat-gambar: linear-gradient(180deg, #f5faff 0%, #e3f1ff 100%);
+
+    --notif-bg: #10253a;
+    --overlay: rgba(16, 37, 58, 0.5);
+    --bayangan-dropdown: 0 8px 24px rgba(20, 80, 140, 0.14);
+}
+
+/* ---------- Cumulus (malam) ---------- */
+html[data-theme="cumulus"][data-phase="night"] {
+    --bg: #0d1118;
+    --kotak: #161c27;
+    --teks: #e6ecf5;
+    --abu: #93a3bb;
+    --garis: #252e3d;
+
+    --hijau: #8fbff0;
+    --hijau-tua: #6aa0d8;
+    --warna-utama: #8fbff0;
+    --warna-utama-hover: #6aa0d8;
+    --warna-tipis: #1d2738;
+
+    --bg-putih: #161c27;
+    --bg-abu-terang: #0d1118;
+    --bg-abu-input: #1d2533;
+
+    --teks-gelap: #e6ecf5;
+    --teks-redup: #93a3bb;
+    --teks-di-utama: #0a1626;
+    --teks-kontras: #0a1626;
+    --teks-header: #e6ecf5;
+    --header-bg: #1d2738;
+
+    --bub-kirim: #26395a;
+    --bub-terima: #161c27;
+    --teks-bubble: #e6ecf5;
+
+    --border-warna: #252e3d;
+    --bg-chat: #0a0e14;
+    --bg-chat-gambar: linear-gradient(180deg, #0d1118 0%, #090c11 100%);
+
+    --notif-bg: #06090d;
+}
+
+/* =====================================================================
+   PACK MINT
+   ===================================================================== */
+
+/* ---------- Cool Mint: latar putih pastel kebiruan, aksen mint vibrant ---------- */
+html[data-theme="coolmint"] {
+    --bg: #f3f9fc;
+    --kotak: #ffffff;
+    --teks: #0f3238;
+    --abu: #52777d;
+    --garis: #d3e7ee;
+
+    --hijau: #2cc7c0;
+    --hijau-tua: #1ea8a2;
+    --warna-utama: #2cc7c0;
+    --warna-utama-hover: #1ea8a2;
+    --warna-tipis: #d8f6f3;
+
+    --bg-putih: #ffffff;
+    --bg-abu-terang: #f3f9fc;
+    --bg-abu-input: #e6f2f7;
+
+    --teks-gelap: #0f3238;
+    --teks-redup: #52777d;
+    --teks-di-utama: #06292d;
+    /* mint terang -> teks gelap */
+    --teks-kontras: #06292d;
+    --teks-header: #06292d;
+    --header-bg: #2cc7c0;
+
+    --bub-kirim: #c9f3ee;
+    --bub-terima: #ffffff;
+    --teks-bubble: #0f3238;
+
+    --border-warna: #d3e7ee;
+    --bg-chat: #e6f3f8;
+
+    --notif-bg: #0f3238;
+    --overlay: rgba(15, 50, 56, 0.5);
+}
+
+/* ---------- Choco Mint: kebalikan Cool Mint, latar coklat, aksen mint ---------- */
+html[data-theme="chocomint"] {
+    --bg: #140b09;
+    --kotak: #1f1311;
+    --teks: #f1e6df;
+    --abu: #bfa79d;
+    --garis: #34211d;
+
+    --hijau: #3eb489;
+    --hijau-tua: #2f9a74;
+    --warna-utama: #3eb489;
+    --warna-utama-hover: #2f9a74;
+    --warna-tipis: #2a1b17;
+
+    --bg-putih: #1f1311;
+    --bg-abu-terang: #140b09;
+    --bg-abu-input: #2a1a17;
+
+    --teks-gelap: #f1e6df;
+    --teks-redup: #bfa79d;
+    --teks-di-utama: #0a1f17;
+    --teks-kontras: #0a1f17;
+    --teks-header: #f1e6df;
+    --header-bg: #2b1a16;
+
+    --bub-kirim: #1b5c46;
+    --bub-terima: #1f1311;
+    --teks-bubble: #f1e6df;
+
+    --border-warna: #34211d;
+    --bg-chat: #0f0706;
+
+    --notif-bg: #0a0403;
+}
+
+/* ---------- Wind Mint: mint pastel bernuansa alam (#cef0cc + #c2e8e0) ---------- */
+html[data-theme="windmint"] {
+    --bg: #e9f6e8;
+    --kotak: #f8fcf7;
+    --teks: #1f3b33;
+    --abu: #5b7a70;
+    --garis: #cfe5ce;
+
+    --hijau: #5fae8e;
+    --hijau-tua: #458f71;
+    --warna-utama: #5fae8e;
+    --warna-utama-hover: #458f71;
+    --warna-tipis: #d9efd8;
+
+    --bg-putih: #f8fcf7;
+    --bg-abu-terang: #e9f6e8;
+    --bg-abu-input: #dcefdb;
+
+    --teks-gelap: #1f3b33;
+    --teks-redup: #5b7a70;
+    --teks-di-utama: #10281f;
+    --teks-kontras: #10281f;
+    --teks-header: #10281f;
+    --header-bg: #8fd0b0;
+
+    --bub-kirim: #cef0cc;
+    --bub-terima: #f8fcf7;
+    --teks-bubble: #1f3b33;
+
+    --border-warna: #cfe5ce;
+    --bg-chat: #c2e8e0;
+    --bg-chat-gambar: linear-gradient(180deg, #c2e8e0 0%, #cef0cc 100%);
+
+    --notif-bg: #1f3b33;
+    --overlay: rgba(31, 59, 51, 0.5);
+}
+
+/* ---------- Cold Mint: mint dominan biru (#78d7d4 / #9fe7e5 / #78c2d7 / #5cb6bd) ---------- */
+html[data-theme="coldmint"] {
+    --bg: #e8f8f8;
+    --kotak: #f7fdfd;
+    --teks: #12383d;
+    --abu: #4f7a80;
+    --garis: #c5e6e8;
+
+    --hijau: #5cb6bd;
+    --hijau-tua: #3f98a0;
+    --warna-utama: #5cb6bd;
+    --warna-utama-hover: #3f98a0;
+    --warna-tipis: #d4f3f2;
+
+    --bg-putih: #f7fdfd;
+    --bg-abu-terang: #e8f8f8;
+    --bg-abu-input: #d9f1f3;
+
+    --teks-gelap: #12383d;
+    --teks-redup: #4f7a80;
+    --teks-di-utama: #06292d;
+    --teks-kontras: #06292d;
+    --teks-header: #06292d;
+    --header-bg: #78d7d4;
+
+    --bub-kirim: #9fe7e5;
+    --bub-terima: #ffffff;
+    --teks-bubble: #12383d;
+
+    --border-warna: #c5e6e8;
+    --bg-chat: #d9f1f3;
+    --bg-chat-gambar: linear-gradient(180deg, #d9f1f3 0%, #c8ebee 100%);
+
+    --notif-bg: #12383d;
+    --overlay: rgba(18, 56, 61, 0.5);
+}

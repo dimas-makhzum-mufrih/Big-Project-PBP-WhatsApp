@@ -1,0 +1,406 @@
+/* =====================================================================
+   NGUMPUL - UI tema premium
+   Muat di dashboard.html setelah themes.css:
+     <link rel="stylesheet" href="../../assets/css/tema-premium.css">
+
+   Kartu tema premium memakai kelas yang sama dengan Terang/Gelap
+   (.theme-option, .theme-preview, .theme-option-info, .theme-check),
+   jadi bentuknya konsisten. Pembeda premium hanya: label Plus bergaris
+   emas, ikon kunci saat terkunci, dan garis emas tipis di judul grup.
+   ===================================================================== */
+
+/* Warna emas: lebih tua di tema terang, lebih terang di tema gelap */
+:root {
+    --emas: #8a6a1f;
+    --emas-garis: #b98f2e;
+}
+
+html[data-tone="dark"] {
+    --emas: #e2c274;
+    --emas-garis: #c9a24c;
+}
+
+/* ---------- Grup (Celeste, Mint) ---------- */
+.tema-grup {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.tema-grup-kepala {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tema-grup-kepala::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--emas-garis), transparent);
+    opacity: 0.55;
+}
+
+.tema-grup-judul {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--teks-gelap);
+}
+
+.badge-plus {
+    order: 0;
+    padding: 2px 9px;
+    border: 1px solid var(--emas-garis);
+    border-radius: 999px;
+    color: var(--emas);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+}
+
+/* ---------- Preview kartu premium (meniru .light-preview / .dark-preview) ---------- */
+.theme-preview.pv {
+    background: var(--pv-bg);
+    border: 1px solid var(--pv-border);
+}
+
+.theme-preview.pv span {
+    background: var(--pv-line);
+}
+
+.theme-preview.pv span:nth-child(2) {
+    background: var(--pv-acc);
+    align-self: flex-end;
+}
+
+.pv-skyscape {
+    --pv-bg: linear-gradient(#6fb9ee, #cfe9fb);
+    --pv-border: #8ecdf5;
+    --pv-line: #ffffff;
+    --pv-acc: #1a78c8;
+}
+
+.pv-cumulus {
+    --pv-bg: #f5faff;
+    --pv-border: #dbe8f5;
+    --pv-line: #cfe0f2;
+    --pv-acc: #1a78c8;
+}
+
+.pv-coolmint {
+    --pv-bg: #f3f9fc;
+    --pv-border: #d3e7ee;
+    --pv-line: #cfe3ea;
+    --pv-acc: #2cc7c0;
+}
+
+.pv-chocomint {
+    --pv-bg: #140b09;
+    --pv-border: #34211d;
+    --pv-line: #4a2f29;
+    --pv-acc: #3eb489;
+}
+
+.pv-windmint {
+    --pv-bg: #c2e8e0;
+    --pv-border: #a9d6cc;
+    --pv-line: #e6f6e4;
+    --pv-acc: #5fae8e;
+}
+
+.pv-coldmint {
+    --pv-bg: #d9f1f3;
+    --pv-border: #b9e0e3;
+    --pv-line: #f2fbfb;
+    --pv-acc: #5cb6bd;
+}
+
+/* ---------- Kunci ---------- */
+.theme-lock {
+    display: none;
+    color: var(--teks-redup);
+}
+
+.theme-lock .ikon {
+    width: 18px;
+    height: 18px;
+}
+
+.theme-option.terkunci .theme-lock {
+    display: block;
+}
+
+.theme-option.terkunci .theme-preview {
+    opacity: 0.6;
+}
+
+.theme-option:focus-visible,
+.sky-segmen button:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px;
+}
+
+/* ---------- Sky Cycle (di bawah kartu Celeste) ---------- */
+.sky-cycle {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 2px 2px 4px;
+}
+
+.sky-cycle[hidden] {
+    display: none;
+}
+
+.sky-cycle-kepala {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sky-cycle-kepala b {
+    font-size: 0.95rem;
+    color: var(--teks-gelap);
+}
+
+.sky-cycle-kepala small {
+    color: var(--teks-redup);
+    font-size: 0.82rem;
+}
+
+.sky-segmen {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 12px;
+    background: var(--bg-abu-input);
+}
+
+.sky-segmen button {
+    padding: 9px 6px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--teks-redup);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.sky-segmen button:hover {
+    color: var(--teks-gelap);
+}
+
+.sky-segmen button.aktif {
+    border-color: var(--warna-utama);
+    background: var(--warna-tipis);
+    color: var(--warna-utama);
+}
+
+.sky-ket {
+    margin: 0;
+    color: var(--teks-redup);
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+/* ---------- Popup Ngumpul Plus terbuka (riak garis emas) ---------- */
+.plus-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: var(--overlay, rgba(0, 0, 0, 0.6));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.plus-overlay.tampil {
+    opacity: 1;
+}
+
+.plus-dialog {
+    width: 100%;
+    max-width: 340px;
+    padding: 28px 24px 22px;
+    border: 1px solid var(--border-warna);
+    border-radius: 18px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    text-align: center;
+    box-shadow: var(--bayangan-dropdown);
+    transform: translateY(10px);
+    transition: transform 0.35s ease;
+}
+
+.plus-overlay.tampil .plus-dialog {
+    transform: none;
+}
+
+.plus-riak {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 132px;
+    height: 132px;
+    margin: 0 auto 8px;
+}
+
+.plus-riak span {
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid var(--emas-garis);
+    border-radius: 50%;
+    opacity: 0;
+    animation: plus-riak 2.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+.plus-riak span:nth-child(2) {
+    animation-delay: 0.85s;
+}
+
+.plus-riak span:nth-child(3) {
+    animation-delay: 1.7s;
+}
+
+.plus-pusat {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1.5px solid var(--emas-garis);
+    border-radius: 50%;
+    color: var(--emas);
+}
+
+.plus-pusat svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+@keyframes plus-riak {
+    0% {
+        transform: scale(0.36);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+.plus-judul {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+}
+
+.plus-teks {
+    margin: 0 0 20px;
+    color: var(--teks-redup);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.plus-aksi {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.plus-btn {
+    padding: 11px 14px;
+    border: 1px solid var(--warna-utama);
+    border-radius: 10px;
+    background: var(--warna-utama);
+    color: var(--teks-kontras);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.plus-btn:hover {
+    background: var(--warna-utama-hover);
+}
+
+.plus-btn-garis {
+    border-color: var(--border-warna);
+    background: transparent;
+    color: var(--teks-redup);
+}
+
+.plus-btn-garis:hover {
+    background: var(--bg-abu-input);
+}
+
+.plus-btn:focus-visible {
+    outline: 2px solid var(--emas-garis);
+    outline-offset: 2px;
+}
+
+/* ---------- Toast tema ---------- */
+.tema-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 3000;
+    max-width: 90%;
+    padding: 10px 16px;
+    border-radius: 20px;
+    background: var(--notif-bg, #222);
+    color: #fff;
+    font-size: 0.85rem;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 20px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.tema-toast.tampil {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .tema-toast,
+    .plus-overlay,
+    .plus-dialog,
+    .sky-segmen button {
+        transition: none;
+    }
+
+    .plus-riak span {
+        animation: none;
+        opacity: 0.4;
+    }
+
+    .plus-riak span:nth-child(1) {
+        transform: scale(0.6);
+    }
+
+    .plus-riak span:nth-child(2) {
+        transform: scale(0.8);
+        opacity: 0.25;
+    }
+
+    .plus-riak span:nth-child(3) {
+        transform: scale(1);
+        opacity: 0.12;
+    }
+}

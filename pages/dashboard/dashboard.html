@@ -7,9 +7,11 @@
     <meta name="color-scheme" content="light dark">
     <title>Ngumpul - Ruang Chat</title>
     <link rel="stylesheet" href="kontak.css">
-<link rel="stylesheet" href="../../assets/css/variables.css">
-<script src="../../assets/js/theme.js"></script>
-<link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/themes.css">
+    <link rel="stylesheet" href="../../assets/css/tema-premium.css">
+    <script src="../../assets/js/theme.js"></script>
 </head>
 
 <body>
@@ -57,7 +59,7 @@
             <circle cx="12" cy="12" r="10" />
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" />
         </symbol>
-                <symbol id="i-chevron-down" viewBox="0 0 24 24">
+        <symbol id="i-chevron-down" viewBox="0 0 24 24">
             <path d="M6 9l6 6 6-6" />
         </symbol>
         <symbol id="i-swap" viewBox="0 0 24 24">
@@ -108,8 +110,8 @@
             </div>
             <!-- Grup dan Telepon masih berupa tab tampilan. -->
             <nav class="tab-nav" aria-label="Menu utama">
-                <button class="tab aktif" id="tab-chat" type="button" data-fitur="tab-chat"
-                    aria-pressed="true" aria-controls="panel-tab-chat"><svg class="ikon" aria-hidden="true">
+                <button class="tab aktif" id="tab-chat" type="button" data-fitur="tab-chat" aria-pressed="true"
+                    aria-controls="panel-tab-chat"><svg class="ikon" aria-hidden="true">
                         <use href="#i-chat" />
                     </svg>Chat</button>
                 <div class="tab" data-fitur="tab-grup" title="Segera hadir"><svg class="ikon" aria-hidden="true">
@@ -118,8 +120,8 @@
                 <div class="tab" data-fitur="tab-telepon" title="Segera hadir"><svg class="ikon" aria-hidden="true">
                         <use href="#i-phone" />
                     </svg>Telepon</div>
-                <button class="tab" id="tab-kontak" type="button" data-fitur="tab-kontak"
-                    aria-pressed="false" aria-controls="panel-tab-kontak"><svg class="ikon" aria-hidden="true">
+                <button class="tab" id="tab-kontak" type="button" data-fitur="tab-kontak" aria-pressed="false"
+                    aria-controls="panel-tab-kontak"><svg class="ikon" aria-hidden="true">
                         <use href="#i-kontak" />
                     </svg>Kontak</button>
             </nav>
@@ -128,9 +130,11 @@
                         placeholder="Cari atau mulai chat baru" aria-label="Cari atau mulai chat baru"></div>
                 <div class="chat-scroll-area"></div>
             </div>
-            <section class="contact-page dashboard-tab-panel" id="panel-tab-kontak" aria-labelledby="judul-kontak" hidden>
+            <section class="contact-page dashboard-tab-panel" id="panel-tab-kontak" aria-labelledby="judul-kontak"
+                hidden>
                 <header class="contact-header">
-                    <button class="contact-back" id="btn-kembali-dari-kontak" type="button" aria-label="Kembali ke Chat">
+                    <button class="contact-back" id="btn-kembali-dari-kontak" type="button"
+                        aria-label="Kembali ke Chat">
                         <svg class="contact-back-icon" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M19 12H5M12 19l-7-7 7-7" />
                         </svg>
@@ -154,7 +158,7 @@
                                 pattern="[0-9]{6,14}" maxlength="15" placeholder="81234567890" required>
                             <button type="submit">Tambah</button>
                         </div>
-                        
+
                     </form>
                     <p class="contact-status" id="contact-status" role="status" aria-live="polite"></p>
                     <div class="contact-list" id="daftar-kontak"></div>
@@ -192,17 +196,21 @@
                     <!-- Baris di bawah baru tampilan (belum fungsional). Anggota yang kebagian: pasang aksi lewat atribut data-fitur. -->
                     <!-- KARTU PROFIL UTAMA: Tata letak gaya WhatsApp (Banner + Foto di tengah) -->
                     <div class="profil-atas" id="profil-atas">
-                        <div class="settings-profile-whatsapp-card profile-card-trigger" id="btn-buka-edit-profil" role="button"
-                            tabindex="0" aria-label="Buka edit profil">
-                            
+                        <div class="settings-profile-whatsapp-card profile-card-trigger" id="btn-buka-edit-profil"
+                            role="button" tabindex="0" aria-label="Buka edit profil">
+
                             <!-- Banner Profil di Bagian Atas -->
                             <div class="settings-profile-banner" id="setting-banner-preview"></div>
-                            
+
                             <!-- Foto Profil Bulat di Tengah (Menimpa Banner) -->
                             <div class="settings-profile-avatar-wrapper">
                                 <div class="settings-profile-avatar-circle" id="setting-avatar-container">
-                                    <svg class="ikon settings-default-user-icon" id="setting-default-user-icon" style="width: 36px; height: 36px;"><use href="#i-user"/></svg>
-                                    <img id="setting-img-avatar-output" src="" alt="Foto Profil" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                                    <svg class="ikon settings-default-user-icon" id="setting-default-user-icon"
+                                        style="width: 36px; height: 36px;">
+                                        <use href="#i-user" />
+                                    </svg>
+                                    <img id="setting-img-avatar-output" src="" alt="Foto Profil"
+                                        style="display: none; width: 100%; height: 100%; object-fit: cover;">
                                 </div>
                             </div>
 
@@ -211,7 +219,8 @@
                                 <div class="name-row">
                                     <span id="setting-display-name">Arif Fathur Rohman</span>
                                     <button type="button" class="btn-ganti-akun" id="btn-ganti-akun"
-                                        aria-label="Opsi ganti akun" aria-haspopup="true" aria-expanded="false" onclick="event.stopPropagation();">
+                                        aria-label="Opsi ganti akun" aria-haspopup="true" aria-expanded="false"
+                                        onclick="event.stopPropagation();">
                                         <svg class="ikon" aria-hidden="true">
                                             <use href="#i-chevron-down" />
                                         </svg>
@@ -236,32 +245,32 @@
                                 </svg>Masuk dengan akun lain
                             </button>
                         </div>
-                    </div>                    
+                    </div>
                     <div class="settings-card">
                         <div class="settings-row-item" data-fitur="akun" title="Segera hadir"><span
                                 class="settings-item-icon"><svg class="ikon" aria-hidden="true">
                                     <use href="#i-user" />
                                 </svg></span>
-                            <div class="settings-item-text"><b>Akun</b><small>Notifikasi keamanan, ganti nomor</small></div><svg
-                                class="ikon settings-arrow" aria-hidden="true">
+                            <div class="settings-item-text"><b>Akun</b><small>Notifikasi keamanan, ganti nomor</small>
+                            </div><svg class="ikon settings-arrow" aria-hidden="true">
                                 <use href="#i-next" />
                             </svg>
                         </div>
                         <!-- TEMA -->
-            <div class="settings-row-item" data-fitur="tema" role="button" tabindex="0">
-                <span class="settings-item-icon">
-                    <svg class="ikon" aria-hidden="true">
-                        <use href="#i-tema" />
-                    </svg>
-                </span>
-                <div class="settings-item-text">
-                    <b>Tema &amp; tampilan</b>
-                    <small>Tema, ukuran huruf, bahasa</small>
-                </div>
-                <svg class="ikon settings-arrow" aria-hidden="true">
-                    <use href="#i-next" />
-                </svg>
-            </div>
+                        <div class="settings-row-item" data-fitur="tema" role="button" tabindex="0">
+                            <span class="settings-item-icon">
+                                <svg class="ikon" aria-hidden="true">
+                                    <use href="#i-tema" />
+                                </svg>
+                            </span>
+                            <div class="settings-item-text">
+                                <b>Tema &amp; tampilan</b>
+                                <small>Tema, ukuran huruf, bahasa</small>
+                            </div>
+                            <svg class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
                         <div class="settings-row-item" data-fitur="chat" title="Segera hadir"><span
                                 class="settings-item-icon"><svg class="ikon" aria-hidden="true">
                                     <use href="#i-chat" />
@@ -332,60 +341,159 @@
                             </svg>Keluar akun</button></div>
                 </div>
                 <!-- Halaman Pengaturan Tema -->
-<div class="settings-theme-page" id="panel-setelan-tema" hidden>
+                <div class="settings-theme-page" id="panel-setelan-tema" hidden>
 
-    <div class="theme-description">
-        <h3>Tampilan aplikasi</h3>
-        <p>Pilih tema yang nyaman untuk digunakan.</p>
-    </div>
+                    <div class="theme-description">
+                        <h3>Tampilan aplikasi</h3>
+                        <p>Pilih tema yang nyaman untuk digunakan.</p>
+                    </div>
 
-    <div class="theme-options">
+                    <div class="theme-options">
 
-        <button
-            type="button"
-            class="theme-option"
-            data-set-theme="light"
-        >
-            <span class="theme-preview light-preview">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
+                        <button type="button" class="theme-option" data-set-theme="light">
+                            <span class="theme-preview light-preview">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
 
-            <span class="theme-option-info">
-                <b>Terang</b>
-                <small>Tampilan cerah dan bersih</small>
-            </span>
+                            <span class="theme-option-info">
+                                <b>Terang</b>
+                                <small>Tampilan cerah dan bersih</small>
+                            </span>
 
-            <span class="theme-check">✓</span>
-        </button>
+                            <span class="theme-check">✓</span>
+                        </button>
 
-        <button
-            type="button"
-            class="theme-option"
-            data-set-theme="dark"
-        >
-            <span class="theme-preview dark-preview">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
+                        <button type="button" class="theme-option" data-set-theme="dark">
+                            <span class="theme-preview dark-preview">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
 
-            <span class="theme-option-info">
-                <b>Gelap</b>
-                <small>Tampilan gelap dan nyaman</small>
-            </span>
+                            <span class="theme-option-info">
+                                <b>Gelap</b>
+                                <small>Tampilan gelap dan nyaman</small>
+                            </span>
 
-            <span class="theme-check">✓</span>
-        </button>
+                            <span class="theme-check">✓</span>
+                        </button>
+                        <!-- Celeste -->
+                        <section class="tema-grup" aria-labelledby="judul-celeste">
+                            <div class="tema-grup-kepala">
+                                <h3 class="tema-grup-judul" id="judul-celeste">Celeste</h3>
+                                <span class="badge-plus">Plus</span>
+                            </div>
+                            <button type="button" class="theme-option premium" data-set-theme="skyscape"
+                                aria-pressed="false">
+                                <span
+                                    class="theme-preview pv pv-skyscape"><span></span><span></span><span></span></span>
+                                <span class="theme-option-info">
+                                    <b>Skyscape</b>
+                                    <small>Langit biru dengan kartu seputih awan</small>
+                                </span>
+                                <span class="theme-lock" aria-hidden="true"><svg class="ikon">
+                                        <use href="#i-lock" />
+                                    </svg></span>
+                                <span class="theme-check">✓</span>
+                            </button>
+                            <button type="button" class="theme-option premium" data-set-theme="cumulus"
+                                aria-pressed="false">
+                                <span class="theme-preview pv pv-cumulus"><span></span><span></span><span></span></span>
+                                <span class="theme-option-info">
+                                    <b>Cumulus</b>
+                                    <small>Putih bersih dengan aksen biru langit</small>
+                                </span>
+                                <span class="theme-lock" aria-hidden="true"><svg class="ikon">
+                                        <use href="#i-lock" />
+                                    </svg></span>
+                                <span class="theme-check">✓</span>
+                            </button>
 
-    </div>
+                            <div class="sky-cycle" id="panel-sky-cycle" hidden>
+                                <div class="sky-cycle-kepala">
+                                    <b>Sky Cycle</b>
+                                    <small id="sky-status">Sekarang tampil siang</small>
+                                </div>
+                                <div class="sky-segmen" role="group" aria-label="Mode Sky Cycle">
+                                    <button type="button" data-sky-mode="auto">Ikuti waktu</button>
+                                    <button type="button" data-sky-mode="day">Siang</button>
+                                    <button type="button" data-sky-mode="night">Malam</button>
+                                    <button type="button" data-sky-mode="reverse">Terbalik</button>
+                                </div>
+                                <p class="sky-ket">Siang berlaku 06.00 sampai 17.59. Terbalik menampilkan malam saat
+                                    siang, dan sebaliknya.</p>
+                            </div>
+                        </section>
 
-    <p class="theme-note">
-        Pilihan tema akan disimpan secara otomatis.
-    </p>
+                        <!-- Mint -->
+                        <section class="tema-grup" aria-labelledby="judul-mint">
+                            <div class="tema-grup-kepala">
+                                <h3 class="tema-grup-judul" id="judul-mint">Mint</h3>
+                                <span class="badge-plus">Plus</span>
+                            </div>
+                            <button type="button" class="theme-option premium" data-set-theme="coolmint"
+                                aria-pressed="false">
+                                <span
+                                    class="theme-preview pv pv-coolmint"><span></span><span></span><span></span></span>
+                                <span class="theme-option-info">
+                                    <b>Cool Mint</b>
+                                    <small>Putih kebiruan dengan mint cerah</small>
+                                </span>
+                                <span class="theme-lock" aria-hidden="true"><svg class="ikon">
+                                        <use href="#i-lock" />
+                                    </svg></span>
+                                <span class="theme-check">✓</span>
+                            </button>
+                            <button type="button" class="theme-option premium" data-set-theme="chocomint"
+                                aria-pressed="false">
+                                <span
+                                    class="theme-preview pv pv-chocomint"><span></span><span></span><span></span></span>
+                                <span class="theme-option-info">
+                                    <b>Choco Mint</b>
+                                    <small>Coklat gelap dengan aksen mint</small>
+                                </span>
+                                <span class="theme-lock" aria-hidden="true"><svg class="ikon">
+                                        <use href="#i-lock" />
+                                    </svg></span>
+                                <span class="theme-check">✓</span>
+                            </button>
+                            <button type="button" class="theme-option premium" data-set-theme="windmint"
+                                aria-pressed="false">
+                                <span
+                                    class="theme-preview pv pv-windmint"><span></span><span></span><span></span></span>
+                                <span class="theme-option-info">
+                                    <b>Wind Mint</b>
+                                    <small>Mint pastel bernuansa alam</small>
+                                </span>
+                                <span class="theme-lock" aria-hidden="true"><svg class="ikon">
+                                        <use href="#i-lock" />
+                                    </svg></span>
+                                <span class="theme-check">✓</span>
+                            </button>
+                            <button type="button" class="theme-option premium" data-set-theme="coldmint"
+                                aria-pressed="false">
+                                <span
+                                    class="theme-preview pv pv-coldmint"><span></span><span></span><span></span></span>
+                                <span class="theme-option-info">
+                                    <b>Cold Mint</b>
+                                    <small>Mint kebiruan yang sejuk</small>
+                                </span>
+                                <span class="theme-lock" aria-hidden="true"><svg class="ikon">
+                                        <use href="#i-lock" />
+                                    </svg></span>
+                                <span class="theme-check">✓</span>
+                            </button>
+                        </section>
 
-</div>
+                    </div>
+
+                    <p class="theme-note">
+                        Pilihan tema akan disimpan secara otomatis.
+                    </p>
+
+                </div>
             </div>
         </main>
     </div>
