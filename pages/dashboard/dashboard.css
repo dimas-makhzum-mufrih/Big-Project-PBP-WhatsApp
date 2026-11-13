@@ -277,15 +277,27 @@ input {
 .chat-card {
     display: flex;
     align-items: center;
-    padding: 14px 20px;
-    cursor: pointer;
+    width: 100%;
+    min-width: 0;
+    padding: 12px 20px;
+    border: 0;
     border-bottom: 1px solid var(--border-warna);
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
     transition: background .2s
 }
 
 .chat-card:hover,
 .chat-card.aktif {
     background: var(--bg-abu-terang)
+}
+
+.chat-card:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: -2px
 }
 
 .circle-avatar {
@@ -304,6 +316,7 @@ input {
 
 .card-meta {
     flex: 1;
+    min-width: 0;
     overflow: hidden
 }
 
@@ -311,12 +324,21 @@ input {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     margin-bottom: 4px
 }
 
 .card-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-weight: 600;
     font-size: 1rem
+}
+
+.card-top small {
+    flex: none
 }
 
 .card-preview {
@@ -326,6 +348,12 @@ input {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis
+}
+
+#panel-tab-chat .contact-empty {
+    margin: 24px 16px;
+    text-align: center;
+    line-height: 1.5
 }
 
 /* ---------- sisi kanan: sambutan + ruang chat ---------- */
