@@ -1,29 +1,46 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light">
     <title>Ngumpul - Tautan Media Sosial</title>
     <link rel="stylesheet" href="edit-profile.css">
+    <meta name="color-scheme" content="light dark">
     <link rel="stylesheet" href="../../assets/css/variables.css">
     <link rel="stylesheet" href="../../assets/css/themes.css">
-    <link rel="stylesheet" href="halaman.css">
     <script src="../../assets/js/theme.js"></script>
 </head>
+
 <body>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-        <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
-        <symbol id="i-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
-        <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
-        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
-        <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+        <symbol id="i-back" viewBox="0 0 24 24">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+        </symbol>
+        <symbol id="i-edit" viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+        </symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </symbol>
+        <symbol id="i-check" viewBox="0 0 24 24">
+            <path d="M20 6L9 17l-5-5" />
+        </symbol>
     </svg>
 
     <div class="profile-container">
         <header class="profile-header">
             <div class="header-left">
-                <button class="btn-back" id="btn-back-profile" aria-label="Kembali"><svg class="ikon"><use href="#i-back"/></svg></button>
+                <button class="btn-back" id="btn-back-profile" aria-label="Kembali"><svg class="ikon">
+                        <use href="#i-back" />
+                    </svg></button>
                 <h2>Tautan media sosial</h2>
             </div>
             <button class="btn-save" id="btn-save-social">Simpan</button>
@@ -31,66 +48,97 @@
 
         <main class="profile-content">
             <div class="profile-card-wrapper">
-                <p class="social-desc">Tambahkan tautan akun agar orang lain bisa menemukanmu di platform lain. Tautan harus mengarah ke akunmu, misalnya instagram.com/namaakun.</p>
+                <p class="social-desc">Tambahkan tautan akun agar orang lain bisa menemukanmu di platform lain. Tautan
+                    harus mengarah ke akunmu, misalnya instagram.com/namaakun.</p>
 
                 <!-- Daftar tautan (bisa bertambah lewat tombol di bawah) -->
                 <div class="info-list-card" id="social-links-container">
-                    <div class="info-row-item social-item" data-id="instagram" data-platform="instagram" data-nama="Instagram">
-                        <span class="account-item-icon"><svg class="ikon"><use href="#i-globe"/></svg></span>
+                    <div class="info-row-item social-item" data-id="instagram" data-platform="instagram"
+                        data-nama="Instagram">
+                        <span class="account-item-icon"><svg class="ikon">
+                                <use href="#i-globe" />
+                            </svg></span>
                         <div class="info-row-text">
                             <span class="field-title">Instagram</span>
-                            <input type="text" class="social-input-field" inputmode="url" autocomplete="off" spellcheck="false" placeholder="instagram.com/namaakun atau @namaakun" aria-label="Tautan Instagram">
+                            <input type="text" class="social-input-field" inputmode="url" autocomplete="off"
+                                spellcheck="false" placeholder="instagram.com/namaakun atau @namaakun"
+                                aria-label="Tautan Instagram">
                             <span class="social-status" aria-live="polite"></span>
                             <div class="social-aksi">
-                                <a class="social-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Buka tautan</a>
+                                <a class="social-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Buka
+                                    tautan</a>
                             </div>
                         </div>
-                        <svg class="ikon info-arrow"><use href="#i-edit"/></svg>
+                        <svg class="ikon info-arrow">
+                            <use href="#i-edit" />
+                        </svg>
                     </div>
 
-                    <div class="info-row-item social-item" data-id="facebook" data-platform="facebook" data-nama="Facebook">
-                        <span class="account-item-icon"><svg class="ikon"><use href="#i-globe"/></svg></span>
+                    <div class="info-row-item social-item" data-id="facebook" data-platform="facebook"
+                        data-nama="Facebook">
+                        <span class="account-item-icon"><svg class="ikon">
+                                <use href="#i-globe" />
+                            </svg></span>
                         <div class="info-row-text">
                             <span class="field-title">Facebook</span>
-                            <input type="text" class="social-input-field" inputmode="url" autocomplete="off" spellcheck="false" placeholder="facebook.com/namaakun" aria-label="Tautan Facebook">
+                            <input type="text" class="social-input-field" inputmode="url" autocomplete="off"
+                                spellcheck="false" placeholder="facebook.com/namaakun" aria-label="Tautan Facebook">
                             <span class="social-status" aria-live="polite"></span>
                             <div class="social-aksi">
-                                <a class="social-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Buka tautan</a>
+                                <a class="social-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Buka
+                                    tautan</a>
                             </div>
                         </div>
-                        <svg class="ikon info-arrow"><use href="#i-edit"/></svg>
+                        <svg class="ikon info-arrow">
+                            <use href="#i-edit" />
+                        </svg>
                     </div>
 
-                    <div class="info-row-item social-item" data-id="linkedin" data-platform="linkedin" data-nama="LinkedIn">
-                        <span class="account-item-icon"><svg class="ikon"><use href="#i-globe"/></svg></span>
+                    <div class="info-row-item social-item" data-id="linkedin" data-platform="linkedin"
+                        data-nama="LinkedIn">
+                        <span class="account-item-icon"><svg class="ikon">
+                                <use href="#i-globe" />
+                            </svg></span>
                         <div class="info-row-text">
                             <span class="field-title">LinkedIn</span>
-                            <input type="text" class="social-input-field" inputmode="url" autocomplete="off" spellcheck="false" placeholder="linkedin.com/in/namaakun" aria-label="Tautan LinkedIn">
+                            <input type="text" class="social-input-field" inputmode="url" autocomplete="off"
+                                spellcheck="false" placeholder="linkedin.com/in/namaakun" aria-label="Tautan LinkedIn">
                             <span class="social-status" aria-live="polite"></span>
                             <div class="social-aksi">
-                                <a class="social-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Buka tautan</a>
+                                <a class="social-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Buka
+                                    tautan</a>
                             </div>
                         </div>
-                        <svg class="ikon info-arrow"><use href="#i-edit"/></svg>
+                        <svg class="ikon info-arrow">
+                            <use href="#i-edit" />
+                        </svg>
                     </div>
 
                     <div class="info-row-item social-item" data-id="tiktok" data-platform="tiktok" data-nama="TikTok">
-                        <span class="account-item-icon"><svg class="ikon"><use href="#i-globe"/></svg></span>
+                        <span class="account-item-icon"><svg class="ikon">
+                                <use href="#i-globe" />
+                            </svg></span>
                         <div class="info-row-text">
                             <span class="field-title">TikTok</span>
-                            <input type="text" class="social-input-field" inputmode="url" autocomplete="off" spellcheck="false" placeholder="tiktok.com/@namaakun" aria-label="Tautan TikTok">
+                            <input type="text" class="social-input-field" inputmode="url" autocomplete="off"
+                                spellcheck="false" placeholder="tiktok.com/@namaakun" aria-label="Tautan TikTok">
                             <span class="social-status" aria-live="polite"></span>
                             <div class="social-aksi">
-                                <a class="social-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Buka tautan</a>
+                                <a class="social-open" href="#" target="_blank" rel="noopener noreferrer" hidden>Buka
+                                    tautan</a>
                             </div>
                         </div>
-                        <svg class="ikon info-arrow"><use href="#i-edit"/></svg>
+                        <svg class="ikon info-arrow">
+                            <use href="#i-edit" />
+                        </svg>
                     </div>
                 </div>
 
                 <!-- Tombol Tambahkan Tautan -->
                 <button class="btn-add-social" id="btn-add-social">
-                    <svg class="ikon"><use href="#i-plus"/></svg> Tambahkan tautan
+                    <svg class="ikon">
+                        <use href="#i-plus" />
+                    </svg> Tambahkan tautan
                 </button>
             </div>
         </main>
@@ -98,7 +146,9 @@
 
     <!-- notifikasi setelah simpan -->
     <div class="toast-simpan" id="toast-simpan" role="status" aria-live="polite">
-        <div class="toast-ikon"><svg class="ikon"><use href="#i-check"/></svg></div>
+        <div class="toast-ikon"><svg class="ikon">
+                <use href="#i-check" />
+            </svg></div>
         <div class="toast-teks">
             <span class="toast-judul">Tautan tersimpan</span>
             <span class="toast-pesan">Tautan media sosial kamu berhasil disimpan.</span>
@@ -109,4 +159,5 @@
     <script src="../../assets/js/storage.js"></script>
     <script src="social-links.js"></script>
 </body>
+
 </html>

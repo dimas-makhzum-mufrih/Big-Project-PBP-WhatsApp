@@ -1,28 +1,44 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ngumpul - Detail Profil</title>
     <link rel="stylesheet" href="edit-profile.css">
+    <meta name="color-scheme" content="light dark">
     <link rel="stylesheet" href="../../assets/css/variables.css">
     <link rel="stylesheet" href="../../assets/css/themes.css">
-    <link rel="stylesheet" href="halaman.css">
     <script src="../../assets/js/theme.js"></script>
 </head>
+
 <body>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-        <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
-        <symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
-        <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
-        <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
-        <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+        <symbol id="i-back" viewBox="0 0 24 24">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+        </symbol>
+        <symbol id="i-camera" viewBox="0 0 24 24">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+        </symbol>
+        <symbol id="i-next" viewBox="0 0 24 24">
+            <path d="M9 18l6-6-6-6" />
+        </symbol>
+        <symbol id="i-check" viewBox="0 0 24 24">
+            <path d="M20 6L9 17l-5-5" />
+        </symbol>
+        <symbol id="i-user" viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+        </symbol>
     </svg>
 
     <div class="profile-container">
         <header class="profile-header">
             <div class="header-left">
-                <button class="btn-back" id="btn-back-dashboard" aria-label="Kembali"><svg class="ikon"><use href="#i-back"/></svg></button>
+                <button class="btn-back" id="btn-back-dashboard" aria-label="Kembali"><svg class="ikon">
+                        <use href="#i-back" />
+                    </svg></button>
                 <h2>Profil</h2>
             </div>
             <button class="btn-save" id="btn-save-profile">Simpan</button>
@@ -33,15 +49,21 @@
                 <!-- Banner & Avatar -->
                 <section class="media-banner-section">
                     <div class="banner-box" id="banner-preview-container">
-                        <label for="input-banner" class="floating-camera-btn"><svg class="ikon"><use href="#i-camera"/></svg></label>
+                        <label for="input-banner" class="floating-camera-btn"><svg class="ikon">
+                                <use href="#i-camera" />
+                            </svg></label>
                         <input type="file" id="input-banner" accept="image/*" hidden>
                     </div>
                     <div class="avatar-box">
                         <div class="avatar-circle" id="avatar-preview-container">
-                            <svg class="ikon avatar-default-icon"><use href="#i-user"/></svg>
+                            <svg class="ikon avatar-default-icon">
+                                <use href="#i-user" />
+                            </svg>
                             <img id="img-avatar-output" src="" alt="Foto Profil" style="display: none;">
                         </div>
-                        <label for="input-avatar" class="floating-camera-btn avatar-cam"><svg class="ikon"><use href="#i-camera"/></svg></label>
+                        <label for="input-avatar" class="floating-camera-btn avatar-cam"><svg class="ikon">
+                                <use href="#i-camera" />
+                            </svg></label>
                         <input type="file" id="input-avatar" accept="image/*" hidden>
                     </div>
                     <div class="avatar-hint-text">Ubah foto profil</div>
@@ -64,21 +86,27 @@
                                 <span class="field-title">Username</span>
                                 <span class="field-value" id="val-username">@example</span>
                             </div>
-                            <svg class="ikon info-arrow"><use href="#i-next"/></svg>
+                            <svg class="ikon info-arrow">
+                                <use href="#i-next" />
+                            </svg>
                         </div>
                         <div class="info-row-item" data-field="bio">
                             <div class="info-row-text">
                                 <span class="field-title">Bio</span>
                                 <span class="field-value" id="val-bio">Mahasiswa Teknik Informatika</span>
                             </div>
-                            <svg class="ikon info-arrow"><use href="#i-next"/></svg>
+                            <svg class="ikon info-arrow">
+                                <use href="#i-next" />
+                            </svg>
                         </div>
                         <div class="info-row-item" data-field="phone">
                             <div class="info-row-text">
                                 <span class="field-title">Nomor telepon</span>
                                 <span class="field-value" id="val-phone">08xxxxxxxxxx</span>
                             </div>
-                            <svg class="ikon info-arrow"><use href="#i-next"/></svg>
+                            <svg class="ikon info-arrow">
+                                <use href="#i-next" />
+                            </svg>
                         </div>
                         <!-- Menu Tautan Media Sosial menuju Layar 3 -->
                         <div class="info-row-item" id="nav-to-social">
@@ -86,7 +114,9 @@
                                 <span class="field-title">Tautan media sosial</span>
                                 <span class="field-value text-muted">Instagram, Facebook, LinkedIn, TikTok</span>
                             </div>
-                            <svg class="ikon info-arrow"><use href="#i-next"/></svg>
+                            <svg class="ikon info-arrow">
+                                <use href="#i-next" />
+                            </svg>
                         </div>
                     </div>
                 </section>
@@ -94,9 +124,11 @@
         </main>
     </div>
 
-     <!-- notifikasi setelah simpan -->
+    <!-- notifikasi setelah simpan -->
     <div class="toast-simpan" id="toast-simpan" role="status" aria-live="polite">
-        <div class="toast-ikon"><svg class="ikon"><use href="#i-check"/></svg></div>
+        <div class="toast-ikon"><svg class="ikon">
+                <use href="#i-check" />
+            </svg></div>
         <div class="toast-teks">
             <span class="toast-judul">Profil tersimpan</span>
             <span class="toast-pesan">Perubahan kamu berhasil disimpan.</span>
@@ -104,7 +136,7 @@
         <div class="toast-progress"></div>
     </div>
 
-        <!-- Antarmuka crop gambar (dipakai untuk foto profil & banner) -->
+    <!-- Antarmuka crop gambar (dipakai untuk foto profil & banner) -->
     <div class="crop-overlay" id="crop-overlay" hidden>
         <div class="crop-dialog" role="dialog" aria-modal="true" aria-labelledby="crop-judul">
             <h3 class="crop-judul" id="crop-judul">Potong foto</h3>
@@ -125,4 +157,5 @@
     <script src="../../assets/js/storage.js"></script>
     <script src="edit-profile.js"></script>
 </body>
+
 </html>

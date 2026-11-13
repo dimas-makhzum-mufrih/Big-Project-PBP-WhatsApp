@@ -5,13 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Masuk ke Ngumpul - Chat, grup, dan telepon</title>
-  <link rel="stylesheet" href="../../assets/css/variables.css">
   <link rel="stylesheet" href="login.css" />
-  
-  <script src="../../assets/js/theme.js"></script>
+  <meta name="color-scheme" content="light dark">
   <link rel="stylesheet" href="../../assets/css/variables.css">
   <link rel="stylesheet" href="../../assets/css/themes.css">
-  <link rel="stylesheet" href="halaman.css">
   <script src="../../assets/js/theme.js"></script>
 </head>
 
@@ -106,12 +103,14 @@
       </section>
 
       <section class="halaman" id="form-reset-otp">
-        <button type="button" class="kembali tombol-kembali" data-kembali="form-reset-nomor">&larr; Ganti kontak</button>
+        <button type="button" class="kembali tombol-kembali" data-kembali="form-reset-nomor">&larr; Ganti
+          kontak</button>
         <h2>Verifikasi kontak</h2>
         <p class="sub">Masukkan kode 6 angka untuk <b id="reset-nomor-tersamar">kontak kamu</b>.</p>
 
         <div class="kotak-otp-reset" id="kotak-otp-reset" role="group" aria-label="Kode OTP 6 angka">
-          <input class="digit-reset" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Angka 1" />
+          <input class="digit-reset" inputmode="numeric" maxlength="1" autocomplete="one-time-code"
+            aria-label="Angka 1" />
           <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 2" />
           <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 3" />
           <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 4" />
@@ -136,7 +135,8 @@
 
         <label for="reset-sandi-konfirmasi">Ulangi sandi baru</label>
         <div class="kolom-sandi">
-          <input type="password" id="reset-sandi-konfirmasi" placeholder="Masukkan ulang sandi baru" autocomplete="new-password" />
+          <input type="password" id="reset-sandi-konfirmasi" placeholder="Masukkan ulang sandi baru"
+            autocomplete="new-password" />
           <button type="button" class="lihat" data-target="reset-sandi-konfirmasi">Lihat</button>
         </div>
         <div class="error" id="error-reset-sandi-konfirmasi" role="alert"></div>

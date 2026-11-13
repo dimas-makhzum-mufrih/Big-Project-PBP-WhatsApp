@@ -4,12 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light">
     <title>Ngumpul - Kontak</title>
     <link rel="stylesheet" href="kontak.css">
+    <meta name="color-scheme" content="light dark">
     <link rel="stylesheet" href="../../assets/css/variables.css">
     <link rel="stylesheet" href="../../assets/css/themes.css">
-    <link rel="stylesheet" href="halaman.css">
     <script src="../../assets/js/theme.js"></script>
 </head>
 
@@ -33,8 +32,8 @@
 
             <form class="contact-form" id="form-tambah-kontak" hidden>
                 <label for="input-nama-kontak">Nama kontak</label>
-                <input class="contact-name-input" id="input-nama-kontak" type="text" autocomplete="name"
-                    maxlength="60" placeholder="Contoh: Budi" required>
+                <input class="contact-name-input" id="input-nama-kontak" type="text" autocomplete="name" maxlength="60"
+                    placeholder="Contoh: Budi" required>
                 <label for="input-nomor-kontak">Nomor HP kontak</label>
                 <div class="contact-form-row">
                     <select id="kode-negara-kontak" aria-label="Kode negara nomor kontak"></select>
@@ -42,7 +41,9 @@
                         pattern="[0-9]{6,14}" maxlength="15" placeholder="81234567890" required>
                     <button type="submit">Tambah</button>
                 </div>
-                <small class="contact-hint">Pilih kode negara. Untuk Indonesia, masukkan 8 diikuti 8–11 digit (awalan 08 juga diterima). Nomor yang belum terdaftar tetap tersimpan dan bisa terhubung saat akunnya dibuat.</small>
+                <small class="contact-hint">Pilih kode negara. Untuk Indonesia, masukkan 8 diikuti 8–11 digit (awalan 08
+                    juga diterima). Nomor yang belum terdaftar tetap tersimpan dan bisa terhubung saat akunnya
+                    dibuat.</small>
                 <p class="contact-status" id="contact-status" role="status" aria-live="polite"></p>
             </form>
 
