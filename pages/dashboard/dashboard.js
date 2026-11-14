@@ -81,22 +81,31 @@ function getProfilChat(idLawan) {
     };
 }
 
+function isKontakPengguna(idLawan) {
+    if (!userAktif || !idLawan || !NgumpulKontakData || typeof NgumpulKontakData.list !== 'function') {
+        return false;
+    }
+
+    const user = getUserById(idLawan);
+    if (!user || !user.hp) return false;
+
+    return NgumpulKontakData.list(userAktif.id)
+        .some(kontak => samakanHp(kontak.phone, user.hp));
+}
+
 function renderChatList() {
     if (!chatScrollArea || !userAktif) return;
 
+    if (chatAktifId && !isKontakPengguna(chatAktifId)) {
+        chatAktifId = null;
+        if (panelChatAktif) panelChatAktif.style.display = 'none';
+        if (panelChatKosong) panelChatKosong.style.display = 'flex';
+    }
+
     const query = (inputCariChat ? inputCariChat.value : '').trim().toLowerCase();
-    let daftarKontak = NgumpulKontakData && typeof NgumpulKontakData.search === 'function'
+    const daftarKontak = NgumpulKontakData && typeof NgumpulKontakData.search === 'function'
         ? NgumpulKontakData.search(userAktif.id, query)
         : [];
-
-    if (!daftarKontak.length && !query) {
-        daftarKontak = getUsers()
-            .filter(pengguna => pengguna && pengguna.id !== userAktif.id)
-            .map(pengguna => ({
-                phone: pengguna.hp,
-                name: getProfilChat(pengguna.id).nama
-            }));
-    }
 
     const hasil = daftarKontak
         .map(item => {
@@ -218,6 +227,14 @@ function renderPesanAktif() {
 function bukaChat(idLawan) {
     if (!idLawan || !userAktif) return;
 
+    if (!isKontakPengguna(idLawan)) {
+        chatAktifId = null;
+        if (panelChatAktif) panelChatAktif.style.display = 'none';
+        if (panelChatKosong) panelChatKosong.style.display = 'flex';
+        renderChatList();
+        return;
+    }
+
     chatAktifId = idLawan;
     const target = getProfilChat(idLawan);
 
@@ -309,6 +326,7 @@ function pilihTabDashboard(kontakAktif) {
     tabKontak.classList.toggle('aktif', kontakAktif);
     tabChat.setAttribute('aria-pressed', String(!kontakAktif));
     tabKontak.setAttribute('aria-pressed', String(kontakAktif));
+    if (!kontakAktif) renderChatList();
 }
 
 tabChat.addEventListener('click', () => pilihTabDashboard(false));
