@@ -87,7 +87,7 @@ input {
     border: 0;
     border-radius: 8px;
     background: var(--warna-utama);
-    color: #fff;
+    color: var(--teks-kontras, #fff);
     padding: 10px 14px;
     font-weight: 600;
     cursor: pointer

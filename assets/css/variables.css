@@ -1,4 +1,3 @@
-
 /* =================================
    NGUMPUL - GLOBAL THEME VARIABLES
 ================================= */
@@ -6,13 +5,14 @@
 :root {
     color-scheme: light;
     /* ...yang sudah ada... */
-        --merah-tipis: #ffeef0;
-        --teks-di-utama: #ffffff;
-        --teks-header: #ffffff;
-        --header-bg: #0891b2;
-        --notif-bg: #0f2a30;
-        --overlay: rgba(15, 23, 28, 0.62);
-        --bg-chat-gambar: linear-gradient(var(--bg-chat), var(--bg-chat));
+    --merah-tipis: #ffeef0;
+    --teks-di-utama: #ffffff;
+    --teks-header: #ffffff;
+    --header-bg: #0891b2;
+    --notif-bg: #0f2a30;
+    --overlay: rgba(15, 23, 28, 0.62);
+    --bg-chat-gambar: linear-gradient(var(--bg-chat), var(--bg-chat));
+    --aksen-teks: var(--warna-utama);
     /* Warna dasar */
     --bg: #f4f5f7;
     --kotak: #ffffff;
@@ -75,12 +75,12 @@
 html[data-theme="dark"] {
     color-scheme: dark;
     /* ...yang sudah ada... */
-        --merah-tipis: #3a2528;
-        --teks-di-utama: #042f3a;
-        --teks-header: #ffffff;
-        --header-bg: #155e75;
-        --notif-bg: #0f2a30;
-        --overlay: rgba(0, 0, 0, 0.7);
+    --merah-tipis: #3a2528;
+    --teks-di-utama: #042f3a;
+    --teks-header: #ffffff;
+    --header-bg: #155e75;
+    --notif-bg: #0f2a30;
+    --overlay: rgba(0, 0, 0, 0.7);
     --bg: #111b21;
     --kotak: #202c33;
     --teks: #e9edef;

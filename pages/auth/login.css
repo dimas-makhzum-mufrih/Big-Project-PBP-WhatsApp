@@ -13,22 +13,6 @@
   --latar-foto: var(--latar-gelap), url(../../assets/img/foto.jpg), url(../../assets/img/latar.svg);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #14171b;
-    --kotak: #1c2026;
-    --teks: #eceff3;
-    --abu: #9aa3af;
-    --garis: #2b3038;
-    --hijau: #22d3ee;
-    --hijau-tua: #0e4a5c;
-  }
-
-  .tombol:not(.kosong) {
-    color: #042f3a;
-  }
-}
-
 * {
   box-sizing: border-box;
 }
@@ -216,7 +200,7 @@ input.salah {
   top: 6px;
   border: none;
   background: none;
-  color: var(--hijau);
+  color: var(--aksen-teks);
   font-size: 13px;
   cursor: pointer;
   padding: 6px 8px;
@@ -228,7 +212,7 @@ input.salah {
   gap: 2px;
   border: none;
   background: none;
-  color: var(--hijau);
+  color: var(--aksen-teks);
   font-size: 15px;
   cursor: pointer;
   padding: 0;
@@ -244,7 +228,7 @@ input.salah {
   border: 2px solid var(--hijau);
   border-radius: 26px;
   background: var(--hijau);
-  color: #fff;
+  color: var(--teks-di-utama, #fff);
   font-size: 15px;
   font-weight: bold;
   text-align: center;
@@ -254,7 +238,7 @@ input.salah {
 
 .tombol.kosong {
   background: none;
-  color: var(--hijau);
+  color: var(--aksen-teks);
 }
 
 .tombol:disabled {
@@ -270,7 +254,7 @@ input.salah {
 }
 
 .bawah a {
-  color: var(--hijau);
+  color: var(--aksen-teks);
 }
 
 .lupa-baris {
@@ -333,7 +317,7 @@ input.salah {
   margin: 0;
 }
 
-#notif-otp-reset p + p {
+#notif-otp-reset p+p {
   margin-top: 6px;
 }
 

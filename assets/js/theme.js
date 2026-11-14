@@ -8,7 +8,8 @@
  *   data-phase  : day | night   (hanya tema Celeste)
  *
  * Kunci localStorage:
- *   ngumpul_tema, ngumpul_sky_mode, ngumpul_premium_<idAkun>
+ *   ngumpul_tema (pilihan terakhir), ngumpul_tema_<idAkun> (pilihan per akun),
+ *   ngumpul_sky_mode, ngumpul_premium_<idAkun>
  *
  * API lama tetap ada: getTheme(), setTheme(), toggleTheme().
  */
@@ -28,7 +29,15 @@
         coolmint:  { nama: "Cool Mint",  pack: "mint",    premium: true, tone: "light" },
         chocomint: { nama: "Choco Mint", pack: "mint",    premium: true, tone: "dark" },
         windmint:  { nama: "Wind Mint",  pack: "mint",    premium: true, tone: "light" },
-        coldmint:  { nama: "Cold Mint",  pack: "mint",    premium: true, tone: "light" }
+        coldmint:  { nama: "Cold Mint",  pack: "mint",    premium: true, tone: "light" },
+        lemonzest: { nama: "Lemon Zest", pack: "citrus",  premium: true, tone: "light" },
+        coollemon: { nama: "Cool Lemon", pack: "citrus",  premium: true, tone: "light" },
+        lime:      { nama: "Lime",       pack: "citrus",  premium: true, tone: "light" },
+        coldlime:  { nama: "Cold Lime",  pack: "citrus",  premium: true, tone: "light" },
+        lemonlime: { nama: "Lemon Lime", pack: "citrus",  premium: true, tone: "light" },
+        moonriver:     { nama: "Moon River",    pack: "single", premium: true, tone: "dark" },
+        reignaissance: { nama: "Reignaissance", pack: "single", premium: true, tone: "dark" },
+        sakurabloom:   { nama: "Sakura Bloom",  pack: "single", premium: true, tone: "dark" }
     };
 
     var MODE_SKY = ["auto", "day", "night", "reverse"];
@@ -44,14 +53,30 @@
         }
     }
 
-    function getTheme() {
-        var s = baca(KEY_TEMA);
-        if (s && TEMA[s]) return s;
-        // fallback ke pengaturan perangkat
+    // id akun yang sedang login di tab ini (null kalau belum login)
+    function sesiId() {
+        try { return sessionStorage.getItem("ngumpul_sesi"); } catch (e) { return null; }
+    }
+
+    // tema bawaan = mengikuti pengaturan perangkat
+    function temaBawaan() {
         if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
             return "dark";
         }
         return "light";
+    }
+
+    // Tema aktif:
+    // - sudah login : pilihan akun itu (ngumpul_tema_<id>), kalau belum ada pakai pilihan terakhir (ngumpul_tema)
+    // - belum login : pilihan terakhir (ngumpul_tema), supaya halaman login ikut tema
+    // - tema premium DIKUNCI untuk akun yang bukan premium, jatuh ke tema bawaan
+    function getTheme() {
+        var id = sesiId();
+        var s = (id && baca(KEY_TEMA + "_" + id)) || baca(KEY_TEMA);
+
+        if (!s || !TEMA[s]) return temaBawaan();
+        if (TEMA[s].premium && id && !isPremium()) return temaBawaan();
+        return s;
     }
 
     function getSkyMode() {
@@ -127,7 +152,9 @@
         if (!def) return false;
         if (def.premium && !isPremium()) return false;
 
-        tulis(KEY_TEMA, id);
+        var akun = sesiId();
+        if (akun) tulis(KEY_TEMA + "_" + akun, id); // pilihan milik akun ini
+        tulis(KEY_TEMA, id);                        // pilihan terakhir (untuk halaman sebelum login)
         apply();
         return true;
     }
@@ -164,7 +191,7 @@
 
     // Sinkron antar tab
     window.addEventListener("storage", function (e) {
-        if (e.key === KEY_TEMA || e.key === KEY_SKY) apply();
+        if (e.key && (e.key.indexOf(KEY_TEMA) === 0 || e.key === KEY_SKY)) apply();
     });
 
     // API untuk halaman lain

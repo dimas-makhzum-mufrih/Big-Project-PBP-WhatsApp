@@ -222,7 +222,7 @@ input.salah {
   top: 6px;
   border: none;
   background: none;
-  color: var(--hijau);
+  color: var(--aksen-teks);
   font-size: 13px;
   cursor: pointer;
   padding: 6px 8px;
@@ -234,7 +234,7 @@ input.salah {
   gap: 2px;
   border: none;
   background: none;
-  color: var(--hijau);
+  color: var(--aksen-teks);
   font-size: 15px;
   cursor: pointer;
   padding: 0;
@@ -249,7 +249,7 @@ input.salah {
   border: 2px solid var(--hijau);
   border-radius: 26px;
   background: var(--hijau);
-  color: #fff;
+  color: var(--teks-di-utama, #fff);
   font-size: 15px;
   font-weight: bold;
   text-align: center;
@@ -259,7 +259,7 @@ input.salah {
 
 .tombol.kosong {
   background: none;
-  color: var(--hijau);
+  color: var(--aksen-teks);
 }
 
 .tombol:disabled {
@@ -275,7 +275,7 @@ input.salah {
 }
 
 .bawah a {
-  color: var(--hijau);
+  color: var(--aksen-teks);
 }
 
 #toast {
@@ -372,7 +372,7 @@ input.salah {
   align-items: center;
   justify-content: center;
   background: linear-gradient(160deg, var(--hijau), var(--hijau-tua));
-  color: #fff;
+  color: var(--teks-kontras, #fff);
   text-align: center;
   padding: 24px;
   cursor: pointer;
@@ -563,7 +563,7 @@ input.salah {
 }
 
 .daftar-negara li.dipilih .nama-negara {
-  color: var(--hijau);
+  color: var(--aksen-teks);
   font-weight: bold;
 }
 

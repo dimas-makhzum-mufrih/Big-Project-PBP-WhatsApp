@@ -118,6 +118,62 @@ html[data-tone="dark"] {
     --pv-acc: #5cb6bd;
 }
 
+.pv-lemonzest {
+    --pv-bg: #fffbe6;
+    --pv-border: #f0e7b0;
+    --pv-line: #f6efc0;
+    --pv-acc: #f2cf1d;
+}
+
+.pv-coollemon {
+    --pv-bg: #e8f1fb;
+    --pv-border: #cddcee;
+    --pv-line: #cfe0f2;
+    --pv-acc: #f1dc4f;
+}
+
+.pv-lime {
+    --pv-bg: #f5fbe8;
+    --pv-border: #dfeec0;
+    --pv-line: #e4f0c8;
+    --pv-acc: #8fd32f;
+}
+
+.pv-coldlime {
+    --pv-bg: #e6f4f1;
+    --pv-border: #c6e3de;
+    --pv-line: #cfe6e2;
+    --pv-acc: #a8dd4e;
+}
+
+.pv-lemonlime {
+    --pv-bg: #fafce0;
+    --pv-border: #e8edb0;
+    --pv-line: #eef2bf;
+    --pv-acc: #cfe23c;
+}
+
+.pv-moonriver {
+    --pv-bg: radial-gradient(circle at 82% 0%, rgba(224, 250, 255, 0.55), transparent 55%), linear-gradient(160deg, #030a14, #0a6a7e);
+    --pv-border: #0f3446;
+    --pv-line: #2a6f80;
+    --pv-acc: #4fe3e6;
+}
+
+.pv-reignaissance {
+    --pv-bg: linear-gradient(150deg, #0b0c33 0%, #3a3fd0 60%, #7fd4ff 100%);
+    --pv-border: #2a2d7a;
+    --pv-line: #8c97f0;
+    --pv-acc: #ffffff;
+}
+
+.pv-sakurabloom {
+    --pv-bg: linear-gradient(160deg, #220e19, #6a2a4a);
+    --pv-border: #5a2840;
+    --pv-line: #8a4468;
+    --pv-acc: #ffa6c4;
+}
+
 /* ---------- Kunci ---------- */
 .theme-lock {
     display: none;
@@ -201,7 +257,7 @@ html[data-tone="dark"] {
 .sky-segmen button.aktif {
     border-color: var(--warna-utama);
     background: var(--warna-tipis);
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
 }
 
 .sky-ket {

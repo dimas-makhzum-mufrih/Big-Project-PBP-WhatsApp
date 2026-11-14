@@ -26,7 +26,10 @@
    --------------------------------------------------------------------- */
 html[data-theme="chocomint"],
 html[data-theme="skyscape"][data-phase="night"],
-html[data-theme="cumulus"][data-phase="night"] {
+html[data-theme="cumulus"][data-phase="night"],
+html[data-theme="moonriver"],
+html[data-theme="reignaissance"],
+html[data-theme="sakurabloom"] {
     --merah: #ff7b6b;
     --merah-tipis: #3a2528;
     --bg-hover-merah: #3a2528;
@@ -339,4 +342,360 @@ html[data-theme="coldmint"] {
 
     --notif-bg: #12383d;
     --overlay: rgba(18, 56, 61, 0.5);
+}
+
+/* =====================================================================
+   PACK CITRUS (semua tema bernada terang, aksen terang -> teks gelap)
+   --aksen-teks dipakai CSS halaman untuk teks/tautan berwarna aksen
+   ===================================================================== */
+
+/* ---------- Lemon Zest: lemon segar, latar putih pastel kuning ---------- */
+html[data-theme="lemonzest"] {
+    --bg: #fffbe6;
+    --kotak: #ffffff;
+    --teks: #2b2606;
+    --abu: #6e6728;
+    --garis: #f0e7b0;
+
+    --hijau: #f2cf1d;
+    --hijau-tua: #dcb808;
+    --warna-utama: #f2cf1d;
+    --warna-utama-hover: #dcb808;
+    --warna-tipis: #fdf3b5;
+    --aksen-teks: #856a00;
+    /* aksen untuk TEKS di atas latar terang */
+
+    --bg-putih: #ffffff;
+    --bg-abu-terang: #fffbe6;
+    --bg-abu-input: #fbf2c4;
+
+    --teks-gelap: #2b2606;
+    --teks-redup: #6e6728;
+    --teks-di-utama: #2b2606;
+    /* aksen terang -> teks gelap */
+    --teks-kontras: #2b2606;
+    --teks-header: #2b2606;
+    --header-bg: #f2cf1d;
+
+    --bub-kirim: #fbeb8f;
+    --bub-terima: #ffffff;
+    --teks-bubble: #2b2606;
+
+    --border-warna: #f0e7b0;
+    --bg-chat: #fcf3c4;
+    --bg-chat-gambar: linear-gradient(180deg, #fffbe6 0%, #fcf3c4 100%);
+
+    --notif-bg: #2b2606;
+    --overlay: rgba(43, 38, 6, 0.5);
+}
+
+/* ---------- Cool Lemon: latar biru es, aksen lemon lebih muda ---------- */
+html[data-theme="coollemon"] {
+    --bg: #e8f1fb;
+    --kotak: #f7faff;
+    --teks: #1b2a44;
+    --abu: #5a6f8f;
+    --garis: #cddcee;
+
+    --hijau: #f1dc4f;
+    --hijau-tua: #d9c22f;
+    --warna-utama: #f1dc4f;
+    --warna-utama-hover: #d9c22f;
+    --warna-tipis: #f7efb2;
+    --aksen-teks: #7a6700;
+    /* aksen untuk TEKS di atas latar terang */
+
+    --bg-putih: #f7faff;
+    --bg-abu-terang: #e8f1fb;
+    --bg-abu-input: #dbe8f6;
+
+    --teks-gelap: #1b2a44;
+    --teks-redup: #5a6f8f;
+    --teks-di-utama: #1b2a44;
+    /* aksen terang -> teks gelap */
+    --teks-kontras: #1b2a44;
+    --teks-header: #1b2a44;
+    --header-bg: #f1dc4f;
+
+    --bub-kirim: #f6e97c;
+    --bub-terima: #f7faff;
+    --teks-bubble: #1b2a44;
+
+    --border-warna: #cddcee;
+    --bg-chat: #d6e5f5;
+    --bg-chat-gambar: linear-gradient(180deg, #e8f1fb 0%, #d6e5f5 100%);
+
+    --notif-bg: #1b2a44;
+    --overlay: rgba(27, 42, 68, 0.5);
+}
+
+/* ---------- Lime: hijau lime segar, latar putih pastel lime ---------- */
+html[data-theme="lime"] {
+    --bg: #f5fbe8;
+    --kotak: #ffffff;
+    --teks: #1b2a07;
+    --abu: #5b6f33;
+    --garis: #dfeec0;
+
+    --hijau: #8fd32f;
+    --hijau-tua: #72b218;
+    --warna-utama: #8fd32f;
+    --warna-utama-hover: #72b218;
+    --warna-tipis: #e4f5c4;
+    --aksen-teks: #4a7c0b;
+    /* aksen untuk TEKS di atas latar terang */
+
+    --bg-putih: #ffffff;
+    --bg-abu-terang: #f5fbe8;
+    --bg-abu-input: #ecf5d6;
+
+    --teks-gelap: #1b2a07;
+    --teks-redup: #5b6f33;
+    --teks-di-utama: #1b2a07;
+    /* aksen terang -> teks gelap */
+    --teks-kontras: #1b2a07;
+    --teks-header: #1b2a07;
+    --header-bg: #8fd32f;
+
+    --bub-kirim: #d3f09a;
+    --bub-terima: #ffffff;
+    --teks-bubble: #1b2a07;
+
+    --border-warna: #dfeec0;
+    --bg-chat: #e9f5cf;
+    --bg-chat-gambar: linear-gradient(180deg, #f5fbe8 0%, #e9f5cf 100%);
+
+    --notif-bg: #1b2a07;
+    --overlay: rgba(27, 42, 7, 0.5);
+}
+
+/* ---------- Cold Lime: latar es kehijauan, aksen lime lebih muda ---------- */
+html[data-theme="coldlime"] {
+    --bg: #e6f4f1;
+    --kotak: #f6fcfb;
+    --teks: #14323a;
+    --abu: #4e7078;
+    --garis: #c6e3de;
+
+    --hijau: #a8dd4e;
+    --hijau-tua: #8ac233;
+    --warna-utama: #a8dd4e;
+    --warna-utama-hover: #8ac233;
+    --warna-tipis: #dff3c2;
+    --aksen-teks: #3f7a14;
+    /* aksen untuk TEKS di atas latar terang */
+
+    --bg-putih: #f6fcfb;
+    --bg-abu-terang: #e6f4f1;
+    --bg-abu-input: #d6ece8;
+
+    --teks-gelap: #14323a;
+    --teks-redup: #4e7078;
+    --teks-di-utama: #14323a;
+    /* aksen terang -> teks gelap */
+    --teks-kontras: #14323a;
+    --teks-header: #14323a;
+    --header-bg: #a8dd4e;
+
+    --bub-kirim: #cdeea0;
+    --bub-terima: #f6fcfb;
+    --teks-bubble: #14323a;
+
+    --border-warna: #c6e3de;
+    --bg-chat: #d3eae6;
+    --bg-chat-gambar: linear-gradient(180deg, #e6f4f1 0%, #d3eae6 100%);
+
+    --notif-bg: #14323a;
+    --overlay: rgba(20, 50, 58, 0.5);
+}
+
+/* ---------- Lemon Lime: kuning kehijauan (chartreuse) ---------- */
+html[data-theme="lemonlime"] {
+    --bg: #fafce0;
+    --kotak: #fffff4;
+    --teks: #2a3105;
+    --abu: #666f22;
+    --garis: #e8edb0;
+
+    --hijau: #cfe23c;
+    --hijau-tua: #b2c723;
+    --warna-utama: #cfe23c;
+    --warna-utama-hover: #b2c723;
+    --warna-tipis: #f1f6b6;
+    --aksen-teks: #5f7000;
+    /* aksen untuk TEKS di atas latar terang */
+
+    --bg-putih: #fffff4;
+    --bg-abu-terang: #fafce0;
+    --bg-abu-input: #f3f6c9;
+
+    --teks-gelap: #2a3105;
+    --teks-redup: #666f22;
+    --teks-di-utama: #2a3105;
+    /* aksen terang -> teks gelap */
+    --teks-kontras: #2a3105;
+    --teks-header: #2a3105;
+    --header-bg: #cfe23c;
+
+    --bub-kirim: #e3f08e;
+    --bub-terima: #fffff4;
+    --teks-bubble: #2a3105;
+
+    --border-warna: #e8edb0;
+    --bg-chat: #f1f6c4;
+    --bg-chat-gambar: linear-gradient(180deg, #fafce0 0%, #f1f6c4 100%);
+
+    --notif-bg: #2a3105;
+    --overlay: rgba(42, 49, 5, 0.5);
+}
+
+/* =====================================================================
+   HIASAN GRADASI
+   Aktif hanya untuk tema yang mendefinisikan --grad-header, --grad-latar,
+   atau --bg-chat-gambar. Tema lain tidak terpengaruh (fallback: none).
+   Warna dasar (background-color) tetap dari variabel, gradasi hanya
+   ditumpuk sebagai gambar di atasnya.
+   ===================================================================== */
+.settings-panel-header,
+.profile-header,
+.account-header {
+    background-image: var(--grad-header, none);
+}
+
+.welcome-screen,
+.settings-slide-panel,
+.account-container,
+.profile-container {
+    background-image: var(--grad-latar, none);
+}
+
+.active-chat-room {
+    background-image: var(--bg-chat-gambar, none);
+}
+
+body {
+    background-image: var(--grad-latar, none);
+    background-attachment: fixed;
+}
+
+/* =====================================================================
+   PACK SINGLE (tema mandiri, tidak termasuk pack mana pun)
+   Ketiganya bernada gelap, dengan gradasi di header dan latar.
+   ===================================================================== */
+
+/* ---------- Moon River: malam berbulan sabit, air kebiruan berkilau ---------- */
+html[data-theme="moonriver"] {
+    --bg: #030a14;
+    --kotak: #07192a;
+    --teks: #eaf8fb;
+    --abu: #86b4c2;
+    --garis: #0f3446;
+
+    --hijau: #2fd6e0;
+    --hijau-tua: #14a9b8;
+    --warna-utama: #2fd6e0;
+    --warna-utama-hover: #14a9b8;
+    --warna-tipis: #0b2c3b;
+    --aksen-teks: #5fe6ee;
+
+    --bg-putih: #07192a;
+    --bg-abu-terang: #030a14;
+    --bg-abu-input: #0c2436;
+
+    --teks-gelap: #eaf8fb;
+    --teks-redup: #86b4c2;
+    --teks-di-utama: #021a22;
+    --teks-kontras: #021a22;
+    --teks-header: #021a22;
+    --header-bg: #2fd6e0;
+
+    --bub-kirim: #0d5a6e;
+    --bub-terima: #07192a;
+    --teks-bubble: #eaf8fb;
+
+    --border-warna: #0f3446;
+    --bg-chat: #030a14;
+    --notif-bg: #01060c;
+
+    --grad-header: linear-gradient(110deg, #1fb8c8 0%, #4fe3e6 55%, #9ff7ee 100%);
+    --grad-latar: radial-gradient(ellipse 70% 45% at 85% -8%, rgba(214, 248, 255, 0.20), transparent 62%), radial-gradient(ellipse 80% 50% at 10% 108%, rgba(31, 184, 200, 0.22), transparent 60%), linear-gradient(180deg, #030a14 0%, #05202f 100%);
+    --bg-chat-gambar: radial-gradient(ellipse 60% 40% at 80% -5%, rgba(224, 250, 255, 0.24), transparent 60%), radial-gradient(ellipse 80% 45% at 15% 112%, rgba(47, 214, 224, 0.26), transparent 58%), linear-gradient(180deg, #030a14 0%, #06222f 100%);
+}
+
+/* ---------- Reignaissance: indigo, biru listrik, dan lavender ---------- */
+html[data-theme="reignaissance"] {
+    --bg: #0b0c33;
+    --kotak: #15174f;
+    --teks: #eef0ff;
+    --abu: #a9b0e8;
+    --garis: #2a2d7a;
+
+    --hijau: #86a8ff;
+    --hijau-tua: #5f82f0;
+    --warna-utama: #86a8ff;
+    --warna-utama-hover: #5f82f0;
+    --warna-tipis: #20246f;
+    --aksen-teks: #a9c0ff;
+
+    --bg-putih: #15174f;
+    --bg-abu-terang: #0b0c33;
+    --bg-abu-input: #1c1f63;
+
+    --teks-gelap: #eef0ff;
+    --teks-redup: #a9b0e8;
+    --teks-di-utama: #0a0b30;
+    --teks-kontras: #0a0b30;
+    --teks-header: #0a0b30;
+    --header-bg: #86a8ff;
+
+    --bub-kirim: #3b3fb5;
+    --bub-terima: #15174f;
+    --teks-bubble: #eef0ff;
+
+    --border-warna: #2a2d7a;
+    --bg-chat: #0b0c33;
+    --notif-bg: #070826;
+
+    --grad-header: linear-gradient(110deg, #6f8bff 0%, #9d8cff 50%, #7fd4ff 100%);
+    --grad-latar: radial-gradient(circle at 12% 8%, rgba(127, 212, 255, 0.22), transparent 46%), radial-gradient(circle at 92% 88%, rgba(157, 140, 255, 0.26), transparent 52%), linear-gradient(160deg, #0b0c33 0%, #171a6a 60%, #251d78 100%);
+    --bg-chat-gambar: radial-gradient(circle at 15% 10%, rgba(127, 212, 255, 0.28), transparent 45%), radial-gradient(circle at 90% 85%, rgba(157, 140, 255, 0.32), transparent 50%), linear-gradient(160deg, #0b0c33 0%, #1a1c6e 55%, #2a1f7e 100%);
+}
+
+/* ---------- Sakura Bloom: pink sakura di atas rose gelap ---------- */
+html[data-theme="sakurabloom"] {
+    --bg: #220e19;
+    --kotak: #341626;
+    --teks: #ffeef4;
+    --abu: #d9a9bd;
+    --garis: #5a2840;
+
+    --hijau: #ffa6c4;
+    --hijau-tua: #f07aa3;
+    --warna-utama: #ffa6c4;
+    --warna-utama-hover: #f07aa3;
+    --warna-tipis: #4a2038;
+    --aksen-teks: #ffb8d0;
+
+    --bg-putih: #341626;
+    --bg-abu-terang: #220e19;
+    --bg-abu-input: #40192f;
+
+    --teks-gelap: #ffeef4;
+    --teks-redup: #d9a9bd;
+    --teks-di-utama: #2a0c1a;
+    --teks-kontras: #2a0c1a;
+    --teks-header: #2a0c1a;
+    --header-bg: #ffa6c4;
+
+    --bub-kirim: #8a2f58;
+    --bub-terima: #341626;
+    --teks-bubble: #ffeef4;
+
+    --border-warna: #5a2840;
+    --bg-chat: #1c0a14;
+    --notif-bg: #14060d;
+
+    --grad-header: linear-gradient(110deg, #ff9fc0 0%, #ffc2d6 55%, #ffd9e5 100%);
+    --grad-latar: radial-gradient(circle at 88% 6%, rgba(255, 166, 196, 0.20), transparent 46%), radial-gradient(circle at 8% 96%, rgba(255, 194, 214, 0.14), transparent 50%), linear-gradient(170deg, #220e19 0%, #36132a 100%);
+    --bg-chat-gambar: radial-gradient(circle at 85% 8%, rgba(255, 166, 196, 0.26), transparent 45%), radial-gradient(circle at 10% 95%, rgba(255, 194, 214, 0.18), transparent 50%), linear-gradient(170deg, #1f0b16 0%, #3a1530 100%);
 }

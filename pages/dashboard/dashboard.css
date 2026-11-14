@@ -135,7 +135,7 @@ input {
 .dropdown-option .ikon {
     width: 18px;
     height: 18px;
-    color: var(--warna-utama)
+    color: var(--aksen-teks)
 }
 
 .dropdown-sekat {
@@ -184,7 +184,7 @@ input {
 }
 
 .tab.aktif {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     border-color: var(--warna-utama);
     font-weight: 600
 }
@@ -343,7 +343,7 @@ input {
 }
 
 .welcome-screen h2 {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     margin-bottom: 10px;
     font-size: 1.8rem
 }
@@ -376,7 +376,7 @@ input {
 .active-header-info p {
     margin: 2px 0 0;
     font-size: .8rem;
-    color: var(--warna-utama)
+    color: var(--aksen-teks)
 }
 
 .messages-container {
@@ -528,7 +528,7 @@ input {
     flex: none;
     border-radius: 12px;
     background: var(--warna-tipis);
-    color: var(--warna-utama)
+    color: var(--aksen-teks)
 }
 
 .settings-item-text {
@@ -725,7 +725,7 @@ input {
 
 .theme-check {
     display: none;
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     font-size: 1.3rem;
     font-weight: bold;
 }
@@ -756,6 +756,7 @@ input {
         height: 58px;
     }
 }
+
 /* =====================================================================
    REVISI: Tata Letak Profil di Panel Pengaturan
    ===================================================================== */
@@ -817,7 +818,7 @@ input {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     box-shadow: var(--bayangan-profil);
 }
 
@@ -865,7 +866,7 @@ input {
 
 .btn-ganti-akun:hover {
     background: var(--bg-abu-input);
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
 }
 
 .btn-ganti-akun .ikon {
@@ -879,7 +880,7 @@ input {
 }
 
 .profil-username {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     font-weight: 500;
     font-size: 0.9rem;
 }
@@ -930,7 +931,7 @@ input {
 }
 
 .akun-menu-aktif small {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     font-size: .8rem;
 }
 
@@ -958,5 +959,5 @@ input {
 .akun-menu-aksi .ikon {
     width: 18px;
     height: 18px;
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
 }

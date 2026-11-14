@@ -367,7 +367,7 @@ function tampilPopupPlus() {
 
     const teks = document.createElement('p');
     teks.className = 'plus-teks';
-    teks.textContent = 'Tema Celeste dan Mint sekarang bisa kamu pakai, lengkap dengan Sky Cycle.';
+    teks.textContent = 'Semua tema Plus sekarang bisa kamu pakai, termasuk Celeste dengan Sky Cycle.';
 
     const aksi = document.createElement('div');
     aksi.className = 'plus-aksi';
