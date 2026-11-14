@@ -82,6 +82,31 @@
             <circle cx="9" cy="11" r="2.5" />
             <path d="M5.5 17c.6-1.7 2-2.5 3.5-2.5s2.9.8 3.5 2.5M15 9h3M15 13h3" />
         </symbol>
+        <symbol id="i-image" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="M21 15l-5-5L5 21" />
+        </symbol>
+        <symbol id="i-close" viewBox="0 0 24 24">
+            <path d="M18 6L6 18M6 6l12 12" />
+        </symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" />
+        </symbol>
+        <symbol id="i-send" viewBox="0 0 24 24">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+        </symbol>
+        <symbol id="i-download" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+        </symbol>
+        <symbol id="i-zoom-in" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35M11 8v6M8 11h6" />
+        </symbol>
+        <symbol id="i-zoom-out" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35M8 11h6" />
+        </symbol>
     </svg>
     <div class="dashboard-container">
         <aside class="sisi-kiri" id="panel-sisi-kiri">
@@ -176,9 +201,75 @@
                     </div>
                 </header>
                 <div class="messages-container" id="box-list-pesan"></div>
-                <footer class="active-chat-footer"><input class="chat-input-field" id="input-teks-kirim" type="text"
-                        placeholder="Ketik pesan..." autocomplete="off"><button class="send-action-btn"
-                        id="btn-kirim-pesan">Kirim</button></footer>
+
+                <!-- Overlay Drag & Drop Gambar -->
+                <div class="chat-dropzone-overlay" id="dropzone-chat-gambar" hidden>
+                    <div class="chat-dropzone-box">
+                        <svg class="ikon" aria-hidden="true">
+                            <use href="#i-image" />
+                        </svg>
+                        <strong>Lepaskan gambar di sini</strong>
+                        <span>Kirim foto ukuran berapa saja langsung ke obrolan</span>
+                    </div>
+                </div>
+
+                <!-- Panel Preview & Editor Kirim Gambar ala WhatsApp -->
+                <div class="media-preview-composer" id="panel-preview-gambar" hidden>
+                    <header class="media-preview-header">
+                        <button type="button" class="media-preview-close" id="btn-batal-preview"
+                            aria-label="Batalkan kirim gambar" title="Tutup (Esc)">
+                            <svg class="ikon" aria-hidden="true">
+                                <use href="#i-close" />
+                            </svg>
+                        </button>
+                        <div class="media-preview-meta">
+                            <strong id="info-nama-file-preview">Pratinjau gambar</strong>
+                            <small id="info-ukuran-file-preview"></small>
+                        </div>
+                        <span class="media-preview-counter" id="info-urut-preview">1 / 1</span>
+                    </header>
+
+                    <div class="media-preview-stage">
+                        <img id="img-utama-preview" src="" alt="Pratinjau gambar yang akan dikirim">
+                    </div>
+
+                    <div class="media-preview-caption-row">
+                        <input type="text" class="media-caption-input" id="input-caption-gambar"
+                            placeholder="Tambah keterangan..." autocomplete="off"
+                            aria-label="Keterangan gambar">
+                    </div>
+
+                    <footer class="media-preview-footer">
+                        <div class="media-thumb-strip" id="daftar-thumb-preview" role="listbox"
+                            aria-label="Daftar gambar yang dipilih"></div>
+                        <button type="button" class="media-add-more-btn" id="btn-tambah-gambar-lagi"
+                            aria-label="Tambah gambar lagi dari galeri" title="Tambah gambar lagi">
+                            <svg class="ikon" aria-hidden="true">
+                                <use href="#i-plus" />
+                            </svg>
+                        </button>
+                        <button type="button" class="media-send-fab" id="btn-kirim-gambar"
+                            aria-label="Kirim gambar" title="Kirim">
+                            <svg class="ikon" aria-hidden="true">
+                                <use href="#i-send" />
+                            </svg>
+                            <span class="media-send-badge" id="badge-jumlah-gambar" hidden>1</span>
+                        </button>
+                    </footer>
+                </div>
+
+                <footer class="active-chat-footer">
+                    <input type="file" id="input-file-gambar" accept="image/*" multiple hidden>
+                    <button type="button" class="attach-gallery-btn" id="btn-lampir-gambar"
+                        aria-label="Kirim gambar dari galeri" title="Kirim gambar dari galeri">
+                        <svg class="ikon" aria-hidden="true">
+                            <use href="#i-image" />
+                        </svg>
+                    </button>
+                    <input class="chat-input-field" id="input-teks-kirim" type="text"
+                        placeholder="Ketik pesan..." autocomplete="off">
+                    <button class="send-action-btn" id="btn-kirim-pesan">Kirim</button>
+                </footer>
             </section>
             <div class="settings-slide-panel" id="panel-layer-setelan">
                 <header class="settings-panel-header">
@@ -389,6 +480,53 @@
             </div>
         </main>
     </div>
+    <!-- Peninjau Gambar Layar Penuh (Lightbox ala WhatsApp) -->
+    <div class="chat-lightbox" id="lightbox-gambar" role="dialog" aria-modal="true"
+        aria-label="Peninjau gambar obrolan" hidden>
+        <header class="chat-lightbox-header">
+            <div class="chat-lightbox-sender">
+                <strong id="lightbox-pengirim">Pengirim</strong>
+                <small id="lightbox-waktu"></small>
+            </div>
+            <div class="chat-lightbox-actions">
+                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-zoom-out"
+                    aria-label="Perkecil gambar" title="Perkecil">
+                    <svg class="ikon" aria-hidden="true">
+                        <use href="#i-zoom-out" />
+                    </svg>
+                </button>
+                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-zoom-in"
+                    aria-label="Perbesar gambar" title="Perbesar">
+                    <svg class="ikon" aria-hidden="true">
+                        <use href="#i-zoom-in" />
+                    </svg>
+                </button>
+                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-unduh"
+                    aria-label="Unduh gambar" title="Unduh gambar">
+                    <svg class="ikon" aria-hidden="true">
+                        <use href="#i-download" />
+                    </svg>
+                </button>
+                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-tutup"
+                    aria-label="Tutup peninjau gambar" title="Tutup (Esc)">
+                    <svg class="ikon" aria-hidden="true">
+                        <use href="#i-close" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+        <div class="chat-lightbox-stage" id="lightbox-stage">
+            <button type="button" class="chat-lightbox-nav prev" id="btn-lightbox-prev"
+                aria-label="Gambar sebelumnya" hidden>&lsaquo;</button>
+            <img id="img-lightbox-utama" src="" alt="Gambar obrolan ukuran penuh">
+            <button type="button" class="chat-lightbox-nav next" id="btn-lightbox-next"
+                aria-label="Gambar berikutnya" hidden>&rsaquo;</button>
+        </div>
+        <footer class="chat-lightbox-footer" id="lightbox-footer" hidden>
+            <p id="lightbox-caption"></p>
+        </footer>
+    </div>
+
     <script src="../../assets/js/storage.js"></script>
     <script src="../../assets/js/negara-data.js"></script>
     <script src="kontak-data.js"></script>
