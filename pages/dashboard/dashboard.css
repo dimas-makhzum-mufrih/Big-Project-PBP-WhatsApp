@@ -311,7 +311,15 @@ input {
     font-weight: bold;
     margin-right: 16px;
     color: var(--teks-kontras);
-    font-size: 1.1rem
+    font-size: 1.1rem;
+    overflow: hidden
+}
+
+.circle-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%
 }
 
 .card-meta {
@@ -442,8 +450,33 @@ input {
 .timestamp {
     font-size: .7rem;
     color: var(--teks-redup);
-    align-self: flex-end;
+    margin: 0
+}
+
+.message-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    width: 100%;
     margin-top: 5px
+}
+
+.message-status {
+    color: var(--teks-redup);
+    display: flex;
+    align-items: center;
+    line-height: 1
+}
+
+.message-status-icon {
+    width: 17px;
+    height: 17px;
+    fill: currentColor
+}
+
+.message-status.dibaca {
+    color: #1687d9
 }
 
 .active-chat-footer {

@@ -22,6 +22,33 @@ function buatIdPesan() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+function ambilFotoProfilChat(idUser) {
+    try {
+        const media = JSON.parse(localStorage.getItem('ngumpul_media_' + idUser)) || {};
+        return typeof media.avatar === 'string' && media.avatar.startsWith('data:image/')
+            ? media.avatar
+            : '';
+    } catch (error) {
+        return '';
+    }
+}
+
+function tampilkanAvatarChat(container, idUser, nama) {
+    const inisial = (nama || '?').trim().charAt(0).toUpperCase() || '?';
+    const foto = ambilFotoProfilChat(idUser);
+    container.replaceChildren();
+    if (foto) {
+        const img = document.createElement('img');
+        img.src = foto;
+        img.alt = '';
+        container.appendChild(img);
+        container.setAttribute('aria-label', nama);
+        return;
+    }
+    container.textContent = inisial;
+    container.removeAttribute('aria-label');
+}
+
 function bacaSemuaChat() {
     try {
         return JSON.parse(localStorage.getItem(KEY_CHAT)) || {};
@@ -68,6 +95,38 @@ function simpanPesanChat(idLawan, daftarPesan) {
     const kunci = kunciKonversasi(userAktif.id, idLawan);
     semua[kunci] = Array.isArray(daftarPesan) ? daftarPesan : [];
     return simpanSemuaChat(semua);
+}
+
+function perbaruiStatusPesan(idLawan, predicate, status) {
+    const pesan = ambilPesanChat(idLawan);
+    const urutanStatus = { terkirim: 0, diterima: 1, dibaca: 2 };
+    let berubah = false;
+    pesan.forEach(item => {
+        const statusSekarang = urutanStatus[item.status] || 0;
+        if (predicate(item) && statusSekarang < urutanStatus[status]) {
+            item.status = status;
+            berubah = true;
+        }
+    });
+    if (berubah) simpanPesanChat(idLawan, pesan);
+    return berubah;
+}
+
+function tandaiPesanDiterima(idLawan) {
+    return perbaruiStatusPesan(idLawan, item => item.sender !== userAktif.id, 'diterima');
+}
+
+function tandaiPesanDibaca(idLawan) {
+    return perbaruiStatusPesan(idLawan, item => item.sender !== userAktif.id, 'dibaca');
+}
+
+function prosesPesanMasuk() {
+    if (!userAktif) return;
+    getUsers().forEach(pengguna => {
+        if (!pengguna || pengguna.id === userAktif.id) return;
+        tandaiPesanDiterima(pengguna.id);
+        if (chatAktifId === pengguna.id) tandaiPesanDibaca(pengguna.id);
+    });
 }
 
 function getProfilChat(idLawan) {
@@ -149,8 +208,7 @@ function renderChatList() {
 
         const avatar = document.createElement('div');
         avatar.className = 'circle-avatar';
-        const inisial = (item.nama || '?').trim().charAt(0).toUpperCase();
-        avatar.textContent = inisial || '?';
+        tampilkanAvatarChat(avatar, item.id, item.nama);
 
         const warna = ['#3984bd', '#8e63aa', '#d17b45', '#368c72', '#bd5d70'];
         let total = 0;
@@ -217,7 +275,30 @@ function renderPesanAktif() {
         waktu.className = 'timestamp';
         waktu.textContent = formatJamPesan(item.time);
 
-        bubble.append(text, waktu);
+        bubble.appendChild(text);
+        const footer = document.createElement('div');
+        footer.className = 'message-footer';
+        footer.appendChild(waktu);
+        if (item.sender === userAktif.id) {
+            const status = document.createElement('span');
+            status.className = 'message-status' + (item.status === 'dibaca' ? ' dibaca' : '');
+            const sudahDiterima = item.status === 'diterima' || item.status === 'dibaca';
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('aria-hidden', 'true');
+            svg.classList.add('message-status-icon');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', sudahDiterima
+                ? 'M2.305,11.235a1,1,0,0,1,1.414.024l3.206,3.319L14.3,7.289A1,1,0,0,1,15.7,8.711l-8.091,8a1,1,0,0,1-.7.289H6.9a1,1,0,0,1-.708-.3L2.281,12.649A1,1,0,0,1,2.305,11.235ZM20.3,7.289l-7.372,7.289-.263-.273a1,1,0,1,0-1.438,1.39l.966,1a1,1,0,0,0,.708.3h.011a1,1,0,0,0,.7-.289l8.091-8A1,1,0,0,0,20.3,7.289Z'
+                : 'M2.305,11.235a1,1,0,0,1,1.414.024l3.206,3.319L14.3,7.289A1,1,0,0,1,15.7,8.711l-8.091,8a1,1,0,0,1-.7.289H6.9a1,1,0,0,1-.708-.3L2.281,12.649A1,1,0,0,1,2.305,11.235Z');
+            svg.appendChild(path);
+            status.appendChild(svg);
+            status.setAttribute('aria-label', 'Status pesan: ' + (
+                item.status === 'dibaca' ? 'Dibaca' : sudahDiterima ? 'Diterima' : 'Terkirim'
+            ));
+            footer.appendChild(status);
+        }
+        bubble.appendChild(footer);
         boxListPesan.appendChild(bubble);
     });
 
@@ -242,8 +323,7 @@ function bukaChat(idLawan) {
     if (panelChatAktif) panelChatAktif.style.display = 'flex';
 
     if (avatarHeaderKanan) {
-        const inisial = (target.nama || '?').trim().charAt(0).toUpperCase();
-        avatarHeaderKanan.textContent = inisial || '?';
+        tampilkanAvatarChat(avatarHeaderKanan, idLawan, target.nama);
         avatarHeaderKanan.style.backgroundColor = '#3984bd';
     }
 
@@ -251,6 +331,8 @@ function bukaChat(idLawan) {
         namaHeaderKanan.textContent = target.nama;
     }
 
+    tandaiPesanDiterima(idLawan);
+    tandaiPesanDibaca(idLawan);
     renderPesanAktif();
     renderChatList();
 
@@ -270,7 +352,8 @@ function kirimPesanAktif() {
         id: buatIdPesan(),
         sender: userAktif.id,
         text: teks,
-        time: new Date().toISOString()
+        time: new Date().toISOString(),
+        status: 'terkirim'
     });
 
     simpanPesanChat(chatAktifId, daftarPesan);
@@ -282,6 +365,13 @@ function kirimPesanAktif() {
     renderPesanAktif();
     renderChatList();
 }
+
+window.addEventListener('storage', event => {
+    if (event.key !== KEY_CHAT) return;
+    prosesPesanMasuk();
+    if (chatAktifId) renderPesanAktif();
+    renderChatList();
+});
 
 if (inputCariChat) {
     inputCariChat.addEventListener('input', renderChatList);
@@ -306,6 +396,7 @@ document.addEventListener('ngumpul:buka-chat', event => {
 });
 
 if (userAktif) {
+    prosesPesanMasuk();
     renderChatList();
     if (panelChatKosong && panelChatAktif) {
         panelChatAktif.style.display = 'none';
