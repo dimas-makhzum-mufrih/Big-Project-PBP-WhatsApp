@@ -5,6 +5,405 @@ if (!userAktif) {
     location.replace('../auth/login.html');
 }
 
+// ===== Fitur Chat =====
+const KEY_CHAT = 'ngumpul_pesan';
+const panelChatKosong = document.getElementById('panel-chat-kosong');
+const panelChatAktif = document.getElementById('panel-chat-aktif');
+const boxListPesan = document.getElementById('box-list-pesan');
+const inputTeksKirim = document.getElementById('input-teks-kirim');
+const btnKirimPesan = document.getElementById('btn-kirim-pesan');
+const inputCariChat = document.getElementById('input-cari-chat');
+const chatScrollArea = document.querySelector('.chat-scroll-area');
+const avatarHeaderKanan = document.getElementById('avatar-header-kanan');
+const namaHeaderKanan = document.getElementById('nama-header-kanan');
+let chatAktifId = null;
+
+function buatIdPesan() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function ambilFotoProfilChat(idUser) {
+    try {
+        const media = JSON.parse(localStorage.getItem('ngumpul_media_' + idUser)) || {};
+        return typeof media.avatar === 'string' && media.avatar.startsWith('data:image/')
+            ? media.avatar
+            : '';
+    } catch (error) {
+        return '';
+    }
+}
+
+function tampilkanAvatarChat(container, idUser, nama) {
+    const inisial = (nama || '?').trim().charAt(0).toUpperCase() || '?';
+    const foto = ambilFotoProfilChat(idUser);
+    container.replaceChildren();
+    if (foto) {
+        const img = document.createElement('img');
+        img.src = foto;
+        img.alt = '';
+        container.appendChild(img);
+        container.setAttribute('aria-label', nama);
+        return;
+    }
+    container.textContent = inisial;
+    container.removeAttribute('aria-label');
+}
+
+function bacaSemuaChat() {
+    try {
+        return JSON.parse(localStorage.getItem(KEY_CHAT)) || {};
+    } catch (error) {
+        return {};
+    }
+}
+
+function simpanSemuaChat(data) {
+    try {
+        localStorage.setItem(KEY_CHAT, JSON.stringify(data));
+        return true;
+    } catch (error) {
+        console.warn('Tidak dapat menyimpan chat:', error);
+        return false;
+    }
+}
+
+function formatJamPesan(isoString) {
+    if (!isoString) return '';
+    const waktu = new Date(isoString);
+    if (Number.isNaN(waktu.getTime())) return '';
+    return waktu.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function kunciKonversasi(idA, idB) {
+    return [String(idA), String(idB)].sort().join('_');
+}
+
+function ambilPesanChat(idLawan) {
+    if (!userAktif || !idLawan) return [];
+    const semua = bacaSemuaChat();
+    const kunci = kunciKonversasi(userAktif.id, idLawan);
+    const pesan = semua[kunci];
+    return Array.isArray(pesan) ? pesan : [];
+}
+
+function simpanPesanChat(idLawan, daftarPesan) {
+    if (!userAktif || !idLawan) return false;
+    const semua = bacaSemuaChat();
+    const kunci = kunciKonversasi(userAktif.id, idLawan);
+    semua[kunci] = Array.isArray(daftarPesan) ? daftarPesan : [];
+    return simpanSemuaChat(semua);
+}
+
+function perbaruiStatusPesan(idLawan, predicate, status) {
+    const pesan = ambilPesanChat(idLawan);
+    const urutanStatus = { terkirim: 0, diterima: 1, dibaca: 2 };
+    let berubah = false;
+    pesan.forEach(item => {
+        const statusSekarang = urutanStatus[item.status] || 0;
+        if (predicate(item) && statusSekarang < urutanStatus[status]) {
+            item.status = status;
+            berubah = true;
+        }
+    });
+    if (berubah) simpanPesanChat(idLawan, pesan);
+    return berubah;
+}
+
+function tandaiPesanDiterima(idLawan) {
+    return perbaruiStatusPesan(idLawan, item => item.sender !== userAktif.id, 'diterima');
+}
+
+function tandaiPesanDibaca(idLawan) {
+    return perbaruiStatusPesan(idLawan, item => item.sender !== userAktif.id, 'dibaca');
+}
+
+function prosesPesanMasuk() {
+    if (!userAktif) return;
+    getUsers().forEach(pengguna => {
+        if (!pengguna || pengguna.id === userAktif.id) return;
+        tandaiPesanDiterima(pengguna.id);
+        if (chatAktifId === pengguna.id) tandaiPesanDibaca(pengguna.id);
+    });
+}
+
+function getProfilChat(idLawan) {
+    const kontak = getUserById(idLawan);
+    const profil = getProfil(idLawan);
+    return {
+        id: idLawan,
+        nama: (kontak && kontak.nama) || profil.nama || 'Kontak',
+        hp: profil.phone || (kontak && kontak.hp) || '',
+        username: profil.username || '@pengguna'
+    };
+}
+
+function isKontakPengguna(idLawan) {
+    if (!userAktif || !idLawan || !NgumpulKontakData || typeof NgumpulKontakData.list !== 'function') {
+        return false;
+    }
+
+    const user = getUserById(idLawan);
+    if (!user || !user.hp) return false;
+
+    return NgumpulKontakData.list(userAktif.id)
+        .some(kontak => samakanHp(kontak.phone, user.hp));
+}
+
+function renderChatList() {
+    if (!chatScrollArea || !userAktif) return;
+
+    if (chatAktifId && !isKontakPengguna(chatAktifId)) {
+        chatAktifId = null;
+        if (panelChatAktif) panelChatAktif.style.display = 'none';
+        if (panelChatKosong) panelChatKosong.style.display = 'flex';
+    }
+
+    const query = (inputCariChat ? inputCariChat.value : '').trim().toLowerCase();
+    const daftarKontak = NgumpulKontakData && typeof NgumpulKontakData.search === 'function'
+        ? NgumpulKontakData.search(userAktif.id, query)
+        : [];
+
+    const hasil = daftarKontak
+        .map(item => {
+            const user = getUsers().find(pengguna => samakanHp(pengguna.hp, item.phone));
+            if (!user || user.id === userAktif.id) return null;
+            const pesan = ambilPesanChat(user.id);
+            const terakhir = pesan.length ? pesan[pesan.length - 1] : null;
+            return {
+                id: user.id,
+                nama: getProfilChat(user.id).nama,
+                preview: terakhir ? terakhir.text : 'Mulai chat baru',
+                waktu: terakhir ? terakhir.time : null,
+                hp: user.hp
+            };
+        })
+        .filter(Boolean)
+        .sort((a, b) => {
+            const waktuA = a.waktu ? new Date(a.waktu).getTime() : 0;
+            const waktuB = b.waktu ? new Date(b.waktu).getTime() : 0;
+            return waktuB - waktuA;
+        });
+
+    chatScrollArea.replaceChildren();
+
+    if (!hasil.length) {
+        const kosong = document.createElement('div');
+        kosong.className = 'contact-empty';
+        kosong.textContent = query
+            ? 'Tidak ada chat yang cocok.'
+            : 'Belum ada chat. Tambahkan kontak dari tab Kontak untuk mulai ngobrol.';
+        chatScrollArea.appendChild(kosong);
+        return;
+    }
+
+    hasil.forEach(item => {
+        const kartu = document.createElement('button');
+        kartu.type = 'button';
+        kartu.className = 'chat-card' + (chatAktifId === item.id ? ' aktif' : '');
+        kartu.setAttribute('data-chat-id', item.id);
+        kartu.setAttribute('aria-label', 'Buka chat dengan ' + item.nama);
+
+        const avatar = document.createElement('div');
+        avatar.className = 'circle-avatar';
+        tampilkanAvatarChat(avatar, item.id, item.nama);
+
+        const warna = ['#3984bd', '#8e63aa', '#d17b45', '#368c72', '#bd5d70'];
+        let total = 0;
+        for (let i = 0; i < item.nama.length; i++) {
+            total += item.nama.charCodeAt(i);
+        }
+        avatar.style.backgroundColor = warna[total % warna.length];
+
+        const meta = document.createElement('div');
+        meta.className = 'card-meta';
+
+        const top = document.createElement('div');
+        top.className = 'card-top';
+
+        const judul = document.createElement('span');
+        judul.className = 'card-title';
+        judul.textContent = item.nama;
+
+        const jam = document.createElement('small');
+        jam.textContent = item.waktu ? formatJamPesan(item.waktu) : '';
+        jam.style.color = 'var(--teks-redup)';
+        jam.style.fontSize = '.74rem';
+
+        const preview = document.createElement('p');
+        preview.className = 'card-preview';
+        preview.textContent = item.preview;
+
+        top.appendChild(judul);
+        top.appendChild(jam);
+        meta.append(top, preview);
+        kartu.append(avatar, meta);
+
+        kartu.addEventListener('click', () => {
+            bukaChat(item.id);
+        });
+
+        chatScrollArea.appendChild(kartu);
+    });
+}
+
+function renderPesanAktif() {
+    if (!boxListPesan || !chatAktifId) return;
+
+    boxListPesan.replaceChildren();
+    const pesan = ambilPesanChat(chatAktifId);
+    const target = getProfilChat(chatAktifId);
+
+    if (!pesan.length) {
+        const kosong = document.createElement('p');
+        kosong.className = 'contact-empty';
+        kosong.textContent = 'Belum ada pesan dengan ' + target.nama + '. Mulai percakapan baru.';
+        boxListPesan.appendChild(kosong);
+        return;
+    }
+
+    pesan.forEach(item => {
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble ' + (item.sender === userAktif.id ? 'kirim' : 'terima');
+
+        const text = document.createElement('span');
+        text.textContent = item.text;
+
+        const waktu = document.createElement('span');
+        waktu.className = 'timestamp';
+        waktu.textContent = formatJamPesan(item.time);
+
+        bubble.appendChild(text);
+        const footer = document.createElement('div');
+        footer.className = 'message-footer';
+        footer.appendChild(waktu);
+        if (item.sender === userAktif.id) {
+            const status = document.createElement('span');
+            status.className = 'message-status' + (item.status === 'dibaca' ? ' dibaca' : '');
+            const sudahDiterima = item.status === 'diterima' || item.status === 'dibaca';
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('aria-hidden', 'true');
+            svg.classList.add('message-status-icon');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', sudahDiterima
+                ? 'M2.305,11.235a1,1,0,0,1,1.414.024l3.206,3.319L14.3,7.289A1,1,0,0,1,15.7,8.711l-8.091,8a1,1,0,0,1-.7.289H6.9a1,1,0,0,1-.708-.3L2.281,12.649A1,1,0,0,1,2.305,11.235ZM20.3,7.289l-7.372,7.289-.263-.273a1,1,0,1,0-1.438,1.39l.966,1a1,1,0,0,0,.708.3h.011a1,1,0,0,0,.7-.289l8.091-8A1,1,0,0,0,20.3,7.289Z'
+                : 'M2.305,11.235a1,1,0,0,1,1.414.024l3.206,3.319L14.3,7.289A1,1,0,0,1,15.7,8.711l-8.091,8a1,1,0,0,1-.7.289H6.9a1,1,0,0,1-.708-.3L2.281,12.649A1,1,0,0,1,2.305,11.235Z');
+            svg.appendChild(path);
+            status.appendChild(svg);
+            status.setAttribute('aria-label', 'Status pesan: ' + (
+                item.status === 'dibaca' ? 'Dibaca' : sudahDiterima ? 'Diterima' : 'Terkirim'
+            ));
+            footer.appendChild(status);
+        }
+        bubble.appendChild(footer);
+        boxListPesan.appendChild(bubble);
+    });
+
+    boxListPesan.scrollTop = boxListPesan.scrollHeight;
+}
+
+function bukaChat(idLawan) {
+    if (!idLawan || !userAktif) return;
+
+    if (!isKontakPengguna(idLawan)) {
+        chatAktifId = null;
+        if (panelChatAktif) panelChatAktif.style.display = 'none';
+        if (panelChatKosong) panelChatKosong.style.display = 'flex';
+        renderChatList();
+        return;
+    }
+
+    chatAktifId = idLawan;
+    const target = getProfilChat(idLawan);
+
+    if (panelChatKosong) panelChatKosong.style.display = 'none';
+    if (panelChatAktif) panelChatAktif.style.display = 'flex';
+
+    if (avatarHeaderKanan) {
+        tampilkanAvatarChat(avatarHeaderKanan, idLawan, target.nama);
+        avatarHeaderKanan.style.backgroundColor = '#3984bd';
+    }
+
+    if (namaHeaderKanan) {
+        namaHeaderKanan.textContent = target.nama;
+    }
+
+    tandaiPesanDiterima(idLawan);
+    tandaiPesanDibaca(idLawan);
+    renderPesanAktif();
+    renderChatList();
+
+    if (inputTeksKirim) {
+        inputTeksKirim.focus();
+    }
+}
+
+function kirimPesanAktif() {
+    if (!chatAktifId || !userAktif) return;
+
+    const teks = (inputTeksKirim ? inputTeksKirim.value : '').trim();
+    if (!teks) return;
+
+    const daftarPesan = ambilPesanChat(chatAktifId);
+    daftarPesan.push({
+        id: buatIdPesan(),
+        sender: userAktif.id,
+        text: teks,
+        time: new Date().toISOString(),
+        status: 'terkirim'
+    });
+
+    simpanPesanChat(chatAktifId, daftarPesan);
+
+    if (inputTeksKirim) {
+        inputTeksKirim.value = '';
+    }
+
+    renderPesanAktif();
+    renderChatList();
+}
+
+window.addEventListener('storage', event => {
+    if (event.key !== KEY_CHAT) return;
+    prosesPesanMasuk();
+    if (chatAktifId) renderPesanAktif();
+    renderChatList();
+});
+
+if (inputCariChat) {
+    inputCariChat.addEventListener('input', renderChatList);
+}
+
+if (btnKirimPesan && inputTeksKirim) {
+    btnKirimPesan.addEventListener('click', kirimPesanAktif);
+    inputTeksKirim.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            kirimPesanAktif();
+        }
+    });
+}
+
+document.addEventListener('ngumpul:buka-chat', event => {
+    const idLawan = event && event.detail ? event.detail.idLawan : null;
+    if (idLawan) {
+        pilihTabDashboard(false);
+        bukaChat(idLawan);
+    }
+});
+
+if (userAktif) {
+    prosesPesanMasuk();
+    renderChatList();
+    if (panelChatKosong && panelChatAktif) {
+        panelChatAktif.style.display = 'none';
+        panelChatKosong.style.display = 'flex';
+    }
+}
+
 // ===== Tab Chat / Kontak di dalam dashboard =====
 const tabChat = document.getElementById('tab-chat');
 const tabKontak = document.getElementById('tab-kontak');
@@ -18,6 +417,7 @@ function pilihTabDashboard(kontakAktif) {
     tabKontak.classList.toggle('aktif', kontakAktif);
     tabChat.setAttribute('aria-pressed', String(!kontakAktif));
     tabKontak.setAttribute('aria-pressed', String(kontakAktif));
+    if (!kontakAktif) renderChatList();
 }
 
 tabChat.addEventListener('click', () => pilihTabDashboard(false));
