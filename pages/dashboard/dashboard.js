@@ -5,6 +5,297 @@ if (!userAktif) {
     location.replace('../auth/login.html');
 }
 
+// ===== Fitur Chat =====
+const KEY_CHAT = 'ngumpul_pesan';
+const panelChatKosong = document.getElementById('panel-chat-kosong');
+const panelChatAktif = document.getElementById('panel-chat-aktif');
+const boxListPesan = document.getElementById('box-list-pesan');
+const inputTeksKirim = document.getElementById('input-teks-kirim');
+const btnKirimPesan = document.getElementById('btn-kirim-pesan');
+const inputCariChat = document.getElementById('input-cari-chat');
+const chatScrollArea = document.querySelector('.chat-scroll-area');
+const avatarHeaderKanan = document.getElementById('avatar-header-kanan');
+const namaHeaderKanan = document.getElementById('nama-header-kanan');
+let chatAktifId = null;
+
+function buatIdPesan() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function bacaSemuaChat() {
+    try {
+        return JSON.parse(localStorage.getItem(KEY_CHAT)) || {};
+    } catch (error) {
+        return {};
+    }
+}
+
+function simpanSemuaChat(data) {
+    try {
+        localStorage.setItem(KEY_CHAT, JSON.stringify(data));
+        return true;
+    } catch (error) {
+        console.warn('Tidak dapat menyimpan chat:', error);
+        return false;
+    }
+}
+
+function formatJamPesan(isoString) {
+    if (!isoString) return '';
+    const waktu = new Date(isoString);
+    if (Number.isNaN(waktu.getTime())) return '';
+    return waktu.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function kunciKonversasi(idA, idB) {
+    return [String(idA), String(idB)].sort().join('_');
+}
+
+function ambilPesanChat(idLawan) {
+    if (!userAktif || !idLawan) return [];
+    const semua = bacaSemuaChat();
+    const kunci = kunciKonversasi(userAktif.id, idLawan);
+    const pesan = semua[kunci];
+    return Array.isArray(pesan) ? pesan : [];
+}
+
+function simpanPesanChat(idLawan, daftarPesan) {
+    if (!userAktif || !idLawan) return false;
+    const semua = bacaSemuaChat();
+    const kunci = kunciKonversasi(userAktif.id, idLawan);
+    semua[kunci] = Array.isArray(daftarPesan) ? daftarPesan : [];
+    return simpanSemuaChat(semua);
+}
+
+function getProfilChat(idLawan) {
+    const kontak = getUserById(idLawan);
+    const profil = getProfil(idLawan);
+    return {
+        id: idLawan,
+        nama: (kontak && kontak.nama) || profil.nama || 'Kontak',
+        hp: profil.phone || (kontak && kontak.hp) || '',
+        username: profil.username || '@pengguna'
+    };
+}
+
+function renderChatList() {
+    if (!chatScrollArea || !userAktif) return;
+
+    const query = (inputCariChat ? inputCariChat.value : '').trim().toLowerCase();
+    let daftarKontak = NgumpulKontakData && typeof NgumpulKontakData.search === 'function'
+        ? NgumpulKontakData.search(userAktif.id, query)
+        : [];
+
+    if (!daftarKontak.length && !query) {
+        daftarKontak = getUsers()
+            .filter(pengguna => pengguna && pengguna.id !== userAktif.id)
+            .map(pengguna => ({
+                phone: pengguna.hp,
+                name: getProfilChat(pengguna.id).nama
+            }));
+    }
+
+    const hasil = daftarKontak
+        .map(item => {
+            const user = getUsers().find(pengguna => samakanHp(pengguna.hp, item.phone));
+            if (!user || user.id === userAktif.id) return null;
+            const pesan = ambilPesanChat(user.id);
+            const terakhir = pesan.length ? pesan[pesan.length - 1] : null;
+            return {
+                id: user.id,
+                nama: getProfilChat(user.id).nama,
+                preview: terakhir ? terakhir.text : 'Mulai chat baru',
+                waktu: terakhir ? terakhir.time : null,
+                hp: user.hp
+            };
+        })
+        .filter(Boolean)
+        .sort((a, b) => {
+            const waktuA = a.waktu ? new Date(a.waktu).getTime() : 0;
+            const waktuB = b.waktu ? new Date(b.waktu).getTime() : 0;
+            return waktuB - waktuA;
+        });
+
+    chatScrollArea.replaceChildren();
+
+    if (!hasil.length) {
+        const kosong = document.createElement('div');
+        kosong.className = 'contact-empty';
+        kosong.textContent = query
+            ? 'Tidak ada chat yang cocok.'
+            : 'Belum ada chat. Tambahkan kontak dari tab Kontak untuk mulai ngobrol.';
+        chatScrollArea.appendChild(kosong);
+        return;
+    }
+
+    hasil.forEach(item => {
+        const kartu = document.createElement('button');
+        kartu.type = 'button';
+        kartu.className = 'chat-card' + (chatAktifId === item.id ? ' aktif' : '');
+        kartu.setAttribute('data-chat-id', item.id);
+        kartu.setAttribute('aria-label', 'Buka chat dengan ' + item.nama);
+
+        const avatar = document.createElement('div');
+        avatar.className = 'circle-avatar';
+        const inisial = (item.nama || '?').trim().charAt(0).toUpperCase();
+        avatar.textContent = inisial || '?';
+
+        const warna = ['#3984bd', '#8e63aa', '#d17b45', '#368c72', '#bd5d70'];
+        let total = 0;
+        for (let i = 0; i < item.nama.length; i++) {
+            total += item.nama.charCodeAt(i);
+        }
+        avatar.style.backgroundColor = warna[total % warna.length];
+
+        const meta = document.createElement('div');
+        meta.className = 'card-meta';
+
+        const top = document.createElement('div');
+        top.className = 'card-top';
+
+        const judul = document.createElement('span');
+        judul.className = 'card-title';
+        judul.textContent = item.nama;
+
+        const jam = document.createElement('small');
+        jam.textContent = item.waktu ? formatJamPesan(item.waktu) : '';
+        jam.style.color = 'var(--teks-redup)';
+        jam.style.fontSize = '.74rem';
+
+        const preview = document.createElement('p');
+        preview.className = 'card-preview';
+        preview.textContent = item.preview;
+
+        top.appendChild(judul);
+        top.appendChild(jam);
+        meta.append(top, preview);
+        kartu.append(avatar, meta);
+
+        kartu.addEventListener('click', () => {
+            bukaChat(item.id);
+        });
+
+        chatScrollArea.appendChild(kartu);
+    });
+}
+
+function renderPesanAktif() {
+    if (!boxListPesan || !chatAktifId) return;
+
+    boxListPesan.replaceChildren();
+    const pesan = ambilPesanChat(chatAktifId);
+    const target = getProfilChat(chatAktifId);
+
+    if (!pesan.length) {
+        const kosong = document.createElement('p');
+        kosong.className = 'contact-empty';
+        kosong.textContent = 'Belum ada pesan dengan ' + target.nama + '. Mulai percakapan baru.';
+        boxListPesan.appendChild(kosong);
+        return;
+    }
+
+    pesan.forEach(item => {
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble ' + (item.sender === userAktif.id ? 'kirim' : 'terima');
+
+        const text = document.createElement('span');
+        text.textContent = item.text;
+
+        const waktu = document.createElement('span');
+        waktu.className = 'timestamp';
+        waktu.textContent = formatJamPesan(item.time);
+
+        bubble.append(text, waktu);
+        boxListPesan.appendChild(bubble);
+    });
+
+    boxListPesan.scrollTop = boxListPesan.scrollHeight;
+}
+
+function bukaChat(idLawan) {
+    if (!idLawan || !userAktif) return;
+
+    chatAktifId = idLawan;
+    const target = getProfilChat(idLawan);
+
+    if (panelChatKosong) panelChatKosong.style.display = 'none';
+    if (panelChatAktif) panelChatAktif.style.display = 'flex';
+
+    if (avatarHeaderKanan) {
+        const inisial = (target.nama || '?').trim().charAt(0).toUpperCase();
+        avatarHeaderKanan.textContent = inisial || '?';
+        avatarHeaderKanan.style.backgroundColor = '#3984bd';
+    }
+
+    if (namaHeaderKanan) {
+        namaHeaderKanan.textContent = target.nama;
+    }
+
+    renderPesanAktif();
+    renderChatList();
+
+    if (inputTeksKirim) {
+        inputTeksKirim.focus();
+    }
+}
+
+function kirimPesanAktif() {
+    if (!chatAktifId || !userAktif) return;
+
+    const teks = (inputTeksKirim ? inputTeksKirim.value : '').trim();
+    if (!teks) return;
+
+    const daftarPesan = ambilPesanChat(chatAktifId);
+    daftarPesan.push({
+        id: buatIdPesan(),
+        sender: userAktif.id,
+        text: teks,
+        time: new Date().toISOString()
+    });
+
+    simpanPesanChat(chatAktifId, daftarPesan);
+
+    if (inputTeksKirim) {
+        inputTeksKirim.value = '';
+    }
+
+    renderPesanAktif();
+    renderChatList();
+}
+
+if (inputCariChat) {
+    inputCariChat.addEventListener('input', renderChatList);
+}
+
+if (btnKirimPesan && inputTeksKirim) {
+    btnKirimPesan.addEventListener('click', kirimPesanAktif);
+    inputTeksKirim.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            kirimPesanAktif();
+        }
+    });
+}
+
+document.addEventListener('ngumpul:buka-chat', event => {
+    const idLawan = event && event.detail ? event.detail.idLawan : null;
+    if (idLawan) {
+        pilihTabDashboard(false);
+        bukaChat(idLawan);
+    }
+});
+
+if (userAktif) {
+    renderChatList();
+    if (panelChatKosong && panelChatAktif) {
+        panelChatAktif.style.display = 'none';
+        panelChatKosong.style.display = 'flex';
+    }
+}
+
 // ===== Tab Chat / Kontak di dalam dashboard =====
 const tabChat = document.getElementById('tab-chat');
 const tabKontak = document.getElementById('tab-kontak');
