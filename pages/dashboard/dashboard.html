@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>Ngumpul - Ruang Chat</title>
-    <link rel="stylesheet" href="kontak.css">
 <link rel="stylesheet" href="../../assets/css/variables.css">
 <script src="../../assets/js/theme.js"></script>
 <link rel="stylesheet" href="dashboard.css">
@@ -82,6 +81,15 @@
             <circle cx="9" cy="11" r="2.5" />
             <path d="M5.5 17c.6-1.7 2-2.5 3.5-2.5s2.9.8 3.5 2.5M15 9h3M15 13h3" />
         </symbol>
+        <symbol id="i-edit-grup" viewBox="0 0 24 24"><path d="m16 3 5 5-12 12-6 1 1-6L16 3zM14 5l5 5" /></symbol>
+        <symbol id="i-camera-grup" viewBox="0 0 24 24"><path d="M14 4h-4L8 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-4l-2-3z" /><circle cx="12" cy="13" r="4" /></symbol>
+        <symbol id="i-add-grup" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a6 6 0 0 1 12 0v2M19 8v6M16 11h6" /></symbol>
+        <symbol id="i-link-grup" viewBox="0 0 24 24"><path d="m10 13 4-4M8 16l-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0M16 8l1-1a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" /></symbol>
+        <symbol id="i-media-grup" viewBox="0 0 24 24"><rect x="5" y="3" width="16" height="16" rx="2"/><path d="M1 7v14a2 2 0 0 0 2 2h14M5 15l5-5 4 4 2-2 5 5"/><circle cx="16" cy="8" r="1" /></symbol>
+        <symbol id="i-check-grup" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></symbol>
+        <symbol id="i-trash-grup" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" /></symbol>
+        <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6" /></symbol>
+        <symbol id="i-more" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="12" cy="19" r="1.7" /></g></symbol>
     </svg>
     <div class="dashboard-container">
         <aside class="sisi-kiri" id="panel-sisi-kiri">
@@ -98,7 +106,8 @@
                                 <use href="#i-gear" />
                             </svg>Pengaturan</div>
                         <div class="dropdown-sekat"></div>
-                        <div class="dropdown-option" data-fitur="grup-baru" title="Segera hadir">Grup baru</div>
+                        <button class="dropdown-option grup-menu-baru" id="menu-grup-baru" type="button"
+                            data-fitur="grup-baru">Grup baru</button>
                         <div class="dropdown-option" data-fitur="berbintang" title="Segera hadir">Pesan berbintang</div>
                         <div class="dropdown-option" data-fitur="tandai-baca" title="Segera hadir">Tandai semua dibaca
                         </div>
@@ -106,15 +115,16 @@
                     </div>
                 </div>
             </div>
-            <!-- Grup dan Telepon masih berupa tab tampilan. -->
+            <!-- Telepon masih berupa tab tampilan. -->
             <nav class="tab-nav" aria-label="Menu utama">
                 <button class="tab aktif" id="tab-chat" type="button" data-fitur="tab-chat"
                     aria-pressed="true" aria-controls="panel-tab-chat"><svg class="ikon" aria-hidden="true">
                         <use href="#i-chat" />
                     </svg>Chat</button>
-                <div class="tab" data-fitur="tab-grup" title="Segera hadir"><svg class="ikon" aria-hidden="true">
+                <button class="tab" id="tab-grup" type="button" data-fitur="tab-grup"
+                    aria-pressed="false" aria-controls="panel-tab-grup"><svg class="ikon" aria-hidden="true">
                         <use href="#i-grup" />
-                    </svg>Grup</div>
+                    </svg>Grup</button>
                 <div class="tab" data-fitur="tab-telepon" title="Segera hadir"><svg class="ikon" aria-hidden="true">
                         <use href="#i-phone" />
                     </svg>Telepon</div>
@@ -128,6 +138,16 @@
                         placeholder="Cari atau mulai chat baru" aria-label="Cari atau mulai chat baru"></div>
                 <div class="chat-scroll-area"></div>
             </div>
+            <section class="dashboard-tab-panel grup-panel" id="panel-tab-grup" aria-labelledby="judul-grup" hidden>
+                <h2 class="sr-only" id="judul-grup">Grup</h2>
+                <div class="grup-content">
+                    <p class="grup-status" id="status-grup" role="status" aria-live="polite"></p>
+                    <label class="sr-only" for="input-cari-grup">Cari grup</label>
+                    <input class="grup-input" id="input-cari-grup" type="search" placeholder="Cari grup..."
+                        autocomplete="off">
+                    <div class="grup-list" id="daftar-grup"></div>
+                </div>
+            </section>
             <section class="contact-page dashboard-tab-panel" id="panel-tab-kontak" aria-labelledby="judul-kontak" hidden>
                 <header class="contact-header">
                     <button class="contact-back" id="btn-kembali-dari-kontak" type="button" aria-label="Kembali ke Chat">
@@ -160,8 +180,98 @@
                     <div class="contact-list" id="daftar-kontak"></div>
                 </div>
             </section>
+            <section class="grup-wizard" id="panel-alur-grup" aria-labelledby="judul-alur-grup" hidden>
+                <header class="grup-wizard-header">
+                    <button class="grup-icon-button" id="btn-kembali-alur-grup" type="button" aria-label="Kembali">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-back" /></svg>
+                    </button>
+                    <h2 id="judul-alur-grup">Tambah anggota grup</h2>
+                </header>
+                <form class="grup-wizard-stage" id="form-pilih-anggota">
+                    <div class="grup-selected" id="anggota-terpilih-grup" aria-label="Anggota terpilih" hidden></div>
+                    <span class="sr-only" id="jumlah-pilihan-grup" role="status" aria-live="polite"></span>
+                    <label class="sr-only" for="input-cari-anggota-grup">Cari kontak</label>
+                    <input
+                        class="grup-wizard-search"
+                        id="input-cari-anggota-grup"
+                        type="search"
+                        placeholder="Cari nama atau nomor"
+                        autocomplete="off"
+                    />
+                    <div class="grup-picker-list" id="pilihan-anggota-grup"></div>
+                    <footer class="grup-wizard-footer">
+                        <p class="grup-status" id="status-pilih-anggota" role="status"></p>
+                        <button class="grup-wizard-next" id="btn-lanjut-grup" type="submit">Lanjut</button>
+                    </footer>
+                </form>
+                <form class="grup-wizard-stage" id="form-buat-grup" hidden>
+                    <div class="grup-create-content">
+                        <button
+                            class="grup-create-photo"
+                            id="btn-foto-grup-baru"
+                            type="button"
+                            aria-label="Pilih foto grup"
+                        >
+                            <span id="foto-grup-baru"
+                                ><svg class="ikon" aria-hidden="true"><use href="#i-camera-grup" /></svg></span
+                            ><span class="grup-create-camera"
+                                ><svg class="ikon" aria-hidden="true"><use href="#i-camera-grup" /></svg
+                            ></span>
+                        </button>
+                        <input id="input-foto-grup-baru" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+                        <label class="sr-only" for="input-nama-grup">Nama grup</label
+                        ><input
+                            class="grup-name-field"
+                            id="input-nama-grup"
+                            type="text"
+                            maxlength="60"
+                            placeholder="Nama grup"
+                            required
+                            autocomplete="off"
+                        />
+                    </div>
+                    <footer class="grup-wizard-footer grup-create-footer">
+                        <p class="grup-status" id="status-buat-grup" role="status"></p>
+                        <button
+                            class="grup-create-submit"
+                            id="btn-simpan-grup"
+                            type="submit"
+                            aria-label="Buat grup"
+                            title="Buat grup"
+                        >
+                            <svg class="ikon" aria-hidden="true"><use href="#i-check-grup" /></svg>
+                        </button>
+                    </footer>
+                </form>
+            </section>
+
         </aside>
         <main class="sisi-kanan" id="panel-sisi-kanan">
+            <section class="grup-ruang-chat" id="panel-chat-grup" aria-labelledby="nama-chat-grup" hidden>
+                <header class="grup-chat-header">
+                    <button class="grup-tombol-sekunder grup-chat-kembali" id="btn-kembali-chat-grup" type="button"
+                        aria-label="Kembali ke daftar grup">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-back" /></svg>
+                    </button>
+                    <button class="grup-chat-judul grup-header-info" id="btn-info-grup" type="button" aria-label="Buka informasi grup" aria-expanded="false" aria-controls="panel-info-grup">
+                        <span class="circle-avatar" id="avatar-chat-grup" aria-hidden="true"></span>
+                        <span class="grup-chat-identitas">
+                        <h2 id="nama-chat-grup">Chat grup</h2>
+                        <p id="anggota-chat-grup"></p>
+                        </span>
+                    </button>
+                </header>
+                <div class="messages-container grup-chat-pesan" id="pesan-chat-grup" role="log" aria-live="polite"
+                    aria-relevant="additions" aria-label="Pesan grup"></div>
+                <p class="grup-chat-status" id="status-chat-grup" role="status" aria-live="polite"></p>
+                <p class="grup-left-status" id="status-keanggotaan-grup" hidden></p>
+                <form class="active-chat-footer grup-chat-form" id="form-pesan-grup">
+                    <label class="sr-only" for="input-pesan-grup">Pesan untuk grup</label>
+                    <textarea class="chat-input-field" id="input-pesan-grup" rows="1" maxlength="4000"
+                        placeholder="Ketik pesan..." required></textarea>
+                    <button class="send-action-btn" id="btn-kirim-grup" type="submit">Kirim</button>
+                </form>
+            </section>
             <div class="welcome-screen" id="panel-chat-kosong">
                 <h2>Selamat Datang di Ngumpul</h2>
                 <p>Pilih salah satu teman di sebelah kiri untuk mulai melakukan obrolan.<br>Menu setelan dan keluar
@@ -169,11 +279,16 @@
             </div>
             <section class="active-chat-room" id="panel-chat-aktif">
                 <header class="active-chat-header">
-                    <div class="circle-avatar" id="avatar-header-kanan" style="margin:0;background:#3984bd">Z</div>
-                    <div class="active-header-info">
+                    <button class="grup-tombol-sekunder private-chat-back" id="btn-kembali-chat-pribadi" type="button" aria-label="Kembali ke daftar chat">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-back" /></svg>
+                    </button>
+                    <button class="chat-contact-trigger" id="btn-info-kontak-chat" type="button" aria-label="Lihat informasi kontak">
+                    <span class="circle-avatar" id="avatar-header-kanan" style="margin:0;background:#3984bd">Z</span>
+                    <span class="active-header-info">
                         <h3 id="nama-header-kanan">Nama Kontak</h3>
                         <p>online</p>
-                    </div>
+                    </span>
+                    </button>
                 </header>
                 <div class="messages-container" id="box-list-pesan"></div>
                 <footer class="active-chat-footer"><input class="chat-input-field" id="input-teks-kirim" type="text"
@@ -388,12 +503,224 @@
 </div>
             </div>
         </main>
+        <aside class="grup-info-panel" id="panel-info-grup" aria-labelledby="judul-info-grup" hidden>
+            <header class="detail-panel-header grup-info-header">
+                <button
+                    class="detail-close"
+                    id="btn-tutup-info-grup"
+                    type="button"
+                    aria-label="Kembali ke percakapan grup"
+                >
+                    <span class="grup-info-cross" aria-hidden="true"><svg class="ikon"><use href="#i-close" /></svg></span>
+                    <span class="grup-info-back"><svg class="ikon" aria-hidden="true"><use href="#i-back" /></svg></span>
+                </button>
+                <h2 id="judul-info-grup">Info Grup</h2>
+            </header>
+            <div class="detail-panel-content grup-info-content">
+                <div class="grup-info-identity">
+                    <button
+                        class="grup-photo-trigger"
+                        id="btn-edit-foto-grup"
+                        type="button"
+                        aria-label="Ubah foto grup"
+                    >
+                        <span class="detail-avatar" id="foto-info-grup"></span>
+                        <span class="grup-photo-camera"
+                            ><svg class="ikon" aria-hidden="true"><use href="#i-camera-grup" /></svg
+                        ></span>
+                    </button>
+                    <form class="grup-inline-editor grup-photo-editor" id="form-foto-grup" hidden>
+                        <label class="grup-label" for="edit-foto-grup">Foto grup</label>
+                        <input
+                            class="grup-input"
+                            id="edit-foto-grup"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                        />
+                        <div class="detail-avatar" id="preview-foto-grup"></div>
+                        <div class="grup-form-aksi">
+                            <button class="grup-tombol-sekunder" type="button" data-batal-edit-grup>Batal</button
+                            ><button class="grup-tombol-utama" id="simpan-foto-grup" type="submit">Simpan</button>
+                        </div>
+                    </form>
+                    <div class="grup-info-name-row">
+                        <h3 id="nama-info-grup"></h3>
+                        <button
+                            class="grup-edit-icon"
+                            id="btn-edit-nama-grup"
+                            type="button"
+                            aria-label="Ubah nama grup"
+                        >
+                            <svg class="ikon" aria-hidden="true"><use href="#i-edit-grup" /></svg>
+                        </button>
+                    </div>
+                    <form class="grup-inline-editor" id="form-nama-grup" hidden>
+                        <label class="sr-only" for="edit-nama-grup">Nama grup</label>
+                        <input class="grup-input" id="edit-nama-grup" maxlength="60" required />
+                        <div class="grup-form-aksi">
+                            <button class="grup-tombol-sekunder" type="button" data-batal-edit-grup>Batal</button
+                            ><button class="grup-tombol-utama" id="simpan-nama-grup" type="submit">Simpan</button>
+                        </div>
+                    </form>
+                    <p class="grup-info-subtitle">Grup · <button id="jumlah-info-grup" type="button"></button></p>
+                    <div class="grup-quick-actions">
+                        <button class="grup-quick-action" id="btn-tambah-anggota-grup" type="button">
+                            <span
+                                ><svg class="ikon" aria-hidden="true"><use href="#i-add-grup" /></svg></span
+                            >Tambah anggota
+                        </button>
+                        <button class="grup-quick-action" id="btn-undang-grup" type="button">
+                            <span
+                                ><svg class="ikon" aria-hidden="true"><use href="#i-link-grup" /></svg></span
+                            >Undang
+                        </button>
+                    </div>
+                </div>
+                <p class="grup-status" id="status-info-grup" role="status" aria-live="polite"></p>
+                <section class="grup-info-section grup-info-description" aria-label="Deskripsi grup">
+                    <div class="grup-description-row">
+                        <p class="detail-description" id="deskripsi-info-grup"></p>
+                        <button
+                            class="grup-edit-icon"
+                            id="btn-edit-deskripsi-grup"
+                            type="button"
+                            aria-label="Ubah deskripsi grup"
+                        >
+                            <svg class="ikon" aria-hidden="true"><use href="#i-edit-grup" /></svg>
+                        </button>
+                    </div>
+                    <form class="grup-inline-editor" id="form-deskripsi-grup" hidden>
+                        <label class="sr-only" for="edit-deskripsi-grup">Deskripsi grup</label>
+                        <textarea class="grup-input" id="edit-deskripsi-grup" maxlength="512" rows="3"></textarea>
+                        <div class="grup-form-aksi">
+                            <button class="grup-tombol-sekunder" type="button" data-batal-edit-grup>Batal</button
+                            ><button class="grup-tombol-utama" id="simpan-deskripsi-grup" type="submit">
+                                Simpan
+                            </button>
+                        </div>
+                    </form>
+                    <p class="grup-petunjuk" id="pembuat-info-grup"></p>
+                </section>
+                <section class="grup-info-section">
+                    <button
+                        class="grup-info-row"
+                        id="btn-buka-berkas-grup"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="detail-berkas-grup"
+                    >
+                        <svg class="ikon" aria-hidden="true"><use href="#i-media-grup" /></svg
+                        ><span>Media dan Dokumen</span><small id="jumlah-berkas-grup">0</small
+                        ><svg class="ikon" aria-hidden="true"><use href="#i-next" /></svg>
+                    </button>
+                    <div class="grup-media-preview" id="pratinjau-media-grup" hidden></div>
+                    <div id="detail-berkas-grup" hidden>
+                        <div class="detail-media-tabs">
+                            <button
+                                type="button"
+                                class="grup-tombol-sekunder"
+                                id="tab-media-grup"
+                                aria-pressed="true"
+                            >
+                                Media
+                            </button>
+                            <button
+                                type="button"
+                                class="grup-tombol-sekunder"
+                                id="tab-dokumen-grup"
+                                aria-pressed="false"
+                            >
+                                Dokumen
+                            </button>
+                        </div>
+                        <div id="berkas-info-grup"></div>
+                    </div>
+                </section>
+                <section class="grup-info-section" id="bagian-anggota-grup">
+                    <h3 id="judul-anggota-info">Anggota</h3>
+                    <label class="sr-only" for="cari-anggota-info">Cari anggota grup</label>
+                    <input
+                        class="grup-input grup-member-search"
+                        id="cari-anggota-info"
+                        type="search"
+                        placeholder="Cari anggota..."
+                    />
+                    <div id="daftar-anggota-info"></div>
+                </section>
+                <div class="grup-info-section grup-info-exit">
+                    <button class="grup-info-row grup-danger" id="btn-keluar-grup" type="button">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-out" /></svg><span>Keluar grup</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
     </div>
+    <template id="template-awal-grup">
+        <section class="grup-intro" aria-label="Informasi awal grup">
+            <div class="grup-intro-avatar"></div>
+            <h3 class="grup-intro-title"></h3>
+            <p class="grup-intro-members"></p>
+            <p class="grup-intro-created"></p>
+            <div class="grup-intro-actions">
+                <button type="button" data-aksi="tambah">
+                    <svg class="ikon" aria-hidden="true"><use href="#i-add-grup" /></svg>
+                    <span>Tambah anggota</span>
+                </button>
+                <button type="button" data-aksi="undang">
+                    <svg class="ikon" aria-hidden="true"><use href="#i-link-grup" /></svg>
+                    <span>Undang melalui tautan</span>
+                </button>
+            </div>
+        </section>
+    </template>
+    <dialog class="dashboard-detail-panel" id="dialog-info-kontak" aria-labelledby="judul-info-kontak">
+        <header class="detail-panel-header">
+            <h2 id="judul-info-kontak">Info Kontak</h2>
+            <button class="detail-close" type="button" data-tutup-dialog aria-label="Tutup informasi kontak">
+                <svg class="ikon" aria-hidden="true"><use href="#i-close" /></svg>
+            </button>
+        </header>
+        <div class="detail-panel-content">
+            <div class="detail-identity">
+                <div class="detail-avatar" id="foto-info-kontak"></div>
+                <h3 id="nama-info-kontak"></h3>
+            </div>
+            <section class="detail-section">
+                <h3>Nomor telepon</h3>
+                <p id="nomor-info-kontak"></p>
+            </section>
+            <section class="detail-section">
+                <h3>Tentang</h3>
+                <p class="detail-description" id="bio-info-kontak"></p>
+            </section>
+        </div>
+    </dialog>
+    <dialog class="grup-dialog" id="dialog-undangan-grup" aria-labelledby="judul-undangan-grup">
+        <div class="detail-panel-content">
+            <h2 id="judul-undangan-grup">Undangan grup</h2>
+            <p>Tautan undangan belum tersedia.</p>
+            <div class="grup-form-aksi">
+                <button class="grup-tombol-utama" type="button" data-tutup-dialog>Tutup</button>
+            </div>
+        </div>
+    </dialog>
+    <div class="grup-context-menu" id="menu-aksi-grup" role="menu" aria-label="Tindakan grup" hidden></div>
+    <dialog class="grup-dialog" id="dialog-konfirmasi-grup" aria-labelledby="judul-konfirmasi-grup">
+        <form method="dialog" class="detail-panel-content">
+            <h2 id="judul-konfirmasi-grup">Konfirmasi</h2>
+            <p id="isi-konfirmasi-grup"></p>
+            <div class="grup-form-aksi">
+                <button class="grup-tombol-sekunder" value="batal" autofocus>Batal</button
+                ><button class="grup-tombol-utama" id="btn-konfirmasi-grup" value="lanjut">Lanjutkan</button>
+            </div>
+        </form>
+    </dialog>
+
     <script src="../../assets/js/storage.js"></script>
     <script src="../../assets/js/negara-data.js"></script>
     <script src="kontak-data.js"></script>
     <script src="dashboard.js"></script>
-    <script src="kontak.js"></script>
 </body>
 
 </html>

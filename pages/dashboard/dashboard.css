@@ -1,6 +1,306 @@
-/* Dashboard Ngumpul - satu tema TERANG tetap (tidak ikut mode gelap/terang perangkat).
-   Warna disamakan dengan halaman registrasi/login (cyan). */
+.contact-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 520px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background: var(--bg-putih);
+    border-right: 1px solid var(--border-warna);
+    border-left: 1px solid var(--border-warna)
+}
 
+.contact-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 65px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-warna)
+}
+
+.contact-header h1 {
+    flex: 1;
+    margin: 0;
+    font-size: 1.35rem
+}
+
+.contact-back {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border-radius: 50%;
+    color: var(--teks-gelap);
+    text-decoration: none
+}
+
+.contact-back:hover {
+    background: var(--bg-abu-input)
+}
+
+.contact-back-icon {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round
+}
+
+.contact-add-button,
+.contact-form button,
+.contact-chat-button {
+    border: 0;
+    border-radius: 8px;
+    background: var(--warna-utama);
+    color: #fff;
+    padding: 10px 14px;
+    font-weight: 600;
+    cursor: pointer
+}
+
+.contact-add-button:hover,
+.contact-form button:hover,
+.contact-chat-button:hover {
+    background: var(--warna-utama-hover)
+}
+
+.contact-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    padding: 12px 16px;
+    overflow-y: auto
+}
+
+.contact-search {
+    width: 100%;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    font-size: .9rem
+}
+
+.contact-search:focus,
+.contact-form input:focus {
+    outline: 2px solid var(--warna-utama)
+}
+
+.contact-form[hidden] {
+    display: none
+}
+
+.contact-form {
+    margin: 12px 0;
+    padding: 14px;
+    border: 1px solid var(--border-warna);
+    border-radius: 10px;
+    background: var(--bg-abu-terang)
+}
+
+.contact-form label {
+    display: block;
+    margin: 10px 0 8px;
+    font-size: .88rem;
+    font-weight: 600
+}
+
+.contact-form label:first-child {
+    margin-top: 0
+}
+
+.contact-form input {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    font-size: .9rem
+}
+
+.contact-form select {
+    flex: none;
+    max-width: 175px;
+    padding: 10px 8px;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: .85rem
+}
+
+.contact-form-row {
+    display: flex;
+    gap: 8px
+}
+
+.contact-form-row input {
+    flex: 1
+}
+
+.contact-form-row button {
+    flex: none
+}
+
+.contact-hint {
+    display: block;
+    margin-top: 8px;
+    color: var(--teks-redup);
+    font-size: .8rem
+}
+
+.contact-status {
+    min-height: 1.2em;
+    margin: 8px 0 0;
+    color: var(--teks-redup);
+    font-size: .84rem
+}
+
+.contact-status[data-error="true"] {
+    color: var(--merah)
+}
+
+.contact-list {
+    flex: 1
+}
+
+.contact-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border-warna)
+}
+
+.contact-avatar {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    margin-right: 12px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700
+}
+
+.contact-details {
+    flex: 1;
+    min-width: 0
+}
+
+.contact-name,
+.contact-phone {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.contact-name {
+    font-weight: 600
+}
+
+.contact-phone {
+    margin-top: 3px;
+    color: var(--teks-redup);
+    font-size: .84rem
+}
+
+.contact-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px 0 0 56px
+}
+
+.contact-chat-button,
+.contact-call-button,
+.contact-remove-button {
+    padding: 7px 9px;
+    border-radius: 7px;
+    font-size: .82rem;
+    cursor: pointer
+}
+
+.contact-call-button {
+    border: 1px solid var(--border-warna);
+    background: var(--bg-putih);
+    color: var(--teks-gelap)
+}
+
+.contact-call-button:hover {
+    background: var(--bg-abu-terang)
+}
+
+.contact-call-button:disabled {
+    color: var(--teks-redup);
+    cursor: not-allowed;
+    opacity: .8
+}
+
+.contact-remove-button {
+    margin-left: auto;
+    border: 0;
+    background: transparent;
+    color: var(--merah)
+}
+
+.contact-remove-button:hover {
+    background: var(--bg-hapus-hover)
+}
+
+.contact-empty {
+    margin: 28px 8px;
+    color: var(--teks-redup);
+    font-size: .9rem;
+    text-align: center
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+@media (max-width: 480px) {
+    .contact-header {
+        gap: 8px;
+        padding: 10px
+    }
+
+    .contact-header h1 {
+        font-size: 1.2rem
+    }
+
+    .contact-add-button {
+        padding: 9px 10px;
+        font-size: .85rem
+    }
+}
 * {
     box-sizing: border-box
 }
@@ -346,7 +646,9 @@ input {
 }
 
 .card-top small {
-    flex: none
+    flex: none;
+    color: var(--teks-redup);
+    font-size: .74rem
 }
 
 .card-preview {
@@ -390,6 +692,8 @@ input {
     width: 100%;
     height: 100%;
     background: var(--bg-chat);
+    min-width: 0;
+    min-height: 0;
 }
 
 .active-chat-header {
@@ -433,6 +737,9 @@ input {
     display: flex;
     flex-direction: column;
     box-shadow: var(--bayangan-card);
+    min-width: 0;
+    flex-shrink: 0;
+    overflow-wrap: anywhere;
 }
 
 .chat-bubble.kirim {
@@ -491,6 +798,7 @@ input {
 }
 
 .chat-input-field {
+    font-family: inherit;
     flex: 1;
     min-width: 0;
     background: var(--bg-abu-input);
@@ -652,7 +960,6 @@ input {
         display: flex
     }
 }
-
 
 /* ==========================================
    PENGATURAN TEMA
@@ -1020,4 +1327,1525 @@ input {
     width: 18px;
     height: 18px;
     color: var(--warna-utama);
+}
+
+/* ---------- fitur membuat grup ---------- */
+.grup-menu-baru {
+    width: 100%;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer
+}
+
+#tab-grup {
+    cursor: pointer
+}
+
+.grup-panel {
+    background: var(--bg-putih);
+    color: var(--teks-gelap)
+}
+
+.grup-content {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0;
+    flex: 1
+}
+
+.grup-tombol-utama,
+.grup-tombol-sekunder {
+    padding: 9px 12px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font: inherit;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer
+}
+
+.grup-tombol-utama {
+    background: var(--warna-utama);
+    color: var(--bg-putih)
+}
+
+.grup-tombol-utama:hover {
+    background: var(--warna-utama-hover)
+}
+
+.grup-tombol-utama:disabled {
+    opacity: .55;
+    cursor: not-allowed
+}
+
+.grup-tombol-sekunder {
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    border-color: var(--border-warna)
+}
+
+.grup-tombol-sekunder:hover {
+    background: var(--bg-abu-input)
+}
+
+.grup-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: .9rem;
+    font-weight: 600
+}
+
+.grup-input {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: .88rem
+}
+
+.grup-petunjuk {
+    margin: 8px 0;
+    color: var(--teks-redup);
+    font-size: .8rem;
+    line-height: 1.5
+}
+
+.grup-form-aksi {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px
+}
+
+.grup-status {
+    margin: 10px 0;
+    color: var(--warna-utama);
+    font-size: .85rem;
+    overflow-wrap: anywhere
+}
+
+.grup-status:empty {
+    display: none
+}
+
+.grup-status[data-error="true"] {
+    color: var(--merah)
+}
+
+.grup-kosong {
+    margin: 18px 0;
+    color: var(--teks-redup);
+    font-size: .88rem;
+    line-height: 1.5
+}
+
+.grup-panel :is(button, input, summary):focus-visible,
+.grup-menu-baru:focus-visible,
+.grup-ruang-chat button:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+/* ---------- ruang percakapan grup ---------- */
+.grup-ruang-chat {
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg-chat);
+    color: var(--teks-gelap)
+}
+
+.grup-ruang-chat[hidden] {
+    display: none
+}
+.grup-content > .grup-status {
+    margin: 8px 16px;
+}
+#input-cari-grup {
+    width: calc(100% - 32px);
+    margin: 12px 16px;
+    border: 0;
+    background: var(--bg-abu-input);
+}
+.grup-baris {
+    border-radius: 0;
+    margin: 0;
+}
+.grup-baris[aria-pressed="true"] {
+    background: var(--bg-abu-input);
+}
+.grup-baris .circle-avatar {
+    background: var(--warna-utama);
+    color: var(--bg-putih);
+}
+.grup-list > .grup-kosong {
+    margin: 24px 16px;
+}
+.chat-contact-trigger,
+.grup-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 4px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+}
+.chat-contact-trigger {
+    flex: 1;
+}
+.private-chat-back {
+    display: none;
+    flex: none;
+    padding: 8px;
+}
+.chat-contact-trigger:hover,
+.grup-header-info:hover {
+    background: var(--bg-abu-input);
+}
+.grup-header-info {
+    flex: 1;
+}
+.grup-header-info .circle-avatar {
+    margin: 0;
+    background: var(--warna-utama);
+    color: var(--bg-putih);
+}
+.grup-chat-identitas {
+    min-width: 0;
+}
+.grup-chat-identitas h2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.grup-pesan-baris.sendiri {
+    align-self: flex-end;
+    justify-content: flex-end;
+}
+.grup-avatar-pengirim {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--warna-utama);
+    color: var(--bg-putih);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    overflow: hidden;
+}
+.grup-avatar-pengirim img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.grup-avatar-pengirim.avatar-kosong {
+    visibility: hidden;
+}
+.grup-pesan-baris.lanjutan {
+    margin-top: -6px;
+}
+.grup-danger {
+    color: var(--merah) !important;
+}
+.dashboard-detail-panel,
+.grup-dialog {
+    color: var(--teks-gelap);
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    padding: 0;
+    box-shadow: var(--bayangan-dropdown);
+}
+.dashboard-detail-panel {
+    position: fixed;
+    inset: 0 0 0 auto;
+    margin: 0;
+    width: min(420px, 100%);
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+}
+.dashboard-detail-panel[open] {
+    display: flex;
+    flex-direction: column;
+    animation: detail-masuk 0.16s ease-out;
+}
+.dashboard-detail-panel::backdrop,
+.grup-dialog::backdrop {
+    background: #00000055;
+}
+.grup-dialog {
+    border-radius: 14px;
+    width: min(420px, calc(100% - 24px));
+    max-height: 90vh;
+}
+.grup-dialog[open] {
+    animation: detail-masuk 0.14s ease-out;
+}
+.detail-panel-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-warna);
+}
+.detail-panel-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+.detail-close {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--teks-gelap);
+    font-size: 1.7rem;
+    cursor: pointer;
+}
+.detail-close:hover {
+    background: var(--bg-abu-input);
+}
+.detail-panel-content {
+    flex: 1;
+    min-height: 0;
+    padding: 20px;
+    overflow-y: auto;
+}
+.detail-panel-content > h2 {
+    font-size: 1.15rem;
+    margin: 0 0 12px;
+}
+.detail-panel-content > p {
+    overflow-wrap: anywhere;
+}
+.detail-identity {
+    text-align: center;
+    padding: 8px 0 16px;
+}
+.detail-identity h3 {
+    margin: 14px 0 6px;
+    font-size: 1.3rem;
+    overflow-wrap: anywhere;
+}
+.detail-identity p {
+    color: var(--teks-redup);
+    font-size: 0.85rem;
+}
+.detail-avatar {
+    display: grid;
+    place-items: center;
+    width: 88px;
+    height: 88px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: var(--warna-utama);
+    color: var(--bg-putih);
+    font-size: 2rem;
+    font-weight: 700;
+    overflow: hidden;
+}
+.detail-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.detail-description {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.6;
+}
+.detail-section {
+    padding: 18px 0;
+    border-top: 1px solid var(--border-warna);
+    margin-top: 18px;
+}
+.detail-section h3 {
+    font-size: 0.95rem;
+    margin: 0 0 12px;
+}
+.detail-media-tabs {
+    display: flex;
+    gap: 8px;
+}
+.detail-media-tabs [aria-pressed="true"] {
+    color: var(--warna-utama);
+    border-color: var(--warna-utama);
+}
+.grup-member {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 1px solid var(--border-warna);
+    padding: 8px 0;
+}
+.grup-member-profile {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+    align-items: center;
+    min-width: 0;
+    padding: 4px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+}
+.grup-member-profile .circle-avatar {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    margin: 0;
+    background: var(--warna-utama);
+    color: var(--bg-putih);
+    font-size: 0.9rem;
+}
+.grup-member-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 0.88rem;
+}
+.grup-member-name strong {
+    display: block;
+}
+.grup-admin-badge {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--warna-tipis);
+    color: var(--warna-utama);
+    font-size: 0.7rem;
+}
+.grup-member-actions {
+    position: relative;
+    flex: none;
+}
+.grup-member-actions > summary {
+    display: grid;
+    place-items: center;
+    list-style: none;
+    width: 30px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 1.3rem;
+}
+.grup-member-actions > summary::-webkit-details-marker {
+    display: none;
+}
+.grup-member-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 5;
+    width: 175px;
+    padding: 6px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 10px;
+    box-shadow: var(--bayangan-dropdown);
+}
+.grup-member-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--teks-gelap);
+    text-align: left;
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+.grup-member-menu button:hover {
+    background: var(--bg-abu-input);
+}
+#preview-foto-grup {
+    margin-top: 12px;
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+}
+#status-info-grup,
+#status-grup,
+#status-tambah-anggota,
+#status-undangan-grup {
+    overflow-wrap: anywhere;
+}
+.grup-berkas {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 0;
+    color: var(--warna-utama);
+    overflow-wrap: anywhere;
+}
+.grup-berkas img {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+:is(.dashboard-detail-panel, .grup-dialog) :is(button, input, textarea, summary, a):focus-visible,
+.chat-contact-trigger:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px;
+}
+.grup-panel [hidden],
+.dashboard-detail-panel [hidden],
+.grup-dialog [hidden] {
+    display: none !important;
+}
+@keyframes detail-masuk {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-detail-panel[open],
+    .grup-dialog[open] {
+        animation: none;
+    }
+}
+@media (max-width: 700px) {
+    .dashboard-detail-panel {
+        width: 100%;
+        border: 0;
+    }
+    .private-chat-back {
+        display: grid;
+        place-items: center;
+    }
+    .detail-panel-content {
+        padding: 16px;
+    }
+}
+
+/* Info Grup: kolom dashboard di desktop, panel penuh pada layar kecil. */
+.grup-info-panel {
+    display: flex;
+    flex: 0 0 clamp(340px, 31vw, 440px);
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    border-left: 1px solid var(--border-warna);
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    position: relative;
+    z-index: 110;
+    animation: detail-masuk 0.16s ease-out;
+}
+.grup-info-panel[hidden],
+.grup-info-panel [hidden] {
+    display: none !important;
+}
+.grup-info-header {
+    justify-content: flex-start;
+    min-height: 65px;
+    padding: 10px 16px;
+    gap: 14px;
+}
+.grup-info-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+.grup-info-header .detail-close {
+    display: grid;
+    place-items: center;
+    flex: none;
+}
+.grup-info-back {
+    display: none;
+}
+.grup-info-content {
+    padding: 0 24px 16px;
+    scrollbar-gutter: stable;
+}
+.grup-info-identity {
+    padding: 30px 0 24px;
+    text-align: center;
+}
+.grup-photo-trigger {
+    display: block;
+    position: relative;
+    margin: 0 auto 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+}
+.grup-photo-trigger .detail-avatar {
+    width: 140px;
+    height: 140px;
+    font-size: 3rem;
+}
+.grup-photo-trigger:disabled {
+    cursor: default;
+    opacity: 1;
+}
+.grup-photo-camera {
+    position: absolute;
+    right: 2px;
+    bottom: 4px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--teks-gelap);
+    background: var(--bg-abu-input);
+    border: 2px solid var(--bg-putih);
+}
+.grup-photo-trigger:disabled .grup-photo-camera {
+    display: none;
+}
+.grup-photo-trigger:hover:not(:disabled) .grup-photo-camera {
+    color: var(--warna-utama);
+}
+.grup-info-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.grup-info-name-row h3 {
+    min-width: 0;
+    margin: 0;
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+.grup-edit-icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    padding: 6px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--teks-redup);
+    cursor: pointer;
+}
+.grup-edit-icon:hover {
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+}
+.grup-edit-icon .ikon {
+    width: 20px;
+    height: 20px;
+}
+.grup-info-subtitle {
+    margin: 10px 0 0;
+    font-size: 0.9rem;
+    color: var(--teks-redup);
+}
+.grup-info-subtitle button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--warna-utama);
+    font: inherit;
+    cursor: pointer;
+}
+.grup-info-subtitle button:hover {
+    text-decoration: underline;
+}
+.grup-quick-actions {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 22px;
+}
+.grup-quick-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    max-width: 120px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+.grup-quick-action > span {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--bg-abu-input);
+}
+.grup-quick-action:hover > span {
+    color: var(--warna-utama);
+}
+.grup-info-section {
+    padding: 22px 0;
+    border-top: 1px solid var(--border-warna);
+}
+.grup-info-section h3 {
+    margin: 0 0 14px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--teks-redup);
+}
+.grup-description-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+.grup-description-row .detail-description {
+    flex: 1;
+    min-width: 0;
+    margin: 5px 0 0;
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+.grup-info-description .grup-petunjuk {
+    margin: 14px 0 0;
+    font-size: 0.75rem;
+}
+.grup-inline-editor {
+    margin: 14px 0;
+    text-align: left;
+}
+.grup-inline-editor .grup-input {
+    font: inherit;
+    font-size: 0.9rem;
+}
+.grup-photo-editor {
+    padding-bottom: 12px;
+}
+.grup-info-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 10px 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: 0.92rem;
+    text-align: left;
+    cursor: pointer;
+}
+.grup-info-row > span {
+    flex: 1;
+    min-width: 0;
+}
+.grup-info-row > .ikon {
+    color: var(--teks-redup);
+}
+.grup-info-row > small {
+    color: var(--teks-redup);
+    font-size: 0.8rem;
+}
+.grup-info-row:hover {
+    background: var(--bg-abu-terang);
+}
+.grup-info-row[aria-expanded='true'] > .ikon:last-child {
+    transform: rotate(90deg);
+}
+.grup-info-row.grup-danger > .ikon {
+    color: inherit;
+}
+.grup-media-preview {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 14px;
+}
+.grup-media-preview a {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 7px;
+    background: var(--bg-abu-input);
+}
+.grup-media-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+#detail-berkas-grup {
+    margin-top: 14px;
+}
+.grup-member-search {
+    margin-bottom: 10px;
+    border: 0;
+    background: var(--bg-abu-input);
+}
+.grup-info-panel .grup-member {
+    padding: 9px 0;
+    border: 0;
+}
+.grup-info-panel .grup-member-profile {
+    padding: 3px 0;
+}
+.grup-info-panel .grup-member-profile .circle-avatar {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+}
+.grup-info-panel .grup-admin-badge {
+    flex: none;
+    margin: 0 2px 0 4px;
+    padding: 3px 5px;
+    border: 1px solid var(--border-warna);
+    background: transparent;
+    color: var(--teks-redup);
+    font-size: 0.64rem;
+}
+.grup-info-panel .grup-member-name {
+    font-size: 0.88rem;
+}
+.grup-info-panel .grup-member-name strong {
+    font-weight: 500;
+}
+.grup-info-exit {
+    padding-bottom: 8px;
+}
+.grup-info-content > .grup-status {
+    margin: 0 0 16px;
+    font-size: 0.8rem;
+}
+.grup-info-panel :is(button, input, textarea, summary, a):focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 3px;
+}
+.grup-chat-identitas {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+.grup-baris .card-preview {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.grup-baris .card-top {
+    min-width: 0;
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+    .dashboard-container.grup-info-open .sisi-kiri {
+        width: 27%;
+        min-width: 240px;
+        flex-shrink: 0;
+    }
+    .grup-info-panel {
+        flex-basis: 320px;
+    }
+    .grup-info-content {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+}
+@media (max-width: 900px) {
+    .grup-info-panel {
+        position: fixed;
+        inset: 0;
+        z-index: 350;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        border: 0;
+    }
+    .grup-info-cross {
+        display: none;
+    }
+    .grup-info-back {
+        display: grid;
+        place-items: center;
+    }
+    .grup-info-content {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .grup-info-panel {
+        animation: none;
+    }
+}
+.grup-chat-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 12px;
+    min-height: 65px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-warna);
+    background: var(--bg-putih)
+}
+
+.grup-chat-kembali {
+    display: grid;
+    place-items: center;
+    flex: none;
+    padding: 8px
+}
+
+.grup-chat-judul {
+    min-width: 0
+}
+
+.grup-chat-judul h2 {
+    margin: 0;
+    font-size: 1rem;
+    overflow-wrap: anywhere
+}
+
+.grup-chat-judul p {
+    margin: 4px 0 0;
+    overflow: hidden;
+    color: var(--teks-redup);
+    font-size: .78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.grup-pesan-pengirim {
+    color: var(--warna-utama);
+    font-size: .78rem
+}
+
+.grup-chat-status {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 8px 16px;
+    background: var(--bg-putih);
+    color: var(--merah);
+    font-size: .82rem;
+    overflow-wrap: anywhere
+}
+
+.grup-chat-status:empty {
+    display: none
+}
+
+@media (max-width: 700px) {
+    .sisi-kiri.grup-chat-open {
+        display: none
+    }
+
+    .sisi-kanan.grup-chat-open {
+        display: flex
+    }
+
+}
+.messages-container,
+.grup-chat-pesan {
+    min-width: 0;
+    min-height: 0;
+    overflow-x: hidden;
+}
+.chat-bubble > span:not(.message-footer),
+.grup-pesan-isi {
+    min-width: 0;
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.message-footer {
+    min-width: 0;
+    flex: none;
+    justify-content: flex-end;
+    gap: 7px;
+}
+.message-footer .timestamp,
+.message-status {
+    flex: none;
+    white-space: nowrap;
+}
+.active-header-info {
+    min-width: 0;
+}
+.active-header-info h3 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.grup-avatar-anggota {
+    background: hsl(var(--anggota-hue) 55% 91%) !important;
+    color: hsl(var(--anggota-hue) 62% 30%) !important;
+}
+.grup-pesan-pengirim[data-warna] {
+    color: hsl(var(--anggota-hue) 65% 31%);
+}
+[data-theme="dark"] .grup-avatar-anggota {
+    background: hsl(var(--anggota-hue) 35% 23%) !important;
+    color: hsl(var(--anggota-hue) 78% 77%) !important;
+}
+[data-theme="dark"] .grup-pesan-pengirim[data-warna] {
+    color: hsl(var(--anggota-hue) 78% 76%);
+}
+.grup-info-panel .grup-admin-badge {
+    padding: 3px 7px;
+    border: 1px solid #b6dec6;
+    border-radius: 5px;
+    background: #dcf5e5;
+    color: #176a40;
+    font-size: 0.66rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+[data-theme="dark"] .grup-info-panel .grup-admin-badge {
+    background: #163b2a;
+    color: #91dfb1;
+    border-color: #28513b;
+}
+.grup-info-section {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.grup-info-identity {
+    padding-top: 28px;
+    padding-bottom: 22px;
+}
+.grup-info-name-row h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+.grup-info-panel .grup-member {
+    padding: 8px 0;
+}
+.grup-info-panel .grup-member-name {
+    font-size: 0.9rem;
+}
+.grup-info-section h3 {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+.grup-activity {
+    align-self: center;
+    max-width: 92%;
+    margin: 3px 0;
+    padding: 6px 11px;
+    border-radius: 7px;
+    background: var(--bg-abu-input);
+    color: var(--teks-redup);
+    text-align: center;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    flex: none;
+}
+.grup-activity time {
+    margin-left: 8px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    opacity: 0.85;
+}
+.grup-left-status {
+    flex: none;
+    margin: 0;
+    padding: 16px;
+    border-top: 1px solid var(--border-warna);
+    background: var(--bg-putih);
+    color: var(--teks-redup);
+    font-size: 0.85rem;
+    text-align: center;
+}
+.grup-ruang-chat [hidden] {
+    display: none !important;
+}
+.grup-baris {
+    padding: 0;
+    gap: 0;
+    cursor: default;
+}
+.grup-baris.aktif {
+    background: var(--bg-abu-input);
+}
+.grup-baris-buka {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    padding: 12px 20px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+}
+.grup-icon-button,
+.grup-row-menu {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 38px;
+    height: 38px;
+    padding: 7px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--teks-redup);
+    font: inherit;
+    cursor: pointer;
+}
+.grup-icon-button:hover,
+.grup-row-menu:hover {
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    padding: 0;
+    line-height: 1;
+
+}
+.grup-row-menu {
+    position: absolute;
+    right: 14px;
+    bottom: 7px;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 5px;
+    font-size: 1.35rem;
+}
+.grup-context-menu {
+    position: fixed;
+    z-index: 800;
+    width: 230px;
+    max-width: calc(100vw - 16px);
+    padding: 6px;
+    border: 1px solid var(--border-warna);
+    border-radius: 12px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    box-shadow: var(--bayangan-dropdown);
+}
+.grup-context-menu[hidden] {
+    display: none;
+}
+.grup-context-menu button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+.grup-context-menu button:hover {
+    background: var(--bg-abu-input);
+}
+.grup-context-menu .ikon {
+    width: 19px;
+    height: 19px;
+}
+.grup-tombol-utama.grup-tombol-bahaya {
+    background: var(--merah);
+    color: #fff;
+}
+.grup-wizard {
+    position: absolute;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+}
+.grup-wizard[hidden],
+.grup-wizard [hidden] {
+    display: none !important;
+}
+.grup-wizard-header {
+    display: flex;
+    align-items: center;
+    flex: none;
+    min-height: 65px;
+    gap: 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border-warna);
+}
+.grup-wizard-header h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+.grup-wizard-stage {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+}
+.grup-wizard-search {
+    flex: none;
+    width: calc(100% - 40px);
+    min-width: 0;
+    margin: 16px 20px 12px;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: 0.9rem;
+}
+.grup-picker-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 16px;
+}
+.grup-picker-list > .grup-kosong {
+    margin: 18px 24px;
+}
+.grup-picker-heading {
+    padding: 14px 24px 7px;
+    margin: 0;
+    color: var(--teks-redup);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.grup-picker-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 12px 24px;
+    cursor: pointer;
+}
+.grup-picker-option:hover,
+.grup-picker-option:has(input:checked) {
+    background: var(--bg-abu-terang);
+}
+.grup-picker-option .circle-avatar {
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    margin: 0;
+    background: var(--warna-tipis);
+    color: var(--warna-utama);
+}
+.grup-picker-label {
+    flex: 1;
+    min-width: 0;
+}
+.grup-picker-label strong,
+.grup-picker-label small {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.grup-picker-label strong {
+    font-size: 0.98rem;
+    font-weight: 500;
+}
+.grup-picker-label small {
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: var(--teks-redup);
+}
+.grup-picker-option input {
+    appearance: none;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    border: 1px solid var(--border-warna);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+}
+.grup-picker-option input:checked {
+    border-color: var(--warna-utama);
+    background: var(--warna-utama);
+}
+.grup-picker-option input:checked::after {
+    content: "✓";
+    color: var(--teks-kontras);
+    font-size: 14px;
+    font-weight: 700;
+}
+.grup-selected {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    max-height: 140px;
+    overflow-y: auto;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-warna);
+}
+.grup-selected-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 4px 6px 4px 4px;
+    border-radius: 20px;
+    background: var(--bg-abu-input);
+    font-size: 0.85rem;
+}
+.grup-selected-chip > span:not(.circle-avatar) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.grup-selected-chip .circle-avatar {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    margin: 0;
+    font-size: 0.8rem;
+    background: var(--warna-tipis);
+    color: var(--warna-utama);
+}
+.grup-selected-chip button {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--teks-redup);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.grup-wizard-footer {
+    flex: none;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-warna);
+    background: var(--bg-putih);
+}
+.grup-wizard-footer .grup-status:empty {
+    display: none;
+}
+.grup-wizard-next {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 24px;
+    background: var(--warna-utama);
+    color: var(--teks-kontras);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+.grup-wizard-next:disabled,
+.grup-create-submit:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+.grup-create-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 38px 28px;
+}
+.grup-create-photo {
+    display: block;
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 10px auto 48px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--bg-abu-input);
+    color: var(--teks-redup);
+    cursor: pointer;
+}
+.grup-create-photo > span:first-child {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 50%;
+}
+.grup-create-photo > span:first-child > .ikon {
+    width: 44px;
+    height: 44px;
+}
+.grup-create-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.grup-create-camera {
+    position: absolute;
+    right: 0;
+    bottom: 4px;
+    display: grid;
+    place-items: center;
+    width: 35px;
+    height: 35px;
+    border: 2px solid var(--bg-putih);
+    border-radius: 50%;
+    background: var(--warna-utama);
+    color: var(--teks-kontras);
+}
+.grup-name-field {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 2px;
+    border: 0;
+    border-bottom: 2px solid var(--warna-utama);
+    border-radius: 0;
+    outline-offset: 4px;
+    background: transparent;
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: 1.05rem;
+}
+.grup-create-footer {
+    text-align: center;
+    border: 0;
+    padding-bottom: 28px;
+}
+.grup-create-submit {
+    display: inline-grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--warna-utama);
+    color: var(--teks-kontras);
+    cursor: pointer;
+}
+.grup-create-submit .ikon {
+    width: 28px;
+    height: 28px;
+}
+.grup-wizard :is(button, input):focus-visible,
+.grup-context-menu button:focus-visible,
+.grup-baris button:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px;
+}
+@media (min-width: 901px) {
+    .dashboard-container.grup-wizard-open .sisi-kiri {
+        flex: 0 0 min(46vw, 600px);
+        width: min(46vw, 600px);
+        min-width: 360px;
+        max-width: 600px;
+    }
+}
+@media (max-width: 900px) {
+    .dashboard-container.grup-wizard-open .sisi-kiri {
+        display: flex;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+    }
+    .dashboard-container.grup-wizard-open .sisi-kanan {
+        display: none;
+    }
+    .grup-wizard {
+        position: fixed;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 400;
+    }
+    .messages-container {
+        padding: 16px;
+    }
+    .chat-bubble {
+        max-width: 88%;
+    }
+}
+
+.grup-name-field:focus-visible {
+    outline: none;
+    box-shadow: 0 1px 0 var(--warna-utama);
+}
+@media (min-width: 901px) {
+    .grup-row-menu {
+        opacity: 0;
+    }
+    .grup-baris:hover .grup-row-menu,
+    .grup-baris:focus-within .grup-row-menu {
+        opacity: 1;
+    }
+}
+
+.grup-baris { position: relative }
+.grup-baris .card-preview { padding-right: 32px }
+.grup-pesan-baris {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    flex-shrink: 0;
+}
+.grup-pesan-baris > .chat-bubble.terima {
+    flex-shrink: 1;
+}
+.grup-chat-form {
+    height: auto;
+    min-height: 65px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.grup-chat-form .chat-input-field {
+    max-height: 120px;
+    resize: none;
 }
