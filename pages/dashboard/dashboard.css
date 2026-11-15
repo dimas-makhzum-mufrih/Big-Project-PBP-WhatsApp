@@ -403,17 +403,67 @@ input {
     gap: 14px
 }
 
+.chat-block-button,
+.chat-save-contact-button {
+    padding: 7px 12px;
+    border: 1px solid var(--border-warna);
+    border-radius: 7px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    font: inherit;
+    cursor: pointer;
+}
+
+.chat-block-button:disabled { opacity: .55; cursor: not-allowed; }
+
 .active-header-info h3 {
     margin: 0;
     font-size: 1.05rem;
     font-weight: 600
 }
 
+.active-header-info {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.active-header-info:hover h3 { text-decoration: underline; }
+
 .active-header-info p {
     margin: 2px 0 0;
     font-size: .8rem;
-    color: var(--warna-utama)
+    color: var(--teks-redup)
 }
+
+.contact-info-panel {
+    position: absolute;
+    z-index: 250;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(360px, 100%);
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    box-shadow: -8px 0 24px rgba(0,0,0,.16);
+    transform: translateX(105%);
+    visibility: hidden;
+    transition: transform .22s ease, visibility .22s;
+}
+
+.contact-info-panel[aria-hidden="false"] { transform: translateX(0); visibility: visible; }
+.contact-info-header { height: 65px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; border-bottom:1px solid var(--border-warna); }
+.contact-info-header button { border:0; background:transparent; color:inherit; font-size:1.7rem; cursor:pointer; }
+.contact-info-content { padding:36px 24px; text-align:center; }
+.contact-info-banner { height:120px; margin:-36px -24px 24px; background-position:center; background-size:cover; border-radius:0 0 12px 12px; }
+.contact-info-avatar { margin:0 auto 16px; width:88px; height:88px; flex-basis:88px; font-size:2rem; }
+.contact-info-content h2 { margin:0 0 8px; font-size:1.25rem; }
+.contact-info-content p { margin:6px 0; color:var(--teks-redup); }
+.contact-info-actions { display:flex; justify-content:center; gap:10px; margin-top:24px; }
 
 .messages-container {
     flex: 1;

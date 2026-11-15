@@ -170,16 +170,33 @@
             <section class="active-chat-room" id="panel-chat-aktif">
                 <header class="active-chat-header">
                     <div class="circle-avatar" id="avatar-header-kanan" style="margin:0;background:#3984bd">Z</div>
-                    <div class="active-header-info">
+                    <button class="active-header-info" id="btn-info-pengguna" type="button" aria-label="Lihat informasi kontak">
                         <h3 id="nama-header-kanan">Nama Kontak</h3>
-                        <p>online</p>
-                    </div>
+                        <p id="nomor-header-kanan">Nomor kontak</p>
+                    </button>
                 </header>
                 <div class="messages-container" id="box-list-pesan"></div>
                 <footer class="active-chat-footer"><input class="chat-input-field" id="input-teks-kirim" type="text"
                         placeholder="Ketik pesan..." autocomplete="off"><button class="send-action-btn"
                         id="btn-kirim-pesan">Kirim</button></footer>
             </section>
+            <aside class="contact-info-panel" id="panel-info-pengguna" aria-label="Informasi kontak" aria-hidden="true">
+                <header class="contact-info-header">
+                    <strong>Info kontak</strong>
+                    <button id="btn-tutup-info-pengguna" type="button" aria-label="Tutup informasi">&times;</button>
+                </header>
+                <div class="contact-info-content">
+                    <div class="contact-info-banner" id="banner-info-pengguna" hidden></div>
+                    <div class="contact-info-avatar circle-avatar" id="avatar-info-pengguna"></div>
+                    <h2 id="nama-info-pengguna"></h2>
+                    <p id="nomor-info-pengguna"></p>
+                    <p id="username-info-pengguna"></p>
+                    <div class="contact-info-actions">
+                        <button class="chat-block-button" id="btn-blokir-pengguna" type="button">Blokir</button>
+                        <button class="chat-save-contact-button" id="btn-simpan-kontak-chat" type="button" hidden>Simpan kontak</button>
+                    </div>
+                </div>
+            </aside>
             <div class="settings-slide-panel" id="panel-layer-setelan">
                 <header class="settings-panel-header">
                     <button class="settings-back-btn" id="btn-kembali-ke-chat" aria-label="Kembali"><svg class="ikon">

@@ -7,6 +7,7 @@ if (!userAktif) {
 
 // ===== Fitur Chat =====
 const KEY_CHAT = 'ngumpul_pesan';
+const KEY_BLOKIR = 'ngumpul_blokir_';
 const panelChatKosong = document.getElementById('panel-chat-kosong');
 const panelChatAktif = document.getElementById('panel-chat-aktif');
 const boxListPesan = document.getElementById('box-list-pesan');
@@ -16,13 +17,34 @@ const inputCariChat = document.getElementById('input-cari-chat');
 const chatScrollArea = document.querySelector('.chat-scroll-area');
 const avatarHeaderKanan = document.getElementById('avatar-header-kanan');
 const namaHeaderKanan = document.getElementById('nama-header-kanan');
+const btnBlokirPengguna = document.getElementById('btn-blokir-pengguna');
+const btnSimpanKontakChat = document.getElementById('btn-simpan-kontak-chat');
+const btnInfoPengguna = document.getElementById('btn-info-pengguna');
+const panelInfoPengguna = document.getElementById('panel-info-pengguna');
 let chatAktifId = null;
 
 function buatIdPesan() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+function formatNomorTampil(nomor) {
+    const digits = String(nomor || '').replace(/\D/g, '');
+    if (digits.startsWith('62') && digits.length >= 5) {
+        const lokal = digits.slice(2);
+        const kelompok = lokal.match(/.{1,4}/g) || [];
+        // Kelompok pertama nomor Indonesia biasanya tiga digit; sisanya empat digit.
+        if (kelompok.length > 1 && kelompok[0].length === 4) {
+            kelompok[0] = kelompok[0].slice(0, 3);
+            kelompok[1] = lokal.slice(3, 7);
+            kelompok.splice(2, kelompok.length, ...((lokal.slice(7).match(/.{1,4}/g)) || []));
+        }
+        return '+62 ' + kelompok.join('-');
+    }
+    return String(nomor || '');
+}
+
 function ambilFotoProfilChat(idUser) {
+    if (!namaKontakTersimpan(idUser)) return '';
     try {
         const media = JSON.parse(localStorage.getItem('ngumpul_media_' + idUser)) || {};
         return typeof media.avatar === 'string' && media.avatar.startsWith('data:image/')
@@ -31,6 +53,14 @@ function ambilFotoProfilChat(idUser) {
     } catch (error) {
         return '';
     }
+}
+
+function ambilBannerProfilChat(idUser) {
+    if (!namaKontakTersimpan(idUser)) return '';
+    try {
+        const media = JSON.parse(localStorage.getItem('ngumpul_media_' + idUser)) || {};
+        return typeof media.banner === 'string' && media.banner.startsWith('data:image/') ? media.banner : '';
+    } catch (error) { return ''; }
 }
 
 function tampilkanAvatarChat(container, idUser, nama) {
@@ -65,6 +95,43 @@ function simpanSemuaChat(data) {
         console.warn('Tidak dapat menyimpan chat:', error);
         return false;
     }
+}
+
+function daftarBlokir(idPengguna) {
+    try {
+        const data = JSON.parse(localStorage.getItem(KEY_BLOKIR + idPengguna)) || [];
+        return Array.isArray(data) ? data.map(String) : [];
+    } catch (error) { return []; }
+}
+
+function penggunaDiblokir(idPengguna, idLawan) {
+    return daftarBlokir(idPengguna).includes(String(idLawan));
+}
+
+function ubahBlokir(idLawan, blokir) {
+    if (!userAktif || !idLawan) return;
+    const daftar = daftarBlokir(userAktif.id).filter(id => id !== String(idLawan));
+    if (blokir) daftar.push(String(idLawan));
+    try { localStorage.setItem(KEY_BLOKIR + userAktif.id, JSON.stringify(daftar)); }
+    catch (error) { return; }
+    renderChatList();
+    if (chatAktifId === idLawan) perbaruiKontrolBlokir();
+}
+
+function perbaruiKontrolBlokir() {
+    if (!btnBlokirPengguna || !chatAktifId) return;
+    const diblokir = penggunaDiblokir(userAktif.id, chatAktifId);
+    const memblokir = penggunaDiblokir(chatAktifId, userAktif.id);
+    btnBlokirPengguna.textContent = diblokir ? 'Buka blokir' : 'Blokir';
+    btnBlokirPengguna.disabled = !diblokir && memblokir;
+    btnBlokirPengguna.title = memblokir && !diblokir ? 'Pengguna ini memblokir kamu' : '';
+    if (inputTeksKirim) inputTeksKirim.disabled = diblokir || memblokir;
+    if (btnKirimPesan) btnKirimPesan.disabled = diblokir || memblokir;
+}
+
+function perbaruiKontrolKontak() {
+    if (!btnSimpanKontakChat || !chatAktifId) return;
+    btnSimpanKontakChat.hidden = namaKontakTersimpan(chatAktifId);
 }
 
 function formatJamPesan(isoString) {
@@ -132,12 +199,24 @@ function prosesPesanMasuk() {
 function getProfilChat(idLawan) {
     const kontak = getUserById(idLawan);
     const profil = getProfil(idLawan);
+    const itemKontak = userAktif && NgumpulKontakData && kontak && kontak.hp
+        ? NgumpulKontakData.list(userAktif.id).find(item => samakanHp(item.phone, kontak.hp))
+        : null;
+    const nomor = formatNomorTampil(profil.phone || (kontak && kontak.hp) || '');
     return {
         id: idLawan,
-        nama: (kontak && kontak.nama) || profil.nama || 'Kontak',
-        hp: profil.phone || (kontak && kontak.hp) || '',
+        nama: itemKontak
+            ? (itemKontak.name || (kontak && kontak.nama) || profil.nama || nomor || 'Nomor tidak tersedia')
+            : (nomor || 'Nomor tidak tersedia'),
+        hp: nomor,
         username: profil.username || '@pengguna'
     };
+}
+
+function namaKontakTersimpan(idLawan) {
+    const user = getUserById(idLawan);
+    if (!user || !user.hp || !userAktif || !NgumpulKontakData) return false;
+    return NgumpulKontakData.list(userAktif.id).some(kontak => samakanHp(kontak.phone, user.hp));
 }
 
 function isKontakPengguna(idLawan) {
@@ -155,32 +234,37 @@ function isKontakPengguna(idLawan) {
 function renderChatList() {
     if (!chatScrollArea || !userAktif) return;
 
-    if (chatAktifId && !isKontakPengguna(chatAktifId)) {
-        chatAktifId = null;
-        if (panelChatAktif) panelChatAktif.style.display = 'none';
-        if (panelChatKosong) panelChatKosong.style.display = 'flex';
-    }
-
     const query = (inputCariChat ? inputCariChat.value : '').trim().toLowerCase();
     const daftarKontak = NgumpulKontakData && typeof NgumpulKontakData.search === 'function'
         ? NgumpulKontakData.search(userAktif.id, query)
         : [];
-
-    const hasil = daftarKontak
-        .map(item => {
+    const kandidat = new Map();
+    daftarKontak.forEach(item => {
             const user = getUsers().find(pengguna => samakanHp(pengguna.hp, item.phone));
-            if (!user || user.id === userAktif.id) return null;
+            if (user && user.id !== userAktif.id) kandidat.set(String(user.id), user);
+        });
+    const semua = bacaSemuaChat();
+    getUsers().forEach(pengguna => {
+        if (!pengguna || String(pengguna.id) === String(userAktif.id)) return;
+        const pesan = semua[kunciKonversasi(userAktif.id, pengguna.id)];
+        if (Array.isArray(pesan) && pesan.length) kandidat.set(String(pengguna.id), pengguna);
+    });
+    const hasil = Array.from(kandidat.values())
+        .map(user => {
             const pesan = ambilPesanChat(user.id);
             const terakhir = pesan.length ? pesan[pesan.length - 1] : null;
+            const profil = getProfilChat(user.id);
+            const diblokir = penggunaDiblokir(userAktif.id, user.id);
             return {
                 id: user.id,
-                nama: getProfilChat(user.id).nama,
-                preview: terakhir ? terakhir.text : 'Mulai chat baru',
+                nama: profil.nama,
+                preview: diblokir ? 'Kamu memblokir pengguna ini' : terakhir ? terakhir.text : 'Mulai chat baru',
                 waktu: terakhir ? terakhir.time : null,
-                hp: user.hp
+                hp: user.hp,
+                diblokir
             };
         })
-        .filter(Boolean)
+        .filter(item => item.nama.toLowerCase().includes(query) || String(item.hp || '').includes(query))
         .sort((a, b) => {
             const waktuA = a.waktu ? new Date(a.waktu).getTime() : 0;
             const waktuB = b.waktu ? new Date(b.waktu).getTime() : 0;
@@ -192,9 +276,22 @@ function renderChatList() {
     if (!hasil.length) {
         const kosong = document.createElement('div');
         kosong.className = 'contact-empty';
-        kosong.textContent = query
-            ? 'Tidak ada chat yang cocok.'
-            : 'Belum ada chat. Tambahkan kontak dari tab Kontak untuk mulai ngobrol.';
+        if (query) {
+            kosong.textContent = 'Tidak ada chat yang cocok.';
+        } else {
+            const teks = document.createElement('p');
+            teks.textContent = 'Belum ada chat. Tambahkan kontak untuk mulai ngobrol.';
+            const tombol = document.createElement('button');
+            tombol.type = 'button';
+            tombol.className = 'contact-add-button';
+            tombol.textContent = '+ Tambah kontak';
+            tombol.addEventListener('click', () => {
+                pilihTabDashboard(true);
+                const btnTambah = document.getElementById('btn-tambah-kontak');
+                if (btnTambah) btnTambah.click();
+            });
+            kosong.append(teks, tombol);
+        }
         chatScrollArea.appendChild(kosong);
         return;
     }
@@ -307,14 +404,7 @@ function renderPesanAktif() {
 
 function bukaChat(idLawan) {
     if (!idLawan || !userAktif) return;
-
-    if (!isKontakPengguna(idLawan)) {
-        chatAktifId = null;
-        if (panelChatAktif) panelChatAktif.style.display = 'none';
-        if (panelChatKosong) panelChatKosong.style.display = 'flex';
-        renderChatList();
-        return;
-    }
+    if (!getUserById(idLawan) || String(idLawan) === String(userAktif.id)) return;
 
     chatAktifId = idLawan;
     const target = getProfilChat(idLawan);
@@ -330,6 +420,14 @@ function bukaChat(idLawan) {
     if (namaHeaderKanan) {
         namaHeaderKanan.textContent = target.nama;
     }
+    const nomorHeader = document.getElementById('nomor-header-kanan');
+    if (nomorHeader) {
+        nomorHeader.textContent = target.hp || 'Nomor tidak tersedia';
+        nomorHeader.hidden = !namaKontakTersimpan(idLawan);
+    }
+    perbaruiKontrolBlokir();
+    perbaruiKontrolKontak();
+    if (panelInfoPengguna && panelInfoPengguna.getAttribute('aria-hidden') === 'false') tampilkanInfoPengguna();
 
     tandaiPesanDiterima(idLawan);
     tandaiPesanDibaca(idLawan);
@@ -343,6 +441,7 @@ function bukaChat(idLawan) {
 
 function kirimPesanAktif() {
     if (!chatAktifId || !userAktif) return;
+    if (penggunaDiblokir(userAktif.id, chatAktifId) || penggunaDiblokir(chatAktifId, userAktif.id)) return;
 
     const teks = (inputTeksKirim ? inputTeksKirim.value : '').trim();
     if (!teks) return;
@@ -365,6 +464,58 @@ function kirimPesanAktif() {
     renderPesanAktif();
     renderChatList();
 }
+
+if (btnBlokirPengguna) btnBlokirPengguna.addEventListener('click', () => {
+    if (!chatAktifId) return;
+    ubahBlokir(chatAktifId, !penggunaDiblokir(userAktif.id, chatAktifId));
+});
+
+if (btnSimpanKontakChat) btnSimpanKontakChat.addEventListener('click', () => {
+    if (!chatAktifId || !userAktif || namaKontakTersimpan(chatAktifId)) return;
+    const target = getProfilChat(chatAktifId);
+    const nama = (window.prompt('Nama untuk kontak ini:', target.hp) || '').trim();
+    if (!nama) return;
+    try {
+        NgumpulKontakData.add(userAktif.id, target.hp, nama);
+        perbaruiKontrolKontak();
+        renderChatList();
+        // Perbarui judul dengan nama kontak yang baru disimpan.
+        if (namaHeaderKanan) namaHeaderKanan.textContent = nama;
+        tampilkanAvatarChat(avatarHeaderKanan, chatAktifId, nama);
+        if (panelInfoPengguna && panelInfoPengguna.getAttribute('aria-hidden') === 'false') tampilkanInfoPengguna();
+    } catch (error) {
+        window.alert(error.message || 'Kontak gagal disimpan.');
+    }
+});
+
+function tutupInfoPengguna() {
+    if (!panelInfoPengguna) return;
+    panelInfoPengguna.setAttribute('aria-hidden', 'true');
+}
+
+function tampilkanInfoPengguna() {
+    if (!chatAktifId || !panelInfoPengguna) return;
+    const target = getProfilChat(chatAktifId);
+    document.getElementById('nama-info-pengguna').textContent = target.nama;
+    document.getElementById('nomor-info-pengguna').textContent = target.hp || 'Nomor tidak tersedia';
+    document.getElementById('username-info-pengguna').textContent = target.username || '';
+    tampilkanAvatarChat(document.getElementById('avatar-info-pengguna'), chatAktifId, target.nama);
+    const banner = document.getElementById('banner-info-pengguna');
+    const urlBanner = ambilBannerProfilChat(chatAktifId);
+    banner.hidden = !urlBanner;
+    banner.style.backgroundImage = urlBanner ? 'url("' + urlBanner + '")' : '';
+    perbaruiKontrolBlokir();
+    perbaruiKontrolKontak();
+}
+
+if (btnInfoPengguna) btnInfoPengguna.addEventListener('click', () => {
+    if (!chatAktifId || !panelInfoPengguna) return;
+    tampilkanInfoPengguna();
+    panelInfoPengguna.setAttribute('aria-hidden', 'false');
+});
+
+document.getElementById('btn-tutup-info-pengguna').addEventListener('click', tutupInfoPengguna);
+document.addEventListener('keydown', event => { if (event.key === 'Escape') tutupInfoPengguna(); });
 
 window.addEventListener('storage', event => {
     if (event.key !== KEY_CHAT) return;
