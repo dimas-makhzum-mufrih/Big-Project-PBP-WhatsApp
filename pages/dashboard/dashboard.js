@@ -214,7 +214,7 @@ function formatPreviewPesan(terakhir) {
     if (!terakhir) return 'Mulai chat baru';
     const teks = (terakhir.text || '').trim();
     if (isPesanBergambar(terakhir)) {
-        return teks ? '📷 ' + teks : '📷 Foto';
+        return teks || 'Foto';
     }
     return teks || 'Mulai chat baru';
 }
@@ -328,6 +328,7 @@ function renderChatList() {
                 id: user.id,
                 nama: getProfilChat(user.id).nama,
                 preview: formatPreviewPesan(terakhir),
+                adaGambar: isPesanBergambar(terakhir),
                 waktu: terakhir ? terakhir.time : null,
                 hp: user.hp
             };
@@ -386,7 +387,15 @@ function renderChatList() {
 
         const preview = document.createElement('p');
         preview.className = 'card-preview';
-        preview.textContent = item.preview;
+        if (item.adaGambar) {
+            const ikonGambar = document.createElement('i');
+            ikonGambar.className = 'fa-duotone fa-solid fa-image';
+            ikonGambar.setAttribute('aria-hidden', 'true');
+            preview.appendChild(ikonGambar);
+            preview.appendChild(document.createTextNode(' ' + item.preview));
+        } else {
+            preview.textContent = item.preview;
+        }
 
         top.appendChild(judul);
         top.appendChild(jam);
