@@ -147,7 +147,11 @@ function prosesPesanMasuk() {
     getUsers().forEach(pengguna => {
         if (!pengguna || pengguna.id === userAktif.id) return;
         tandaiPesanDiterima(pengguna.id);
-        if (chatAktifId === pengguna.id) tandaiPesanDibaca(pengguna.id);
+        if (chatAktifId === pengguna.id && !document.getElementById('panel-tab-chat').hidden &&
+            document.visibilityState === 'visible' && document.hasFocus() &&
+            panelChatAktif.getClientRects().length &&
+            getComputedStyle(document.getElementById('panel-layer-setelan')).display === 'none')
+            tandaiPesanDibaca(pengguna.id);
     });
 }
 
@@ -417,6 +421,7 @@ if (userAktif) {
 const tabChat = document.getElementById('tab-chat');
 const tabGrup = document.getElementById('tab-grup');
 const tabKontak = document.getElementById('tab-kontak');
+const tabTelepon = document.getElementById('tab-telepon');
 const panelTabChat = document.getElementById('panel-tab-chat');
 const panelTabGrup = document.getElementById('panel-tab-grup');
 const panelTabKontak = document.getElementById('panel-tab-kontak');
@@ -424,10 +429,12 @@ const panelTabKontak = document.getElementById('panel-tab-kontak');
 function pilihTabDashboard(tabTujuan) {
     // Tetap mendukung pemanggilan boolean dari alur Chat dan Kontak yang sudah ada.
     const tabAktif = typeof tabTujuan === 'boolean' ? (tabTujuan ? 'kontak' : 'chat') : tabTujuan;
+    window.NgumpulRuang?.sinkronSidebarGrup(tabAktif);
     panelTabChat.hidden = tabAktif !== 'chat';
     panelTabGrup.hidden = tabAktif !== 'grup';
     panelTabKontak.hidden = tabAktif !== 'kontak';
-    [[tabChat, 'chat'], [tabGrup, 'grup'], [tabKontak, 'kontak']].forEach(([tombol, nama]) => {
+    document.getElementById('panel-tab-telepon').hidden = tabAktif !== 'telepon';
+    [[tabChat, 'chat'], [tabGrup, 'grup'], [tabKontak, 'kontak'], [tabTelepon, 'telepon']].forEach(([tombol, nama]) => {
         tombol.classList.toggle('aktif', tabAktif === nama);
         tombol.setAttribute('aria-pressed', String(tabAktif === nama));
     });
@@ -439,6 +446,7 @@ function pilihTabDashboard(tabTujuan) {
 tabChat.addEventListener('click', () => pilihTabDashboard(false));
 tabGrup.addEventListener('click', () => pilihTabDashboard('grup'));
 tabKontak.addEventListener('click', () => pilihTabDashboard(true));
+tabTelepon.addEventListener('click', () => pilihTabDashboard('telepon'));
 document.getElementById('btn-kembali-dari-kontak').addEventListener('click', () => {
     pilihTabDashboard(false);
     tabChat.focus();
@@ -546,7 +554,12 @@ if (optBukaSetelan) {
 // ===== Tombol kembali: navigasi subpanel tema =====
 if (btnKembaliKeChat) {
     btnKembaliKeChat.addEventListener('click', () => {
-        if (panelPengaturanTema && !panelPengaturanTema.hidden) {
+        const notifikasi = document.getElementById('panel-setelan-notifikasi');
+        if (notifikasi && !notifikasi.hidden) {
+            notifikasi.hidden = true;
+            daftarPengaturan.style.display = 'block';
+            judulPanelSetelan.textContent = 'Pengaturan';
+        } else if (panelPengaturanTema && !panelPengaturanTema.hidden) {
             panelPengaturanTema.hidden = true;
 
             if (daftarPengaturan) {
@@ -1029,9 +1042,6 @@ if (daftarSetelanScroll) {
                 document.dispatchEvent(new CustomEvent('ngumpul:buka-chat', {
                     detail: { idLawan: user.id }
                 }));
-                if (!document.getElementById('panel-tab-kontak')) {
-                    location.href = 'dashboard.html#buka-chat=' + encodeURIComponent(user.id);
-                }
             });
 
             const tombolTelepon = document.createElement('button');
@@ -1689,6 +1699,8 @@ function tampilkanInfoKontak(id) {
             return ubahLokal(
                 id,
                 (g) => {
+                    if (g.anggotaIds.length > 1 && g.adminIds.includes(userAktif.id) && g.adminIds.length === 1)
+                        throw new Error('Jadikan anggota lain sebagai admin sebelum keluar.');
                     tetapkanPenerimaLama(g);
                     catat(g, 'keluar', userAktif.id);
                     if (hapus) {
@@ -1697,7 +1709,6 @@ function tampilkanInfoKontak(id) {
                     } else arsipkan(g, userAktif.id, 'keluar');
                     g.anggotaIds = g.anggotaIds.filter((x) => x !== userAktif.id);
                     g.adminIds = g.adminIds.filter((x) => x !== userAktif.id);
-                    if (!g.adminIds.length && g.anggotaIds.length) g.adminIds = [g.anggotaIds[0]];
                 },
                 false
             );
@@ -1737,10 +1748,12 @@ function tampilkanInfoKontak(id) {
                     riwayat = pesanUntuk(g);
                 if (
                     pesan.pengirimId !== userAktif.id ||
-                    !pesan.isi.trim() ||
+                    (!pesan.isi.trim() && !pesan.lampiran?.length) ||
                     pesan.isi.length > 4000
                 )
                     throw new Error('Pesan tidak valid.');
+                if (pesan.channelId && !g.ruang?.channels.some(c => c.id === pesan.channelId && c.jenis === 'teks'))
+                    throw new Error('Channel sudah tidak tersedia.');
                 const lama = riwayat.find((p) => p.id === pesan.id);
                 if (lama) return lama;
                 const baru = {
@@ -1759,11 +1772,12 @@ function tampilkanInfoKontak(id) {
                 return baru;
             });
         },
-        async tandaiStatus(id, dibaca) {
+        async tandaiStatus(id, dibaca, channelId = null) {
             const g = grupLokal(id);
             pesanUntuk(g)
                 .filter(
-                    (p) => p.pengirimId !== userAktif.id && p.penerimaIds.includes(userAktif.id)
+                    (p) => p.pengirimId !== userAktif.id && p.penerimaIds.includes(userAktif.id) &&
+                        (!channelId || (p.channelId || g.ruang?.channels.find(c => c.bawaan)?.id) === channelId)
                 )
                 .forEach((p) => {
                     const prefix = awalStatus(id, p.id, userAktif.id);
@@ -1808,6 +1822,7 @@ function tampilkanInfoKontak(id) {
         return '';
     }
     async function renderGrup() {
+        if (window.NgumpulRuang) return window.NgumpulRuang.renderList();
         const v = ++versiList;
         try {
             const semua = await layananGrup.daftarGrup();
@@ -1940,8 +1955,8 @@ function tampilkanInfoKontak(id) {
         const sekarang = new Date(),
             kemarin = new Date(sekarang.getFullYear(), sekarang.getMonth(), sekarang.getDate() - 1),
             tanggal = tanggalLokal(waktu);
-        if (tanggal === tanggalLokal(sekarang)) return 'Today';
-        if (tanggal === tanggalLokal(kemarin)) return 'Yesterday';
+        if (tanggal === tanggalLokal(sekarang)) return 'Hari ini';
+        if (tanggal === tanggalLokal(kemarin)) return 'Kemarin';
         return new Date(waktu).toLocaleDateString('id-ID', {
             day: 'numeric',
             month: 'long',
@@ -1955,6 +1970,19 @@ function tampilkanInfoKontak(id) {
         node.dataset.kunciRiwayat = 'tanggal:' + time.dateTime;
         node.append(time);
         return node;
+    }
+    function teksPembuatanGrup(g) {
+        const sekarang = new Date(),
+            kemarin = new Date(sekarang.getFullYear(), sekarang.getMonth(), sekarang.getDate() - 1),
+            hari = tanggalLokal(g.dibuat),
+            tanggal = hari === tanggalLokal(sekarang)
+                ? 'today'
+                : hari === tanggalLokal(kemarin)
+                  ? 'yesterday'
+                  : 'on ' + new Date(g.dibuat).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    });
+        return 'Created ' + tanggal + ' by ' + namaAkun(g.pembuatId);
     }
     function kartuAwal(g, animasi) {
         const masuk = bacaKeanggotaan(g)[userAktif.id],
@@ -1973,11 +2001,7 @@ function tampilkanInfoKontak(id) {
                     ? 'Kamu bergabung menggunakan tautan undangan grup ini'
                     : 'Kamu adalah anggota grup ini';
         node.querySelector('.grup-intro-members').textContent = g.anggotaIds.length + ' anggota';
-        node.querySelector('.grup-intro-created').textContent =
-            'Grup Created ' +
-            formatTanggal(g.dibuat).toLocaleLowerCase('id-ID') +
-            ' by ' +
-            namaAkun(g.pembuatId);
+        node.querySelector('.grup-intro-created').textContent = teksPembuatanGrup(g);
         const tambah = node.querySelector('[data-aksi="tambah"]'),
             undang = node.querySelector('[data-aksi="undang"]');
         tambah.hidden = !admin(g);
@@ -2000,6 +2024,7 @@ function tampilkanInfoKontak(id) {
         );
     }
     async function renderPesan(scroll = false) {
+        if (window.NgumpulRuang) return window.NgumpulRuang.refresh();
         if (!aktif) return;
         const id = aktif,
             v = ++versiChat,
@@ -2129,6 +2154,7 @@ function tampilkanInfoKontak(id) {
         }
     }
     async function bukaChat(id) {
+        if (window.NgumpulRuang) return window.NgumpulRuang.open(id);
         const v = ++versiBuka;
         try {
             const g = await layananGrup.ambilGrup(id);
@@ -2154,6 +2180,7 @@ function tampilkanInfoKontak(id) {
         }
     }
     async function prosesMasuk() {
+        if (window.NgumpulRuang) return;
         try {
             for (const g of await layananGrup.daftarGrup())
                 if (!g.keluar) await layananGrup.tandaiStatus(g.id, bolehBaca(g.id));
@@ -2337,9 +2364,11 @@ function tampilkanInfoKontak(id) {
             else await layananGrup.keluar(id, hapus);
             if (infoId === id) tutupInfo(false);
             if (hapus) draft.delete(id);
+            if (window.NgumpulRuang) window.NgumpulRuang.afterExit(id);
             await segarkan();
         } catch (e) {
             status('status-grup', e.message, true);
+            if (window.NgumpulRuang) window.NgumpulRuang.toast(e.message);
         }
     }
     async function olahFoto(file) {
@@ -2378,11 +2407,7 @@ function tampilkanInfoKontak(id) {
         avatar($('foto-info-grup'), g.nama, g.foto);
         $('jumlah-info-grup').textContent = g.anggotaIds.length + ' anggota';
         $('deskripsi-info-grup').textContent = g.deskripsi || 'Belum ada deskripsi';
-        $('pembuat-info-grup').textContent =
-            'Dibuat oleh ' +
-            namaAkun(g.pembuatId) +
-            ' pada ' +
-            new Date(g.dibuat).toLocaleDateString('id-ID');
+        $('pembuat-info-grup').textContent = teksPembuatanGrup(g);
         ['nama', 'deskripsi'].forEach((bagian) => {
             $('btn-edit-' + bagian + '-grup').hidden = !admin(g);
         });
@@ -2479,6 +2504,7 @@ function tampilkanInfoKontak(id) {
             });
         if (!list.childElementCount) list.append(kosong('Anggota tidak ditemukan.'));
         await renderBerkas(g.id);
+        if (window.NgumpulRuang) await window.NgumpulRuang.extendInfo(g);
     }
 
     function urlBerkas(value, gambar = false) {
@@ -2491,6 +2517,7 @@ function tampilkanInfoKontak(id) {
         return null;
     }
     async function renderBerkas(id) {
+        if (window.NgumpulRuang) return window.NgumpulRuang.renderMedia(id);
         const data = await layananGrup.ambilBerkas(id);
         if (infoId !== id) return;
         const media = (b) =>
@@ -2564,6 +2591,14 @@ function tampilkanInfoKontak(id) {
         });
     }
     function tutupInfo(kembaliFokus = true) {
+        if (kembaliFokus && !info.hidden && window.NgumpulRuang) {
+            window.NgumpulRuang.dismissInfo(() => {
+                tutupInfo(false);
+                window.NgumpulRuang.focusHeader();
+            });
+            return;
+        }
+        window.NgumpulRuang?.cancelPanelMotion(info);
         tutupMenuAnggota(false, true);
         const terbuka = !info.hidden;
         info.hidden = true;
@@ -2574,17 +2609,21 @@ function tampilkanInfoKontak(id) {
         $('btn-info-grup').setAttribute('aria-expanded', 'false');
         aturPanelInfo();
         if (terbuka && kembaliFokus && aktif) {
-            $('btn-info-grup').focus({ preventScroll: true });
+            if (window.NgumpulRuang) window.NgumpulRuang.focusHeader();
+            else $('btn-info-grup').focus({ preventScroll: true });
             renderPesan();
         }
     }
-    async function bukaInfo() {
+    async function bukaInfo(panelVersion = null) {
         if (!aktif || alur) return;
+        const versiPanel = typeof panelVersion === 'number' ? panelVersion : window.NgumpulRuang?.prepareInfo();
+        window.NgumpulRuang?.cancelPanelMotion(info);
         const id = aktif,
             v = ++versiInfo;
         try {
             const g = (await layananGrup.daftarGrup()).find((g) => g.id === id);
             if (v !== versiInfo || aktif !== id) return;
+            if (versiPanel !== undefined && !window.NgumpulRuang.isInfoCurrent(versiPanel)) return;
             if (!g) throw new Error('Grup tidak tersedia.');
             infoId = id;
             batalEditor();
@@ -2594,6 +2633,7 @@ function tampilkanInfoKontak(id) {
             jenisBerkas = 'media';
             await renderInfo(g);
             if (v !== versiInfo || aktif !== id) return;
+            if (versiPanel !== undefined && !window.NgumpulRuang.isInfoCurrent(versiPanel)) return;
             info.hidden = false;
             document.querySelector('.dashboard-container').classList.add('grup-info-open');
             $('btn-info-grup').setAttribute('aria-expanded', 'true');
@@ -3051,6 +3091,7 @@ function tampilkanInfoKontak(id) {
         $('cari-anggota-info').focus({ preventScroll: true });
     });
     function bukaUndangan() {
+        if (window.NgumpulRuang) return window.NgumpulRuang.invite(infoId || aktif);
         const d = $('dialog-undangan-grup');
         if (!d.open) d.showModal();
     }
@@ -3062,6 +3103,7 @@ function tampilkanInfoKontak(id) {
         if (aktif) renderPesan();
     });
     $('btn-buka-berkas-grup').addEventListener('click', () => {
+        if (window.NgumpulRuang) return window.NgumpulRuang.gallery(infoId);
         $('detail-berkas-grup').hidden = !$('detail-berkas-grup').hidden;
         lakukan(() => renderBerkas(infoId));
     });
@@ -3234,6 +3276,22 @@ function tampilkanInfoKontak(id) {
             if (alur) renderPilihan();
         }
     });
+    window.NgumpulGrupDasar = {
+        layanan: layananGrup, ubah: ubahLokal, nama: namaAkun, avatar, avatarAnggota,
+        kontak: kontakTerdaftar, aktivitas: teksAktivitas, kartu: kartuAwal, konfirmasi,
+        menu: bukaMenu, tambah: id => bukaAlur('tambah', id), tutupInfo,
+        async info(id) {
+            const version = window.NgumpulRuang?.prepareInfo();
+            aktif = id;
+            const g = await layananGrup.ambilGrup(id);
+            if (version !== undefined && !window.NgumpulRuang.isInfoCurrent(version)) return;
+            grupAktif = g;
+            await bukaInfo(version);
+        },
+        async refreshInfo() { if (!info.hidden && infoId) await renderInfo(await layananGrup.ambilGrup(infoId)); },
+        seleksi(id, g) { aktif = id; grupAktif = g; },
+        migrasi(id) { return ubahLokal(id, g => tetapkanPenerimaLama(g), false); }
+    };
     layananGrup.langganan(jadwalkanPembaruan);
     jadwalkanTanggal();
     window.addEventListener('hashchange', () => {

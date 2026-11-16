@@ -88,6 +88,23 @@
         <symbol id="i-media-grup" viewBox="0 0 24 24"><rect x="5" y="3" width="16" height="16" rx="2"/><path d="M1 7v14a2 2 0 0 0 2 2h14M5 15l5-5 4 4 2-2 5 5"/><circle cx="16" cy="8" r="1" /></symbol>
         <symbol id="i-check-grup" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></symbol>
         <symbol id="i-trash-grup" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" /></symbol>
+        <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+        <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+        <symbol id="i-bell-off" viewBox="0 0 24 24"><path d="m3 3 18 18M6 6v4c0 5-3 7-3 7h14M10 3a6 6 0 0 1 8 5v4M10 21h4"/></symbol>
+        <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="5" width="13" height="14" rx="2"/><path d="m16 10 5-4v12l-5-4"/></symbol>
+        <symbol id="i-video-off" viewBox="0 0 24 24"><path d="m3 3 18 18M16 10l5-4v12l-5-4M7 5h7a2 2 0 0 1 2 2v5M16 16v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7"/></symbol>
+        <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="3" y="12" width="4" height="8" rx="2"/><rect x="17" y="12" width="4" height="8" rx="2"/></symbol>
+        <symbol id="i-headphones-off" viewBox="0 0 24 24"><path d="m3 3 18 18M3 14v-3c0-1.5.4-3 1-4M8 3a9 9 0 0 1 13 8v3"/><rect x="3" y="12" width="4" height="8" rx="2"/><path d="M17 16v2a2 2 0 0 0 4 0v-4a2 2 0 0 0-4 0"/></symbol>
+        <symbol id="i-disconnect" viewBox="0 0 24 24"><path d="M3 15v-4a2 2 0 0 1 1-1.7 17 17 0 0 1 16 0 2 2 0 0 1 1 1.7v4h-5v-4a18 18 0 0 0-8 0v4H3z"/></symbol>
+        <symbol id="i-maximize" viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></symbol>
+        <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7a9 9 0 1 0 1 8M20 3v5h-5"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></symbol>
+        <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M11 4 5 9H2v6h3l6 5V4zM15 8a6 6 0 0 1 0 8M18 4a11 11 0 0 1 0 16"/></symbol>
+        <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></symbol>
+        <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="m3 3 18 18M9 9v3a3 3 0 0 0 5 2M9 4a3 3 0 0 1 6 1v5M5 10v2a7 7 0 0 0 12 5M19 10v2M12 19v3M8 22h8"/></symbol>
+        <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9L2 9 22 2zM22 2 11 13"/></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+        <symbol id="i-emoji" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14a4.5 4.5 0 0 0 8 0M8 9h.01M16 9h.01"/></symbol>
         <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6" /></symbol>
         <symbol id="i-more" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="12" cy="19" r="1.7" /></g></symbol>
     </svg>
@@ -115,7 +132,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Telepon masih berupa tab tampilan. -->
             <nav class="tab-nav" aria-label="Menu utama">
                 <button class="tab aktif" id="tab-chat" type="button" data-fitur="tab-chat"
                     aria-pressed="true" aria-controls="panel-tab-chat"><svg class="ikon" aria-hidden="true">
@@ -125,9 +141,9 @@
                     aria-pressed="false" aria-controls="panel-tab-grup"><svg class="ikon" aria-hidden="true">
                         <use href="#i-grup" />
                     </svg>Grup</button>
-                <div class="tab" data-fitur="tab-telepon" title="Segera hadir"><svg class="ikon" aria-hidden="true">
+                <button class="tab" id="tab-telepon" type="button" aria-pressed="false" aria-controls="panel-tab-telepon"><svg class="ikon" aria-hidden="true">
                         <use href="#i-phone" />
-                    </svg>Telepon</div>
+                    </svg>Telepon</button>
                 <button class="tab" id="tab-kontak" type="button" data-fitur="tab-kontak"
                     aria-pressed="false" aria-controls="panel-tab-kontak"><svg class="ikon" aria-hidden="true">
                         <use href="#i-kontak" />
@@ -148,6 +164,9 @@
                     <div class="grup-list" id="daftar-grup"></div>
                 </div>
             </section>
+            <section class="dashboard-tab-panel" id="panel-tab-telepon" aria-label="Telepon" hidden>
+                <p class="contact-empty">Mulai panggilan dari channel grup.</p>
+            </section>
             <section class="contact-page dashboard-tab-panel" id="panel-tab-kontak" aria-labelledby="judul-kontak" hidden>
                 <header class="contact-header">
                     <button class="contact-back" id="btn-kembali-dari-kontak" type="button" aria-label="Kembali ke Chat">
@@ -159,7 +178,7 @@
                     <button class="contact-add-button" id="btn-tambah-kontak" type="button" aria-expanded="false"
                         aria-controls="form-tambah-kontak">+ Tambah kontak</button>
                 </header>
-                <div class="contact-content">
+                <div class="contact-content" role="region" aria-label="Daftar kontak">
                     <label class="sr-only" for="input-cari-kontak">Cari kontak</label>
                     <input class="contact-search" id="input-cari-kontak" type="search" placeholder="Cari kontak..."
                         autocomplete="off">
@@ -174,7 +193,6 @@
                                 pattern="[0-9]{6,14}" maxlength="15" placeholder="81234567890" required>
                             <button type="submit">Tambah</button>
                         </div>
-                        
                     </form>
                     <p class="contact-status" id="contact-status" role="status" aria-live="polite"></p>
                     <div class="contact-list" id="daftar-kontak"></div>
@@ -607,7 +625,7 @@
                         id="btn-buka-berkas-grup"
                         type="button"
                         aria-expanded="false"
-                        aria-controls="detail-berkas-grup"
+                        aria-controls="ruang-drawer"
                     >
                         <svg class="ikon" aria-hidden="true"><use href="#i-media-grup" /></svg
                         ><span>Media dan Dokumen</span><small id="jumlah-berkas-grup">0</small
@@ -721,6 +739,11 @@
     <script src="../../assets/js/negara-data.js"></script>
     <script src="kontak-data.js"></script>
     <script src="dashboard.js"></script>
+    <script src="grup-data.js"></script>
+    <script src="grup-media.js"></script>
+    <script src="grup-panggilan.js"></script>
+    <script src="grup.js"></script>
+    <script src="../../assets/js/notifikasi.js"></script>
 </body>
 
 </html>
