@@ -1021,3 +1021,114 @@ input {
     height: 18px;
     color: var(--warna-utama);
 }
+
+/*pinned message*/
+.pinned-message-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background: var(--bg-putih);
+    border-bottom: 1px solid var(--border-warna);
+}
+
+.pinned-message-icon {
+    color: var(--warna-utama);
+    font-size: 1.1rem;
+}
+
+.pinned-message-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.pinned-message-title {
+    display: block;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--teks-utama);
+}
+
+.pinned-message-info p {
+    margin: 3px 0 0;
+    font-size: .85rem;
+    color: var(--teks-redup);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#btn-unpin-message {
+    border: none;
+    background: transparent;
+    color: var(--teks-redup);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 6px;
+    border-radius: 5px;
+}
+
+#btn-unpin-message:hover {
+    background: var(--bg-hover);
+    color: var(--teks-utama);
+}
+
+.btn-pin-message {
+    align-self: flex-end;
+    border: none;
+    background: transparent;
+    color: var(--teks-redup);
+    cursor: pointer;
+    font-size: .8rem;
+    padding: 3px 5px;
+    border-radius: 4px;
+}
+
+.btn-pin-message:hover {
+    background: var(--bg-hover);
+    color: var(--teks-utama);
+}
+
+.chat-bubble {
+    position: relative;
+}
+
+.btn-pin-message {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    padding: 3px 5px;
+    border: none;
+    background: transparent;
+    color: var(--teks-redup);
+    cursor: pointer;
+    font-size: .8rem;
+    border-radius: 4px;
+}
+
+.btn-pin-message:hover {
+    background: var(--bg-hover);
+    color: var(--teks-utama);
+}
+
+.chat-bubble > span:first-child {
+    padding-right: 22px;
+}
+
+.btn-pin-message {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility .2s ease;
+}
+
+.chat-bubble:hover .btn-pin-message {
+    opacity: 1;
+    visibility: visible;
+}
+
+@media (hover: none) {
+    .btn-pin-message {
+        opacity: 1;
+        visibility: visible;
+    }
+}

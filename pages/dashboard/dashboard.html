@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../../assets/css/variables.css">
 <script src="../../assets/js/theme.js"></script>
 <link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 
 <body>
@@ -175,6 +176,18 @@
                         <p>online</p>
                     </div>
                 </header>
+                <div class="pinned-message-container" id="pinned-message-container" style="display: none;">
+                    <div class="pinned-message-icon">
+                        <i class="fa-solid fa-thumbtack" aria-hidden="true"></i>
+                    </div>
+                    <div class="pinned-message-info">
+                        <span class="pinned-message-title">Pesan Disematkan</span>
+                        <p id="pinned-message-text"></p>
+                    </div>
+                    <button type="button" id="btn-unpin-message" title="Lepas sematan" aria-label="Lepas sematan">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
+                </div>
                 <div class="messages-container" id="box-list-pesan"></div>
                 <footer class="active-chat-footer"><input class="chat-input-field" id="input-teks-kirim" type="text"
                         placeholder="Ketik pesan..." autocomplete="off"><button class="send-action-btn"

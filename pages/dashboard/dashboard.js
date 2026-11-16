@@ -7,9 +7,11 @@ if (!userAktif) {
 
 // ===== Fitur Chat =====
 const KEY_CHAT = 'ngumpul_pesan';
+const KEY_PIN_PESAN = 'ngumpul_pesan_tersemat';
 const panelChatKosong = document.getElementById('panel-chat-kosong');
 const panelChatAktif = document.getElementById('panel-chat-aktif');
 const boxListPesan = document.getElementById('box-list-pesan');
+const btnUnpinMessage = document.getElementById('btn-unpin-message');
 const inputTeksKirim = document.getElementById('input-teks-kirim');
 const btnKirimPesan = document.getElementById('btn-kirim-pesan');
 const inputCariChat = document.getElementById('input-cari-chat');
@@ -17,6 +19,16 @@ const chatScrollArea = document.querySelector('.chat-scroll-area');
 const avatarHeaderKanan = document.getElementById('avatar-header-kanan');
 const namaHeaderKanan = document.getElementById('nama-header-kanan');
 let chatAktifId = null;
+
+if (btnUnpinMessage) {
+    btnUnpinMessage.addEventListener('click', () => {
+        if (!chatAktifId) return;
+        const berhasil = hapusPinPesan(chatAktifId);
+        if (berhasil) {
+            renderPinPesanAktif();
+        }
+    });
+}
 
 function buatIdPesan() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -96,6 +108,76 @@ function simpanPesanChat(idLawan, daftarPesan) {
     semua[kunci] = Array.isArray(daftarPesan) ? daftarPesan : [];
     return simpanSemuaChat(semua);
 }
+
+function bacaSemuaPinPesan() {
+    try {
+        return JSON.parse(localStorage.getItem(KEY_PIN_PESAN)) || {};
+    } catch (error) {
+        return {};
+    }
+}
+
+function simpanSemuaPinPesan(data) {
+    try {
+        localStorage.setItem(KEY_PIN_PESAN, JSON.stringify(data));
+        return true;
+    } catch (error) {
+        console.warn('Tidak dapat menyimpan pesan sematan:', error);
+        return false;
+    }
+}
+
+function ambilPinPesan(idLawan) {
+    if (!userAktif || !idLawan) return null;
+    const semuaPin = bacaSemuaPinPesan();
+    const kunci = kunciKonversasi(userAktif.id, idLawan);
+    return semuaPin[kunci] || null;
+}
+
+function simpanPinPesan(idLawan, idPesan) {
+    if (!userAktif || !idLawan || !idPesan) return false;
+    const daftarPesan = ambilPesanChat(idLawan);
+    const pesanAda = daftarPesan.some(pesan => pesan.id === idPesan);
+
+    if (!pesanAda) return false;
+    const semuaPin = bacaSemuaPinPesan();
+    const kunci = kunciKonversasi(userAktif.id, idLawan);
+    semuaPin[kunci] = idPesan;
+    return simpanSemuaPinPesan(semuaPin);
+}
+
+function hapusPinPesan(idLawan) {
+    if (!userAktif || !idLawan) return false;
+    const semuaPin = bacaSemuaPinPesan();
+    const kunci = kunciKonversasi(userAktif.id, idLawan);
+
+    if (!semuaPin[kunci]) return false;
+    delete semuaPin[kunci];
+    return simpanSemuaPinPesan(semuaPin);
+}
+
+function renderPinPesanAktif() {
+    const container = document.getElementById('pinned-message-container');
+    const teksPesan = document.getElementById('pinned-message-text');
+    if (!container || !teksPesan || !chatAktifId) return;
+    const idPesanPin = ambilPinPesan(chatAktifId);
+    if (!idPesanPin) {
+        container.style.display = 'none';
+        teksPesan.textContent = '';
+        return;
+    }
+    const pesan = ambilPesanChat(chatAktifId)
+        .find(item => item.id === idPesanPin);
+    if (!pesan) {
+        hapusPinPesan(chatAktifId);
+        container.style.display = 'none';
+        teksPesan.textContent = '';
+        return;
+    }
+    teksPesan.textContent = pesan.text;
+    container.style.display = 'flex';
+}
+
 
 function perbaruiStatusPesan(idLawan, predicate, status) {
     const pesan = ambilPesanChat(idLawan);
@@ -271,11 +353,32 @@ function renderPesanAktif() {
         const text = document.createElement('span');
         text.textContent = item.text;
 
+        const btnPin = document.createElement('button');
+        btnPin.type = 'button';
+        btnPin.className = 'btn-pin-message';
+        btnPin.title = 'Sematkan pesan';
+        btnPin.setAttribute('aria-label', 'Sematkan pesan');
+
+        const ikonPin = document.createElement('i');
+        ikonPin.classList.add('fa-solid', 'fa-thumbtack');
+        ikonPin.setAttribute('aria-hidden', 'true');
+
+        btnPin.appendChild(ikonPin);
+
+        btnPin.addEventListener('click', () => {
+            const berhasil = simpanPinPesan(chatAktifId, item.id);
+
+            if (berhasil) {
+                renderPinPesanAktif();
+            }
+        });
+
         const waktu = document.createElement('span');
         waktu.className = 'timestamp';
         waktu.textContent = formatJamPesan(item.time);
 
         bubble.appendChild(text);
+        bubble.appendChild(btnPin);
         const footer = document.createElement('div');
         footer.className = 'message-footer';
         footer.appendChild(waktu);
@@ -334,6 +437,7 @@ function bukaChat(idLawan) {
     tandaiPesanDiterima(idLawan);
     tandaiPesanDibaca(idLawan);
     renderPesanAktif();
+    renderPinPesanAktif();
     renderChatList();
 
     if (inputTeksKirim) {
