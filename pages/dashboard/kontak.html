@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Ngumpul - Kontak</title>
+    <link rel="stylesheet" href="kontak.css">
+</head>
+
+<body>
+    <main class="contact-page">
+        <header class="contact-header">
+            <a class="contact-back" href="dashboard.html" aria-label="Kembali ke Chat">
+                <svg class="contact-back-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1>Kontak</h1>
+            <button class="contact-add-button" id="btn-tambah-kontak" type="button" aria-expanded="false"
+                aria-controls="form-tambah-kontak">+ Tambah kontak</button>
+        </header>
+
+        <section class="contact-content" aria-label="Daftar kontak">
+            <label class="sr-only" for="input-cari-kontak">Cari kontak</label>
+            <input class="contact-search" id="input-cari-kontak" type="search" placeholder="Cari kontak..."
+                autocomplete="off">
+
+            <form class="contact-form" id="form-tambah-kontak" hidden>
+                <label for="input-nama-kontak">Nama kontak</label>
+                <input class="contact-name-input" id="input-nama-kontak" type="text" autocomplete="name"
+                    maxlength="60" placeholder="Contoh: Budi" required>
+                <label for="input-nomor-kontak">Nomor HP kontak</label>
+                <div class="contact-form-row">
+                    <select id="kode-negara-kontak" aria-label="Kode negara nomor kontak"></select>
+                    <input id="input-nomor-kontak" type="tel" inputmode="numeric" autocomplete="tel-national"
+                        pattern="[0-9]{6,14}" maxlength="15" placeholder="81234567890" required>
+                    <button type="submit">Tambah</button>
+                </div>
+                <small class="contact-hint">Pilih kode negara. Untuk Indonesia, masukkan 8 diikuti 8–11 digit (awalan 08 juga diterima). Nomor yang belum terdaftar tetap tersimpan dan bisa terhubung saat akunnya dibuat.</small>
+                <p class="contact-status" id="contact-status" role="status" aria-live="polite"></p>
+            </form>
+
+            <div class="contact-list" id="daftar-kontak"></div>
+        </section>
+    </main>
+
+    <script src="../../assets/js/storage.js"></script>
+    <script src="../../assets/js/negara-data.js"></script>
+    <script src="kontak-data.js"></script>
+    <script src="kontak.js"></script>
+</body>
+
+</html>

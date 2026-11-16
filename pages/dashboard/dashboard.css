@@ -161,13 +161,93 @@ input {
     font-size: .75rem;
     color: var(--teks-redup);
     border-bottom: 3px solid transparent;
-    cursor: default
+    cursor: default;
+    background: none;
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
+    font-family: inherit
+}
+
+.tab:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+.tab#tab-chat {
+    cursor: pointer
+}
+
+.tab#tab-kontak {
+    text-decoration: none;
+    cursor: pointer
 }
 
 .tab.aktif {
     color: var(--warna-utama);
     border-color: var(--warna-utama);
     font-weight: 600
+}
+
+/* ---------- isi tab di sidebar dashboard ---------- */
+.dashboard-tab-panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden
+}
+
+.dashboard-tab-panel[hidden] {
+    display: none
+}
+
+#panel-tab-kontak {
+    max-width: none;
+    margin: 0;
+    border: 0
+}
+
+#panel-tab-kontak .contact-header {
+    flex-shrink: 0;
+    gap: 8px;
+    padding: 10px
+}
+
+#panel-tab-kontak .contact-header h2 {
+    flex: 1;
+    margin: 0;
+    font-size: 1.2rem
+}
+
+#panel-tab-kontak .contact-back {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer
+}
+
+#panel-tab-kontak .contact-back:hover {
+    background: var(--bg-abu-input)
+}
+
+#panel-tab-kontak .contact-add-button {
+    padding: 9px 10px;
+    font-size: .85rem
+}
+
+#panel-tab-kontak .contact-form-row {
+    flex-wrap: wrap
+}
+
+#panel-tab-kontak .contact-form-row select {
+    width: 100%;
+    max-width: none
+}
+
+#panel-tab-kontak .contact-card-actions {
+    flex-wrap: wrap;
+    padding-left: 0
 }
 
 /* ---------- cari + daftar chat ---------- */
@@ -197,15 +277,27 @@ input {
 .chat-card {
     display: flex;
     align-items: center;
-    padding: 14px 20px;
-    cursor: pointer;
+    width: 100%;
+    min-width: 0;
+    padding: 12px 20px;
+    border: 0;
     border-bottom: 1px solid var(--border-warna);
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
     transition: background .2s
 }
 
 .chat-card:hover,
 .chat-card.aktif {
     background: var(--bg-abu-terang)
+}
+
+.chat-card:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: -2px
 }
 
 .circle-avatar {
@@ -219,11 +311,20 @@ input {
     font-weight: bold;
     margin-right: 16px;
     color: var(--teks-kontras);
-    font-size: 1.1rem
+    font-size: 1.1rem;
+    overflow: hidden
+}
+
+.circle-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%
 }
 
 .card-meta {
     flex: 1;
+    min-width: 0;
     overflow: hidden
 }
 
@@ -231,12 +332,21 @@ input {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     margin-bottom: 4px
 }
 
 .card-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-weight: 600;
     font-size: 1rem
+}
+
+.card-top small {
+    flex: none
 }
 
 .card-preview {
@@ -246,6 +356,12 @@ input {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis
+}
+
+#panel-tab-chat .contact-empty {
+    margin: 24px 16px;
+    text-align: center;
+    line-height: 1.5
 }
 
 /* ---------- sisi kanan: sambutan + ruang chat ---------- */
@@ -334,8 +450,33 @@ input {
 .timestamp {
     font-size: .7rem;
     color: var(--teks-redup);
-    align-self: flex-end;
+    margin: 0
+}
+
+.message-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    width: 100%;
     margin-top: 5px
+}
+
+.message-status {
+    color: var(--teks-redup);
+    display: flex;
+    align-items: center;
+    line-height: 1
+}
+
+.message-status-icon {
+    width: 17px;
+    height: 17px;
+    fill: currentColor
+}
+
+.message-status.dibaca {
+    color: #1687d9
 }
 
 .active-chat-footer {
@@ -675,7 +816,6 @@ input {
         width: 72px;
         height: 58px;
     }
-    
 }
 /* =====================================================================
    REVISI: Tata Letak Profil di Panel Pengaturan
@@ -880,5 +1020,4 @@ input {
     width: 18px;
     height: 18px;
     color: var(--warna-utama);
-
 }

@@ -1,6 +1,6 @@
 # Panduan Data Lokal Ngumpul
 
-Aplikasi ini **tidak punya server dan database**. Semua data (akun, profil, sesi login, kode OTP) disimpan **di dalam browser** kamu sendiri. Panduan ini menjelaskan cara melihat, mengubah, dan menghapus data itu.
+Aplikasi ini **tidak punya server dan database**. Semua data (akun, profil, sesi login, kode OTP, dan kontak) disimpan **di dalam browser** kamu sendiri. Panduan ini menjelaskan cara melihat, mengubah, dan menghapus data itu.
 
 ---
 
@@ -51,6 +51,7 @@ Kalau akun yang sudah kamu daftarkan tiba-tiba "hilang", **cek dulu alamat di ad
 - `ngumpul_users`: semua akun terdaftar. Tiap akun berisi `id`, `nama`, `hp` (format internasional, misalnya `+62812...`), `negara`, `email`, `sandi` (sudah di-hash), `dibuat`.
 - `ngumpul_terverifikasi`: akun yang sudah lolos OTP. Kuncinya adalah **digit nomor HP internasional tanpa tanda +**.
 - `ngumpul_profil`: profil **per akun**, berbentuk `{ idAkun: { nama, username, bio, phone } }`. Profil yang belum diisi otomatis diambil dari data akun.
+- `ngumpul_kontak_<idAkun>`: daftar kontak untuk akun tersebut, disimpan di browser sebagai `{ phone, name }`. Kontak dicari berdasarkan nomor internasional, sehingga akun yang mendaftar kemudian akan terhubung otomatis.
 
 **Session Storage (sementara, per tab)**
 - `ngumpul_sesi`: **id akun yang sedang login di tab ini.** Tab yang ditutup berarti logout.
