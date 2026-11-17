@@ -132,12 +132,50 @@ function prosesPesanMasuk() {
 function getProfilChat(idLawan) {
     const kontak = getUserById(idLawan);
     const profil = getProfil(idLawan);
+    const namaAkun = (kontak && kontak.nama) || profil.nama || 'Kontak';
+    const hp = profil.phone || (kontak && kontak.hp) || '';
+    // nama yang kamu ketik saat menambah kontak dipakai lebih dulu;
+    // kalau belum tersimpan di kontak, tampil nomor HP-nya seperti WhatsApp
+    const namaTersimpan = namaKontakTersimpan(idLawan);
     return {
         id: idLawan,
-        nama: (kontak && kontak.nama) || profil.nama || 'Kontak',
-        hp: profil.phone || (kontak && kontak.hp) || '',
+        nama: namaTersimpan || hp || namaAkun,
+        hp: hp,
         username: profil.username || '@pengguna'
     };
+}
+
+// nama yang diberikan akun aktif saat menyimpan kontak ('' kalau belum disimpan / tanpa nama)
+function namaKontakTersimpan(idLawan) {
+    if (!userAktif || !NgumpulKontakData || typeof NgumpulKontakData.list !== 'function') return '';
+    const user = getUserById(idLawan);
+    if (!user || !user.hp) return '';
+    try {
+        const kontak = NgumpulKontakData.list(userAktif.id)
+            .find(item => samakanHp(item.phone, user.hp));
+        return kontak && kontak.name ? kontak.name.trim() : '';
+    } catch (error) {
+        return '';
+    }
+}
+
+// chat boleh dibuka kalau lawan bicara ada di kontak ATAU sudah pernah ada pesan
+function bolehBukaChat(idLawan) {
+    return isKontakPengguna(idLawan) || ambilPesanChat(idLawan).length > 0;
+}
+
+// id semua orang yang punya percakapan dengan akun aktif (walau belum jadi kontak)
+function idLawanDariPesan() {
+    const semua = bacaSemuaChat();
+    const hasil = [];
+    Object.keys(semua).forEach(kunci => {
+        if (!Array.isArray(semua[kunci]) || !semua[kunci].length) return;
+        const bagian = kunci.split('_');
+        const posisi = bagian.indexOf(String(userAktif.id));
+        if (bagian.length !== 2 || posisi === -1) return;
+        hasil.push(bagian[1 - posisi]);
+    });
+    return hasil;
 }
 
 function isKontakPengguna(idLawan) {
@@ -155,7 +193,7 @@ function isKontakPengguna(idLawan) {
 function renderChatList() {
     if (!chatScrollArea || !userAktif) return;
 
-    if (chatAktifId && !isKontakPengguna(chatAktifId)) {
+    if (chatAktifId && !bolehBukaChat(chatAktifId)) {
         chatAktifId = null;
         if (panelChatAktif) panelChatAktif.style.display = 'none';
         if (panelChatKosong) panelChatKosong.style.display = 'flex';
@@ -166,9 +204,22 @@ function renderChatList() {
         ? NgumpulKontakData.search(userAktif.id, query)
         : [];
 
-    const hasil = daftarKontak
-        .map(item => {
-            const user = getUsers().find(pengguna => samakanHp(pengguna.hp, item.phone));
+    // kandidat chat = kontak + siapa pun yang pernah kirim/terima pesan
+    const idKandidat = new Set();
+    daftarKontak.forEach(item => {
+        const user = getUsers().find(pengguna => samakanHp(pengguna.hp, item.phone));
+        if (user && user.id !== userAktif.id) idKandidat.add(user.id);
+    });
+    idLawanDariPesan().forEach(id => {
+        const profil = getProfilChat(id);
+        if (!query || profil.nama.toLowerCase().includes(query) || profil.hp.toLowerCase().includes(query)) {
+            idKandidat.add(id);
+        }
+    });
+
+    const hasil = Array.from(idKandidat)
+        .map(id => {
+            const user = getUserById(id);
             if (!user || user.id === userAktif.id) return null;
             const pesan = ambilPesanChat(user.id);
             const terakhir = pesan.length ? pesan[pesan.length - 1] : null;
@@ -209,13 +260,6 @@ function renderChatList() {
         const avatar = document.createElement('div');
         avatar.className = 'circle-avatar';
         tampilkanAvatarChat(avatar, item.id, item.nama);
-
-        const warna = ['#3984bd', '#8e63aa', '#d17b45', '#368c72', '#bd5d70'];
-        let total = 0;
-        for (let i = 0; i < item.nama.length; i++) {
-            total += item.nama.charCodeAt(i);
-        }
-        avatar.style.backgroundColor = warna[total % warna.length];
 
         const meta = document.createElement('div');
         meta.className = 'card-meta';
@@ -308,7 +352,7 @@ function renderPesanAktif() {
 function bukaChat(idLawan) {
     if (!idLawan || !userAktif) return;
 
-    if (!isKontakPengguna(idLawan)) {
+    if (!bolehBukaChat(idLawan)) {
         chatAktifId = null;
         if (panelChatAktif) panelChatAktif.style.display = 'none';
         if (panelChatKosong) panelChatKosong.style.display = 'flex';
@@ -317,6 +361,7 @@ function bukaChat(idLawan) {
     }
 
     chatAktifId = idLawan;
+    tutupPanelLampiran();
     const target = getProfilChat(idLawan);
 
     if (panelChatKosong) panelChatKosong.style.display = 'none';
@@ -341,6 +386,47 @@ function bukaChat(idLawan) {
     }
 }
 
+// ===== Footer chat: tombol plus (panel lampiran), emoji, mic =====
+// Hanya tampilan. Aksi tiap tombol dipasang anggota lewat atribut data-fitur.
+const btnLampir = document.getElementById('btn-lampir');
+const panelLampiran = document.getElementById('panel-lampiran');
+const btnMic = document.getElementById('btn-mic');
+
+function tutupPanelLampiran() {
+    if (!panelLampiran || panelLampiran.hidden) return;
+    panelLampiran.hidden = true;
+    if (btnLampir) {
+        btnLampir.setAttribute('aria-expanded', 'false');
+        btnLampir.classList.remove('terbuka');
+    }
+}
+
+// mic tampil kalau kolom kosong, tombol Kirim tampil kalau ada teks (seperti WhatsApp)
+function perbaruiTombolKirim() {
+    const adaTeks = !!(inputTeksKirim && inputTeksKirim.value.trim());
+    if (btnKirimPesan) btnKirimPesan.hidden = !adaTeks;
+    if (btnMic) btnMic.hidden = adaTeks;
+}
+
+if (btnLampir && panelLampiran) {
+    btnLampir.addEventListener('click', event => {
+        event.stopPropagation();
+        const buka = panelLampiran.hidden;
+        panelLampiran.hidden = !buka;
+        btnLampir.setAttribute('aria-expanded', String(buka));
+        btnLampir.classList.toggle('terbuka', buka);
+    });
+    document.addEventListener('click', event => {
+        if (!event.target.closest('#panel-lampiran')) tutupPanelLampiran();
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') tutupPanelLampiran();
+    });
+}
+
+if (inputTeksKirim) inputTeksKirim.addEventListener('input', perbaruiTombolKirim);
+perbaruiTombolKirim();
+
 function kirimPesanAktif() {
     if (!chatAktifId || !userAktif) return;
 
@@ -361,6 +447,7 @@ function kirimPesanAktif() {
     if (inputTeksKirim) {
         inputTeksKirim.value = '';
     }
+    perbaruiTombolKirim();
 
     renderPesanAktif();
     renderChatList();

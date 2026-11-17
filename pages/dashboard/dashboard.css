@@ -422,62 +422,71 @@ input {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px
+    gap: 8px
 }
 
 .chat-bubble {
-    max-width: 65%;
-    padding: 10px 14px;
-    border-radius: 8px;
+    position: relative;
+    max-width: min(68%, 520px);
+    padding: 8px 12px 6px;
+    border-radius: 16px;
     font-size: .95rem;
-    line-height: 1.4;
+    line-height: 1.45;
     display: flex;
     flex-direction: column;
-    box-shadow: var(--bayangan-card);
+    color: var(--teks-bubble);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap
 }
 
 .chat-bubble.kirim {
     background: var(--bub-kirim);
     align-self: flex-end;
-    border-top-right-radius: 0
+    border-bottom-right-radius: 4px
 }
 
 .chat-bubble.terima {
     background: var(--bub-terima);
     align-self: flex-start;
-    border-top-left-radius: 0
+    border-bottom-left-radius: 4px
 }
 
 .timestamp {
-    font-size: .7rem;
-    color: var(--teks-redup);
+    font-size: .68rem;
+    color: color-mix(in srgb, var(--teks-bubble) 55%, transparent);
     margin: 0
 }
 
 .message-footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 4px;
     width: 100%;
-    margin-top: 5px
+    margin-top: 2px;
+    white-space: normal
 }
 
 .message-status {
-    color: var(--teks-redup);
+    color: color-mix(in srgb, var(--teks-bubble) 55%, transparent);
     display: flex;
     align-items: center;
     line-height: 1
 }
 
 .message-status-icon {
-    width: 17px;
-    height: 17px;
+    width: 16px;
+    height: 16px;
     fill: currentColor
 }
 
 .message-status.dibaca {
     color: #1687d9
+}
+
+html[data-theme="dark"] .message-status.dibaca {
+    color: #53bdeb
 }
 
 .active-chat-footer {
@@ -504,6 +513,106 @@ input {
 
 .chat-input-field:focus {
     outline: 2px solid var(--warna-utama)
+}
+
+.btn-lampir {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--teks-redup);
+    cursor: pointer
+}
+
+.btn-lampir.terbuka {
+    color: var(--warna-utama);
+    background: var(--warna-tipis)
+}
+
+.btn-lampir:hover {
+    background: var(--bg-abu-input);
+    color: var(--warna-utama)
+}
+
+.btn-lampir:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+.btn-mic {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border: 0;
+    border-radius: 50%;
+    background: var(--warna-utama);
+    color: var(--teks-kontras);
+    cursor: pointer
+}
+
+.btn-mic:hover {
+    background: var(--warna-utama-hover)
+}
+
+.btn-mic[hidden],
+.send-action-btn[hidden],
+.lampiran-panel[hidden] {
+    display: none
+}
+
+.active-chat-footer {
+    gap: 10px
+}
+
+.lampiran-panel {
+    flex-shrink: 0;
+    background: var(--bg-putih);
+    border-top: 1px solid var(--border-warna);
+    padding: 16px 12px
+}
+
+.lampiran-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: 14px 8px
+}
+
+.lampiran-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--teks-gelap);
+    font-size: .8rem;
+    cursor: pointer
+}
+
+.lampiran-item:hover {
+    background: var(--bg-abu-input)
+}
+
+.lampiran-item:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+.lampiran-ikon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    color: #fff
 }
 
 .send-action-btn {
@@ -818,6 +927,7 @@ input {
         height: 58px;
     }
 }
+
 /* =====================================================================
    REVISI: Tata Letak Profil di Panel Pengaturan
    ===================================================================== */
