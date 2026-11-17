@@ -312,7 +312,8 @@ input {
     margin-right: 16px;
     color: var(--teks-kontras);
     font-size: 1.1rem;
-    overflow: hidden
+    overflow: hidden;
+    background: var(--warna-utama);
 }
 
 .circle-avatar img {

@@ -324,7 +324,7 @@ function bukaChat(idLawan) {
 
     if (avatarHeaderKanan) {
         tampilkanAvatarChat(avatarHeaderKanan, idLawan, target.nama);
-        avatarHeaderKanan.style.backgroundColor = '#3984bd';
+        avatarHeaderKanan.style.backgroundColor = 'var(--warna-utama)';
     }
 
     if (namaHeaderKanan) {
