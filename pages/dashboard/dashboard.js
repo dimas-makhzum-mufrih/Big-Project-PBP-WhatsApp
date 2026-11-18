@@ -16,6 +16,11 @@ const btnUnpinMessage = document.getElementById('btn-unpin-message');
 const inputTeksKirim = document.getElementById('input-teks-kirim');
 const btnKirimPesan = document.getElementById('btn-kirim-pesan');
 const inputCariChat = document.getElementById('input-cari-chat');
+const inputCariPesan = document.getElementById('input-cari-pesan');
+const panelCariPesan = document.getElementById('panel-cari-pesan');
+const hasilCariPesan = document.getElementById('hasil-cari-pesan');
+const btnToggleCariPesan = document.getElementById('btn-toggle-cari-pesan');
+const btnTutupCariPesan = document.getElementById('btn-tutup-cari-pesan');
 const chatScrollArea = document.querySelector('.chat-scroll-area');
 const avatarHeaderKanan = document.getElementById('avatar-header-kanan');
 const namaHeaderKanan = document.getElementById('nama-header-kanan');
@@ -24,6 +29,7 @@ const btnSimpanKontakChat = document.getElementById('btn-simpan-kontak-chat');
 const btnInfoPengguna = document.getElementById('btn-info-pengguna');
 const panelInfoPengguna = document.getElementById('panel-info-pengguna');
 let chatAktifId = null;
+let timerSorotPesanCari = null;
 
 if (btnUnpinMessage) {
     btnUnpinMessage.addEventListener('click', () => {
@@ -636,7 +642,12 @@ function renderPesanAktif() {
         return;
     }
 
-    pesan.forEach(item => {
+    pesan.forEach((item, index) => {
+        const baris = document.createElement('div');
+        baris.className = 'message-row';
+        baris.classList.add(item.sender === userAktif.id ? 'kirim' : 'terima');
+        baris.dataset.messageIndex = String(index);
+
         const punyaGambar = isPesanBergambar(item);
         const teksIsi = String(item.text || '').trim();
         const adaTeks = Boolean(teksIsi);
@@ -745,10 +756,116 @@ function renderPesanAktif() {
             footer.appendChild(status);
         }
         bubble.appendChild(footer);
-        boxListPesan.appendChild(bubble);
+        baris.appendChild(bubble);
+        boxListPesan.appendChild(baris);
     });
 
     boxListPesan.scrollTop = boxListPesan.scrollHeight;
+}
+
+// ===== Cari pesan di dalam chat =====
+function formatTanggalPesan(isoString) {
+    const waktu = new Date(isoString);
+    if (Number.isNaN(waktu.getTime())) return '';
+    return waktu.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+}
+
+function tampilkanTeksPesanCocok(container, teks, query) {
+    const posisi = teks.toLowerCase().indexOf(query);
+    if (posisi < 0) {
+        container.textContent = teks;
+        return;
+    }
+
+    container.append(
+        document.createTextNode(teks.slice(0, posisi)),
+        Object.assign(document.createElement('mark'), {
+            textContent: teks.slice(posisi, posisi + query.length)
+        }),
+        document.createTextNode(teks.slice(posisi + query.length))
+    );
+}
+
+function pencarianPesanTerbuka() {
+    return Boolean(panelCariPesan && panelCariPesan.classList.contains('terbuka'));
+}
+
+function renderHasilPencarianPesan() {
+    if (!hasilCariPesan || !inputCariPesan || !chatAktifId) return;
+
+    hasilCariPesan.replaceChildren();
+    const query = inputCariPesan.value.trim().toLowerCase();
+    if (!query) {
+        const kosong = document.createElement('p');
+        kosong.className = 'message-search-empty';
+        kosong.textContent = 'Ketik kata kunci untuk mencari pesan.';
+        hasilCariPesan.appendChild(kosong);
+        return;
+    }
+
+    const hasil = ambilPesanChat(chatAktifId)
+        .map((item, index) => ({ item: item, index: index }))
+        .filter(entry => String(entry.item.text || '').toLowerCase().includes(query))
+        .reverse();
+
+    if (!hasil.length) {
+        const kosong = document.createElement('p');
+        kosong.className = 'message-search-empty';
+        kosong.textContent = 'Tidak ada pesan yang cocok dengan kata kunci tersebut.';
+        hasilCariPesan.appendChild(kosong);
+        return;
+    }
+
+    hasil.forEach(entry => {
+        const tombol = document.createElement('button');
+        tombol.type = 'button';
+        tombol.className = 'message-search-result';
+        tombol.dataset.messageIndex = String(entry.index);
+
+        const tanggal = document.createElement('span');
+        tanggal.className = 'message-search-result-date';
+        tanggal.textContent = formatTanggalPesan(entry.item.time);
+
+        const teks = document.createElement('span');
+        tampilkanTeksPesanCocok(teks, String(entry.item.text || ''), query);
+        tombol.append(tanggal, teks);
+        tombol.addEventListener('click', () => {
+            renderPesanAktif();
+            const pesanTarget = boxListPesan.querySelector(
+                '[data-message-index="' + entry.index + '"]'
+            );
+            if (pesanTarget) {
+                boxListPesan.querySelectorAll('.message-row.pesan-cari-terpilih')
+                    .forEach(item => item.classList.remove('pesan-cari-terpilih'));
+                if (timerSorotPesanCari) window.clearTimeout(timerSorotPesanCari);
+                pesanTarget.classList.add('pesan-cari-terpilih');
+                pesanTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                timerSorotPesanCari = window.setTimeout(() => {
+                    pesanTarget.classList.remove('pesan-cari-terpilih');
+                    timerSorotPesanCari = null;
+                }, 1000);
+            }
+        });
+        hasilCariPesan.appendChild(tombol);
+    });
+}
+
+function aturPencarianPesanTerbuka(terbuka, kosongkanQuery, fokus) {
+    if (!panelCariPesan || !btnToggleCariPesan || !inputCariPesan) return;
+
+    panelCariPesan.classList.toggle('terbuka', terbuka);
+    if (panelChatAktif) {
+        panelChatAktif.classList.toggle('pencarian-pesan-terbuka', terbuka);
+    }
+    panelCariPesan.setAttribute('aria-hidden', String(!terbuka));
+    btnToggleCariPesan.setAttribute('aria-expanded', String(terbuka));
+    if (kosongkanQuery !== false) inputCariPesan.value = '';
+    renderHasilPencarianPesan();
+    if (terbuka && fokus !== false) inputCariPesan.focus();
 }
 
 function bukaChat(idLawan) {
@@ -757,6 +874,8 @@ function bukaChat(idLawan) {
 
     if (chatAktifId && chatAktifId !== idLawan) {
         tutupPreviewGambar();
+        // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
+        aturPencarianPesanTerbuka(false, true, false);
     }
 
     chatAktifId = idLawan;
@@ -789,7 +908,7 @@ function bukaChat(idLawan) {
     renderPinPesanAktif();
     renderChatList();
 
-    if (inputTeksKirim) {
+    if (inputTeksKirim && !pencarianPesanTerbuka()) {
         inputTeksKirim.focus();
     }
 }
@@ -865,6 +984,7 @@ function kirimPesanAktif() {
 
     renderPesanAktif();
     renderChatList();
+    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
 }
 
 // ===== Fitur Kirim Gambar dari Galeri (Tanpa Batas Ukuran, Gaya WhatsApp) =====
@@ -1112,6 +1232,7 @@ async function kirimSemuaGambarAntrean() {
     tutupPreviewGambar();
     renderPesanAktif();
     renderChatList();
+    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
 }
 
 // Menu lampiran "Foto & video" memicu pemilih galeri (menggantikan tombol plus kedua)
@@ -1458,12 +1579,43 @@ window.addEventListener('storage', event => {
     if (event.key !== KEY_CHAT) return;
     prosesPesanMasuk();
     if (chatAktifId) renderPesanAktif();
+    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
     renderChatList();
 });
 
 if (inputCariChat) {
     inputCariChat.addEventListener('input', renderChatList);
 }
+
+// ----- Cari pesan di dalam chat: tombol, input, tutup (X / Escape) -----
+if (inputCariPesan) {
+    inputCariPesan.addEventListener('input', renderHasilPencarianPesan);
+}
+
+if (btnToggleCariPesan && inputCariPesan) {
+    btnToggleCariPesan.addEventListener('click', () => {
+        if (!chatAktifId) return;
+        const terbuka = !pencarianPesanTerbuka();
+        aturPencarianPesanTerbuka(terbuka);
+        if (!terbuka) btnToggleCariPesan.focus();
+    });
+}
+
+if (btnTutupCariPesan) {
+    btnTutupCariPesan.addEventListener('click', () => {
+        aturPencarianPesanTerbuka(false);
+        if (btnToggleCariPesan) btnToggleCariPesan.focus();
+    });
+}
+
+// Escape menutup panel walau fokus ada di tombol hasil; lightbox & pratinjau gambar didahulukan
+document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !pencarianPesanTerbuka()) return;
+    if (lightboxGambar && !lightboxGambar.hidden) return;
+    if (panelPreviewGambar && !panelPreviewGambar.hidden) return;
+    aturPencarianPesanTerbuka(false);
+    if (btnToggleCariPesan) btnToggleCariPesan.focus();
+});
 
 if (btnKirimPesan && inputTeksKirim) {
     btnKirimPesan.addEventListener('click', kirimPesanAktif);
