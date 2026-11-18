@@ -1131,7 +1131,6 @@ html[data-theme="dark"] .message-status.dibaca {
     text-align: left;
     cursor: pointer;
 }
-
 .settings-notification-page {
     flex: 1;
     min-height: 0;
@@ -1147,19 +1146,16 @@ html[data-theme="dark"] .message-status.dibaca {
     max-width: 640px;
     margin: 0 auto;
 }
-
 .notification-heading {
     display: flex;
     align-items: center;
     gap: 14px;
     margin-bottom: 24px;
 }
-
 .notification-heading h3 {
     margin: 0 0 6px;
     font-size: 1.2rem;
 }
-
 .notification-heading p,
 .notification-setting p {
     margin: 0;
@@ -1167,14 +1163,12 @@ html[data-theme="dark"] .message-status.dibaca {
     font-size: 0.9rem;
     line-height: 1.6;
 }
-
 .notification-card {
     padding: 22px;
     border: 1px solid var(--border-warna);
     border-radius: 14px;
     background: var(--bg-putih);
 }
-
 .notification-setting {
     display: flex;
     align-items: center;
@@ -1191,7 +1185,6 @@ html[data-theme="dark"] .message-status.dibaca {
     font-size: 1rem;
     font-weight: 600;
 }
-
 .notification-switch {
     display: flex;
     align-items: center;
@@ -1217,7 +1210,6 @@ html[data-theme="dark"] .message-status.dibaca {
         transform 0.16s ease,
         background-color 0.16s ease;
 }
-
 .notification-switch[aria-checked='true'] {
     border-color: var(--warna-utama);
     background: var(--warna-utama);
@@ -1232,13 +1224,11 @@ html[data-theme="dark"] .message-status.dibaca {
     cursor: default;
     opacity: 0.6;
 }
-
 .notification-entry:focus-visible,
 .notification-switch:focus-visible {
     outline: 2px solid var(--warna-utama);
     outline-offset: 3px;
 }
-
 .notification-status {
     margin: 18px 0 0;
     padding-top: 16px;
@@ -1257,12 +1247,10 @@ html[data-theme="dark"] .message-status.dibaca {
     .notification-entry:hover {
         background: var(--bg-abu-terang);
     }
-
     .notification-switch:not(:disabled):hover {
         border-color: var(--warna-utama);
     }
 }
-
 @media (max-width: 700px) {
     .settings-notification-page {
         padding: 20px 14px;
