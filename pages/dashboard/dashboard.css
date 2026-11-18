@@ -252,6 +252,7 @@ input {
 
 /* ---------- cari + daftar chat ---------- */
 .search-box-wrapper {
+    position: relative;
     padding: 12px 16px
 }
 
@@ -261,8 +262,24 @@ input {
     color: var(--teks-gelap);
     border: 0;
     border-radius: 8px;
-    padding: 10px 16px;
+    padding: 10px 16px 10px 38px;
     font-size: .9rem
+}
+
+.search-field-icon {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    color: var(--teks-redup);
+    fill: currentColor;
+    stroke: none;
+    pointer-events: none
+}
+
+.search-box-wrapper .search-field-icon {
+    top: 50%;
+    left: 28px;
+    transform: translateY(-50%)
 }
 
 .search-bar-input:focus {
@@ -385,11 +402,28 @@ input {
 }
 
 .active-chat-room {
+    --lebar-panel-cari-pesan: clamp(260px, 44%, 440px);
     display: none;
     flex-direction: column;
     width: 100%;
     height: 100%;
+    overflow: hidden;
     background: var(--bg-chat);
+}
+
+.active-chat-header,
+.messages-container,
+.active-chat-footer {
+    transition: padding-right .35s cubic-bezier(.22, .61, .36, 1)
+}
+
+.active-chat-room.pencarian-pesan-terbuka .active-chat-header,
+.active-chat-room.pencarian-pesan-terbuka .active-chat-footer {
+    padding-right: calc(20px + var(--lebar-panel-cari-pesan))
+}
+
+.active-chat-room.pencarian-pesan-terbuka .messages-container {
+    padding-right: calc(6% + var(--lebar-panel-cari-pesan))
 }
 
 .active-chat-header {
@@ -426,6 +460,7 @@ input {
 }
 
 .active-header-info {
+    flex: 1;
     min-width: 0;
     padding: 0;
     border: 0;
@@ -518,6 +553,204 @@ input {
     justify-content: center;
     gap: 10px;
     margin-top: 24px;
+}
+
+/* ---------- cari pesan di dalam chat ---------- */
+.message-search-toggle {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--teks-redup);
+    cursor: pointer;
+    flex: none
+}
+
+.message-search-toggle:hover {
+    background: var(--bg-abu-input);
+    color: var(--warna-utama)
+}
+
+.message-search-toggle:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+.message-search-toggle .search-field-icon {
+    position: static;
+    transform: none
+}
+
+.message-search-panel {
+    position: absolute;
+    inset: 0 0 0 auto;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    width: var(--lebar-panel-cari-pesan);
+    background: var(--bg-chat)
+}
+
+.message-search-panel.terbuka {
+    display: flex
+}
+
+.message-search-panel-header {
+    height: 65px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 20px;
+    background: var(--bg-putih);
+    border-bottom: 1px solid var(--border-warna)
+}
+
+.message-search-panel-header h2 {
+    margin: 0;
+    color: var(--teks-gelap);
+    font-size: 1.05rem;
+    font-weight: 600
+}
+
+.message-search-close {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--teks-gelap);
+    cursor: pointer
+}
+
+.message-search-close:hover {
+    background: var(--bg-abu-input)
+}
+
+.message-search-close:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+.message-search-input-row {
+    position: relative;
+    flex: none;
+    padding: 14px 20px
+}
+
+.message-search-input-row .search-field-icon {
+    top: 50%;
+    left: 34px;
+    transform: translateY(-50%);
+    color: var(--teks-redup)
+}
+
+.message-search-input {
+    width: 100%;
+    height: 48px;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    border: 0;
+    border-radius: 24px;
+    padding: 10px 16px 10px 42px;
+    font-size: .95rem
+}
+
+.message-search-input:focus {
+    outline: 2px solid var(--warna-utama)
+}
+
+.message-search-results {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 12px
+}
+
+.message-search-result {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    padding: 14px 32px;
+    border: 0;
+    border-bottom: 1px solid var(--border-warna);
+    background: var(--bg-chat);
+    color: var(--teks-gelap);
+    text-align: left;
+    font: inherit;
+    cursor: pointer
+}
+
+.message-search-result:hover {
+    background: var(--bg-abu-terang)
+}
+
+.message-search-result:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: -2px
+}
+
+.message-search-result-date {
+    color: var(--teks-redup);
+    font-size: .82rem
+}
+
+.message-search-result mark {
+    padding: 0;
+    background: transparent;
+    color: var(--warna-utama);
+    font-weight: 700
+}
+
+.message-search-empty {
+    margin: 20px 24px;
+    color: var(--teks-redup);
+    text-align: center;
+    line-height: 1.5
+}
+
+.message-row {
+    display: flex;
+    width: 100%;
+    border-radius: 6px
+}
+
+.message-row.kirim {
+    justify-content: flex-end
+}
+
+.message-row.terima {
+    justify-content: flex-start
+}
+
+.message-row.pesan-cari-terpilih {
+    animation: sorot-pesan-cari 1s ease-out forwards
+}
+
+@keyframes sorot-pesan-cari {
+    0% {
+        background: rgba(128, 128, 128, 0);
+        box-shadow: inset 0 0 transparent
+    }
+
+    15%,
+    75% {
+        background: rgba(128, 128, 128, .22);
+        box-shadow: inset 4px 0 #808080
+    }
+
+    100% {
+        background: rgba(128, 128, 128, 0);
+        box-shadow: inset 0 0 transparent
+    }
 }
 
 .messages-container {
@@ -848,6 +1081,19 @@ html[data-theme="dark"] .message-status.dibaca {
 }
 
 @media (max-width: 700px) {
+    .active-chat-room {
+        --lebar-panel-cari-pesan: 100%
+    }
+
+    .active-chat-room.pencarian-pesan-terbuka .active-chat-header,
+    .active-chat-room.pencarian-pesan-terbuka .active-chat-footer {
+        padding-right: 20px
+    }
+
+    .active-chat-room.pencarian-pesan-terbuka .messages-container {
+        padding-right: 6%
+    }
+
     .sisi-kiri {
         width: 100%;
         min-width: 0;
@@ -891,9 +1137,11 @@ html[data-theme="dark"] .message-status.dibaca {
     padding: 28px 24px;
     overflow-y: auto;
 }
+
 .settings-notification-page[hidden] {
     display: none !important;
 }
+
 .notification-content {
     max-width: 640px;
     margin: 0 auto;
@@ -926,10 +1174,12 @@ html[data-theme="dark"] .message-status.dibaca {
     align-items: center;
     gap: 20px;
 }
-.notification-setting > div {
+
+.notification-setting>div {
     flex: 1;
     min-width: 0;
 }
+
 .notification-setting h4 {
     margin: 0 0 8px;
     font-size: 1rem;
@@ -950,7 +1200,8 @@ html[data-theme="dark"] .message-status.dibaca {
         background-color 0.16s ease,
         border-color 0.16s ease;
 }
-.notification-switch > span {
+
+.notification-switch>span {
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -963,10 +1214,12 @@ html[data-theme="dark"] .message-status.dibaca {
     border-color: var(--warna-utama);
     background: var(--warna-utama);
 }
-.notification-switch[aria-checked='true'] > span {
+
+.notification-switch[aria-checked='true']>span {
     transform: translateX(18px);
     background: var(--teks-kontras);
 }
+
 .notification-switch:disabled {
     cursor: default;
     opacity: 0.6;
@@ -985,9 +1238,11 @@ html[data-theme="dark"] .message-status.dibaca {
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
+
 .notification-status[data-error='true'] {
     color: var(--merah);
 }
+
 @media (hover: hover) and (pointer: fine) {
     .notification-entry:hover {
         background: var(--bg-abu-terang);
@@ -1000,16 +1255,20 @@ html[data-theme="dark"] .message-status.dibaca {
     .settings-notification-page {
         padding: 20px 14px;
     }
+
     .notification-card {
         padding: 18px;
     }
+
     .notification-setting {
         gap: 14px;
     }
 }
+
 @media (prefers-reduced-motion: reduce) {
+
     .notification-switch,
-    .notification-switch > span {
+    .notification-switch>span {
         transition: none;
     }
 }
