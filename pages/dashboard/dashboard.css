@@ -876,6 +876,144 @@ html[data-theme="dark"] .message-status.dibaca {
     cursor: pointer;
 }
 
+.notification-entry {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.settings-notification-page {
+    flex: 1;
+    min-height: 0;
+    padding: 28px 24px;
+    overflow-y: auto;
+}
+.settings-notification-page[hidden] {
+    display: none !important;
+}
+.notification-content {
+    max-width: 640px;
+    margin: 0 auto;
+}
+.notification-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+.notification-heading h3 {
+    margin: 0 0 6px;
+    font-size: 1.2rem;
+}
+.notification-heading p,
+.notification-setting p {
+    margin: 0;
+    color: var(--teks-redup);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+.notification-card {
+    padding: 22px;
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    background: var(--bg-putih);
+}
+.notification-setting {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.notification-setting > div {
+    flex: 1;
+    min-width: 0;
+}
+.notification-setting h4 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+.notification-switch {
+    display: flex;
+    align-items: center;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 28px;
+    padding: 3px;
+    border: 1px solid var(--border-warna);
+    border-radius: 20px;
+    background: var(--bg-abu-input);
+    cursor: pointer;
+    transition:
+        background-color 0.16s ease,
+        border-color 0.16s ease;
+}
+.notification-switch > span {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--teks-redup);
+    transition:
+        transform 0.16s ease,
+        background-color 0.16s ease;
+}
+.notification-switch[aria-checked='true'] {
+    border-color: var(--warna-utama);
+    background: var(--warna-utama);
+}
+.notification-switch[aria-checked='true'] > span {
+    transform: translateX(18px);
+    background: var(--teks-kontras);
+}
+.notification-switch:disabled {
+    cursor: default;
+    opacity: 0.6;
+}
+.notification-entry:focus-visible,
+.notification-switch:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 3px;
+}
+.notification-status {
+    margin: 18px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-warna);
+    color: var(--teks-redup);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.notification-status[data-error='true'] {
+    color: var(--merah);
+}
+@media (hover: hover) and (pointer: fine) {
+    .notification-entry:hover {
+        background: var(--bg-abu-terang);
+    }
+    .notification-switch:not(:disabled):hover {
+        border-color: var(--warna-utama);
+    }
+}
+@media (max-width: 700px) {
+    .settings-notification-page {
+        padding: 20px 14px;
+    }
+    .notification-card {
+        padding: 18px;
+    }
+    .notification-setting {
+        gap: 14px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .notification-switch,
+    .notification-switch > span {
+        transition: none;
+    }
+}
+
 .settings-row-item[data-fitur="tema"]:hover {
     background: var(--bg-abu-terang);
 }
