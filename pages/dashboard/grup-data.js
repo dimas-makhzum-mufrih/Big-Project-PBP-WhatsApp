@@ -55,14 +55,6 @@
       (current) => {
         if (!current.ruang) current.ruang = bawaan(current);
         if (current.ruang.versi >= 2) return;
-        const teks = current.id + ":teks",
-          suara = current.id + ":suara";
-        if (current.ruang.categories.some((c) => c.id === suara)) {
-          current.ruang.channels.forEach((c) => {
-            if (c.jenis === "suara" && c.kategoriId === teks)
-              c.kategoriId = suara;
-          });
-        }
         current.ruang.versi = 2;
       },
       false,
@@ -150,16 +142,25 @@
         } else g.ruang.categories.push({ id: uid(), nama: value });
       });
     },
-    async channel(gid, nama, kategoriId, jenis) {
+    async channel(gid, nama, kategoriId, jenis, id = null) {
       return dasar.ubah(gid, (g) => {
         g.ruang ||= bawaan(g);
+        const existing = id ? g.ruang.channels.find((c) => c.id === id) : null;
+        if (id && !existing) throw new Error("Channel sudah dihapus.");
+        if (existing) jenis = existing.jenis;
+        if (!["teks", "suara"].includes(jenis))
+          throw new Error("Pilih jenis channel.");
         if (!g.ruang.categories.some((c) => c.id === kategoriId))
           throw new Error("Pilih kategori.");
         const list = g.ruang.channels.filter(
           (c) => c.kategoriId === kategoriId && c.jenis === jenis,
         );
-        const value = validasiNama(nama, list, null, jenis === "teks");
-        g.ruang.channels.push({ id: uid(), nama: value, kategoriId, jenis });
+        const value = validasiNama(nama, list, id, jenis === "teks");
+        if (existing) {
+          existing.nama = value;
+          existing.kategoriId = kategoriId;
+        } else
+          g.ruang.channels.push({ id: uid(), nama: value, kategoriId, jenis });
       });
     },
     async removeChannel(gid, id) {
@@ -174,6 +175,26 @@
           !g.ruang.categories.some((c) => c.id === tujuan && c.id !== id)
         )
           throw new Error("Kategori tujuan tidak tersedia.");
+        if (tujuan) {
+          const target = g.ruang.channels.filter(
+            (c) => c.kategoriId === tujuan,
+          );
+          for (const c of g.ruang.channels.filter((c) => c.kategoriId === id)) {
+            if (
+              target.some(
+                (other) =>
+                  other.jenis === c.jenis &&
+                  other.nama.toLocaleLowerCase("id-ID") ===
+                    c.nama.toLocaleLowerCase("id-ID"),
+              )
+            )
+              throw new Error(
+                'Channel "' +
+                  c.nama +
+                  '" sudah ada di kategori tujuan. Ubah namanya terlebih dahulu.',
+              );
+          }
+        }
         g.ruang.categories = g.ruang.categories.filter((c) => c.id !== id);
         g.ruang.channels = g.ruang.channels
           .filter((c) => c.kategoriId !== id || tujuan)
@@ -196,7 +217,9 @@
         id: g.id,
         nama: g.nama,
         foto: g.foto,
+        deskripsi: g.deskripsi || "",
         jumlah: g.anggotaIds.length,
+        anggota: g.anggotaIds.includes(akun),
       };
     },
     join: (gid, token) => dasar.layanan.gabung(gid, token),

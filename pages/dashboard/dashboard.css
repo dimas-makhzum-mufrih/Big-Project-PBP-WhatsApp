@@ -2976,6 +2976,65 @@ input {
   letter-spacing: 0.06em;
   color: var(--teks-redup);
 }
+.ruang-category-heading {
+  margin: 18px 0 6px;
+  font-size: 0.75rem;
+}
+.ruang-category-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--teks-redup);
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+.ruang-category-toggle:hover { background: var(--warna-tipis); color: var(--teks-gelap); }
+.ruang-category-toggle > .ikon { width: 13px; height: 13px; transition: transform 160ms ease; }
+.ruang-category-toggle[aria-expanded="false"] > .ikon { transform: rotate(-90deg); }
+.ruang-category-toggle > span:not(.ruang-badge) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ruang-category-channels { animation: ruang-fade 160ms ease; }
+.ruang-dialog form[aria-busy="true"] { cursor: progress; }
+.ruang-dialog button:disabled { opacity: 0.6; cursor: wait; }
+.ruang-invite-card { display: grid; justify-items: center; gap: 12px; margin: 20px 0 24px; text-align: center; }
+.ruang-invite-avatar { display: grid; place-items: center; width: 76px; height: 76px; border-radius: 24px; background: var(--warna-tipis); color: var(--warna-utama); font-size: 2rem; font-weight: 600; overflow: hidden; }
+.ruang-invite-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.ruang-invite-card h3 { margin: 0; font-size: 1.2rem; overflow-wrap: anywhere; }
+.ruang-invite-count { margin: 0; color: var(--teks-redup); font-size: 0.85rem; }
+.ruang-invite-description { margin: 0; color: var(--teks-redup); font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ruang-view-options { display: flex; flex: none; align-items: center; justify-content: center; gap: 4px; padding: 4px; border: 1px solid var(--border-warna); border-radius: 12px; background: var(--bg-putih); }
+.ruang-view-options .ruang-icon { width: 32px; height: 32px; border-radius: 8px; }
+.ruang-view-options .ikon { width: 17px; height: 17px; }
+.ruang-view-options [aria-pressed="true"] { background: var(--warna-tipis); color: var(--warna-utama); }
+.ruang-tile-focus { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; border-radius: inherit; background: transparent; color: #fff; cursor: pointer; }
+.ruang-tile-focus .ikon { position: absolute; width: 17px; height: 17px; right: 12px; bottom: 12px; opacity: 0; transition: opacity 140ms ease; }
+.ruang-tile-focus:hover { background: #ffffff05; }
+.ruang-tile-focus:hover .ikon, .ruang-tile-focus:focus-visible .ikon { opacity: 1; }
+.ruang-call-grid[data-view="focus"] { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); max-width: 920px; }
+.ruang-call-grid[data-view="focus"] > .ruang-call-tile { height: 100px; }
+.ruang-call-grid[data-view="focus"] > .ruang-focused { grid-column: 1 / -1; grid-row: 1; height: clamp(220px, 43vh, 420px); }
+.ruang-call-grid[data-view="focus"] > .ruang-focused video { object-fit: contain; background: #0b1013; }
+.ruang-call-grid[data-view="focus"] > :not(.ruang-focused) .ruang-call-avatar { font-size: 2rem; }
+.ruang-call-grid[data-view="focus"][data-count="1"] { max-width: 600px; }
+.ruang-preview-mic[aria-pressed="true"] { background: var(--warna-tipis); color: var(--warna-utama); outline: 2px solid var(--warna-utama); }
+@media (max-width: 700px) {
+  .ruang-call-controls { flex-wrap: wrap; justify-content: center; }
+  .ruang-call .ruang-call-controls .ruang-icon { width: 44px; height: 44px; }
+  .ruang-call-grid[data-view="focus"] > .ruang-focused { height: 240px; }
+  .ruang-stage-controls > .grup-tombol-sekunder { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ruang-category-channels { animation: none; }
+  .ruang-category-toggle > .ikon, .ruang-tile-focus .ikon { transition: none; }
+}
 .ruang-channel-row {
   display: flex;
   width: 100%;

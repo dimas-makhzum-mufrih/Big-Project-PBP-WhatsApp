@@ -12,6 +12,20 @@
       ? new BroadcastChannel("ngumpul:panggilan")
       : null);
   const peers = new Map();
+  const deviceKey = "ngumpul_panggilan_perangkat:" + akun;
+  let selectedDevices;
+  try {
+    selectedDevices = JSON.parse(sessionStorage.getItem(deviceKey) || "{}");
+  } catch (_) {
+    selectedDevices = {};
+  }
+  selectedDevices = {
+    microphone: "",
+    camera: "",
+    output: "",
+    ...selectedDevices,
+  };
+  const constraint = (id) => (id ? { deviceId: { exact: id } } : true);
   let current = null,
     stream = null,
     context = null,
@@ -89,6 +103,7 @@
       pending,
       failure,
       deafened,
+      devices: { ...selectedDevices },
       status: pending
         ? "connecting"
         : !current
@@ -273,6 +288,10 @@
       return new Error(
         "Akses mic atau kamera ditolak. Izinkan melalui pengaturan situs di browser.",
       );
+    if (error.name === "OverconstrainedError")
+      return new Error(
+        "Perangkat yang dipilih tidak tersedia. Pilih perangkat lain.",
+      );
     if (error.name === "NotFoundError")
       return new Error("Mic atau kamera tidak ditemukan. Periksa perangkatmu.");
     if (error.name === "NotReadableError")
@@ -306,7 +325,7 @@
     }
     post({ type: "presence" });
   }
-  async function join(gid, cid, video = false, invite = false) {
+  async function join(gid, cid, video = false, invite = false, options = {}) {
     if (busy) return false;
     if (current?.gid === gid && current.cid === cid) {
       if (video && !stream.getVideoTracks().length) await camera();
@@ -342,8 +361,8 @@
       if (!stream?.getAudioTracks().some((t) => t.readyState === "live")) {
         try {
           acquired = await navigator.mediaDevices.getUserMedia({
-            audio: true,
-            video,
+            audio: constraint(selectedDevices.microphone),
+            video: video ? constraint(selectedDevices.camera) : false,
           });
         } catch (e) {
           throw deviceError(e);
@@ -356,7 +375,7 @@
       ) {
         try {
           acquiredVideo = await navigator.mediaDevices.getUserMedia({
-            video: true,
+            video: constraint(selectedDevices.camera),
           });
         } catch (e) {
           throw deviceError(e);
@@ -389,6 +408,7 @@
         warnaAnggota: fresh.warnaAnggota || {},
         jenis: c.jenis,
       };
+      if (typeof options.muted === "boolean") micEnabled = !options.muted;
       stream
         .getAudioTracks()
         .forEach((t) => (t.enabled = micEnabled && !deafened));
@@ -462,7 +482,7 @@
         let cameraStream;
         try {
           cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
+            video: constraint(selectedDevices.camera),
           });
         } catch (e) {
           throw deviceError(e);
@@ -477,6 +497,120 @@
           if (peer.video) await peer.video.sender.replaceTrack(track);
       }
       if (session === current) publish();
+    } finally {
+      if (version === operation) {
+        busy = false;
+        emit("state", state());
+      }
+    }
+  }
+  async function devices() {
+    const available = await navigator.mediaDevices.enumerateDevices();
+    const list = (kind, label) => [
+      { id: "", nama: "Default" },
+      ...available
+        .filter(
+          (d) => d.kind === kind && d.deviceId && d.deviceId !== "default",
+        )
+        .map((d, i) => ({
+          id: d.deviceId,
+          nama: d.label || label + " " + (i + 1),
+        })),
+    ];
+    return {
+      selected: { ...selectedDevices },
+      microphone: list("audioinput", "Mikrofon"),
+      camera: list("videoinput", "Kamera"),
+      output: list("audiooutput", "Speaker"),
+    };
+  }
+  async function configureDevices(values) {
+    if (busy) throw new Error("Tunggu pergantian perangkat selesai.");
+    const next = { ...selectedDevices, ...values },
+      session = current,
+      version = ++operation;
+    if (!session) {
+      selectedDevices = next;
+      try {
+        sessionStorage.setItem(deviceKey, JSON.stringify(next));
+      } catch (_) {}
+      return;
+    }
+    const changeAudio = next.microphone !== selectedDevices.microphone;
+    const changeVideo =
+      next.camera !== selectedDevices.camera &&
+      stream.getVideoTracks().some((t) => t.readyState === "live");
+    let acquired = null;
+    const replaced = [];
+    busy = true;
+    emit("state", state());
+    try {
+      if (changeAudio || changeVideo) {
+        try {
+          acquired = await navigator.mediaDevices.getUserMedia({
+            audio: changeAudio ? constraint(next.microphone) : false,
+            video: changeVideo ? constraint(next.camera) : false,
+          });
+        } catch (e) {
+          throw deviceError(e);
+        }
+        validSession(version);
+        for (const kind of ["audio", "video"]) {
+          const track = acquired.getTracks().find((t) => t.kind === kind);
+          if (!track) continue;
+          if (kind === "audio") track.enabled = micEnabled && !deafened;
+          for (const peer of peers.values())
+            if (peer[kind]) {
+              const sender = peer[kind].sender,
+                old = sender.track;
+              await sender.replaceTrack(track);
+              replaced.push({ sender, old });
+              validSession(version);
+            }
+        }
+        validSession(version);
+        for (const track of acquired.getTracks()) {
+          stream
+            .getTracks()
+            .filter((t) => t.kind === track.kind)
+            .forEach((old) => {
+              stream.removeTrack(old);
+              old.stop();
+            });
+          stream.addTrack(track);
+        }
+        acquired = null;
+        if (changeAudio) {
+          if (context) await context.close().catch(() => {});
+          context = null;
+          analyser = null;
+          try {
+            context = new AudioContext();
+            analyser = context.createAnalyser();
+            analyser.fftSize = 256;
+            context.createMediaStreamSource(stream).connect(analyser);
+            context.resume().catch(() => {});
+          } catch (_) {
+            context = null;
+            analyser = null;
+          }
+        }
+      }
+      validSession(version);
+      selectedDevices = next;
+      try {
+        sessionStorage.setItem(deviceKey, JSON.stringify(next));
+      } catch (_) {}
+      publish();
+    } catch (e) {
+      if (session === current)
+        for (const { sender, old } of replaced) {
+          try {
+            await sender.replaceTrack(old);
+          } catch (_) {}
+        }
+      acquired?.getTracks().forEach((t) => t.stop());
+      throw e;
     } finally {
       if (version === operation) {
         busy = false;
@@ -569,6 +703,8 @@
     state,
     participants,
     backend,
+    devices,
+    configureDevices,
     mic() {
       if (!current) return;
       if (deafened) {

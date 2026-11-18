@@ -51,15 +51,30 @@
   let drawerMode = null,
     pendingInvite = null,
     incomingTimer,
-    callStarted = null,
-    modalFocus = null;
+    callStarted = null;
   let drawerFocus = null,
     rightPanelVersion = 0,
     channelSelection = 0,
     callExpanded = false,
     callFocus = null,
-    audioBlocked = false;
-  const audioPlayers = new Map();
+    audioBlocked = false,
+    modalState = null,
+    managementFingerprint = "",
+    galleryFingerprint = "",
+    galleryTab = "Media",
+    callViewMode = "grid",
+    focusedParticipant = null;
+  const audioPlayers = new Map(),
+    previewMuted = new Map();
+  const collapsedKey = D.kunci("kategori-lipat", akun);
+  let collapsedCategories;
+  try {
+    collapsedCategories = new Set(
+      JSON.parse(sessionStorage.getItem(collapsedKey) || "[]"),
+    );
+  } catch (_) {
+    collapsedCategories = new Set();
+  }
   const attachments = new Map(),
     attempts = new Map(),
     positions = new Map(),
@@ -121,6 +136,7 @@
     .append(
       button("Kembali ke obrolan", () => showCall(false), "chevron-down"),
     );
+  call.querySelector("#ruang-call-name").after(createViewControls());
   document.body.append(call);
   const audioOutput = el("div");
   audioOutput.id = "ruang-audio-output";
@@ -337,7 +353,12 @@
     await renderSidebar();
     await renderPreview();
     autosize();
-    if (c.jenis === "suara" && joinVoice && !group.keluar) {
+    if (
+      c.jenis === "suara" &&
+      joinVoice &&
+      !group.keluar &&
+      !matchMedia("(max-width:700px)").matches
+    ) {
       await startCall(false, false, groupId, id);
       return;
     }
@@ -469,6 +490,10 @@
         hideMiddle();
       }
       if (!sidebar.hidden) await renderSidebar();
+      if (drawerMode === "manage" && !drawer.hidden) renderManagement(latest);
+      if (drawerMode === "gallery" && !drawer.hidden)
+        await gallery(gid, galleryTab, true);
+      refreshModalData(latest);
     }
   }
   async function renderSidebar() {
@@ -510,8 +535,42 @@
         (c) => c.kategoriId === category.id,
       );
       if (!channels.length && !isAdmin(group)) continue;
-      list.append(el("h3", "ruang-category-title", category.nama));
-      if (!channels.length) list.append(el("p", "ruang-empty-small", "Kosong"));
+      const heading = el("h3", "ruang-category-heading"),
+        section = el("div", "ruang-category-channels");
+      section.id = "ruang-kategori-" + category.id;
+      section.hidden = collapsedCategories.has(category.id);
+      const toggle = button(
+        category.nama,
+        () => {
+          section.hidden = !section.hidden;
+          if (section.hidden) collapsedCategories.add(category.id);
+          else collapsedCategories.delete(category.id);
+          toggle.setAttribute("aria-expanded", String(!section.hidden));
+          try {
+            sessionStorage.setItem(
+              collapsedKey,
+              JSON.stringify([...collapsedCategories]),
+            );
+          } catch (_) {}
+        },
+        null,
+        "ruang-category-toggle",
+      );
+      toggle.setAttribute("aria-expanded", String(!section.hidden));
+      toggle.setAttribute("aria-controls", section.id);
+      toggle.replaceChildren(
+        icon("chevron-down"),
+        el("span", "", category.nama),
+      );
+      const unread = channels.reduce(
+        (n, c) => n + D.unread(messages.filter((p) => p.channelId === c.id)),
+        0,
+      );
+      badge(toggle, unread);
+      heading.append(toggle);
+      list.append(heading, section);
+      if (!channels.length)
+        section.append(el("p", "ruang-empty-small", "Kosong"));
       for (const c of channels) {
         const row = button(
           c.nama,
@@ -526,13 +585,13 @@
         );
         if (c.jenis === "teks" && !group.keluar)
           badge(row, D.unread(messages.filter((p) => p.channelId === c.id)));
-        list.append(row);
+        section.append(row);
         if (c.jenis === "suara") {
           row.dataset.voiceRoom = group.id + "/" + c.id;
           const members = el("div", "ruang-voice-members");
           members.dataset.room = row.dataset.voiceRoom;
           members.setAttribute("aria-label", "Peserta " + c.nama);
-          list.append(members);
+          section.append(members);
         }
       }
     }
@@ -1062,7 +1121,13 @@
       const message = el("p", "ruang-stage-error");
       message.setAttribute("role", "status");
       const controls = el("div", "ruang-call-controls ruang-stage-controls");
-      lobby.replaceChildren(intro, grid, message, controls);
+      lobby.replaceChildren(
+        intro,
+        createViewControls(),
+        grid,
+        message,
+        controls,
+      );
     }
     const here = state.current?.room === room;
     const connecting = state.pending?.gid === gid && state.pending.cid === c.id;
@@ -1089,6 +1154,10 @@
       state,
       here ? state.current.warnaAnggota : group?.warnaAnggota,
     );
+    updateViewControls(
+      lobby.querySelector(".ruang-view-options"),
+      members.length,
+    );
     const controls = lobby.querySelector(".ruang-stage-controls");
     const mode = here
       ? "connected"
@@ -1106,10 +1175,36 @@
       if (mode === "join" || mode === "retry") {
         const id = gid,
           channel = c.id;
+        const mobile = matchMedia("(max-width:700px)").matches;
+        if (mobile) {
+          const muted = !!previewMuted.get(id + "/" + channel);
+          const mic = button(
+            muted ? "Gabung dengan mic aktif" : "Gabung dengan mic mati",
+            () => {
+              previewMuted.set(
+                id + "/" + channel,
+                !previewMuted.get(id + "/" + channel),
+              );
+              controls.dataset.mode = "";
+              renderLobby(c);
+            },
+            muted ? "mic-off" : "mic",
+            "ruang-icon ruang-preview-mic",
+          );
+          mic.setAttribute("aria-pressed", String(muted));
+          controls.append(mic);
+        }
         controls.append(
           button(
             failed ? "Coba lagi" : "Gabung suara",
-            () => startCall(false, false, id, channel),
+            () =>
+              startCall(
+                false,
+                false,
+                id,
+                channel,
+                mobile ? { muted: !!previewMuted.get(id + "/" + channel) } : {},
+              ),
             null,
             "grup-tombol-utama",
           ),
@@ -1118,7 +1213,16 @@
           controls.append(
             button(
               "Gabung dengan video",
-              () => startCall(true, false, id, channel),
+              () =>
+                startCall(
+                  true,
+                  false,
+                  id,
+                  channel,
+                  mobile
+                    ? { muted: !!previewMuted.get(id + "/" + channel) }
+                    : {},
+                ),
               null,
               "grup-tombol-sekunder",
             ),
@@ -1130,12 +1234,79 @@
     }
     if (here) renderCallControls(controls, state, true);
   }
-  function modal(title, fields, action, submit = "Simpan") {
+  function dismissModal(state = modalState) {
+    if (!state || state.busy || modalState !== state) return false;
+    modalState = null;
+    dialog.close();
+    state.options.onClose?.();
+    const restoredFocus = document.activeElement;
+    requestAnimationFrame(() => {
+      if (dialog.open || modalState) return;
+      if (document.activeElement !== restoredFocus) return;
+      if (
+        state.focus?.isConnected &&
+        state.focus.getClientRects().length &&
+        !state.focus.closest("[inert]")
+      )
+        state.focus.focus({ preventScroll: true });
+      else if (!drawer.hidden) $("ruang-drawer-close").focus();
+      else if (!call.hidden) call.querySelector("header button").focus();
+    });
+    return true;
+  }
+  function refreshModalData(g) {
+    const state = modalState;
+    if (!state || state.busy || state.options.groupId !== g.id) return;
+    const meta = state.options;
+    if (!isAdmin(g) && meta.admin) {
+      state.status.textContent =
+        "Hanya admin yang dapat melakukan tindakan ini.";
+      state.save.disabled = true;
+      return;
+    }
+    if (
+      (meta.channelId &&
+        !g.ruang.channels.some((c) => c.id === meta.channelId)) ||
+      (meta.categoryId &&
+        !g.ruang.categories.some((c) => c.id === meta.categoryId))
+    ) {
+      state.status.textContent = "Channel atau kategori ini sudah dihapus.";
+      state.save.disabled = true;
+      return;
+    }
+    if (meta.categories) {
+      const select = state.form.elements.namedItem("kategori"),
+        value = select.value;
+      const fingerprint = JSON.stringify(g.ruang.categories);
+      if (select.dataset.categories === fingerprint) return;
+      select.dataset.categories = fingerprint;
+      select.replaceChildren();
+      for (const c of g.ruang.categories) {
+        const option = el("option", "", c.nama);
+        option.value = c.id;
+        select.append(option);
+      }
+      if (g.ruang.categories.some((c) => c.id === value)) select.value = value;
+      else {
+        const missing = el("option", "", "Pilih kategori");
+        missing.value = "";
+        missing.disabled = true;
+        select.prepend(missing);
+        select.value = "";
+      }
+    }
+  }
+  function modal(title, fields, action, submit = "Simpan", options = {}) {
+    if (modalState?.busy) return;
+    if (modalState) dismissModal();
     if (dialog.open) dialog.close();
-    modalFocus = document.activeElement;
+    const state = { options, focus: document.activeElement, busy: false };
+    modalState = state;
     const form = el("form", "detail-panel-content");
+    state.form = form;
     form.append(el("h2", "", title));
     form.firstChild.id = "ruang-dialog-title";
+    if (options.body) form.append(options.body);
     for (const f of fields) {
       const label = el("label", "ruang-field", f.label);
       const input = el(
@@ -1163,35 +1334,66 @@
     }
     const status = el("p", "grup-status");
     status.setAttribute("role", "status");
+    state.status = status;
     form.append(status);
     const actions = el("div", "grup-form-aksi");
     if (action)
       actions.append(
-        button("Batal", () => dialog.close(), null, "grup-tombol-sekunder"),
+        button(
+          "Batal",
+          () => dismissModal(state),
+          null,
+          "grup-tombol-sekunder",
+        ),
       );
     const save = el("button", "grup-tombol-utama", submit);
     save.type = "submit";
+    state.save = save;
     actions.append(save);
     form.append(actions);
     form.onsubmit = async (e) => {
       e.preventDefault();
-      if (save.disabled) return;
+      if (state !== modalState || state.busy || save.disabled) return;
       if (!action) {
-        dialog.close();
+        dismissModal(state);
         return;
       }
-      save.disabled = true;
+      const values = Object.fromEntries(new FormData(form));
+      state.busy = true;
+      form.setAttribute("aria-busy", "true");
+      const controls = [
+        ...form.querySelectorAll("button,input,select,textarea"),
+      ];
+      const disabled = controls.map((n) => n.disabled);
+      controls.forEach((n) => (n.disabled = true));
+      save.textContent = options.loading || "Menyimpan...";
       try {
-        await action(Object.fromEntries(new FormData(form)));
-        dialog.close();
+        const result = await action(values);
+        if (modalState !== state) return;
+        state.busy = false;
+        if (result !== false) {
+          dismissModal(state);
+          if (typeof result === "function") result();
+        }
         await refresh();
         await renderList();
         await B.refreshInfo();
       } catch (e) {
-        status.textContent = e.message;
-        status.dataset.error = "true";
+        if (modalState === state) {
+          status.textContent = e.message || "Belum berhasil. Coba lagi.";
+          status.dataset.error = "true";
+        }
       } finally {
-        save.disabled = false;
+        state.busy = false;
+        form.removeAttribute("aria-busy");
+        controls.forEach((n, i) => (n.disabled = disabled[i]));
+        save.textContent = submit;
+        if (
+          modalState === state &&
+          options.groupId &&
+          group?.id === options.groupId
+        )
+          refreshModalData(group);
       }
     };
     dialog.replaceChildren(form);
@@ -1199,6 +1401,7 @@
     (
       form.querySelector("input:not([readonly]),textarea,select") || save
     ).focus();
+    return state;
   }
   function showDrawer(mode, title) {
     cancelPanelMotion(drawer);
@@ -1249,6 +1452,23 @@
     if (!isAdmin(g))
       throw new Error("Hanya admin yang dapat mengelola channel.");
     showDrawer("manage", "Kelola channel");
+    managementFingerprint = "";
+    renderManagement(g);
+  }
+  function renderManagement(g) {
+    const fingerprint = JSON.stringify([
+      g.id,
+      g.ruang.categories,
+      g.ruang.channels,
+    ]);
+    if (fingerprint === managementFingerprint) return;
+    managementFingerprint = fingerprint;
+    const content = $("ruang-drawer-content"),
+      scroll = content.scrollTop;
+    const focused = content.contains(document.activeElement)
+      ? document.activeElement.dataset.control
+      : null;
+    content.replaceChildren();
     const target = $("ruang-drawer-content"),
       actions = el("div", "ruang-manage-actions");
     actions.append(
@@ -1265,6 +1485,8 @@
         button("Ubah nama kategori", () => editCategory(category), "edit-grup"),
         button("Hapus kategori", () => deleteCategory(category), "close"),
       );
+      head.children[1].dataset.control = "category-edit:" + category.id;
+      head.children[2].dataset.control = "category-delete:" + category.id;
       card.append(head);
       const channels = g.ruang.channels.filter(
         (c) => c.kategoriId === category.id,
@@ -1280,6 +1502,7 @@
         row.append(
           c.jenis === "teks" ? el("span", "ruang-hash", "#") : icon("speaker"),
           label,
+          button("Ubah channel " + c.nama, () => editChannel(c), "edit-grup"),
           button(
             "Hapus " + c.nama,
             async () => {
@@ -1301,12 +1524,20 @@
             "close",
           ),
         );
+        row.children[2].dataset.control = "channel-edit:" + c.id;
+        row.children[3].dataset.control = "channel-delete:" + c.id;
         card.append(row);
       }
       target.append(card);
     }
+    content.scrollTop = scroll;
+    if (focused && !dialog.open)
+      [...content.querySelectorAll("[data-control]")]
+        .find((n) => n.dataset.control === focused)
+        ?.focus({ preventScroll: true });
   }
   function editCategory(category = null) {
+    const id = gid;
     modal(
       category ? "Ubah kategori" : "Kategori baru",
       [
@@ -1318,21 +1549,27 @@
         },
       ],
       async (values) => {
-        await D.category(gid, values.nama, category?.id);
+        await D.category(id, values.nama, category?.id);
         toast(category ? "Kategori disimpan" : "Kategori ditambahkan");
         await management();
       },
       category ? "Simpan" : "Tambah",
+      { groupId: id, categoryId: category?.id, admin: true },
     );
   }
-  async function newChannel(jenis) {
-    const g = await D.get(gid),
+  function editChannel(channel) {
+    return newChannel(channel.jenis, channel);
+  }
+  async function newChannel(jenis, existing = null) {
+    const id = gid;
+    const g = await D.get(id),
       categories = g.ruang.categories;
     if (!categories.length) {
       toast("Tambahkan kategori terlebih dahulu.");
       return;
     }
     const category =
+      categories.find((c) => c.id === existing?.kategoriId) ||
       categories.find((c) => c.id === g.id + ":" + jenis) ||
       categories.find(
         (c) => c.nama.trim().toLocaleLowerCase("id-ID") === jenis,
@@ -1344,11 +1581,12 @@
       ) ||
       categories[0];
     modal(
-      "Channel " + jenis + " baru",
+      existing ? "Ubah channel" : "Channel " + jenis + " baru",
       [
         {
           name: "nama",
           label: "Nama channel",
+          value: existing?.nama,
           placeholder:
             jenis === "teks" ? "Contoh: tugas-akhir" : "Contoh: Belajar bareng",
         },
@@ -1360,11 +1598,12 @@
         },
       ],
       async (values) => {
-        await D.channel(gid, values.nama, values.kategori, jenis);
-        toast("Channel ditambahkan");
+        await D.channel(id, values.nama, values.kategori, jenis, existing?.id);
+        toast(existing ? "Channel disimpan" : "Channel ditambahkan");
         await management();
       },
-      "Tambah",
+      existing ? "Simpan" : "Tambah",
+      { groupId: id, channelId: existing?.id, categories: true, admin: true },
     );
   }
   async function deleteCategory(category) {
@@ -1414,8 +1653,8 @@
             true,
           ))
         )
-          return;
-        await D.removeCategory(gid, category.id, values.tujuan || null);
+          return false;
+        await D.removeCategory(g.id, category.id, values.tujuan || null);
         toast("Kategori dihapus");
         await renderList();
         await management();
@@ -1552,6 +1791,75 @@
     invite.hidden = g.keluar || (!isAdmin(g) && !g.anggotaBolehUndang);
     controls.prepend(invite);
   }
+  function clearInvitation() {
+    const hash = new URLSearchParams(location.hash.slice(1));
+    hash.delete("undangan-grup");
+    hash.delete("kode");
+    history.replaceState(
+      null,
+      "",
+      location.pathname + location.search + (hash.size ? "#" + hash : ""),
+    );
+    sessionStorage.removeItem("ngumpul_undangan_tertunda");
+  }
+  function invitationPreview(summary, id, token) {
+    const body = el("div", "ruang-invite-card"),
+      avatar = el("div", "ruang-invite-avatar");
+    B.avatar(avatar, summary.nama, summary.foto);
+    body.append(
+      avatar,
+      el("h3", "", summary.nama),
+      el("p", "ruang-invite-count", summary.jumlah + " anggota"),
+    );
+    if (summary.deskripsi)
+      body.append(el("p", "ruang-invite-description", summary.deskripsi));
+    modal(
+      "Undangan grup",
+      [],
+      async () => {
+        await D.join(id, token);
+        clearInvitation();
+        await open(id);
+        if (!summary.anggota) toast("Kamu bergabung ke grup");
+      },
+      summary.anggota ? "Buka grup" : "Gabung",
+      { body, onClose: clearInvitation },
+    );
+  }
+  function joinFromLink() {
+    modal(
+      "Gabung grup",
+      [
+        {
+          name: "tautan",
+          label: "Tautan undangan",
+          max: 2000,
+          placeholder: "Tempel tautan undangan",
+        },
+      ],
+      async (values) => {
+        let url;
+        try {
+          url = new URL(values.tautan.trim(), location.origin);
+        } catch (_) {
+          throw new Error("Tautan undangan tidak valid.");
+        }
+        const hash = new URLSearchParams(url.hash.slice(1)),
+          id = hash.get("undangan-grup"),
+          token = hash.get("kode");
+        if (url.origin !== location.origin || !id || !token)
+          throw new Error("Gunakan tautan undangan dari aplikasi ini.");
+        const summary = await D.invitation(id, token);
+        return () => invitationPreview(summary, id, token);
+      },
+      "Lanjut",
+      { loading: "Memeriksa..." },
+    );
+  }
+  $("menu-grup-gabung").addEventListener("click", () => {
+    $("box-dropdown-utama").style.display = "none";
+    joinFromLink();
+  });
   async function invite(id) {
     const hash = new URLSearchParams(
       (
@@ -1564,28 +1872,16 @@
       invitedId = hash.get("undangan-grup");
     if (invitedId && token) {
       try {
-        const summary = await D.invitation(invitedId, token);
-        modal(
-          "Undangan grup",
-          [
-            {
-              name: "nama",
-              label: "Grup",
-              value: summary.nama + " · " + summary.jumlah + " anggota",
-              readonly: true,
-            },
-          ],
-          async () => {
-            await D.join(invitedId, token);
-            history.replaceState(null, "", location.pathname + location.search);
-            sessionStorage.removeItem("ngumpul_undangan_tertunda");
-            await open(invitedId);
-            toast("Kamu bergabung ke grup");
-          },
-          "Gabung",
+        invitationPreview(
+          await D.invitation(invitedId, token),
+          invitedId,
+          token,
         );
       } catch (e) {
-        error(e);
+        modal("Undangan tidak tersedia", [], null, "Tutup", {
+          body: el("p", "ruang-invite-description", e.message),
+          onClose: clearInvitation,
+        });
       }
       return;
     }
@@ -1642,8 +1938,10 @@
   }
   async function mediaItems(id) {
     const g = await D.get(id),
-      messages = await D.messages(g);
+      messages = await D.messages(g),
+      active = new Set(g.ruang.channels.map((c) => c.id));
     return messages
+      .filter((p) => active.has(p.channelId))
       .flatMap((p) =>
         [
           ...(p.lampiran || []),
@@ -1674,11 +1972,23 @@
       String(!drawer.hidden && drawerMode === "gallery"),
     );
   }
-  async function gallery(id, tab = "Media") {
-    const version = ++rightPanelVersion;
+  async function gallery(id, tab = "Media", passive = false) {
+    if (passive && (drawer.hidden || drawerMode !== "gallery")) return;
+    const expected = passive ? rightPanelVersion : ++rightPanelVersion;
     const files = await mediaItems(id);
-    if (version !== rightPanelVersion || id !== gid) return;
-    showDrawer("gallery", "Media, tautan, dan dokumen");
+    if (expected !== rightPanelVersion || id !== gid) return;
+    const fingerprint = JSON.stringify([id, tab, files]);
+    if (passive && fingerprint === galleryFingerprint) return;
+    const version = passive ? ++rightPanelVersion : expected;
+    const content = $("ruang-drawer-content"),
+      scroll = content.scrollTop;
+    const focused = content.contains(document.activeElement)
+      ? document.activeElement.dataset.control
+      : null;
+    if (!passive) showDrawer("gallery", "Media, tautan, dan dokumen");
+    else content.replaceChildren();
+    galleryFingerprint = fingerprint;
+    galleryTab = tab;
     const target = $("ruang-drawer-content"),
       tabs = el("div", "detail-media-tabs");
     for (const label of ["Media", "Tautan", "Dokumen"]) {
@@ -1689,6 +1999,7 @@
         "grup-tombol-sekunder",
       );
       b.setAttribute("aria-pressed", String(tab === label));
+      b.dataset.control = "gallery:" + label;
       tabs.append(b);
     }
     target.append(tabs);
@@ -1718,9 +2029,24 @@
           "Belum ada " + tab.toLocaleLowerCase("id-ID") + ".",
         ),
       );
-    if (version === rightPanelVersion) target.append(grid);
+    if (version === rightPanelVersion) {
+      target.append(grid);
+      if (passive) {
+        content.scrollTop = scroll;
+        if (focused && !dialog.open)
+          [...content.querySelectorAll("[data-control]")]
+            .find((n) => n.dataset.control === focused)
+            ?.focus({ preventScroll: true });
+      }
+    }
   }
-  async function startCall(video, inviteAll, groupId = gid, channelId = cid) {
+  async function startCall(
+    video,
+    inviteAll,
+    groupId = gid,
+    channelId = cid,
+    options = {},
+  ) {
     if (!groupId) return;
     const target = await D.get(groupId);
     if (target.keluar) return;
@@ -1731,7 +2057,7 @@
     if (!channel) throw new Error("Tambahkan channel terlebih dahulu.");
     await stopRecording(true);
     B.tutupInfo(false);
-    const joined = await P.join(groupId, channel, video, inviteAll);
+    const joined = await P.join(groupId, channel, video, inviteAll, options);
     if (
       joined &&
       inviteAll &&
@@ -1782,6 +2108,17 @@
         player.autoplay = true;
         audioOutput.append(player);
         audioPlayers.set(peer.id, player);
+        const output = state.devices?.output || "";
+        if (output && player.setSinkId)
+          player
+            .setSinkId(output)
+            .catch(() =>
+              error(
+                new Error(
+                  "Speaker tidak dapat dipilih. Periksa pengaturan suara.",
+                ),
+              ),
+            );
       }
       player.muted = state.deafened;
       if (player.srcObject !== peer.stream) player.srcObject = peer.stream;
@@ -1824,11 +2161,109 @@
     );
     audioRetry.hidden = !audioBlocked;
   }
+  async function setAudioOutput(id) {
+    if (!HTMLMediaElement.prototype.setSinkId) return;
+    const players = [...audioPlayers.values()];
+    if (!players.length) players.push(document.createElement("audio"));
+    const old = players.map((p) => p.sinkId);
+    try {
+      await Promise.all(players.map((p) => p.setSinkId(id)));
+    } catch (_) {
+      await Promise.all(
+        players.map((p, i) => p.setSinkId(old[i]).catch(() => {})),
+      );
+      throw new Error(
+        "Speaker tidak dapat dipilih. Periksa izin audio di browser.",
+      );
+    }
+  }
+  async function deviceSettings() {
+    const state = P.state();
+    if (!state.current || state.busy) return;
+    const data = await P.devices();
+    if (P.state().current !== state.current) return;
+    const fields = [
+      {
+        name: "microphone",
+        label: "Mikrofon",
+        options: data.microphone,
+        value: data.selected.microphone || "",
+        required: false,
+      },
+      {
+        name: "camera",
+        label: "Kamera",
+        options: data.camera,
+        value: data.selected.camera || "",
+        required: false,
+      },
+    ];
+    if (HTMLMediaElement.prototype.setSinkId)
+      fields.push({
+        name: "output",
+        label: "Speaker",
+        options: data.output,
+        value: data.selected.output || "",
+        required: false,
+      });
+    modal("Suara dan video", fields, async (values) => {
+      if (P.state().current !== state.current)
+        throw new Error("Panggilan sudah berakhir atau berpindah ruangan.");
+      const previous = P.state().devices.output || "";
+      if ("output" in values) await setAudioOutput(values.output);
+      try {
+        await P.configureDevices(values);
+      } catch (e) {
+        await setAudioOutput(previous).catch(() => {});
+        throw e;
+      }
+      toast("Perangkat disimpan");
+    });
+  }
   function retireParticipant(node) {
     if (!panelAnimations.has(node)) closePanel(node, () => node.remove());
   }
+  function createViewControls() {
+    const controls = el("div", "ruang-view-options");
+    controls.setAttribute("role", "group");
+    controls.setAttribute("aria-label", "Tampilan peserta");
+    controls.append(
+      button(
+        "Tampilan kisi",
+        () => {
+          callViewMode = "grid";
+          renderCall();
+        },
+        "grid",
+      ),
+      button(
+        "Fokus peserta",
+        () => {
+          callViewMode = "focus";
+          renderCall();
+        },
+        "focus",
+      ),
+    );
+    return controls;
+  }
+  function updateViewControls(controls, count) {
+    controls.hidden = !count;
+    controls.children[0].setAttribute(
+      "aria-pressed",
+      String(callViewMode === "grid"),
+    );
+    controls.children[1].setAttribute(
+      "aria-pressed",
+      String(callViewMode === "focus"),
+    );
+  }
   function renderTiles(grid, members, state, colors = {}) {
     grid.dataset.count = String(members.length);
+    if (!members.some((p) => p.tab === focusedParticipant))
+      focusedParticipant =
+        members.find((p) => p.akun !== akun)?.tab || members[0]?.tab || null;
+    grid.dataset.view = callViewMode;
     const alive = new Set();
     for (const p of members) {
       alive.add(p.tab);
@@ -1846,8 +2281,27 @@
           el("strong", "ruang-call-label"),
           el("span", "ruang-tile-state"),
         );
+        const focus = button(
+          "Fokuskan peserta",
+          () => {
+            focusedParticipant = p.tab;
+            callViewMode = "focus";
+            renderCall();
+          },
+          "maximize",
+          "ruang-tile-focus",
+        );
+        tile.append(focus);
         grid.append(tile);
       }
+      const selected = callViewMode === "focus" && p.tab === focusedParticipant;
+      tile.classList.toggle("ruang-focused", selected);
+      const focusButton = tile.querySelector(".ruang-tile-focus");
+      focusButton.setAttribute(
+        "aria-label",
+        "Fokuskan " + (p.akun === akun ? "Kamu" : B.nama(p.akun)),
+      );
+      focusButton.setAttribute("aria-pressed", String(selected));
       cancelPanelMotion(tile);
       tile.classList.toggle("speaking", !!p.speaking && p.mic);
       const player = tile.querySelector("video");
@@ -1914,6 +2368,9 @@
             "disconnect",
             "ruang-icon ruang-hangup",
           ),
+        );
+        controls.append(
+          button("Pengaturan suara dan video", deviceSettings, "gear"),
         );
         if (expand)
           controls.append(
@@ -2068,6 +2525,10 @@
         ? "Panggilan video"
         : "Panggilan suara";
       updateCallTime();
+      updateViewControls(
+        call.querySelector(".ruang-view-options"),
+        state.participants.length,
+      );
       if (!call.hidden)
         renderTiles(
           $("ruang-call-grid"),
@@ -2255,10 +2716,12 @@
   };
   $("ruang-drawer-close").onclick = () => closeDrawer(false, true);
   $("ruang-drawer-back").onclick = () => closeDrawer(true, true);
+  dialog.addEventListener("cancel", (e) => {
+    e.preventDefault();
+    dismissModal();
+  });
   dialog.addEventListener("close", () => {
-    if (modalFocus?.isConnected && modalFocus.getClientRects().length)
-      modalFocus.focus({ preventScroll: true });
-    else if (!drawer.hidden) $("ruang-drawer-close").focus();
+    if (!dialog.open && modalState && !modalState.busy) dismissModal();
   });
   dialog.addEventListener("click", (e) => {
     if (e.target === dialog) {
@@ -2269,7 +2732,7 @@
         e.clientY < r.top ||
         e.clientY > r.bottom
       )
-        dialog.close();
+        dismissModal();
     }
   });
   $("btn-edit-deskripsi-grup").addEventListener(
@@ -2306,7 +2769,7 @@
   document.addEventListener(
     "keydown",
     (e) => {
-      if (!call.hidden) {
+      if (!call.hidden && !document.querySelector("dialog[open]")) {
         if (e.key === "Escape") {
           e.preventDefault();
           e.stopImmediatePropagation();
