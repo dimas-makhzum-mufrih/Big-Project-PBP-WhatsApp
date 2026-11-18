@@ -7,7 +7,6 @@
     <meta name="color-scheme" content="light dark">
     <title>Ngumpul - Ruang Chat</title>
     <link rel="stylesheet" href="kontak.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="../../assets/css/variables.css">
     <script src="../../assets/js/theme.js"></script>
     <link rel="stylesheet" href="dashboard.css">
@@ -120,16 +119,8 @@
             <circle cx="9" cy="11" r="2.5" />
             <path d="M5.5 17c.6-1.7 2-2.5 3.5-2.5s2.9.8 3.5 2.5M15 9h3M15 13h3" />
         </symbol>
-        <symbol id="i-image" viewBox="0 0 24 24">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-            <circle cx="8.5" cy="8.5" r="1.5" />
-            <path d="M21 15l-5-5L5 21" />
-        </symbol>
         <symbol id="i-close" viewBox="0 0 24 24">
             <path d="M18 6L6 18M6 6l12 12" />
-        </symbol>
-        <symbol id="i-plus" viewBox="0 0 24 24">
-            <path d="M12 5v14M5 12h14" />
         </symbol>
         <symbol id="i-send" viewBox="0 0 24 24">
             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
@@ -275,8 +266,7 @@
 
                     <div class="media-preview-caption-row">
                         <input type="text" class="media-caption-input" id="input-caption-gambar"
-                            placeholder="Tambah keterangan..." autocomplete="off"
-                            aria-label="Keterangan gambar">
+                            placeholder="Tambah keterangan..." autocomplete="off" aria-label="Keterangan gambar">
                     </div>
 
                     <footer class="media-preview-footer">
@@ -288,8 +278,8 @@
                                 <use href="#i-plus" />
                             </svg>
                         </button>
-                        <button type="button" class="media-send-fab" id="btn-kirim-gambar"
-                            aria-label="Kirim gambar" title="Kirim">
+                        <button type="button" class="media-send-fab" id="btn-kirim-gambar" aria-label="Kirim gambar"
+                            title="Kirim">
                             <svg class="ikon" aria-hidden="true">
                                 <use href="#i-send" />
                             </svg>
@@ -298,27 +288,6 @@
                     </footer>
                 </div>
 
-                            <footer class="active-chat-footer">
-                    <input type="file" id="input-file-gambar" accept="image/*" multiple hidden>
-
-                    <button class="btn-lampir" id="btn-lampir" type="button"
-                        aria-label="Lampirkan" aria-expanded="false" aria-controls="panel-lampiran">
-                        <svg class="ikon" aria-hidden="true">
-                            <use href="#i-plus" />
-                        </svg>
-                    </button>
-
-                    <button type="button" class="btn-lampir-gambar" id="btn-lampir-gambar"
-                        aria-label="Kirim gambar dari galeri" title="Kirim gambar dari galeri">
-                        <svg class="ikon" aria-hidden="true">
-                            <use href="#i-plus" />
-                        </svg>
-                    </button>
-
-                    <input class="chat-input-field" id="input-teks-kirim" type="text"
-                        placeholder="Ketik pesan..." autocomplete="off">
-                    <button class="send-action-btn" id="btn-kirim-pesan">Kirim</button>
-                </footer>
                 <!-- Panel lampiran (terbuka saat tombol plus ditekan). Baru tampilan, belum fungsional.
                      Anggota yang kebagian: pasang aksi lewat atribut data-fitur di tiap tombol. -->
                 <div class="lampiran-panel" id="panel-lampiran" hidden>
@@ -353,6 +322,29 @@
                                 </svg></span>Lokasi</button>
                     </div>
                 </div>
+                <footer class="active-chat-footer">
+                    <!-- input file tersembunyi: dipicu menu lampiran "Foto & video" -->
+                    <input type="file" id="input-file-gambar" accept="image/*" multiple hidden>
+                    <!-- Plus, emoji, dan mic baru tampilan (belum fungsional). Pasang aksi lewat data-fitur. -->
+                    <button class="btn-lampir" id="btn-lampir" type="button" data-fitur="lampirkan"
+                        aria-label="Lampirkan" aria-expanded="false" aria-controls="panel-lampiran"><svg class="ikon"
+                            aria-hidden="true">
+                            <use href="#i-plus" />
+                        </svg></button>
+                    <button class="btn-lampir" id="btn-emoji" type="button" data-fitur="emoji"
+                        aria-label="Emoji (segera hadir)" title="Emoji (segera hadir)"><svg class="ikon"
+                            aria-hidden="true">
+                            <use href="#i-smile" />
+                        </svg></button>
+                    <input class="chat-input-field" id="input-teks-kirim" type="text" placeholder="Ketik pesan..."
+                        autocomplete="off">
+                    <button class="btn-mic" id="btn-mic" type="button" data-fitur="mic"
+                        aria-label="Pesan suara (segera hadir)" title="Pesan suara (segera hadir)"><svg class="ikon"
+                            aria-hidden="true">
+                            <use href="#i-mic" />
+                        </svg></button>
+                    <button class="send-action-btn" id="btn-kirim-pesan" hidden>Kirim</button>
+                </footer>
             </section>
             <div class="settings-slide-panel" id="panel-layer-setelan">
                 <header class="settings-panel-header">
@@ -561,28 +553,28 @@
         </main>
     </div>
     <!-- Peninjau Gambar Layar Penuh (Lightbox ala WhatsApp) -->
-    <div class="chat-lightbox" id="lightbox-gambar" role="dialog" aria-modal="true"
-        aria-label="Peninjau gambar obrolan" hidden>
+    <div class="chat-lightbox" id="lightbox-gambar" role="dialog" aria-modal="true" aria-label="Peninjau gambar obrolan"
+        hidden>
         <header class="chat-lightbox-header">
             <div class="chat-lightbox-sender">
                 <strong id="lightbox-pengirim">Pengirim</strong>
                 <small id="lightbox-waktu"></small>
             </div>
             <div class="chat-lightbox-actions">
-                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-zoom-out"
-                    aria-label="Perkecil gambar" title="Perkecil">
+                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-zoom-out" aria-label="Perkecil gambar"
+                    title="Perkecil">
                     <svg class="ikon" aria-hidden="true">
                         <use href="#i-zoom-out" />
                     </svg>
                 </button>
-                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-zoom-in"
-                    aria-label="Perbesar gambar" title="Perbesar">
+                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-zoom-in" aria-label="Perbesar gambar"
+                    title="Perbesar">
                     <svg class="ikon" aria-hidden="true">
                         <use href="#i-zoom-in" />
                     </svg>
                 </button>
-                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-unduh"
-                    aria-label="Unduh gambar" title="Unduh gambar">
+                <button type="button" class="chat-lightbox-btn" id="btn-lightbox-unduh" aria-label="Unduh gambar"
+                    title="Unduh gambar">
                     <svg class="ikon" aria-hidden="true">
                         <use href="#i-download" />
                     </svg>
@@ -596,11 +588,11 @@
             </div>
         </header>
         <div class="chat-lightbox-stage" id="lightbox-stage">
-            <button type="button" class="chat-lightbox-nav prev" id="btn-lightbox-prev"
-                aria-label="Gambar sebelumnya" hidden>&lsaquo;</button>
+            <button type="button" class="chat-lightbox-nav prev" id="btn-lightbox-prev" aria-label="Gambar sebelumnya"
+                hidden>&lsaquo;</button>
             <img id="img-lightbox-utama" src="" alt="Gambar obrolan ukuran penuh">
-            <button type="button" class="chat-lightbox-nav next" id="btn-lightbox-next"
-                aria-label="Gambar berikutnya" hidden>&rsaquo;</button>
+            <button type="button" class="chat-lightbox-nav next" id="btn-lightbox-next" aria-label="Gambar berikutnya"
+                hidden>&rsaquo;</button>
         </div>
         <footer class="chat-lightbox-footer" id="lightbox-footer" hidden>
             <p id="lightbox-caption"></p>

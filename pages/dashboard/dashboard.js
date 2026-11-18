@@ -432,9 +432,14 @@ function renderChatList() {
         const preview = document.createElement('p');
         preview.className = 'card-preview';
         if (item.adaGambar) {
-            const ikonGambar = document.createElement('i');
-            ikonGambar.className = 'fa-duotone fa-solid fa-image';
+            // ikon SVG inline (Font Awesome Duotone itu versi Pro, tidak tampil di CDN gratis)
+            const ns = 'http://www.w3.org/2000/svg';
+            const ikonGambar = document.createElementNS(ns, 'svg');
+            ikonGambar.setAttribute('class', 'ikon ikon-preview-gambar');
             ikonGambar.setAttribute('aria-hidden', 'true');
+            const pakai = document.createElementNS(ns, 'use');
+            pakai.setAttribute('href', '#i-image');
+            ikonGambar.appendChild(pakai);
             preview.appendChild(ikonGambar);
             preview.appendChild(document.createTextNode(' ' + item.preview));
         } else {
@@ -677,7 +682,6 @@ function kirimPesanAktif() {
 }
 
 // ===== Fitur Kirim Gambar dari Galeri (Tanpa Batas Ukuran, Gaya WhatsApp) =====
-const btnLampirGambar = document.getElementById('btn-lampir-gambar');
 const inputFileGambar = document.getElementById('input-file-gambar');
 const panelPreviewGambar = document.getElementById('panel-preview-gambar');
 const btnBatalPreview = document.getElementById('btn-batal-preview');
@@ -922,9 +926,12 @@ async function kirimSemuaGambarAntrean() {
     renderChatList();
 }
 
-if (btnLampirGambar && inputFileGambar) {
-    btnLampirGambar.addEventListener('click', () => {
+// Menu lampiran "Foto & video" memicu pemilih galeri (menggantikan tombol plus kedua)
+const itemLampirMedia = document.querySelector('[data-fitur="lampir-media"]');
+if (itemLampirMedia && inputFileGambar) {
+    itemLampirMedia.addEventListener('click', () => {
         if (!chatAktifId) return;
+        tutupPanelLampiran();
         inputFileGambar.click();
     });
 }

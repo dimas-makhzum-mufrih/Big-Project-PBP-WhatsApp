@@ -1681,3 +1681,11 @@ html[data-theme="dark"] .message-status.dibaca {
         padding: 12px;
     }
 }
+
+/* ikon gambar kecil di preview daftar chat */
+.ikon-preview-gambar {
+    width: 14px;
+    height: 14px;
+    vertical-align: -2px;
+    margin-right: 2px
+}
