@@ -368,10 +368,33 @@
                             <use href="#i-plus" />
                         </svg></button>
                     <button class="btn-lampir" id="btn-emoji" type="button" data-fitur="emoji"
-                        aria-label="Emoji (segera hadir)" title="Emoji (segera hadir)"><svg class="ikon"
+                        aria-label="pilih emoji" title="Emoji"><svg class="ikon"
                             aria-hidden="true">
                             <use href="#i-smile" />
-                        </svg></button>
+                        </svg>
+                    </button>
+
+                    <!-- Panel emoji pciker -->
+                    <div class="emoji-picker-popup" id="panel-emoji-popup" style="display:none">
+                        <div class="emoji-picker-header">
+                            <input type="search" class="emoji-cari-input" id="input-cari-emoji" placeholder="Cari emoji..." autocomplete="off">
+                        </div>
+                        <div class="emoji-tabs" id="emoji-tabs">
+                            <button class="emoji-tab aktif" data-kategori="smileys" title="Wajah & Emosi">😀</button>
+                                <button class="emoji-tab" data-kategori="gestures" title="Tangan & Isyarat">👋</button>
+                                <button class="emoji-tab" data-kategori="people" title="Orang">👤</button>
+                                <button class="emoji-tab" data-kategori="animals" title="Hewan & Alam">🐾</button>
+                                <button class="emoji-tab" data-kategori="food" title="Makanan & Minuman">🍕</button>
+                                <button class="emoji-tab" data-kategori="travel" title="Perjalanan & Tempat">✈️</button>
+                                <button class="emoji-tab" data-kategori="activities" title="Aktivitas">⚽</button>
+                                <button class="emoji-tab" data-kategori="objects" title="Objek">💡</button>
+                                <button class="emoji-tab" data-kategori="symbols" title="Simbol">❤️</button>
+                                <button class="emoji-tab" data-kategori="flags" title="Bendera">🏁</button>
+                        </div>
+                        <div class="emoji-ketagori-label" id="emoji-kategori-label"> Wajah & Emosi </div>
+                        <div class="emoji-grid" id="emoji-grid"></div>
+                    </div>
+                    
                     <input class="chat-input-field" id="input-teks-kirim" type="text" placeholder="Ketik pesan..."
                         autocomplete="off">
                     <button class="btn-mic" id="btn-mic" type="button" data-fitur="mic"

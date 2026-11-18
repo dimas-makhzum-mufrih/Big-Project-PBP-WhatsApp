@@ -813,6 +813,8 @@ function bukaChat(idLawan) {
 const btnLampir = document.getElementById('btn-lampir');
 const panelLampiran = document.getElementById('panel-lampiran');
 const btnMic = document.getElementById('btn-mic');
+const btnEmoji = document.getElementById('btn-emoji');
+const panelEmoji = document.getElementById('panel-emoji-popup');
 
 function tutupPanelLampiran() {
     if (!panelLampiran || panelLampiran.hidden) return;
