@@ -234,11 +234,12 @@
             </div>
             <section class="active-chat-room" id="panel-chat-aktif">
                 <header class="active-chat-header">
-                    <div class="circle-avatar" id="avatar-header-kanan" style="margin:0">Z</div>
-                    <div class="active-header-info">
+                    <div class="circle-avatar" id="avatar-header-kanan" style="margin:0;background:#3984bd">Z</div>
+                    <button class="active-header-info" id="btn-info-pengguna" type="button"
+                        aria-label="Lihat informasi kontak">
                         <h3 id="nama-header-kanan">Nama Kontak</h3>
-                        <p>online</p>
-                    </div>
+                        <p id="nomor-header-kanan">Nomor kontak</p>
+                    </button>
                     <button class="message-search-toggle" id="btn-toggle-cari-pesan" type="button"
                         aria-label="Cari pesan" aria-expanded="false" aria-controls="panel-cari-pesan">
                         <svg class="search-field-icon" aria-hidden="true">
@@ -381,6 +382,24 @@
                     <button class="send-action-btn" id="btn-kirim-pesan" hidden>Kirim</button>
                 </footer>
             </section>
+            <aside class="contact-info-panel" id="panel-info-pengguna" aria-label="Informasi kontak" aria-hidden="true">
+                <header class="contact-info-header">
+                    <strong>Info kontak</strong>
+                    <button id="btn-tutup-info-pengguna" type="button" aria-label="Tutup informasi">&times;</button>
+                </header>
+                <div class="contact-info-content">
+                    <div class="contact-info-banner" id="banner-info-pengguna" hidden></div>
+                    <div class="contact-info-avatar circle-avatar" id="avatar-info-pengguna"></div>
+                    <h2 id="nama-info-pengguna"></h2>
+                    <p id="nomor-info-pengguna"></p>
+                    <p id="username-info-pengguna"></p>
+                    <div class="contact-info-actions">
+                        <button class="chat-block-button" id="btn-blokir-pengguna" type="button">Blokir</button>
+                        <button class="chat-save-contact-button" id="btn-simpan-kontak-chat" type="button" hidden>Simpan
+                            kontak</button>
+                    </div>
+                </div>
+            </aside>
             <div class="settings-slide-panel" id="panel-layer-setelan">
                 <header class="settings-panel-header">
                     <button class="settings-back-btn" id="btn-kembali-ke-chat" aria-label="Kembali"><svg class="ikon">
@@ -477,15 +496,16 @@
                                 <use href="#i-next" />
                             </svg>
                         </div>
-                        <div class="settings-row-item" data-fitur="notifikasi" title="Segera hadir"><span
-                                class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                        <button class="settings-row-item notification-entry" data-fitur="notifikasi"
+                            id="btn-setelan-notifikasi" type="button" aria-controls="panel-setelan-notifikasi"
+                            aria-expanded="false"><span class="settings-item-icon"><svg class="ikon" aria-hidden="true">
                                     <use href="#i-bell" />
                                 </svg></span>
-                            <div class="settings-item-text"><b>Notifikasi</b><small>Pesan, grup, panggilan</small></div>
+                            <span class="settings-item-text"><b>Notifikasi</b><small>Notifikasi pesan</small></span>
                             <svg class="ikon settings-arrow" aria-hidden="true">
                                 <use href="#i-next" />
                             </svg>
-                        </div>
+                        </button>
                         <div class="settings-row-item" data-fitur="privasi" title="Segera hadir"><span
                                 class="settings-item-icon"><svg class="ikon" aria-hidden="true">
                                     <use href="#i-lock" />
@@ -537,6 +557,34 @@
                                 <use href="#i-out" />
                             </svg>Keluar akun</button></div>
                 </div>
+                <section class="settings-notification-page" id="panel-setelan-notifikasi"
+                    aria-labelledby="judul-notifikasi" hidden>
+                    <div class="notification-content">
+                        <div class="notification-heading">
+                            <span class="settings-item-icon"><svg class="ikon" aria-hidden="true">
+                                    <use href="#i-bell" />
+                                </svg></span>
+                            <div>
+                                <h3 id="judul-notifikasi" tabindex="-1">Notifikasi pesan</h3>
+                                <p>Terima pemberitahuan saat ada pesan baru.</p>
+                            </div>
+                        </div>
+                        <div class="notification-card">
+                            <div class="notification-setting">
+                                <div>
+                                    <h4>Notifikasi browser</h4>
+                                    <p id="deskripsi-notifikasi">Notifikasi muncul ketika kamu tidak sedang membuka
+                                        percakapan pengirim.</p>
+                                </div>
+                                <button class="notification-switch" id="btn-notifikasi" type="button" role="switch"
+                                    aria-checked="false" aria-label="Notifikasi pesan"
+                                    aria-describedby="status-notifikasi"><span aria-hidden="true"></span></button>
+                            </div>
+                            <p class="notification-status" id="status-notifikasi" role="status" aria-live="polite">
+                                Nonaktif</p>
+                        </div>
+                    </div>
+                </section>
                 <!-- Halaman Pengaturan Tema -->
                 <div class="settings-theme-page" id="panel-setelan-tema" hidden>
 

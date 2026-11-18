@@ -7,6 +7,7 @@ if (!userAktif) {
 
 // ===== Fitur Chat =====
 const KEY_CHAT = 'ngumpul_pesan';
+const KEY_BLOKIR = 'ngumpul_blokir_';
 const panelChatKosong = document.getElementById('panel-chat-kosong');
 const panelChatAktif = document.getElementById('panel-chat-aktif');
 const boxListPesan = document.getElementById('box-list-pesan');
@@ -21,6 +22,10 @@ const btnTutupCariPesan = document.getElementById('btn-tutup-cari-pesan');
 const chatScrollArea = document.querySelector('.chat-scroll-area');
 const avatarHeaderKanan = document.getElementById('avatar-header-kanan');
 const namaHeaderKanan = document.getElementById('nama-header-kanan');
+const btnBlokirPengguna = document.getElementById('btn-blokir-pengguna');
+const btnSimpanKontakChat = document.getElementById('btn-simpan-kontak-chat');
+const btnInfoPengguna = document.getElementById('btn-info-pengguna');
+const panelInfoPengguna = document.getElementById('panel-info-pengguna');
 let chatAktifId = null;
 let timerSorotPesanCari = null;
 
@@ -28,7 +33,24 @@ function buatIdPesan() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+function formatNomorTampil(nomor) {
+    const digits = String(nomor || '').replace(/\D/g, '');
+    if (digits.startsWith('62') && digits.length >= 5) {
+        const lokal = digits.slice(2);
+        const kelompok = lokal.match(/.{1,4}/g) || [];
+        // Kelompok pertama nomor Indonesia biasanya tiga digit; sisanya empat digit.
+        if (kelompok.length > 1 && kelompok[0].length === 4) {
+            kelompok[0] = kelompok[0].slice(0, 3);
+            kelompok[1] = lokal.slice(3, 7);
+            kelompok.splice(2, kelompok.length, ...((lokal.slice(7).match(/.{1,4}/g)) || []));
+        }
+        return '+62 ' + kelompok.join('-');
+    }
+    return String(nomor || '');
+}
+
 function ambilFotoProfilChat(idUser) {
+    if (!namaKontakTersimpan(idUser)) return '';
     try {
         const media = JSON.parse(localStorage.getItem('ngumpul_media_' + idUser)) || {};
         return typeof media.avatar === 'string' && media.avatar.startsWith('data:image/')
@@ -37,6 +59,14 @@ function ambilFotoProfilChat(idUser) {
     } catch (error) {
         return '';
     }
+}
+
+function ambilBannerProfilChat(idUser) {
+    if (!namaKontakTersimpan(idUser)) return '';
+    try {
+        const media = JSON.parse(localStorage.getItem('ngumpul_media_' + idUser)) || {};
+        return typeof media.banner === 'string' && media.banner.startsWith('data:image/') ? media.banner : '';
+    } catch (error) { return ''; }
 }
 
 function tampilkanAvatarChat(container, idUser, nama) {
@@ -51,8 +81,20 @@ function tampilkanAvatarChat(container, idUser, nama) {
         container.setAttribute('aria-label', nama);
         return;
     }
-    container.textContent = inisial;
     container.removeAttribute('aria-label');
+    // nama berupa nomor (belum jadi kontak) -> ikon orang, bukan tanda "+"
+    if (!/^\p{L}/u.test((nama || '').trim())) {
+        const ns = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('class', 'ikon');
+        svg.setAttribute('aria-hidden', 'true');
+        const pakai = document.createElementNS(ns, 'use');
+        pakai.setAttribute('href', '#i-user');
+        svg.appendChild(pakai);
+        container.appendChild(svg);
+        return;
+    }
+    container.textContent = inisial;
 }
 
 function bacaSemuaChat() {
@@ -225,6 +267,58 @@ function formatPreviewPesan(terakhir) {
     return teks || 'Mulai chat baru';
 }
 
+function daftarBlokir(idPengguna) {
+    try {
+        const data = JSON.parse(localStorage.getItem(KEY_BLOKIR + idPengguna)) || [];
+        return Array.isArray(data) ? data.map(String) : [];
+    } catch (error) { return []; }
+}
+
+function penggunaDiblokir(idPengguna, idLawan) {
+    return daftarBlokir(idPengguna).includes(String(idLawan));
+}
+
+// true kalau salah satu pihak memblokir (dipakai untuk menahan pesan teks DAN gambar)
+function chatTerblokir(idLawan) {
+    if (!userAktif || !idLawan) return false;
+    return penggunaDiblokir(userAktif.id, idLawan) || penggunaDiblokir(idLawan, userAktif.id);
+}
+
+function ubahBlokir(idLawan, blokir) {
+    if (!userAktif || !idLawan) return;
+    const daftar = daftarBlokir(userAktif.id).filter(id => id !== String(idLawan));
+    if (blokir) daftar.push(String(idLawan));
+    try { localStorage.setItem(KEY_BLOKIR + userAktif.id, JSON.stringify(daftar)); }
+    catch (error) { return; }
+    renderChatList();
+    if (chatAktifId === idLawan) perbaruiKontrolBlokir();
+}
+
+function perbaruiKontrolBlokir() {
+    if (!btnBlokirPengguna || !chatAktifId) return;
+    const diblokir = penggunaDiblokir(userAktif.id, chatAktifId);
+    const memblokir = penggunaDiblokir(chatAktifId, userAktif.id);
+    btnBlokirPengguna.textContent = diblokir ? 'Buka blokir' : 'Blokir';
+    btnBlokirPengguna.disabled = !diblokir && memblokir;
+    btnBlokirPengguna.title = memblokir && !diblokir ? 'Pengguna ini memblokir kamu' : '';
+    if (inputTeksKirim) inputTeksKirim.disabled = diblokir || memblokir;
+    if (btnKirimPesan) btnKirimPesan.disabled = diblokir || memblokir;
+    // plus (lampiran) dan mic ikut mati saat diblokir
+    ['btn-lampir', 'btn-mic'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = diblokir || memblokir;
+    });
+    if (diblokir || memblokir) {
+        const panel = document.getElementById('panel-lampiran');
+        if (panel) panel.hidden = true;
+    }
+}
+
+function perbaruiKontrolKontak() {
+    if (!btnSimpanKontakChat || !chatAktifId) return;
+    btnSimpanKontakChat.hidden = namaKontakTersimpan(chatAktifId);
+}
+
 function formatJamPesan(isoString) {
     if (!isoString) return '';
     const waktu = new Date(isoString);
@@ -290,50 +384,24 @@ function prosesPesanMasuk() {
 function getProfilChat(idLawan) {
     const kontak = getUserById(idLawan);
     const profil = getProfil(idLawan);
-    const namaAkun = (kontak && kontak.nama) || profil.nama || 'Kontak';
-    const hp = profil.phone || (kontak && kontak.hp) || '';
-    // nama yang kamu ketik saat menambah kontak dipakai lebih dulu;
-    // kalau belum tersimpan di kontak, tampil nomor HP-nya seperti WhatsApp
-    const namaTersimpan = namaKontakTersimpan(idLawan);
+    const itemKontak = userAktif && NgumpulKontakData && kontak && kontak.hp
+        ? NgumpulKontakData.list(userAktif.id).find(item => samakanHp(item.phone, kontak.hp))
+        : null;
+    const nomor = formatNomorTampil(profil.phone || (kontak && kontak.hp) || '');
     return {
         id: idLawan,
-        nama: namaTersimpan || hp || namaAkun,
-        hp: hp,
+        nama: itemKontak
+            ? (itemKontak.name || (kontak && kontak.nama) || profil.nama || nomor || 'Nomor tidak tersedia')
+            : (nomor || 'Nomor tidak tersedia'),
+        hp: nomor,
         username: profil.username || '@pengguna'
     };
 }
 
-// nama yang diberikan akun aktif saat menyimpan kontak ('' kalau belum disimpan / tanpa nama)
 function namaKontakTersimpan(idLawan) {
-    if (!userAktif || !NgumpulKontakData || typeof NgumpulKontakData.list !== 'function') return '';
     const user = getUserById(idLawan);
-    if (!user || !user.hp) return '';
-    try {
-        const kontak = NgumpulKontakData.list(userAktif.id)
-            .find(item => samakanHp(item.phone, user.hp));
-        return kontak && kontak.name ? kontak.name.trim() : '';
-    } catch (error) {
-        return '';
-    }
-}
-
-// chat boleh dibuka kalau lawan bicara ada di kontak ATAU sudah pernah ada pesan
-function bolehBukaChat(idLawan) {
-    return isKontakPengguna(idLawan) || ambilPesanChat(idLawan).length > 0;
-}
-
-// id semua orang yang punya percakapan dengan akun aktif (walau belum jadi kontak)
-function idLawanDariPesan() {
-    const semua = bacaSemuaChat();
-    const hasil = [];
-    Object.keys(semua).forEach(kunci => {
-        if (!Array.isArray(semua[kunci]) || !semua[kunci].length) return;
-        const bagian = kunci.split('_');
-        const posisi = bagian.indexOf(String(userAktif.id));
-        if (bagian.length !== 2 || posisi === -1) return;
-        hasil.push(bagian[1 - posisi]);
-    });
-    return hasil;
+    if (!user || !user.hp || !userAktif || !NgumpulKontakData) return false;
+    return NgumpulKontakData.list(userAktif.id).some(kontak => samakanHp(kontak.phone, user.hp));
 }
 
 function isKontakPengguna(idLawan) {
@@ -351,46 +419,38 @@ function isKontakPengguna(idLawan) {
 function renderChatList() {
     if (!chatScrollArea || !userAktif) return;
 
-    if (chatAktifId && !bolehBukaChat(chatAktifId)) {
-        chatAktifId = null;
-        if (panelChatAktif) panelChatAktif.style.display = 'none';
-        if (panelChatKosong) panelChatKosong.style.display = 'flex';
-    }
-
     const query = (inputCariChat ? inputCariChat.value : '').trim().toLowerCase();
     const daftarKontak = NgumpulKontakData && typeof NgumpulKontakData.search === 'function'
         ? NgumpulKontakData.search(userAktif.id, query)
         : [];
-
-    // kandidat chat = kontak + siapa pun yang pernah kirim/terima pesan
-    const idKandidat = new Set();
+    const kandidat = new Map();
     daftarKontak.forEach(item => {
-        const user = getUsers().find(pengguna => samakanHp(pengguna.hp, item.phone));
-        if (user && user.id !== userAktif.id) idKandidat.add(user.id);
+            const user = getUsers().find(pengguna => samakanHp(pengguna.hp, item.phone));
+            if (user && user.id !== userAktif.id) kandidat.set(String(user.id), user);
+        });
+    const semua = bacaSemuaChat();
+    getUsers().forEach(pengguna => {
+        if (!pengguna || String(pengguna.id) === String(userAktif.id)) return;
+        const pesan = semua[kunciKonversasi(userAktif.id, pengguna.id)];
+        if (Array.isArray(pesan) && pesan.length) kandidat.set(String(pengguna.id), pengguna);
     });
-    idLawanDariPesan().forEach(id => {
-        const profil = getProfilChat(id);
-        if (!query || profil.nama.toLowerCase().includes(query) || profil.hp.toLowerCase().includes(query)) {
-            idKandidat.add(id);
-        }
-    });
-
-    const hasil = Array.from(idKandidat)
-        .map(id => {
-            const user = getUserById(id);
-            if (!user || user.id === userAktif.id) return null;
+    const hasil = Array.from(kandidat.values())
+        .map(user => {
             const pesan = ambilPesanChat(user.id);
             const terakhir = pesan.length ? pesan[pesan.length - 1] : null;
+            const profil = getProfilChat(user.id);
+            const diblokir = penggunaDiblokir(userAktif.id, user.id);
             return {
                 id: user.id,
-                nama: getProfilChat(user.id).nama,
-                preview: formatPreviewPesan(terakhir),
-                adaGambar: isPesanBergambar(terakhir),
+                nama: profil.nama,
+                preview: diblokir ? 'Kamu memblokir pengguna ini' : formatPreviewPesan(terakhir),
+                adaGambar: !diblokir && isPesanBergambar(terakhir),
                 waktu: terakhir ? terakhir.time : null,
-                hp: user.hp
+                hp: user.hp,
+                diblokir
             };
         })
-        .filter(Boolean)
+        .filter(item => item.nama.toLowerCase().includes(query) || String(item.hp || '').includes(query))
         .sort((a, b) => {
             const waktuA = a.waktu ? new Date(a.waktu).getTime() : 0;
             const waktuB = b.waktu ? new Date(b.waktu).getTime() : 0;
@@ -402,9 +462,22 @@ function renderChatList() {
     if (!hasil.length) {
         const kosong = document.createElement('div');
         kosong.className = 'contact-empty';
-        kosong.textContent = query
-            ? 'Tidak ada chat yang cocok.'
-            : 'Belum ada chat. Tambahkan kontak dari tab Kontak untuk mulai ngobrol.';
+        if (query) {
+            kosong.textContent = 'Tidak ada chat yang cocok.';
+        } else {
+            const teks = document.createElement('p');
+            teks.textContent = 'Belum ada chat. Tambahkan kontak untuk mulai ngobrol.';
+            const tombol = document.createElement('button');
+            tombol.type = 'button';
+            tombol.className = 'contact-add-button';
+            tombol.textContent = '+ Tambah kontak';
+            tombol.addEventListener('click', () => {
+                pilihTabDashboard(true);
+                const btnTambah = document.getElementById('btn-tambah-kontak');
+                if (btnTambah) btnTambah.click();
+            });
+            kosong.append(teks, tombol);
+        }
         chatScrollArea.appendChild(kosong);
         return;
     }
@@ -419,6 +492,13 @@ function renderChatList() {
         const avatar = document.createElement('div');
         avatar.className = 'circle-avatar';
         tampilkanAvatarChat(avatar, item.id, item.nama);
+
+        const warna = ['#3984bd', '#8e63aa', '#d17b45', '#368c72', '#bd5d70'];
+        let total = 0;
+        for (let i = 0; i < item.nama.length; i++) {
+            total += item.nama.charCodeAt(i);
+        }
+        avatar.style.backgroundColor = warna[total % warna.length];
 
         const meta = document.createElement('div');
         meta.className = 'card-meta';
@@ -579,6 +659,7 @@ function renderPesanAktif() {
     boxListPesan.scrollTop = boxListPesan.scrollHeight;
 }
 
+// ===== Cari pesan di dalam chat =====
 function formatTanggalPesan(isoString) {
     const waktu = new Date(isoString);
     if (Number.isNaN(waktu.getTime())) return '';
@@ -603,6 +684,10 @@ function tampilkanTeksPesanCocok(container, teks, query) {
         }),
         document.createTextNode(teks.slice(posisi + query.length))
     );
+}
+
+function pencarianPesanTerbuka() {
+    return Boolean(panelCariPesan && panelCariPesan.classList.contains('terbuka'));
 }
 
 function renderHasilPencarianPesan() {
@@ -679,25 +764,17 @@ function aturPencarianPesanTerbuka(terbuka, kosongkanQuery, fokus) {
     if (terbuka && fokus !== false) inputCariPesan.focus();
 }
 
-function bukaChat(idLawan, queryPesan) {
+function bukaChat(idLawan) {
     if (!idLawan || !userAktif) return;
-
-    if (!bolehBukaChat(idLawan)) {
-        chatAktifId = null;
-        tutupPreviewGambar();
-        if (panelChatAktif) panelChatAktif.style.display = 'none';
-        if (panelChatKosong) panelChatKosong.style.display = 'flex';
-        renderChatList();
-        return;
-    }
+    if (!getUserById(idLawan) || String(idLawan) === String(userAktif.id)) return;
 
     if (chatAktifId && chatAktifId !== idLawan) {
         tutupPreviewGambar();
+        // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
+        aturPencarianPesanTerbuka(false, true, false);
     }
 
     chatAktifId = idLawan;
-    if (inputCariPesan) inputCariPesan.value = queryPesan || '';
-    aturPencarianPesanTerbuka(Boolean(queryPesan), false, false);
     tutupPanelLampiran();
     const target = getProfilChat(idLawan);
 
@@ -706,21 +783,27 @@ function bukaChat(idLawan, queryPesan) {
 
     if (avatarHeaderKanan) {
         tampilkanAvatarChat(avatarHeaderKanan, idLawan, target.nama);
-        avatarHeaderKanan.style.backgroundColor = 'var(--warna-utama)';
+        avatarHeaderKanan.style.backgroundColor = '#3984bd';
     }
 
     if (namaHeaderKanan) {
         namaHeaderKanan.textContent = target.nama;
     }
+    const nomorHeader = document.getElementById('nomor-header-kanan');
+    if (nomorHeader) {
+        nomorHeader.textContent = target.hp || 'Nomor tidak tersedia';
+        nomorHeader.hidden = !namaKontakTersimpan(idLawan);
+    }
+    perbaruiKontrolBlokir();
+    perbaruiKontrolKontak();
+    if (panelInfoPengguna && panelInfoPengguna.getAttribute('aria-hidden') === 'false') tampilkanInfoPengguna();
 
     tandaiPesanDiterima(idLawan);
     tandaiPesanDibaca(idLawan);
     renderPesanAktif();
     renderChatList();
 
-    if (queryPesan && inputCariPesan) {
-        inputCariPesan.focus();
-    } else if (inputTeksKirim) {
+    if (inputTeksKirim && !pencarianPesanTerbuka()) {
         inputTeksKirim.focus();
     }
 }
@@ -768,6 +851,7 @@ perbaruiTombolKirim();
 
 function kirimPesanAktif() {
     if (!chatAktifId || !userAktif) return;
+    if (penggunaDiblokir(userAktif.id, chatAktifId) || penggunaDiblokir(chatAktifId, userAktif.id)) return;
 
     if (antreanGambar.length > 0) {
         kirimSemuaGambarAntrean();
@@ -795,9 +879,7 @@ function kirimPesanAktif() {
 
     renderPesanAktif();
     renderChatList();
-    if (panelCariPesan && panelCariPesan.classList.contains('terbuka')) {
-        renderHasilPencarianPesan();
-    }
+    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
 }
 
 // ===== Fitur Kirim Gambar dari Galeri (Tanpa Batas Ukuran, Gaya WhatsApp) =====
@@ -961,6 +1043,7 @@ function hapusSatuGambarAntrean(idx) {
 
 function tambahFileKeAntrean(fileList) {
     if (!chatAktifId || !userAktif || !fileList || !fileList.length) return;
+    if (chatTerblokir(chatAktifId)) return;
 
     simpanCaptionSaatIni();
     const sebelumnyaKosong = antreanGambar.length === 0;
@@ -1000,6 +1083,7 @@ function tambahFileKeAntrean(fileList) {
 
 async function kirimSemuaGambarAntrean() {
     if (!chatAktifId || !userAktif || !antreanGambar.length || sedangMengirimGambar) return;
+    if (chatTerblokir(chatAktifId)) return;
 
     simpanCaptionSaatIni();
     sedangMengirimGambar = true;
@@ -1043,13 +1127,14 @@ async function kirimSemuaGambarAntrean() {
     tutupPreviewGambar();
     renderPesanAktif();
     renderChatList();
+    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
 }
 
 // Menu lampiran "Foto & video" memicu pemilih galeri (menggantikan tombol plus kedua)
 const itemLampirMedia = document.querySelector('[data-fitur="lampir-media"]');
 if (itemLampirMedia && inputFileGambar) {
     itemLampirMedia.addEventListener('click', () => {
-        if (!chatAktifId) return;
+        if (!chatAktifId || chatTerblokir(chatAktifId)) return;
         tutupPanelLampiran();
         inputFileGambar.click();
     });
@@ -1333,13 +1418,63 @@ document.addEventListener('keydown', e => {
     }
 });
 
+if (btnBlokirPengguna) btnBlokirPengguna.addEventListener('click', () => {
+    if (!chatAktifId) return;
+    ubahBlokir(chatAktifId, !penggunaDiblokir(userAktif.id, chatAktifId));
+});
+
+if (btnSimpanKontakChat) btnSimpanKontakChat.addEventListener('click', () => {
+    if (!chatAktifId || !userAktif || namaKontakTersimpan(chatAktifId)) return;
+    const target = getProfilChat(chatAktifId);
+    const nama = (window.prompt('Nama untuk kontak ini:', target.hp) || '').trim();
+    if (!nama) return;
+    try {
+        NgumpulKontakData.add(userAktif.id, target.hp, nama);
+        perbaruiKontrolKontak();
+        renderChatList();
+        // Perbarui judul dengan nama kontak yang baru disimpan.
+        if (namaHeaderKanan) namaHeaderKanan.textContent = nama;
+        tampilkanAvatarChat(avatarHeaderKanan, chatAktifId, nama);
+        if (panelInfoPengguna && panelInfoPengguna.getAttribute('aria-hidden') === 'false') tampilkanInfoPengguna();
+    } catch (error) {
+        window.alert(error.message || 'Kontak gagal disimpan.');
+    }
+});
+
+function tutupInfoPengguna() {
+    if (!panelInfoPengguna) return;
+    panelInfoPengguna.setAttribute('aria-hidden', 'true');
+}
+
+function tampilkanInfoPengguna() {
+    if (!chatAktifId || !panelInfoPengguna) return;
+    const target = getProfilChat(chatAktifId);
+    document.getElementById('nama-info-pengguna').textContent = target.nama;
+    document.getElementById('nomor-info-pengguna').textContent = target.hp || 'Nomor tidak tersedia';
+    document.getElementById('username-info-pengguna').textContent = target.username || '';
+    tampilkanAvatarChat(document.getElementById('avatar-info-pengguna'), chatAktifId, target.nama);
+    const banner = document.getElementById('banner-info-pengguna');
+    const urlBanner = ambilBannerProfilChat(chatAktifId);
+    banner.hidden = !urlBanner;
+    banner.style.backgroundImage = urlBanner ? 'url("' + urlBanner + '")' : '';
+    perbaruiKontrolBlokir();
+    perbaruiKontrolKontak();
+}
+
+if (btnInfoPengguna) btnInfoPengguna.addEventListener('click', () => {
+    if (!chatAktifId || !panelInfoPengguna) return;
+    tampilkanInfoPengguna();
+    panelInfoPengguna.setAttribute('aria-hidden', 'false');
+});
+
+document.getElementById('btn-tutup-info-pengguna').addEventListener('click', tutupInfoPengguna);
+document.addEventListener('keydown', event => { if (event.key === 'Escape') tutupInfoPengguna(); });
+
 window.addEventListener('storage', event => {
     if (event.key !== KEY_CHAT) return;
     prosesPesanMasuk();
     if (chatAktifId) renderPesanAktif();
-    if (panelCariPesan && panelCariPesan.classList.contains('terbuka')) {
-        renderHasilPencarianPesan();
-    }
+    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
     renderChatList();
 });
 
@@ -1347,32 +1482,35 @@ if (inputCariChat) {
     inputCariChat.addEventListener('input', renderChatList);
 }
 
+// ----- Cari pesan di dalam chat: tombol, input, tutup (X / Escape) -----
 if (inputCariPesan) {
     inputCariPesan.addEventListener('input', renderHasilPencarianPesan);
 }
 
 if (btnToggleCariPesan && inputCariPesan) {
     btnToggleCariPesan.addEventListener('click', () => {
-        const terbuka = !panelCariPesan.classList.contains('terbuka');
+        if (!chatAktifId) return;
+        const terbuka = !pencarianPesanTerbuka();
         aturPencarianPesanTerbuka(terbuka);
-        if (terbuka) inputCariPesan.focus();
-        else btnToggleCariPesan.focus();
-    });
-
-    inputCariPesan.addEventListener('keydown', event => {
-        if (event.key === 'Escape') {
-            aturPencarianPesanTerbuka(false);
-            btnToggleCariPesan.focus();
-        }
+        if (!terbuka) btnToggleCariPesan.focus();
     });
 }
 
 if (btnTutupCariPesan) {
     btnTutupCariPesan.addEventListener('click', () => {
         aturPencarianPesanTerbuka(false);
-        btnToggleCariPesan.focus();
+        if (btnToggleCariPesan) btnToggleCariPesan.focus();
     });
 }
+
+// Escape menutup panel walau fokus ada di tombol hasil; lightbox & pratinjau gambar didahulukan
+document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !pencarianPesanTerbuka()) return;
+    if (lightboxGambar && !lightboxGambar.hidden) return;
+    if (panelPreviewGambar && !panelPreviewGambar.hidden) return;
+    aturPencarianPesanTerbuka(false);
+    if (btnToggleCariPesan) btnToggleCariPesan.focus();
+});
 
 if (btnKirimPesan && inputTeksKirim) {
     btnKirimPesan.addEventListener('click', kirimPesanAktif);
@@ -1454,6 +1592,7 @@ const btnKembaliKeChat = document.getElementById('btn-kembali-ke-chat');
 
 const daftarPengaturan = document.querySelector('.settings-list-flow');
 const panelPengaturanTema = document.getElementById('panel-setelan-tema');
+const panelPengaturanNotifikasi = document.getElementById('panel-setelan-notifikasi');
 const judulPanelSetelan = document.getElementById('judul-panel-setelan');
 
 const tombolPilihanTema = document.querySelectorAll('[data-set-theme]');
@@ -1526,6 +1665,15 @@ if (optBukaSetelan) {
 // ===== Tombol kembali: navigasi subpanel tema =====
 if (btnKembaliKeChat) {
     btnKembaliKeChat.addEventListener('click', () => {
+        if (panelPengaturanNotifikasi && !panelPengaturanNotifikasi.hidden) {
+            panelPengaturanNotifikasi.hidden = true;
+            daftarPengaturan.style.display = 'block';
+            judulPanelSetelan.textContent = 'Pengaturan';
+            const menuNotifikasi = document.getElementById('btn-setelan-notifikasi');
+            menuNotifikasi.setAttribute('aria-expanded', 'false');
+            menuNotifikasi.focus();
+            return;
+        }
         if (panelPengaturanTema && !panelPengaturanTema.hidden) {
             panelPengaturanTema.hidden = true;
 
@@ -1873,3 +2021,381 @@ if (daftarSetelanScroll) {
         });
     }, { passive: true });
 }
+
+(function () {
+    if (!userAktif) return;
+    const akunId = userAktif.id;
+    const preferensiKey = 'ngumpul_notifikasi_' + akunId;
+    const riwayatKey = 'ngumpul_notifikasi_riwayat_' + akunId;
+    const kunciAntrean = 'ngumpul:notifikasi:' + akunId;
+    const leaseKey = 'ngumpul_notifikasi_kunci_' + akunId;
+    const tabId = window.crypto?.randomUUID ? crypto.randomUUID() : buatId();
+    const awalKehadiran = 'ngumpul_notifikasi_tab_' + akunId + ':';
+    const kehadiranKey = awalKehadiran + tabId;
+    const menu = document.getElementById('btn-setelan-notifikasi');
+    const tombol = document.getElementById('btn-notifikasi');
+    const teksStatus = document.getElementById('status-notifikasi');
+    const deskripsi = document.getElementById('deskripsi-notifikasi');
+    const diketahui = new Set();
+    const terbuka = new Map();
+    let aktif = false;
+    let berhenti = false;
+    let siap = false;
+    let memintaIzin = false;
+    let memeriksa = false;
+    let timer = null;
+    let jadwal = null;
+    let pesanError = '';
+
+    function sesiSesuai() {
+        return !berhenti && getUserAktif()?.id === akunId;
+    }
+    function izinBrowser() {
+        if (!('Notification' in window)) return 'unsupported';
+        if (!window.isSecureContext) return 'insecure';
+        return Notification.permission;
+    }
+    function bacaPreferensi() {
+        try {
+            return JSON.parse(localStorage.getItem(preferensiKey) || 'false') === true;
+        } catch (_) {
+            return false;
+        }
+    }
+    function perbaruiTampilan() {
+        const izin = izinBrowser();
+        tombol.setAttribute('aria-checked', String(aktif && izin === 'granted'));
+        tombol.disabled = memintaIzin || ['unsupported', 'insecure', 'denied'].includes(izin);
+        deskripsi.textContent =
+            izin === 'denied'
+                ? 'Izinkan notifikasi untuk situs ini melalui pengaturan browser.'
+                : izin === 'unsupported'
+                  ? 'Browser ini belum mendukung notifikasi.'
+                  : izin === 'insecure'
+                    ? 'Buka aplikasi melalui HTTPS atau localhost untuk mengaktifkan notifikasi.'
+                    : 'Notifikasi muncul ketika kamu tidak sedang membuka percakapan pengirim.';
+        const label =
+            izin === 'denied'
+                ? 'Diblokir browser'
+                : izin === 'unsupported'
+                  ? 'Tidak didukung'
+                  : izin === 'insecure'
+                    ? 'Koneksi belum mendukung notifikasi'
+                    : aktif && izin === 'granted'
+                      ? 'Aktif'
+                      : izin === 'default'
+                        ? 'Belum diizinkan'
+                        : 'Nonaktif';
+        teksStatus.textContent = memintaIzin ? 'Meminta izin browser...' : pesanError || label;
+        teksStatus.dataset.error = String(!!pesanError);
+    }
+    function pesanMasuk() {
+        const data = JSON.parse(localStorage.getItem(KEY_CHAT) || '{}');
+        if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error();
+        const hasil = new Map();
+        getUsers().forEach((user) => {
+            if (!user || user.id === akunId || !isKontakPengguna(user.id)) return;
+            const percakapan = kunciKonversasi(akunId, user.id);
+            const daftar = data[percakapan];
+            if (daftar === undefined) return;
+            if (!Array.isArray(daftar)) throw new Error();
+            daftar.forEach((pesan) => {
+                if (
+                    !pesan ||
+                    pesan.sender !== user.id ||
+                    typeof pesan.id !== 'string' ||
+                    !pesan.id ||
+                    typeof pesan.text !== 'string' ||
+                    !pesan.text.trim()
+                )
+                    return;
+                const key = JSON.stringify([percakapan, pesan.id]);
+                hasil.set(key, { key, idLawan: user.id, pesan });
+            });
+        });
+        return hasil;
+    }
+    function titikAwal() {
+        try {
+            pesanMasuk().forEach((_, key) => diketahui.add(key));
+            siap = true;
+        } catch (_) {
+            pesanError = 'Riwayat pesan belum dapat diperiksa. Coba lagi.';
+        }
+    }
+    function percakapanTerlihat() {
+        if (
+            !sesiSesuai() ||
+            document.visibilityState !== 'visible' ||
+            !document.hasFocus() ||
+            panelTabChat.hidden ||
+            !panelChatAktif.getClientRects().length ||
+            getComputedStyle(panelLayerSetelan).display !== 'none'
+        )
+            return null;
+        return chatAktifId;
+    }
+    function perbaruiKehadiran() {
+        try {
+            if (!sesiSesuai() || !aktif || izinBrowser() !== 'granted') {
+                localStorage.removeItem(kehadiranKey);
+                return;
+            }
+            localStorage.setItem(
+                kehadiranKey,
+                JSON.stringify({
+                    chatId: percakapanTerlihat(),
+                    waktu: Date.now()
+                })
+            );
+        } catch (_) {}
+    }
+    function sedangDibuka(idLawan) {
+        if (percakapanTerlihat() === idLawan) return true;
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!key?.startsWith(awalKehadiran)) continue;
+            try {
+                const data = JSON.parse(localStorage.getItem(key));
+                if (data?.chatId === idLawan && Date.now() - data.waktu < 10000) return true;
+            } catch (_) {}
+        }
+        return false;
+    }
+    function tutupNotifikasi(idLawan) {
+        const notifikasi = terbuka.get(idLawan);
+        if (notifikasi) {
+            terbuka.delete(idLawan);
+            notifikasi.close();
+        }
+    }
+    function tutupSemua() {
+        [...terbuka.keys()].forEach(tutupNotifikasi);
+    }
+    function tutupYangDibaca() {
+        [...terbuka.keys()].forEach((id) => {
+            if (sedangDibuka(id)) tutupNotifikasi(id);
+        });
+    }
+    function tampilkanNotifikasi(idLawan, pesan) {
+        if (!sesiSesuai() || !aktif || izinBrowser() !== 'granted' || sedangDibuka(idLawan)) return;
+        try {
+            const terakhir = pesan[pesan.length - 1].pesan;
+            const nama = getProfilChat(idLawan).nama;
+            const cuplikan = terakhir.text.replace(/\s+/g, ' ').trim();
+            const body =
+                (pesan.length > 1 ? pesan.length + ' pesan baru: ' : '') +
+                cuplikan.slice(0, 160) +
+                (cuplikan.length > 160 ? '…' : '');
+            const notifikasi = new Notification('Ngumpul · ' + nama, {
+                body,
+                tag: 'ngumpul:' + akunId + ':' + idLawan,
+                icon: ambilFotoProfilChat(idLawan) || undefined
+            });
+            tutupNotifikasi(idLawan);
+            terbuka.set(idLawan, notifikasi);
+            notifikasi.addEventListener('click', () => {
+                notifikasi.close();
+                if (!sesiSesuai() || !isKontakPengguna(idLawan)) return;
+                window.focus();
+                panelPengaturanNotifikasi.hidden = true;
+                panelPengaturanTema.hidden = true;
+                menu.setAttribute('aria-expanded', 'false');
+                daftarPengaturan.style.display = 'block';
+                judulPanelSetelan.textContent = 'Pengaturan';
+                tutupSetelan();
+                document.dispatchEvent(
+                    new CustomEvent('ngumpul:buka-chat', { detail: { idLawan } })
+                );
+                perbaruiKehadiran();
+            });
+            notifikasi.addEventListener('close', () => {
+                if (terbuka.get(idLawan) === notifikasi) terbuka.delete(idLawan);
+            });
+            notifikasi.addEventListener('error', () => {
+                pesanError = 'Notifikasi tidak dapat ditampilkan di browser ini.';
+                perbaruiTampilan();
+            });
+        } catch (_) {
+            pesanError = 'Notifikasi tidak dapat ditampilkan di browser ini.';
+            perbaruiTampilan();
+        }
+    }
+    async function denganKunci(aksi) {
+        if (navigator.locks?.request) return navigator.locks.request(kunciAntrean, aksi);
+        const lama = JSON.parse(localStorage.getItem(leaseKey) || 'null');
+        if (lama && lama.sampai > Date.now() && lama.tab !== tabId) return false;
+        const token = tabId + ':' + Date.now();
+        localStorage.setItem(
+            leaseKey,
+            JSON.stringify({ tab: tabId, token, sampai: Date.now() + 10000 })
+        );
+        await new Promise((resolve) => setTimeout(resolve, 60));
+        if (JSON.parse(localStorage.getItem(leaseKey) || 'null')?.token !== token) return false;
+        try {
+            return aksi();
+        } finally {
+            if (JSON.parse(localStorage.getItem(leaseKey) || 'null')?.token === token)
+                localStorage.removeItem(leaseKey);
+        }
+    }
+    async function periksaPesan() {
+        if (!sesiSesuai()) {
+            hentikan();
+            return;
+        }
+        if (memeriksa) return;
+        memeriksa = true;
+        try {
+            aktif = bacaPreferensi();
+            perbaruiKehadiran();
+            tutupYangDibaca();
+            const semua = pesanMasuk();
+            const baru = [...semua.values()].filter((item) => !diketahui.has(item.key));
+            if (!siap || !aktif || izinBrowser() !== 'granted') {
+                semua.forEach((_, key) => diketahui.add(key));
+                siap = true;
+                return;
+            }
+            if (!baru.length) return;
+            await denganKunci(() => {
+                if (!sesiSesuai() || !bacaPreferensi() || izinBrowser() !== 'granted') return false;
+                const data = JSON.parse(localStorage.getItem(riwayatKey) || '[]');
+                if (!Array.isArray(data) || data.some((id) => typeof id !== 'string'))
+                    throw new Error();
+                const ditangani = new Set(data);
+                const belum = baru.filter((item) => !ditangani.has(item.key));
+                pesanError = '';
+                if (belum.length) {
+                    belum.forEach((item) => ditangani.add(item.key));
+                    localStorage.setItem(riwayatKey, JSON.stringify([...ditangani]));
+                    const percakapan = new Map();
+                    belum.forEach((item) => {
+                        if (!percakapan.has(item.idLawan)) percakapan.set(item.idLawan, []);
+                        percakapan.get(item.idLawan).push(item);
+                    });
+                    percakapan.forEach((pesan, idLawan) => tampilkanNotifikasi(idLawan, pesan));
+                }
+                baru.forEach((item) => diketahui.add(item.key));
+                return true;
+            });
+        } catch (_) {
+            pesanError = 'Notifikasi belum dapat diproses. Coba lagi.';
+        } finally {
+            memeriksa = false;
+            perbaruiTampilan();
+        }
+    }
+    function jadwalkanPemeriksaan() {
+        if (!sesiSesuai() || jadwal !== null) return;
+        jadwal = setTimeout(() => {
+            jadwal = null;
+            periksaPesan();
+        }, 0);
+    }
+    function sesuaikanPemeriksaan() {
+        clearInterval(timer);
+        timer = null;
+        aktif = bacaPreferensi();
+        if (sesiSesuai() && aktif && izinBrowser() === 'granted') {
+            timer = setInterval(periksaPesan, 2000);
+            perbaruiKehadiran();
+        } else {
+            perbaruiKehadiran();
+            tutupSemua();
+        }
+        perbaruiTampilan();
+    }
+    function hentikan() {
+        berhenti = true;
+        clearInterval(timer);
+        clearTimeout(jadwal);
+        timer = null;
+        jadwal = null;
+        tutupSemua();
+        try {
+            localStorage.removeItem(kehadiranKey);
+        } catch (_) {}
+    }
+    menu.addEventListener('click', () => {
+        daftarPengaturan.style.display = 'none';
+        panelPengaturanTema.hidden = true;
+        panelPengaturanNotifikasi.hidden = false;
+        judulPanelSetelan.textContent = 'Notifikasi';
+        menu.setAttribute('aria-expanded', 'true');
+        sesuaikanPemeriksaan();
+        document.getElementById('judul-notifikasi').focus();
+    });
+    tombol.addEventListener('click', async () => {
+        if (!sesiSesuai() || memintaIzin || tombol.disabled) return;
+        pesanError = '';
+        memintaIzin = true;
+        const nonaktifkan = bacaPreferensi() && izinBrowser() === 'granted';
+        perbaruiTampilan();
+        try {
+            let izin = izinBrowser();
+            if (!nonaktifkan && izin === 'default') izin = await Notification.requestPermission();
+            if (!sesiSesuai()) return;
+            if (nonaktifkan || izin === 'granted') {
+                titikAwal();
+                localStorage.setItem(preferensiKey, JSON.stringify(!nonaktifkan));
+            }
+        } catch (_) {
+            pesanError = 'Pengaturan notifikasi gagal disimpan. Coba lagi.';
+        } finally {
+            memintaIzin = false;
+            sesuaikanPemeriksaan();
+        }
+    });
+    window.addEventListener('storage', (event) => {
+        if (!sesiSesuai()) return hentikan();
+        if (event.key === preferensiKey || event.key === null) {
+            titikAwal();
+            pesanError = '';
+            sesuaikanPemeriksaan();
+        } else if (event.key === KEY_CHAT) jadwalkanPemeriksaan();
+        else if (event.key === 'ngumpul_kontak_' + akunId) titikAwal();
+        else if (event.key?.startsWith(awalKehadiran)) tutupYangDibaca();
+    });
+    function perbaruiFokus() {
+        if (!sesiSesuai()) return hentikan();
+        sesuaikanPemeriksaan();
+        tutupYangDibaca();
+        jadwalkanPemeriksaan();
+    }
+    window.addEventListener('focus', perbaruiFokus);
+    window.addEventListener('blur', perbaruiKehadiran);
+    document.addEventListener('visibilitychange', perbaruiFokus);
+    document.addEventListener('click', () => {
+        queueMicrotask(() => {
+            perbaruiKehadiran();
+            tutupYangDibaca();
+        });
+    });
+    ['btn-keluar-akun', 'btn-masuk-akun-lain'].forEach((id) => {
+        document.getElementById(id)?.addEventListener('click', hentikan, true);
+    });
+    window.addEventListener('pagehide', hentikan);
+    window.addEventListener('pageshow', (event) => {
+        if (!event.persisted || getUserAktif()?.id !== akunId) return;
+        berhenti = false;
+        titikAwal();
+        sesuaikanPemeriksaan();
+    });
+    if (navigator.permissions?.query) {
+        navigator.permissions
+            .query({ name: 'notifications' })
+            .then((permission) => {
+                permission.addEventListener('change', () => {
+                    if (!sesiSesuai()) return;
+                    pesanError = '';
+                    titikAwal();
+                    sesuaikanPemeriksaan();
+                });
+            })
+            .catch(() => {});
+    }
+    aktif = bacaPreferensi();
+    titikAwal();
+    sesuaikanPemeriksaan();
+})();
