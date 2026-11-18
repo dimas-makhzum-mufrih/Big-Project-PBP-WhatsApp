@@ -62,7 +62,6 @@ function formatNomorTampil(nomor) {
 }
 
 function ambilFotoProfilChat(idUser) {
-    if (!namaKontakTersimpan(idUser)) return '';
     try {
         const media = JSON.parse(localStorage.getItem('ngumpul_media_' + idUser)) || {};
         return typeof media.avatar === 'string' && media.avatar.startsWith('data:image/')
@@ -74,7 +73,6 @@ function ambilFotoProfilChat(idUser) {
 }
 
 function ambilBannerProfilChat(idUser) {
-    if (!namaKontakTersimpan(idUser)) return '';
     try {
         const media = JSON.parse(localStorage.getItem('ngumpul_media_' + idUser)) || {};
         return typeof media.banner === 'string' && media.banner.startsWith('data:image/') ? media.banner : '';
@@ -426,7 +424,7 @@ function renderPinPesanAktif() {
         teksPesan.textContent = '';
         return;
     }
-    teksPesan.textContent = pesan.text;
+    teksPesan.textContent = String(pesan.text || '').trim() || (isPesanBergambar(pesan) ? 'Foto' : '');
     container.style.display = 'flex';
 }
 
@@ -713,10 +711,13 @@ function renderPesanAktif() {
         btnPin.title = 'Sematkan pesan';
         btnPin.setAttribute('aria-label', 'Sematkan pesan');
 
-        const ikonPin = document.createElement('i');
-        ikonPin.classList.add('fa-solid', 'fa-thumbtack');
+        const nsPin = 'http://www.w3.org/2000/svg';
+        const ikonPin = document.createElementNS(nsPin, 'svg');
+        ikonPin.setAttribute('class', 'ikon ikon-pin');
         ikonPin.setAttribute('aria-hidden', 'true');
-
+        const pakaiPin = document.createElementNS(nsPin, 'use');
+        pakaiPin.setAttribute('href', '#i-sematkan');
+        ikonPin.appendChild(pakaiPin);
         btnPin.appendChild(ikonPin);
 
         btnPin.addEventListener('click', () => {
@@ -731,7 +732,6 @@ function renderPesanAktif() {
         waktu.className = 'timestamp';
         waktu.textContent = formatJamPesan(item.time);
 
-        bubble.appendChild(text);
         bubble.appendChild(btnPin);
         const footer = document.createElement('div');
         footer.className = 'message-footer';
@@ -895,8 +895,11 @@ function bukaChat(idLawan) {
     }
     const nomorHeader = document.getElementById('nomor-header-kanan');
     if (nomorHeader) {
-        nomorHeader.textContent = target.hp || 'Nomor tidak tersedia';
-        nomorHeader.hidden = !namaKontakTersimpan(idLawan);
+        const namaAkunLawan = String(getProfil(idLawan).nama || '').trim();
+        nomorHeader.textContent = namaKontakTersimpan(idLawan)
+            ? (target.hp || 'Nomor tidak tersedia')
+            : (namaAkunLawan ? '~ ' + namaAkunLawan : '');
+        nomorHeader.hidden = !nomorHeader.textContent;
     }
     perbaruiKontrolBlokir();
     perbaruiKontrolKontak();
@@ -1531,7 +1534,7 @@ if (btnBlokirPengguna) btnBlokirPengguna.addEventListener('click', () => {
 if (btnSimpanKontakChat) btnSimpanKontakChat.addEventListener('click', () => {
     if (!chatAktifId || !userAktif || namaKontakTersimpan(chatAktifId)) return;
     const target = getProfilChat(chatAktifId);
-    const nama = (window.prompt('Nama untuk kontak ini:', target.hp) || '').trim();
+    const nama = (window.prompt('Nama untuk kontak ini:', String(getProfil(chatAktifId).nama || target.hp).trim()) || '').trim();
     if (!nama) return;
     try {
         NgumpulKontakData.add(userAktif.id, target.hp, nama);
@@ -1539,6 +1542,11 @@ if (btnSimpanKontakChat) btnSimpanKontakChat.addEventListener('click', () => {
         renderChatList();
         // Perbarui judul dengan nama kontak yang baru disimpan.
         if (namaHeaderKanan) namaHeaderKanan.textContent = nama;
+        const nomorHeaderBaru = document.getElementById('nomor-header-kanan');
+        if (nomorHeaderBaru) {
+            nomorHeaderBaru.textContent = target.hp || 'Nomor tidak tersedia';
+            nomorHeaderBaru.hidden = false;
+        }
         tampilkanAvatarChat(avatarHeaderKanan, chatAktifId, nama);
         if (panelInfoPengguna && panelInfoPengguna.getAttribute('aria-hidden') === 'false') tampilkanInfoPengguna();
     } catch (error) {
