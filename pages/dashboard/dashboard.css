@@ -180,6 +180,8 @@
     padding: 12px 4px;
     border-bottom: 1px solid var(--border-warna)
 }
+﻿/* Dashboard Ngumpul - satu tema TERANG tetap (tidak ikut mode gelap/terang perangkat).
+   Warna disamakan dengan halaman registrasi/login (cyan). */
 
 .contact-avatar {
     display: grid;
@@ -1439,6 +1441,7 @@ html[data-theme="dark"] .message-status.dibaca {
     text-align: left;
     cursor: pointer;
 }
+
 .settings-notification-page {
     flex: 1;
     min-height: 0;
@@ -1454,16 +1457,19 @@ html[data-theme="dark"] .message-status.dibaca {
     max-width: 640px;
     margin: 0 auto;
 }
+
 .notification-heading {
     display: flex;
     align-items: center;
     gap: 14px;
     margin-bottom: 24px;
 }
+
 .notification-heading h3 {
     margin: 0 0 6px;
     font-size: 1.2rem;
 }
+
 .notification-heading p,
 .notification-setting p {
     margin: 0;
@@ -1471,12 +1477,14 @@ html[data-theme="dark"] .message-status.dibaca {
     font-size: 0.9rem;
     line-height: 1.6;
 }
+
 .notification-card {
     padding: 22px;
     border: 1px solid var(--border-warna);
     border-radius: 14px;
     background: var(--bg-putih);
 }
+
 .notification-setting {
     display: flex;
     align-items: center;
@@ -1493,6 +1501,7 @@ html[data-theme="dark"] .message-status.dibaca {
     font-size: 1rem;
     font-weight: 600;
 }
+
 .notification-switch {
     display: flex;
     align-items: center;
@@ -1518,6 +1527,7 @@ html[data-theme="dark"] .message-status.dibaca {
         transform 0.16s ease,
         background-color 0.16s ease;
 }
+
 .notification-switch[aria-checked='true'] {
     border-color: var(--warna-utama);
     background: var(--warna-utama);
@@ -1532,11 +1542,13 @@ html[data-theme="dark"] .message-status.dibaca {
     cursor: default;
     opacity: 0.6;
 }
+
 .notification-entry:focus-visible,
 .notification-switch:focus-visible {
     outline: 2px solid var(--warna-utama);
     outline-offset: 3px;
 }
+
 .notification-status {
     margin: 18px 0 0;
     padding-top: 16px;
@@ -1555,10 +1567,12 @@ html[data-theme="dark"] .message-status.dibaca {
     .notification-entry:hover {
         background: var(--bg-abu-terang);
     }
+
     .notification-switch:not(:disabled):hover {
         border-color: var(--warna-utama);
     }
 }
+
 @media (max-width: 700px) {
     .settings-notification-page {
         padding: 20px 14px;
@@ -1951,6 +1965,19 @@ html[data-theme="dark"] .message-status.dibaca {
     text-align: left;
     cursor: pointer
 }
+/*pinned message*/
+.pinned-message-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background: var(--bg-putih);
+    border-bottom: 1px solid var(--border-warna);
+}
+
+/* =====================================================================
+   FITUR KIRIM GAMBAR DARI GALERI (GAYA WHATSAPP)
+   ===================================================================== */
 
 #tab-grup {
     cursor: pointer
@@ -5360,6 +5387,107 @@ html[data-theme="dark"] .grup-info-panel .grup-admin-badge {
     border-bottom: 1px solid var(--border-warna);
 }
 
+.pinned-message-icon {
+    color: var(--warna-utama);
+    font-size: 1.1rem;
+}
+
+.pinned-message-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.pinned-message-title {
+    display: block;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--teks-gelap);
+}
+
+.pinned-message-info p {
+    margin: 3px 0 0;
+    font-size: .85rem;
+    color: var(--teks-redup);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#btn-unpin-message {
+    border: none;
+    background: transparent;
+    color: var(--teks-redup);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 6px;
+    border-radius: 5px;
+}
+
+#btn-unpin-message:hover {
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+}
+
+.btn-pin-message {
+    align-self: flex-end;
+    border: none;
+    background: transparent;
+    color: var(--teks-redup);
+    cursor: pointer;
+    font-size: .8rem;
+    padding: 3px 5px;
+    border-radius: 4px;
+}
+
+.btn-pin-message:hover {
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+}
+
+.chat-bubble {
+    position: relative;
+}
+
+.btn-pin-message {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    padding: 3px 5px;
+    border: none;
+    background: transparent;
+    color: var(--teks-redup);
+    cursor: pointer;
+    font-size: .8rem;
+    border-radius: 4px;
+}
+
+.btn-pin-message:hover {
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+}
+
+.chat-bubble>span:first-child {
+    padding-right: 22px;
+}
+
+.btn-pin-message {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility .2s ease;
+}
+
+.chat-bubble:hover .btn-pin-message {
+    opacity: 1;
+    visibility: visible;
+}
+
+@media (hover: none) {
+    .btn-pin-message {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
 .media-preview-close {
     width: 38px;
     height: 38px;
@@ -5816,4 +5944,21 @@ html[data-theme="dark"] .grup-info-panel .grup-admin-badge {
 .btn-mic:disabled {
     opacity: .45;
     cursor: not-allowed
+}
+
+
+/* ikon di fitur sematkan pesan (SVG) */
+.pinned-message-icon .ikon {
+    width: 20px;
+    height: 20px
+}
+
+#btn-unpin-message .ikon {
+    width: 18px;
+    height: 18px
+}
+
+.btn-pin-message .ikon-pin {
+    width: 16px;
+    height: 16px
 }
