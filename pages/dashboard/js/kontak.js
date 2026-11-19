@@ -26,18 +26,6 @@
         return pesan;
     }
 
-    // ===== Baca media profil (avatar/banner) dari localStorage =====
-    const KUNCI_MEDIA = 'ngumpul_media_';
-    function bacaMedia(idUser) {
-        try {
-            return JSON.parse(
-                localStorage.getItem(KUNCI_MEDIA + idUser)
-            ) || {};
-        } catch (e) {
-            return {};
-        }
-    }
-
     function cariPengguna(nomor) {
         const pengguna = getUsers();
         for (let i = 0; i < pengguna.length; i++) {

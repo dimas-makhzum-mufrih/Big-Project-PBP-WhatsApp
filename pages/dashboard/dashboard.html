@@ -6,10 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>Ngumpul - Ruang Chat</title>
-    <link rel="stylesheet" href="kontak.css">
+    <link rel="stylesheet" href="css/kontak.css">
     <link rel="stylesheet" href="../../assets/css/variables.css">
     <script src="../../assets/js/theme.js"></script>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/setelan.css">
+    <link rel="stylesheet" href="css/media.css">
 </head>
 
 <body>
@@ -703,9 +706,17 @@
 
     <script src="../../assets/js/storage.js"></script>
     <script src="../../assets/js/negara-data.js"></script>
-    <script src="kontak-data.js"></script>
-    <script src="dashboard.js"></script>
-    <script src="kontak.js"></script>
+    <script src="js/kontak-data.js"></script>
+    <!-- URUTAN PENTING: file chat-* s/d notifikasi adalah satu rangkaian (dulu dashboard.js) -->
+    <script src="js/chat-data.js"></script>
+    <script src="js/chat-tampil.js"></script>
+    <script src="js/chat-footer.js"></script>
+    <script src="js/chat-gambar.js"></script>
+    <script src="js/lightbox.js"></script>
+    <script src="js/chat-aksi.js"></script>
+    <script src="js/setelan.js"></script>
+    <script src="js/notifikasi.js"></script>
+    <script src="js/kontak.js"></script>
 </body>
 
 </html>

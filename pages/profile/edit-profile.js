@@ -1,11 +1,6 @@
 const KUNCI_DRAFT = 'draft_profil_edit';
-const KUNCI_MEDIA = 'ngumpul_media_';   // + id user -> { avatar, banner } (data URL hasil crop)
-const KUNCI_SOSMED = 'ngumpul_sosmed_'; // + id user -> [{ id, nama, platform, url }]
+// KUNCI_MEDIA, KUNCI_SOSMED, bacaMedia ada di assets/js/storage.js
 
-function bacaMedia(idUser) {
-    try { return JSON.parse(localStorage.getItem(KUNCI_MEDIA + idUser)) || {}; }
-    catch (e) { return {}; }
-}
 function tulisMedia(idUser, data) {
     try { localStorage.setItem(KUNCI_MEDIA + idUser, JSON.stringify(data)); return true; }
     catch (e) { return false; } // penyimpanan penuh / diblokir
