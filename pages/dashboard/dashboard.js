@@ -923,6 +923,108 @@ const panelLampiran = document.getElementById('panel-lampiran');
 const btnMic = document.getElementById('btn-mic');
 const btnEmoji = document.getElementById('btn-emoji');
 const panelEmoji = document.getElementById('panel-emoji-popup');
+const cariEmoji = document.getElementById('input-cari-emoji');
+const penandaEmoji = document.getElementById('emoji-tabs');
+const emojiKetagoriLabel = document.getElementById('emoji-kategori-label');
+const kotakPilihanEmoji = document.getElementById('emoji-grid');
+
+const DATA_EMOJI = window.DATA_EMOJI; // Ambil data emoji dari file eksternal
+
+let kategoriEmojiAktif = 'smileys'; // Kategori default saat pertama kali dibuka
+
+// Menampilkan emoji dari kategori aktif atau hasil pencarian di grid picker.
+function renderPilihanEmoji(filter = '') {
+    if (!kotakPilihanEmoji) return;
+
+    const query = filter.trim();
+    const sumber = query
+        ? Object.values(DATA_EMOJI).flatMap(kategori => kategori.list)
+        : (DATA_EMOJI[kategoriEmojiAktif]?.list || []);
+    const daftarEmoji = [...new Set(sumber)]
+        .filter(emoji => !query || emoji.includes(query));
+
+    kotakPilihanEmoji.replaceChildren();
+    daftarEmoji.forEach(emoji => {
+        const tombol = document.createElement('button');
+        tombol.type = 'button';
+        tombol.textContent = emoji;
+        tombol.title = emoji;
+        tombol.setAttribute('aria-label', 'Sisipkan emoji ' + emoji);
+        tombol.addEventListener('click', () => sisipkanEmojiKePesan(emoji));
+        kotakPilihanEmoji.appendChild(tombol);
+    });
+}
+
+//// Menyisipkan emoji pada posisi kursor di kolom pesan.
+function sisipkanEmojiKePesan(emoji) {
+    if (!inputTeksKirim) return;
+
+    const awal = inputTeksKirim.selectionStart ?? inputTeksKirim.value.length;
+    const akhir = inputTeksKirim.selectionEnd ?? awal;
+    inputTeksKirim.value =
+        inputTeksKirim.value.slice(0, awal) + emoji + inputTeksKirim.value.slice(akhir);
+    const posisiKursor = awal + emoji.length;
+    inputTeksKirim.focus();
+    inputTeksKirim.setSelectionRange(posisiKursor, posisiKursor);
+    perbaruiTombolKirim();
+}
+
+// Membuka atau menutup panel picker emoji dan memperbarui status aksesibilitas tombol.
+function aturPanelEmoji(terbuka) {
+    if (!panelEmoji || !btnEmoji) return;
+    panelEmoji.style.display = terbuka ? 'flex' : 'none';
+    btnEmoji.setAttribute('aria-expanded', String(terbuka));
+}
+
+// Mengatur aksi tombol emoji untuk membuka/menutup picker.
+if (btnEmoji && panelEmoji) {
+    btnEmoji.setAttribute('aria-controls', 'panel-emoji-popup');
+    btnEmoji.setAttribute('aria-expanded', 'false');
+    btnEmoji.addEventListener('click', event => {
+        event.stopPropagation();
+        const terbuka = panelEmoji.style.display !== 'none';
+        aturPanelEmoji(!terbuka);
+        if (!terbuka) {
+            renderPilihanEmoji(cariEmoji ? cariEmoji.value : '');
+            if (cariEmoji) cariEmoji.focus();
+        }
+    });
+
+    // Menutup picker ketika pengguna mengeklik di luar panel.
+    document.addEventListener('click', event => {
+        if (!panelEmoji.contains(event.target) && !btnEmoji.contains(event.target)) {
+            aturPanelEmoji(false);
+        }
+    });
+}
+
+// Mengganti kategori emoji dan memperbarui isi grid picker.
+if (penandaEmoji) {
+    penandaEmoji.addEventListener('click', event => {
+        const tab = event.target.closest('.emoji-tab');
+        if (!tab || !DATA_EMOJI[tab.dataset.kategori]) return;
+
+        penandaEmoji.querySelectorAll('.emoji-tab').forEach(item => {
+            item.classList.toggle('aktif', item === tab);
+        });
+        kategoriEmojiAktif = tab.dataset.kategori;
+        if (emojiKetagoriLabel) {
+            emojiKetagoriLabel.textContent = DATA_EMOJI[kategoriEmojiAktif].label;
+        }
+        if (cariEmoji) cariEmoji.value = '';
+        renderPilihanEmoji();
+    });
+}
+
+// Memfilter emoji saat teks pencarian berubah.
+if (cariEmoji) {
+    cariEmoji.addEventListener('input', () => renderPilihanEmoji(cariEmoji.value));
+}
+
+// Menutup picker emoji saat tombol Escape ditekan.
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') aturPanelEmoji(false);
+});
 
 function tutupPanelLampiran() {
     if (!panelLampiran || panelLampiran.hidden) return;

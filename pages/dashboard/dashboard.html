@@ -393,7 +393,7 @@
                         </svg>
                     </button>
 
-                    <!-- Panel emoji pciker -->
+                    <!-- Panel emoji picker; mulai baris = 397 - 415 -->
                     <div class="emoji-picker-popup" id="panel-emoji-popup" style="display:none">
                         <div class="emoji-picker-header">
                             <input type="search" class="emoji-cari-input" id="input-cari-emoji" placeholder="Cari emoji..." autocomplete="off">
@@ -410,12 +410,13 @@
                                 <button class="emoji-tab" data-kategori="symbols" title="Simbol">❤️</button>
                                 <button class="emoji-tab" data-kategori="flags" title="Bendera">🏁</button>
                         </div>
-                        <div class="emoji-ketagori-label" id="emoji-kategori-label"> Wajah & Emosi </div>
+                        <div class="emoji-kategori-label" id="emoji-kategori-label"> Wajah & Emosi </div>
                         <div class="emoji-grid" id="emoji-grid"></div>
                     </div>
                     
                     <input class="chat-input-field" id="input-teks-kirim" type="text" placeholder="Ketik pesan..."
                         autocomplete="off">
+                        
                     <button class="btn-mic" id="btn-mic" type="button" data-fitur="mic"
                         aria-label="Pesan suara (segera hadir)" title="Pesan suara (segera hadir)"><svg class="ikon"
                             aria-hidden="true">
@@ -423,6 +424,18 @@
                         </svg></button>
                     <button class="send-action-btn" id="btn-kirim-pesan" hidden>Kirim</button>
                 </footer>
+            
+                <!-- Popup reaksi dan hover pesan; mulai baris = 429 - 437 -->
+                <div class="reaksi-popup-picker" id="reaksi-popup-picker" style="display:none">
+                    <button class="reaksi-cepat" data-emoji="👍">👍</button>
+                    <button class="reaksi-cepat" data-emoji="❤️">❤️</button>
+                    <button class="reaksi-cepat" data-emoji="😂">😂</button>
+                    <button class="reaksi-cepat" data-emoji="😮">😮</button>
+                    <button class="reaksi-cepat" data-emoji="😢">😢</button>
+                    <button class="reaksi-cepat" data-emoji="🙏">🙏</button>
+                    <button class="reaksi-cepat reaksi-lainnya" id="btn-reaksi-lainnya" title="Emoji lainnya">➕</button>
+                </div>
+
             </section>
             <aside class="contact-info-panel" id="panel-info-pengguna" aria-label="Informasi kontak" aria-hidden="true">
                 <header class="contact-info-header">
@@ -726,6 +739,7 @@
 
     <script src="../../assets/js/storage.js"></script>
     <script src="../../assets/js/negara-data.js"></script>
+    <script src="../../assets/js/data-emoji.js"></script>
     <script src="kontak-data.js"></script>
     <script src="dashboard.js"></script>
     <script src="kontak.js"></script>

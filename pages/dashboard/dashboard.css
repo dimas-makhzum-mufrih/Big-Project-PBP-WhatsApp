@@ -2337,3 +2337,108 @@ html[data-theme="dark"] .message-status.dibaca {
     width: 16px;
     height: 16px
 }
+
+/*=============================================================================
+    FITUR: EMOJI PICKER & REAKSI PESAN 
+  =============================================================================*/
+
+.active-chat-footer {
+    position: relative;
+}
+.emoji-picker-popup {
+    position: absolute;
+    bottom: calc(100% + 28px);
+    left: 3.5rem;
+    width: 340px;
+    max-height: 380px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: emojiSlideUp .18s ease-out;
+}
+
+@keyframes emojiSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.emoji-picker-header {
+    padding: 10px 12px 6px;
+    flex-shrink: 0;
+}
+
+.emoji-cari-input:focus {
+    outline: 2px solid var(--warna-utama);
+    border-color: transparent;
+}
+
+.emoji-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 4px 10px;
+    border-bottom: 1px solid var(--border-warna);
+    flex-shrink: 0;
+}
+
+.emoji-tab {
+    flex: 1;
+    padding: 5px 0;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 6px 6px 0 0;
+    transition: background .15s;
+}
+
+.emoji-tab:hover {
+    background: var(--bg-abu-terang);
+}
+
+.emoji-tab.aktif {
+    border-bottom-color: var(--warna-utama);
+    background: var(--warna-tipis);
+}
+
+.emoji-kategori-label {
+    padding: 6px 14px 2px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--teks-redup);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    flex-shrink: 0;
+}
+
+.emoji-grid {
+    flex: 1;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2px;
+    padding: 6px 10px 10px;
+}
+
+.emoji-grid button {
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    font-size: 1.35rem;
+    cursor: pointer;
+    transition: background .12s, transform .12s;
+    aspect-ratio: 1;
+}
+
+.emoji-grid button:hover {
+    background: var(--bg-abu-terang);
+    transform: scale(1.2);
+}
