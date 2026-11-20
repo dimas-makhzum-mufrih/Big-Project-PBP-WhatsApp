@@ -27,9 +27,6 @@ function buatIndikatorStatusPesan(nilai) {
     return status;
 }
 
-    location.replace('../auth/login.html');
-}
-
 // ===== Fitur Chat =====
 const KEY_CHAT = 'ngumpul_pesan';
 const KEY_PIN_PESAN = 'ngumpul_pesan_tersemat';
@@ -476,7 +473,6 @@ function renderPinPesanAktif() {
 }
 
 function renderBarSematan() {
-function renderPinPesanAktif() {
     const container = document.getElementById('pinned-message-container');
     const teksPesan = document.getElementById('pinned-message-text');
     if (!container || !teksPesan || !chatAktifId) return;
@@ -532,7 +528,6 @@ function prosesPesanMasuk() {
             panelChatAktif.getClientRects().length &&
             getComputedStyle(document.getElementById('panel-layer-setelan')).display === 'none')
             tandaiPesanDibaca(pengguna.id);
-        if (chatAktifId === pengguna.id) tandaiPesanDibaca(pengguna.id);
     });
 }
 
@@ -570,4 +565,3 @@ function isKontakPengguna(idLawan) {
     return NgumpulKontakData.list(userAktif.id)
         .some(kontak => samakanHp(kontak.phone, user.hp));
 }
-
