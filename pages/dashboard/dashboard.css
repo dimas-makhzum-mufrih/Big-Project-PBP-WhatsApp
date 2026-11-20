@@ -2511,6 +2511,12 @@ html[data-theme="dark"] .message-status.dibaca {
     transform: scale(1.08);
 }
 
+.btn-react-trigger .ikon-reaksi-pesan {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
 .btn-react-trigger:focus-visible,
 .reaksi-cepat:focus-visible,
 .reaction-badge:focus-visible {

@@ -784,12 +784,43 @@ function renderPesanAktif() {
         const kontenPesan = document.createElement('div');
         kontenPesan.className = 'message-content';
         kontenPesan.appendChild(bubble);
+        bubble.addEventListener('click', event => {
+            if (event.target.closest('.btn-pin-message, .chat-image-wrapper')) return;
+            event.stopPropagation();
+            tampilkanReaksiPesanPicker(item.id, kontenPesan);
+        });
 
         // membuat tombol untuk membuka picker dan menampilkan reaksi pada pesan
-        const tombolReaksi = document.createElement('button'); 
-        tombolReaksi.textContent = '😊';
+        const tombolReaksi = document.createElement('button');
+        tombolReaksi.type = 'button';
+        tombolReaksi.className = 'btn-react-trigger';
         tombolReaksi.title = 'Beri reaksi';
         tombolReaksi.setAttribute('aria-label', 'Beri reaksi pada pesan');
+        const nsSvg = 'http://www.w3.org/2000/svg';
+        const ikonReaksi = document.createElementNS(nsSvg, 'svg');
+        ikonReaksi.setAttribute('viewBox', '0 0 64 64');
+        ikonReaksi.setAttribute('aria-hidden', 'true');
+        ikonReaksi.classList.add('ikon-reaksi-pesan');
+        const bentukBalon = document.createElementNS(nsSvg, 'path');
+        bentukBalon.setAttribute(
+            'd',
+            'M32 5C17.1 5 5 16.9 5 31.7c0 5.4 1.6 10.5 4.4 14.8L6 58l12.4-3.8c4.1 2.3 8.7 3.5 13.6 3.5 14.9 0 27-11.8 27-26S46.9 5 32 5Z'
+        );
+        bentukBalon.setAttribute('fill', '#53bdeb');
+        ikonReaksi.appendChild(bentukBalon);
+        [22, 42].forEach(posisiX => {
+            const mata = document.createElementNS(nsSvg, 'circle');
+            mata.setAttribute('cx', String(posisiX));
+            mata.setAttribute('cy', '27');
+            mata.setAttribute('r', '3.5');
+            mata.setAttribute('fill', '#101820');
+            ikonReaksi.appendChild(mata);
+        });
+        const senyum = document.createElementNS(nsSvg, 'path');
+        senyum.setAttribute('d', 'M20 36h24c-.8 7-5.3 11-12 11s-11.2-4-12-11Z');
+        senyum.setAttribute('fill', '#101820');
+        ikonReaksi.appendChild(senyum);
+        tombolReaksi.appendChild(ikonReaksi);
         tombolReaksi.addEventListener('click', event => {
             event.stopPropagation();
             tampilkanReaksiPesanPicker(item.id, kontenPesan);
@@ -965,7 +996,7 @@ function bukaChat(idLawan) {
 const btnLampir = document.getElementById('btn-lampir');
 const panelLampiran = document.getElementById('panel-lampiran');
 const btnMic = document.getElementById('btn-mic');
-const btnEmoji = document.getElementById('btn-emoji'); // selector & function emoji picker; mulai baris 924 - 1036
+const btnEmoji = document.getElementById('btn-emoji');
 const panelEmoji = document.getElementById('panel-emoji-popup');
 const cariEmoji = document.getElementById('input-cari-emoji');
 const penandaEmoji = document.getElementById('emoji-tabs');
