@@ -1006,6 +1006,7 @@ const reaksiPesanEmojiPopup = document.getElementById('reaksi-popup-picker');
 const btnReaksiLainnya = document.getElementById('btn-reaksi-lainnya');
 
 const DATA_EMOJI = window.DATA_EMOJI;
+const DATA_PENCARIAN_EMOJI = window.DATA_PENCARIAN_EMOJI;
 
 let kategoriEmojiAktif = 'smileys'; 
 let reaksiPesanTargetId = null;
@@ -1018,11 +1019,24 @@ function renderPilihanEmoji(filter = '') {
     if (!kotakPilihanEmoji) return;
 
     const query = filter.trim();
+    const queryNormal = query.toLocaleLowerCase('id-ID');
     const sumber = query
         ? Object.values(DATA_EMOJI).flatMap(kategori => kategori.list)
         : (DATA_EMOJI[kategoriEmojiAktif]?.list || []);
     const daftarEmoji = [...new Set(sumber)]
-        .filter(emoji => !query || emoji.includes(query));
+        .filter(emoji => {
+            if (!query) return true;
+            if (emoji.includes(query)) return true;
+
+            const kataKunci = DATA_PENCARIAN_EMOJI[emoji] || [];
+            const teksKataKunci = kataKunci.join(' ').toLocaleLowerCase('id-ID');
+            if (queryNormal.length === 1) {
+                return kataKunci.some(kata =>
+                    kata.toLocaleLowerCase('id-ID').startsWith(queryNormal)
+                );
+            }
+            return teksKataKunci.includes(queryNormal);
+        });
 
     kotakPilihanEmoji.replaceChildren();
     daftarEmoji.forEach(emoji => {
