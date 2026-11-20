@@ -1,0 +1,381 @@
+* {
+    box-sizing: border-box
+}
+
+html {
+    background: var(--bg-abu-terang)
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: var(--bg-abu-terang);
+    color: var(--teks-gelap);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+}
+
+button,
+input {
+    font-family: inherit
+}
+
+.ikon {
+
+    width: 22px;
+    height: 22px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round
+}
+
+/* ---------- kerangka ---------- */
+.dashboard-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-putih)
+}
+
+.sisi-kiri {
+    width: 32%;
+    min-width: 320px;
+    max-width: 450px;
+    background: var(--bg-putih);
+    border-right: 1px solid var(--border-warna);
+    display: flex;
+    flex-direction: column;
+    position: relative
+}
+
+.sisi-kanan {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg-abu-terang);
+    display: flex;
+    position: relative
+}
+
+/* ---------- header + menu titik tiga ---------- */
+.header-kiri {
+    height: 65px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-warna)
+}
+
+.header-kiri h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0
+}
+
+.menu-wa-style {
+    position: relative
+}
+
+.btn-menu-titik3 {
+    background: none;
+    border: 0;
+    color: var(--teks-redup);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.btn-menu-titik3:hover {
+    background: var(--bg-abu-input)
+}
+
+.dropdown-box {
+    position: absolute;
+    top: 46px;
+    right: 0;
+    width: 232px;
+    padding: 6px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    border: 1px solid var(--border-warna);
+    border-radius: 12px;
+    box-shadow: var(--bayangan-dropdown);
+    z-index: 200
+}
+
+.dropdown-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: .95rem;
+    color: var(--teks-gelap);
+    cursor: default
+}
+
+.dropdown-option:hover {
+    background: var(--bg-abu-terang)
+}
+
+.dropdown-option.utama {
+    font-weight: 600;
+    cursor: pointer
+}
+
+.dropdown-option .ikon {
+    width: 18px;
+    height: 18px;
+    color: var(--warna-utama)
+}
+
+.dropdown-sekat {
+    height: 1px;
+    margin: 6px 8px;
+    background: var(--border-warna)
+}
+
+/* ---------- tab Chat / Grup / Telepon / Kontak ---------- */
+.tab-nav {
+    display: flex;
+    padding: 0 6px;
+    border-bottom: 1px solid var(--border-warna)
+}
+
+.tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 0 6px;
+    font-size: .75rem;
+    color: var(--teks-redup);
+    border-bottom: 3px solid transparent;
+    cursor: default;
+    background: none;
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
+    font-family: inherit
+}
+
+.tab:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px
+}
+
+.tab#tab-chat {
+    cursor: pointer
+}
+
+.tab#tab-kontak {
+    text-decoration: none;
+    cursor: pointer
+}
+
+.tab.aktif {
+    color: var(--warna-utama);
+    border-color: var(--warna-utama);
+    font-weight: 600
+}
+
+/* ---------- isi tab di sidebar dashboard ---------- */
+.dashboard-tab-panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden
+}
+
+.dashboard-tab-panel[hidden] {
+    display: none
+}
+
+#panel-tab-kontak {
+    max-width: none;
+    margin: 0;
+    border: 0
+}
+
+#panel-tab-kontak .contact-header {
+    flex-shrink: 0;
+    gap: 8px;
+    padding: 10px
+}
+
+#panel-tab-kontak .contact-header h2 {
+    flex: 1;
+    margin: 0;
+    font-size: 1.2rem
+}
+
+#panel-tab-kontak .contact-back {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer
+}
+
+#panel-tab-kontak .contact-back:hover {
+    background: var(--bg-abu-input)
+}
+
+#panel-tab-kontak .contact-add-button {
+    padding: 9px 10px;
+    font-size: .85rem
+}
+
+#panel-tab-kontak .contact-form-row {
+    flex-wrap: wrap
+}
+
+#panel-tab-kontak .contact-form-row select {
+    width: 100%;
+    max-width: none
+}
+
+#panel-tab-kontak .contact-card-actions {
+    flex-wrap: wrap;
+    padding-left: 0
+}
+
+/* ---------- cari + daftar chat ---------- */
+.search-box-wrapper {
+    position: relative;
+    padding: 12px 16px
+}
+
+.search-bar-input {
+    width: 100%;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 16px 10px 38px;
+    font-size: .9rem
+}
+
+.search-field-icon {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    color: var(--teks-redup);
+    fill: currentColor;
+    stroke: none;
+    pointer-events: none
+}
+
+.search-box-wrapper .search-field-icon {
+    top: 50%;
+    left: 28px;
+    transform: translateY(-50%)
+}
+
+.search-bar-input:focus {
+    outline: 2px solid var(--warna-utama)
+}
+
+.chat-scroll-area {
+    flex: 1;
+    overflow-y: auto
+}
+
+.chat-card {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    padding: 12px 20px;
+    border: 0;
+    border-bottom: 1px solid var(--border-warna);
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+    transition: background .2s
+}
+
+.chat-card:hover,
+.chat-card.aktif {
+    background: var(--bg-abu-terang)
+}
+
+.chat-card:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: -2px
+}
+
+.circle-avatar {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 16px;
+    color: var(--teks-kontras);
+    font-size: 1.1rem;
+    overflow: hidden
+}
+
+.circle-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%
+}
+
+.card-meta {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px
+}
+
+.card-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: 1rem
+}
+
+.card-top small {
+    flex: none;
+    color: var(--teks-redup);
+    font-size: .74rem
+}
+
+.card-preview {
+    color: var(--teks-redup);
+    font-size: .88rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+#panel-tab-chat .contact-empty {
+    margin: 24px 16px;
+    text-align: center;
+    line-height: 1.5
+}
