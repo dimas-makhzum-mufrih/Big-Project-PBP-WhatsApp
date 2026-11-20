@@ -2,7 +2,29 @@
 const userAktif = getUserAktif();
 
 if (!userAktif) {
+    if (location.hash.includes('undangan-grup=')) sessionStorage.setItem('ngumpul_undangan_tertunda', location.hash);
     location.replace('../auth/login.html');
+}
+
+function buatIndikatorStatusPesan(nilai) {
+    const item = { status: nilai };
+    const status = document.createElement('span');
+    status.className = 'message-status' + (item.status === 'dibaca' ? ' dibaca' : '');
+    const sudahDiterima = item.status === 'diterima' || item.status === 'dibaca';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.classList.add('message-status-icon');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', sudahDiterima
+        ? 'M2.305,11.235a1,1,0,0,1,1.414.024l3.206,3.319L14.3,7.289A1,1,0,0,1,15.7,8.711l-8.091,8a1,1,0,0,1-.7.289H6.9a1,1,0,0,1-.708-.3L2.281,12.649A1,1,0,0,1,2.305,11.235ZM20.3,7.289l-7.372,7.289-.263-.273a1,1,0,1,0-1.438,1.39l.966,1a1,1,0,0,0,.708.3h.011a1,1,0,0,0,.7-.289l8.091-8A1,1,0,0,0,20.3,7.289Z'
+        : 'M2.305,11.235a1,1,0,0,1,1.414.024l3.206,3.319L14.3,7.289A1,1,0,0,1,15.7,8.711l-8.091,8a1,1,0,0,1-.7.289H6.9a1,1,0,0,1-.708-.3L2.281,12.649A1,1,0,0,1,2.305,11.235Z');
+    svg.appendChild(path);
+    status.appendChild(svg);
+    status.setAttribute('aria-label', 'Status pesan: ' + (
+        item.status === 'dibaca' ? 'Dibaca' : sudahDiterima ? 'Diterima' : 'Terkirim'
+    ));
+    return status;
 }
 
 // ===== Fitur Chat =====
@@ -38,6 +60,31 @@ if (btnUnpinMessage) {
         if (berhasil) {
             renderPinPesanAktif();
         }
+    });
+}
+
+// Klik bilah "Pesan Disematkan" = lompat ke pesan aslinya
+const barSematan = document.getElementById('pinned-message-container');
+function lompatKePesanSemat() {
+    if (!chatAktifId) return;
+    const idPin = ambilPinPesan(chatAktifId);
+    const baris = idPin && [...boxListPesan.children].find(el => el.dataset.messageId === idPin);
+    if (!baris) return;
+    baris.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    baris.classList.remove('pesan-cari-terpilih');
+    void baris.offsetWidth;
+    baris.classList.add('pesan-cari-terpilih');
+    baris.addEventListener('animationend', () => baris.classList.remove('pesan-cari-terpilih'), { once: true });
+}
+if (barSematan) {
+    barSematan.addEventListener('click', event => {
+        if (event.target.closest('#btn-unpin-message')) return;
+        lompatKePesanSemat();
+    });
+    barSematan.addEventListener('keydown', event => {
+        if (event.target !== barSematan || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        lompatKePesanSemat();
     });
 }
 
@@ -406,7 +453,26 @@ function hapusPinPesan(idLawan) {
     return simpanSemuaPinPesan(semuaPin);
 }
 
+function perbaruiTombolPin() {
+    const pin = chatAktifId ? ambilPinPesan(chatAktifId) : null;
+    boxListPesan.querySelectorAll('.message-row').forEach(baris => {
+        const tombol = baris.querySelector('.btn-pin-message');
+        if (!tombol) return;
+        const aktif = Boolean(pin) && baris.dataset.messageId === pin;
+        tombol.classList.toggle('tersemat', aktif);
+        tombol.setAttribute('aria-pressed', String(aktif));
+        const label = aktif ? 'Lepas sematan' : 'Sematkan pesan';
+        tombol.title = label;
+        tombol.setAttribute('aria-label', label);
+    });
+}
+
 function renderPinPesanAktif() {
+    renderBarSematan();
+    perbaruiTombolPin();
+}
+
+function renderBarSematan() {
     const container = document.getElementById('pinned-message-container');
     const teksPesan = document.getElementById('pinned-message-text');
     if (!container || !teksPesan || !chatAktifId) return;
@@ -457,7 +523,11 @@ function prosesPesanMasuk() {
     getUsers().forEach(pengguna => {
         if (!pengguna || pengguna.id === userAktif.id) return;
         tandaiPesanDiterima(pengguna.id);
-        if (chatAktifId === pengguna.id) tandaiPesanDibaca(pengguna.id);
+        if (chatAktifId === pengguna.id && !document.getElementById('panel-tab-chat').hidden &&
+            document.visibilityState === 'visible' && document.hasFocus() &&
+            panelChatAktif.getClientRects().length &&
+            getComputedStyle(document.getElementById('panel-layer-setelan')).display === 'none')
+            tandaiPesanDibaca(pengguna.id);
     });
 }
 
@@ -495,4 +565,3 @@ function isKontakPengguna(idLawan) {
     return NgumpulKontakData.list(userAktif.id)
         .some(kontak => samakanHp(kontak.phone, user.hp));
 }
-
