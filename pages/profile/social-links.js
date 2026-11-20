@@ -1,7 +1,6 @@
 // Tautan media sosial: validasi format URL per platform, simpan di localStorage per akun.
 // Catatan: validasi memeriksa FORMAT & pola alamat akun (mis. instagram.com/namaakun).
 // Keberadaan akun di platform tidak bisa dicek dari browser tanpa backend.
-const KUNCI_SOSMED = 'ngumpul_sosmed_'; // + id user -> [{ id, nama, platform, url }]
 
 // ---------- aturan per platform ----------
 const reservasi = (...kata) => (h) => !kata.includes(h.toLowerCase());
