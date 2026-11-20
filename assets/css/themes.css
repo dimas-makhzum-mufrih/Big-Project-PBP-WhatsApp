@@ -865,8 +865,6 @@ html[data-theme="matchalatte"] {
     --bg-chat: #e6edd2;
     --notif-bg: #2c3a1e;
     --overlay: rgba(44, 58, 30, 0.5);
-
-    --grad-header: linear-gradient(110deg, #92bb5a 0%, #a3c86d 55%, #d9ecb0 100%);
 }
 
 /* ---------- Taro Milk: Lavender susu yang manis ---------- */
@@ -903,8 +901,6 @@ html[data-theme="taromilk"] {
     --bg-chat: #ece3f7;
     --notif-bg: #3a2b52;
     --overlay: rgba(58, 43, 82, 0.5);
-
-    --grad-header: linear-gradient(110deg, #b896e6 0%, #c4a6ec 55%, #e6d6fa 100%);
 }
 
 /* ---------- Strawberry Milk: Pink susu stroberi ---------- */
@@ -941,8 +937,6 @@ html[data-theme="strawberrymilk"] {
     --bg-chat: #fde4ea;
     --notif-bg: #4a2330;
     --overlay: rgba(74, 35, 48, 0.5);
-
-    --grad-header: linear-gradient(110deg, #ff8fae 0%, #ff9fb8 55%, #ffd0dc 100%);
 }
 
 /* ---------- Creme Brulee: Krem hangat dengan karamel ---------- */
@@ -979,8 +973,6 @@ html[data-theme="cremebrulee"] {
     --bg-chat: #f5e8c6;
     --notif-bg: #3d2c12;
     --overlay: rgba(61, 44, 18, 0.5);
-
-    --grad-header: linear-gradient(110deg, #d9a040 0%, #e3b25b 55%, #f3d794 100%);
 }
 
 /* ---------- Brown Sugar Boba: Gula aren pekat dan krim ---------- */
@@ -1016,8 +1008,6 @@ html[data-theme="brownsugar"] {
     --border-warna: #432b1d;
     --bg-chat: #150c08;
     --notif-bg: #0f0805;
-
-    --grad-header: linear-gradient(110deg, #c98c4e 0%, #d9a066 55%, #f0cfa0 100%);
 }
 
 /* ---------- Red Velvet: Merah beludru dengan krim keju ---------- */
@@ -1053,8 +1043,6 @@ html[data-theme="redvelvet"] {
     --border-warna: #531d2b;
     --bg-chat: #17060a;
     --notif-bg: #100307;
-
-    --grad-header: linear-gradient(110deg, #ff6b81 0%, #ff9aa8 55%, #ffe0e5 100%);
 }
 
 /* ---------- Noir: Hitam grafit dengan garis emas ---------- */
@@ -1130,8 +1118,6 @@ html[data-theme="ivory"] {
     --bg-chat: #f4edd8;
     --notif-bg: #231d10;
     --overlay: rgba(35, 29, 16, 0.5);
-
-    --grad-header: linear-gradient(110deg, #b8921f 0%, #d4b04a 55%, #f0dc96 100%);
 }
 
 /* ---------- Spring Meadow: Hijau padang dengan semburat pink ---------- */
@@ -1168,8 +1154,6 @@ html[data-theme="springmeadow"] {
     --bg-chat: #e4f3dc;
     --notif-bg: #23391f;
     --overlay: rgba(35, 57, 31, 0.5);
-
-    --grad-header: linear-gradient(110deg, #8fd67f 0%, #c6e88a 55%, #ffc7da 100%);
 }
 
 /* ---------- Summer Solstice: Kuning matahari di langit biru ---------- */
@@ -1244,8 +1228,6 @@ html[data-theme="autumnmist"] {
     --bg-chat: #f0e0cf;
     --notif-bg: #3a2615;
     --overlay: rgba(58, 38, 21, 0.5);
-
-    --grad-header: linear-gradient(110deg, #d9772b 0%, #e8a24a 55%, #f2c777 100%);
 }
 
 /* ---------- Winter Frost: Putih salju dengan biru es ---------- */
@@ -1282,8 +1264,6 @@ html[data-theme="winterfrost"] {
     --bg-chat: #e3edf7;
     --notif-bg: #172a3e;
     --overlay: rgba(23, 42, 62, 0.5);
-
-    --grad-header: linear-gradient(110deg, #86b6e4 0%, #bcd8f2 55%, #f4f9ff 100%);
 }
 
 /* ---------- Maple Amber: Kayu maple dan sirup orange; bubble berubah sesuai panjang pesan ---------- */
@@ -1418,36 +1398,98 @@ html[data-theme="mapleamber"] .chat-bubble.kirim[data-tingkat="4"] {
     --teks-bubble: #ffeee9;
     background: #9e2418;
 }
-html[data-theme="pastelparty"] .chat-bubble.kirim[data-tingkat="1"] {
-    --teks-bubble: #3b2f4a;
-    background: #ffc4da;
-    border: 1.5px solid #f59cc0;
-    box-shadow: 0 2px 0 #f59cc0;
-}
-html[data-theme="pastelparty"] .chat-bubble.kirim[data-tingkat="2"] {
-    --teks-bubble: #2a3550;
-    background: #bfe1ff;
-    border: 1.5px solid #8fc3f0;
-    box-shadow: 0 2px 0 #8fc3f0;
-}
-html[data-theme="pastelparty"] .chat-bubble.kirim[data-tingkat="3"] {
-    --teks-bubble: #33264f;
-    background: #dccbff;
-    border: 1.5px solid #b79cf0;
-    box-shadow: 0 2px 0 #b79cf0;
-}
-html[data-theme="pastelparty"] .chat-bubble.kirim[data-tingkat="4"] {
-    --teks-bubble: #1f3d33;
-    background: #c2efdc;
-    border: 1.5px solid #8fd6b8;
-    box-shadow: 0 2px 0 #8fd6b8;
-}
 
 html[data-theme="mapleamber"] .chat-bubble.terima {
     border: 1px solid #43271a;
 }
 
-html[data-theme="pastelparty"] .chat-bubble.terima {
-    border: 1.5px solid #eadff5;
-    box-shadow: 0 2px 0 #eadff5;
+
+
+/* =====================================================================
+   BENTUK KHAS PER TEMA
+   Selain warna, beberapa tema punya bentuk sendiri supaya terasa beda.
+   Semua hanya memakai CSS, tanpa JS. Gerak dihormati lewat
+   prefers-reduced-motion dan data-gerak="diam".
+   ===================================================================== */
+
+/* ---------- Aurora / Glacier / Polar Dusk: kaca buram ---------- */
+html:is([data-theme="aurora"], [data-theme="glacier"], [data-theme="polardusk"]) .chat-bubble.terima,
+html:is([data-theme="aurora"], [data-theme="glacier"], [data-theme="polardusk"]) .chat-bubble.kirim {
+    border: 1px solid rgba(255, 255, 255, .14);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+}
+
+html:is([data-theme="aurora"], [data-theme="glacier"], [data-theme="polardusk"]) .chat-bubble.terima {
+    background: color-mix(in srgb, var(--bub-terima) 62%, transparent);
+}
+
+html:is([data-theme="aurora"], [data-theme="glacier"], [data-theme="polardusk"]) .chat-bubble.kirim {
+    background: color-mix(in srgb, var(--bub-kirim) 72%, transparent);
+}
+
+/* ---------- Noir: tegas, sudut tajam, garis emas tipis ---------- */
+html[data-theme="noir"] .chat-bubble {
+    border-radius: 4px;
+    border: 1px solid rgba(212, 175, 55, .35);
+    box-shadow: none;
+}
+
+html[data-theme="noir"] .chat-card {
+    border-bottom: 1px solid rgba(212, 175, 55, .22);
+}
+
+html[data-theme="noir"] .circle-avatar {
+    border-radius: 6px;
+    outline: 1px solid rgba(212, 175, 55, .6);
+    outline-offset: 2px;
+}
+
+html[data-theme="noir"] .circle-avatar img {
+    border-radius: 6px;
+}
+
+/* ---------- Pack Dessert: bubble empuk seperti krim ---------- */
+html[data-pack="dessert"] .chat-bubble {
+    border-radius: 22px;
+    padding: 10px 15px 7px;
+    box-shadow: 0 3px 8px color-mix(in srgb, var(--warna-utama) 28%, transparent);
+}
+
+html[data-pack="dessert"] .chat-bubble.kirim { border-bottom-right-radius: 7px; }
+html[data-pack="dessert"] .chat-bubble.terima { border-bottom-left-radius: 7px; }
+
+/* ---------- Sakura Bloom: kelopak jatuh pelan di ruang chat ---------- */
+@keyframes sakura-jatuh {
+    from { background-position: 0 -300px, 0 -300px, 0 -300px; }
+    to   { background-position: 90px 600px, -60px 700px, 40px 800px; }
+}
+
+html[data-theme="sakurabloom"] .active-chat-room::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: .55;
+    background-image:
+        radial-gradient(ellipse 5px 3px at 20px 40px, #ffb8d0 98%, transparent 100%),
+        radial-gradient(ellipse 4px 6px at 90px 120px, #ffd0e0 98%, transparent 100%),
+        radial-gradient(ellipse 6px 3px at 150px 20px, #ff9fc0 98%, transparent 100%);
+    background-size: 200px 260px, 260px 320px, 310px 380px;
+    animation: sakura-jatuh 34s linear infinite;
+}
+
+html[data-gerak="diam"][data-theme="sakurabloom"] .active-chat-room::before {
+    animation: none;
+}
+
+html[data-gerak="pelan"][data-theme="sakurabloom"] .active-chat-room::before {
+    animation-duration: 90s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-theme="sakurabloom"] .active-chat-room::before {
+        animation: none;
+    }
 }

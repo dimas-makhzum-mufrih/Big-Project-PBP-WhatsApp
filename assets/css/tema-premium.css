@@ -761,3 +761,173 @@ html[data-tone="dark"] {
         opacity: 0.12;
     }
 }
+
+/* =====================================================================
+   LABEL GENRE + FILTER (dibuat otomatis oleh setelan.js)
+   ===================================================================== */
+.genre-bar {
+    display: flex;
+    flex-wrap: wrap;   /* membungkus, tanpa scroll */
+    gap: 6px;
+    max-width: 640px;
+    margin: 0 auto 14px;
+}
+
+.genre-chip {
+    flex: none;
+    padding: 4px 11px;
+    border: 1px solid var(--border-warna);
+    border-radius: 999px;
+    background: var(--bg-putih);
+    color: var(--teks-redup);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.genre-chip:hover {
+    color: var(--teks-gelap);
+    border-color: var(--warna-utama);
+}
+
+.genre-chip.aktif {
+    border-color: var(--warna-utama);
+    background: var(--warna-tipis);
+    color: var(--aksen-teks);
+}
+
+.genre-chip:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px;
+}
+
+.genre-label {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.genre-label i {
+    padding: 1px 7px;
+    border: 1px solid var(--border-warna);
+    border-radius: 999px;
+    color: var(--teks-redup);
+    font-size: 0.66rem;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.theme-option.aktif .genre-label i {
+    border-color: color-mix(in srgb, var(--warna-utama) 45%, transparent);
+    color: var(--aksen-teks);
+}
+
+.theme-option[hidden],
+.tema-dasar[hidden],
+.tema-pack[hidden] {
+    display: none;
+}
+
+/* =====================================================================
+   DAFTAR CHAT BERWARNA TEMA (hanya tema premium)
+   Tiap kartu chat diberi gradasi aksen yang memudar ke 0 dari kiri.
+   Kartu yang sedang dibuka lebih pekat + garis aksen di tepi kiri.
+   ===================================================================== */
+html[data-pack]:not([data-pack="dasar"]) .chat-card {
+    background-image: linear-gradient(90deg,
+            color-mix(in srgb, var(--warna-utama) 15%, transparent) 0%,
+            color-mix(in srgb, var(--warna-utama) 5%, transparent) 55%,
+            transparent 100%);
+    box-shadow: inset 3px 0 0 transparent;
+}
+
+html[data-pack]:not([data-pack="dasar"]) .chat-card:hover {
+    background-image: linear-gradient(90deg,
+            color-mix(in srgb, var(--warna-utama) 24%, transparent) 0%,
+            color-mix(in srgb, var(--warna-utama) 9%, transparent) 60%,
+            transparent 100%);
+}
+
+html[data-pack]:not([data-pack="dasar"]) .chat-card.aktif {
+    background-image: linear-gradient(90deg,
+            color-mix(in srgb, var(--warna-utama) 34%, transparent) 0%,
+            color-mix(in srgb, var(--warna-utama) 12%, transparent) 65%,
+            transparent 100%);
+    box-shadow: inset 3px 0 0 var(--warna-utama);
+}
+
+html[data-pack]:not([data-pack="dasar"]) .chat-card .card-title {
+    color: var(--teks-gelap);
+}
+
+/* Tab aktif ikut warna tema: garis bawah bergradasi */
+html[data-pack]:not([data-pack="dasar"]) .tab.aktif {
+    border-image: linear-gradient(90deg, transparent, var(--warna-utama), transparent) 1;
+}
+
+
+/* ---------- Pack baru + panel pengaturan tambahan ---------- */
+.tema-pack[data-pack="retro"] { --pack-a: #8bac0f; --pack-b: #33ff66; }
+.tema-pack[data-pack="cosmos"] { --pack-a: #9d7bff; --pack-b: #ff4fa8; }
+.tema-pack[data-pack="bunga"] { --pack-a: #9b7fd6; --pack-b: #f5b800; }
+
+.sky-segmen.golden { grid-template-columns: repeat(4, 1fr); }
+
+.sky-cycle.hiasan {
+    max-width: 640px;
+    margin: 0 auto 16px;
+    padding: 12px;
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    background: var(--bg-putih);
+}
+
+/* Pratinjau hidup: kartu bertema gerak bergeser pelan */
+@keyframes pv-geser {
+    from { background-position: 0% 0%; }
+    to   { background-position: 100% 100%; }
+}
+
+.theme-preview.pv.pv-aurora,
+.theme-preview.pv.pv-glacier,
+.theme-preview.pv.pv-polardusk,
+.theme-preview.pv.pv-goldenhour,
+.theme-preview.pv.pv-synthwave,
+.theme-preview.pv.pv-supernova {
+    background-size: 240% 240%;
+    animation: pv-geser 6s ease-in-out infinite alternate;
+}
+
+.theme-preview.pv.pv-terminal span:nth-child(3)::after {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 7px;
+    margin-left: 4px;
+    background: #33ff66;
+    animation: pv-kedip 1s steps(1) infinite;
+}
+
+@keyframes pv-kedip { 50% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-preview.pv { animation: none !important; }
+    .theme-preview.pv.pv-terminal span:nth-child(3)::after { animation: none; }
+}
+
+
+/* ---------- Preview kartu tema bergaya ---------- */
+.pv-gameboy { --pv-bg: #9bbc0f; --pv-border: #306230; --pv-line: #0f380f; --pv-acc: #0f380f; }
+.pv-terminal { --pv-bg: #000; --pv-border: #0f4a1f; --pv-line: #1fa84a; --pv-acc: #33ff66; }
+.pv-synthwave { --pv-bg: linear-gradient(180deg,#140826,#5a1a6a); --pv-border: #3a1a66; --pv-line: #2de2e6; --pv-acc: #ff3cac; }
+.pv-nebula { --pv-bg: linear-gradient(150deg,#08071a,#3a2f8f); --pv-border: #2a2870; --pv-line: #6a5ad0; --pv-acc: #9d7bff; }
+.pv-supernova { --pv-bg: linear-gradient(150deg,#14060f,#a8216a 70%,#ff8a4a); --pv-border: #5a1a48; --pv-line: #a8216a; --pv-acc: #ff4fa8; }
+.pv-stardust { --pv-bg: #07070c; --pv-border: #25252f; --pv-line: #3a3320; --pv-acc: #e8c874; }
+.pv-lavender { --pv-bg: #f6f2fc; --pv-border: #e3d9f4; --pv-line: #dccbff; --pv-acc: #9b7fd6; }
+.pv-sunflower { --pv-bg: #fff8e1; --pv-border: #f0e2a8; --pv-line: #fbe08a; --pv-acc: #f5b800; }
+.pv-lotus { --pv-bg: linear-gradient(180deg,#fff3f7,#cfe9d9); --pv-border: #f6d6e3; --pv-line: #fbc9dc; --pv-acc: #f08fb0; }
+.pv-goldenhour { --pv-bg: linear-gradient(160deg,#3b2a5e,#f08a6a 45%,#4aa8ec 75%,#0b1640); --pv-border: #8a5a7a; --pv-line: #ffe0b0; --pv-acc: #ffd27a; }
