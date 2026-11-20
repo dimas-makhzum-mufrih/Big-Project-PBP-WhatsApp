@@ -147,7 +147,7 @@ function renderPesanAktif() {
         baris.className = 'message-row';
         baris.classList.add(item.sender === userAktif.id ? 'kirim' : 'terima');
         baris.dataset.messageIndex = String(index);
-        baris.dataset.messageId = item.id;
+        baris.dataset.messageId = String(item.id || '');
 
         const punyaGambar = isPesanBergambar(item);
         const teksIsi = String(item.text || '').trim();
@@ -159,6 +159,13 @@ function renderPesanAktif() {
             (item.sender === userAktif.id ? 'kirim' : 'terima') +
             (punyaGambar ? ' ada-gambar' : '') +
             (punyaGambar && !adaTeks ? ' hanya-gambar' : '');
+
+        if (item.forwarded) {
+            const labelTeruskan = document.createElement('span');
+            labelTeruskan.className = 'message-forwarded-label';
+            labelTeruskan.textContent = 'Diteruskan';
+            bubble.appendChild(labelTeruskan);
+        }
 
         if (punyaGambar) {
             const bungkusGambar = document.createElement('div');
@@ -234,19 +241,33 @@ function renderPesanAktif() {
             }
         });
 
+        const btnTeruskan = document.createElement('button');
+        btnTeruskan.type = 'button';
+        btnTeruskan.className = 'btn-forward-message';
+        btnTeruskan.dataset.teruskanPesan = String(item.id || '');
+        btnTeruskan.title = item.id ? 'Teruskan pesan' : 'Pesan ini tidak dapat diteruskan';
+        btnTeruskan.setAttribute('aria-label', btnTeruskan.title);
+        btnTeruskan.disabled = !item.id;
+        const ikonTeruskan = document.createElement('img');
+        ikonTeruskan.className = 'forward-message-icon';
+        ikonTeruskan.src = '../../assets/img/forward-message.png';
+        ikonTeruskan.alt = '';
+        ikonTeruskan.setAttribute('aria-hidden', 'true');
+        btnTeruskan.appendChild(ikonTeruskan);
+
+        const footer = document.createElement('div');
+        footer.className = 'message-footer';
         const waktu = document.createElement('span');
         waktu.className = 'timestamp';
         waktu.textContent = formatJamPesan(item.time);
-
-        bubble.appendChild(btnPin);
-        const footer = document.createElement('div');
-        footer.className = 'message-footer';
         footer.appendChild(waktu);
         if (item.sender === userAktif.id) {
             footer.appendChild(buatIndikatorStatusPesan(item.status));
         }
+        bubble.appendChild(btnPin);
         bubble.appendChild(footer);
         baris.appendChild(bubble);
+        baris.appendChild(btnTeruskan);
         boxListPesan.appendChild(baris);
     });
 
