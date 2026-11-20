@@ -412,6 +412,195 @@
     border-bottom-left-radius: 4px
 }
 
+.message-menu-toggle {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease
+}
+
+.chat-bubble:hover .message-menu-toggle,
+.chat-bubble:focus-within .message-menu-toggle {
+    opacity: 1;
+    pointer-events: auto
+}
+
+.message-menu-toggle:hover,
+.message-menu-toggle[aria-expanded="true"] {
+    color: var(--warna-utama)
+}
+
+.message-menu-toggle svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2
+}
+
+.message-quoted-message {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 6px 9px;
+    border: 0;
+    border-left: 3px solid var(--warna-utama);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, .06);
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: pointer
+}
+
+.message-quoted-message strong {
+    color: var(--warna-utama);
+    font-size: .78rem
+}
+
+.message-quoted-message span {
+    overflow: hidden;
+    max-width: 100%;
+    font-size: .82rem;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.reply-composer-preview {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 20px;
+    border-top: 1px solid var(--border-warna);
+    background: var(--bg-putih)
+}
+
+.reply-composer-preview[hidden],
+.message-context-menu[hidden] {
+    display: none
+}
+
+.reply-composer-quote {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+    padding: 5px 10px;
+    border-left: 3px solid var(--warna-utama);
+    border-radius: 3px;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap)
+}
+
+.reply-composer-quote strong {
+    color: var(--warna-utama);
+    font-size: .8rem
+}
+
+.reply-composer-quote span {
+    overflow: hidden;
+    font-size: .82rem;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.reply-composer-close {
+    width: 32px;
+    height: 32px;
+    flex: none;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--teks-redup);
+    font-size: 1.4rem;
+    cursor: pointer
+}
+
+.reply-composer-close:hover {
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap)
+}
+
+.message-context-menu {
+    position: fixed;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    padding: 3px 0;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: #fff;
+    color: #303030;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .2)
+}
+
+.message-context-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    font-size: 15px;
+    cursor: pointer
+}
+
+.message-context-action:hover,
+.message-context-action:focus-visible {
+    background: #f3f4f6
+}
+
+.message-context-action:disabled {
+    color: inherit;
+    opacity: 1;
+    cursor: default
+}
+
+.message-context-action:disabled:hover {
+    background: transparent
+}
+
+.message-context-action svg {
+    width: 19px;
+    height: 19px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2
+}
+
+.message-context-action:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: -2px
+}
+
 .timestamp {
     font-size: .68rem;
     color: color-mix(in srgb, var(--teks-bubble) 55%, transparent);
@@ -588,4 +777,11 @@ html[data-theme="dark"] .message-status.dibaca {
 
 .send-action-btn:hover {
     background: var(--warna-utama-hover)
+}
+
+@media (hover: none) {
+    .message-menu-toggle {
+        opacity: .8;
+        pointer-events: auto
+    }
 }

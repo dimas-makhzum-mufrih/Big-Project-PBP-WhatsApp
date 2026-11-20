@@ -160,6 +160,30 @@ function renderPesanAktif() {
             (punyaGambar ? ' ada-gambar' : '') +
             (punyaGambar && !adaTeks ? ' hanya-gambar' : '');
 
+        if (item.replyTo) {
+            const pesanDikutip = pesan.find(pesanAsal => String(pesanAsal.id) === String(item.replyTo));
+            if (pesanDikutip) {
+                const kutipan = document.createElement('button');
+                kutipan.type = 'button';
+                kutipan.className = 'message-quoted-message';
+                kutipan.setAttribute('aria-label', 'Lompat ke pesan dari ' + namaPengirimPesan(pesanDikutip));
+                const pengirimKutipan = document.createElement('strong');
+                pengirimKutipan.textContent = namaPengirimPesan(pesanDikutip);
+                const teksKutipan = document.createElement('span');
+                teksKutipan.textContent = ringkasanPesan(pesanDikutip);
+                kutipan.append(pengirimKutipan, teksKutipan);
+                kutipan.addEventListener('click', () => {
+                    const barisAsal = [...boxListPesan.children]
+                        .find(barisPesan => String(barisPesan.dataset.messageId) === String(pesanDikutip.id));
+                    if (!barisAsal) return;
+                    barisAsal.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    barisAsal.classList.add('pesan-cari-terpilih');
+                    window.setTimeout(() => barisAsal.classList.remove('pesan-cari-terpilih'), 1000);
+                });
+                bubble.appendChild(kutipan);
+            }
+        }
+
         if (punyaGambar) {
             const bungkusGambar = document.createElement('div');
             bungkusGambar.className = 'chat-image-wrapper';
@@ -239,6 +263,22 @@ function renderPesanAktif() {
         waktu.textContent = formatJamPesan(item.time);
 
         bubble.appendChild(btnPin);
+        const btnMenuPesan = document.createElement('button');
+        btnMenuPesan.type = 'button';
+        btnMenuPesan.className = 'message-menu-toggle';
+        btnMenuPesan.title = 'Opsi pesan';
+        btnMenuPesan.setAttribute('aria-label', 'Opsi pesan');
+        btnMenuPesan.setAttribute('aria-haspopup', 'menu');
+        btnMenuPesan.setAttribute('aria-expanded', 'false');
+        btnMenuPesan.dataset.messageMenuId = String(item.id);
+        const ikonMenuPesan = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        ikonMenuPesan.setAttribute('viewBox', '0 0 24 24');
+        ikonMenuPesan.setAttribute('aria-hidden', 'true');
+        const jalurMenuPesan = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        jalurMenuPesan.setAttribute('d', 'm6 9 6 6 6-6');
+        ikonMenuPesan.appendChild(jalurMenuPesan);
+        btnMenuPesan.appendChild(ikonMenuPesan);
+        bubble.appendChild(btnMenuPesan);
         const footer = document.createElement('div');
         footer.className = 'message-footer';
         footer.appendChild(waktu);
@@ -251,6 +291,7 @@ function renderPesanAktif() {
     });
 
     boxListPesan.scrollTop = boxListPesan.scrollHeight;
+    renderPratinjauBalasan();
 }
 
 // ===== Cari pesan di dalam chat =====
@@ -364,6 +405,7 @@ function bukaChat(idLawan) {
 
     if (chatAktifId && chatAktifId !== idLawan) {
         tutupPreviewGambar();
+        batalkanBalasanPesan();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
         aturPencarianPesanTerbuka(false, true, false);
     }
