@@ -177,7 +177,7 @@
     cursor: pointer;
 }
 .chat-contact-trigger {
-    flex: 1;
+    flex: none;
 }
 .private-chat-back {
     display: none;

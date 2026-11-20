@@ -746,13 +746,13 @@
             kemarin = new Date(sekarang.getFullYear(), sekarang.getMonth(), sekarang.getDate() - 1),
             hari = tanggalLokal(g.dibuat),
             tanggal = hari === tanggalLokal(sekarang)
-                ? 'today'
+                ? 'hari ini'
                 : hari === tanggalLokal(kemarin)
-                  ? 'yesterday'
-                  : 'on ' + new Date(g.dibuat).toLocaleDateString('en-GB', {
+                  ? 'kemarin'
+                  : 'pada ' + new Date(g.dibuat).toLocaleDateString('id-ID', {
                         day: 'numeric', month: 'long', year: 'numeric'
                     });
-        return 'Created ' + tanggal + ' by ' + namaAkun(g.pembuatId);
+        return 'Dibuat ' + tanggal + ' oleh ' + namaAkun(g.pembuatId);
     }
     function kartuAwal(g, animasi) {
         const masuk = bacaKeanggotaan(g)[userAktif.id],

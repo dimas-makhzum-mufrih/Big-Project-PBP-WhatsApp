@@ -27,6 +27,13 @@
         jenis: "teks",
         bawaan: true,
       },
+      // Ruang suara bawaan supaya panggilan langsung bisa dicoba (demo) tanpa membuat channel dulu
+      {
+        id: g.id + ":ngobrol",
+        nama: "ngobrol",
+        kategoriId: g.id + ":suara",
+        jenis: "suara",
+      },
     ],
   });
   const ruang = (g) => g.ruang || bawaan(g);

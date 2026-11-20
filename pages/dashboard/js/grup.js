@@ -18,7 +18,8 @@
     n.classList.add("ikon");
     n.setAttribute("aria-hidden", "true");
     const u = document.createElementNS(n.namespaceURI, "use");
-    u.setAttribute("href", "#i-" + name);
+    // "search" dipakai dua gaya: isi (kotak cari chat) dan garis (ruang grup)
+    u.setAttribute("href", "#i-" + (name === "search" ? "search-garis" : name));
     n.append(u);
     return n;
   };
