@@ -1,59 +1,3 @@
-// ===== Penjaga: harus login dulu =====
-const userAktif = getUserAktif();
-
-if (!userAktif) {
-    location.replace('../auth/login.html');
-}
-
-// ===== Tab Chat / Kontak di dalam dashboard =====
-const tabChat = document.getElementById('tab-chat');
-const tabKontak = document.getElementById('tab-kontak');
-const panelTabChat = document.getElementById('panel-tab-chat');
-const panelTabKontak = document.getElementById('panel-tab-kontak');
-
-function pilihTabDashboard(kontakAktif) {
-    panelTabChat.hidden = kontakAktif;
-    panelTabKontak.hidden = !kontakAktif;
-    tabChat.classList.toggle('aktif', !kontakAktif);
-    tabKontak.classList.toggle('aktif', kontakAktif);
-    tabChat.setAttribute('aria-pressed', String(!kontakAktif));
-    tabKontak.setAttribute('aria-pressed', String(kontakAktif));
-}
-
-tabChat.addEventListener('click', () => {
-    pilihTabDashboard(false);
-    catatLangkahTab('chat');
-});
-tabKontak.addEventListener('click', () => {
-    pilihTabDashboard(true);
-    catatLangkahTab('kontak');
-});
-document.getElementById('btn-kembali-dari-kontak').addEventListener('click', () => {
-    pilihTabDashboard(false);
-    tabChat.focus();
-    catatLangkahTab('chat');
-});
-document.addEventListener('ngumpul:buka-chat', () => pilihTabDashboard(false));
-
-// Continue a contact-originated chat request after the dashboard page loads.
-const idChatTertunda = new URLSearchParams(location.hash.slice(1)).get('buka-chat');
-if (userAktif && idChatTertunda) {
-    window.setTimeout(() => {
-        document.dispatchEvent(
-            new CustomEvent('ngumpul:buka-chat', {
-                detail: { idLawan: idChatTertunda }
-            })
-        );
-
-        // Bersihkan hash setelah permintaan chat diteruskan
-        history.replaceState(
-            null,
-            '',
-            location.pathname + location.search
-        );
-    }, 0);
-}
-
 // ===== Elemen utama =====
 const triggerMenuUtama = document.getElementById('trigger-menu-utama');
 const boxDropdownUtama = document.getElementById('box-dropdown-utama');
@@ -64,6 +8,7 @@ const btnKembaliKeChat = document.getElementById('btn-kembali-ke-chat');
 
 const daftarPengaturan = document.querySelector('.settings-list-flow');
 const panelPengaturanTema = document.getElementById('panel-setelan-tema');
+const panelPengaturanNotifikasi = document.getElementById('panel-setelan-notifikasi');
 const judulPanelSetelan = document.getElementById('judul-panel-setelan');
 
 const tombolPilihanTema = document.querySelectorAll('[data-set-theme]');
@@ -136,6 +81,15 @@ if (optBukaSetelan) {
 // ===== Tombol kembali: navigasi subpanel tema =====
 if (btnKembaliKeChat) {
     btnKembaliKeChat.addEventListener('click', () => {
+        if (panelPengaturanNotifikasi && !panelPengaturanNotifikasi.hidden) {
+            panelPengaturanNotifikasi.hidden = true;
+            daftarPengaturan.style.display = 'block';
+            judulPanelSetelan.textContent = 'Pengaturan';
+            const menuNotifikasi = document.getElementById('btn-setelan-notifikasi');
+            menuNotifikasi.setAttribute('aria-expanded', 'false');
+            menuNotifikasi.focus();
+            return;
+        }
         if (panelPengaturanTema && !panelPengaturanTema.hidden) {
             panelPengaturanTema.hidden = true;
 
@@ -190,6 +144,8 @@ function bukaPengaturanTema() {
     if (judulPanelSetelan) {
         judulPanelSetelan.textContent = 'Tema & Tampilan';
     }
+
+    bukaPackAktif();
 }
 
 if (menuTema) {
@@ -282,6 +238,59 @@ if (panelSky) {
     });
 }
 
+// ===== Panel Aurora: gerak latar (hanya tampil untuk tema Aurora) =====
+const panelAurora = document.getElementById('panel-aurora-gerak');
+
+function perbaruiPanelAurora() {
+    if (!panelAurora || !window.NgumpulTheme || !NgumpulTheme.daftar) return;
+
+    const def = NgumpulTheme.daftar[NgumpulTheme.getTheme()];
+    panelAurora.hidden = !(def && def.aurora);
+
+    const mode = NgumpulTheme.getGerak();
+    panelAurora.querySelectorAll('[data-aurora-mode]').forEach(b => {
+        const aktif = b.dataset.auroraMode === mode;
+        b.classList.toggle('aktif', aktif);
+        b.setAttribute('aria-pressed', String(aktif));
+    });
+
+    const status = document.getElementById('aurora-status');
+    if (status) {
+        status.textContent = { jalan: 'Bergerak', pelan: 'Pelan', diam: 'Diam' }[mode] || 'Bergerak';
+    }
+}
+
+if (panelAurora) {
+    panelAurora.querySelectorAll('[data-aurora-mode]').forEach(b => {
+        b.addEventListener('click', () => {
+            if (window.NgumpulTheme) NgumpulTheme.setGerak(b.dataset.auroraMode);
+        });
+    });
+}
+
+// ===== Pack tema: satu pack terbuka sekaligus =====
+const packTema = document.querySelectorAll('.tema-pack');
+
+packTema.forEach(pack => {
+    pack.addEventListener('toggle', () => {
+        if (!pack.open) return;
+        packTema.forEach(lain => {
+            if (lain !== pack) lain.open = false;
+        });
+    });
+});
+
+// Buka pack yang berisi tema aktif (tema dasar tidak punya pack: semua tertutup)
+function bukaPackAktif() {
+    if (!window.NgumpulTheme) return;
+
+    const id = NgumpulTheme.getTheme();
+    const tombol = document.querySelector('.tema-pack [data-set-theme="' + id + '"]');
+    const pack = tombol ? tombol.closest('.tema-pack') : null;
+
+    packTema.forEach(p => { p.open = (p === pack); });
+}
+
 // ===== Memilih tema =====
 tombolPilihanTema.forEach(button => {
     button.addEventListener('click', () => {
@@ -324,6 +333,18 @@ function catatLangkahTab(langkah) {
     }
 }
 
+// ===== Pemantau urutan tab untuk buka kunci Ngumpul Plus =====
+// Listener tambahan: tidak mengganggu handler tab di file lain, dan memakai
+// getElementById langsung agar tidak bentrok nama variabel (tabChat, tabKontak).
+[
+    ['tab-chat', 'chat'],
+    ['tab-kontak', 'kontak'],
+    ['btn-kembali-dari-kontak', 'chat']
+].forEach(([idElemen, langkah]) => {
+    const el = document.getElementById(idElemen);
+    if (el) el.addEventListener('click', () => catatLangkahTab(langkah));
+});
+
 function bukaNgumpulPlus() {
     try {
         localStorage.setItem(KUNCI_PREMIUM + userAktif.id, '1');
@@ -334,6 +355,7 @@ function bukaNgumpulPlus() {
     perbaruiPilihanTema();
     perbaruiKunciTema();
     perbaruiPanelSky();
+    perbaruiPanelAurora();
     tampilPopupPlus();
 }
 
@@ -420,12 +442,15 @@ document.addEventListener('ngumpul:tema-berubah', () => {
     perbaruiPilihanTema();
     perbaruiKunciTema();
     perbaruiPanelSky();
+    perbaruiPanelAurora();
 });
 
 // Inisialisasi pilihan tema
+bukaPackAktif();
 perbaruiPilihanTema();
 perbaruiKunciTema();
 perbaruiPanelSky();
+    perbaruiPanelAurora();
 
 // ===== Menu Akun -> halaman akun =====
 const btnMenuAkun = document.querySelector(
@@ -456,18 +481,6 @@ document.addEventListener('click', e => {
     }
 });
 
-// ===== Media profil (avatar & banner dari halaman Edit Profil) =====
-const KUNCI_MEDIA = 'ngumpul_media_';
-
-function bacaMedia(idUser) {
-    try {
-        return JSON.parse(
-            localStorage.getItem(KUNCI_MEDIA + idUser)
-        ) || {};
-    } catch (e) {
-        return {};
-    }
-}
 
 // ===== Isi kartu profil sesuai akun yang login =====
 if (userAktif) {

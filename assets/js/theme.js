@@ -3,13 +3,14 @@
  * Tema dasar (light, dark) + tema premium (Celeste & Mint) + Sky Cycle.
  *
  * Atribut yang dipasang di <html>:
+ *   data-gerak  : jalan | pelan | diam (gerak latar tema Aurora)
  *   data-theme  : id tema (light, dark, skyscape, cumulus, coolmint, ...)
  *   data-tone   : light | dark  (untuk hal generik)
  *   data-phase  : day | night   (hanya tema Celeste)
  *
  * Kunci localStorage:
  *   ngumpul_tema (pilihan terakhir), ngumpul_tema_<idAkun> (pilihan per akun),
- *   ngumpul_sky_mode, ngumpul_premium_<idAkun>
+ *   ngumpul_sky_mode, ngumpul_aurora_gerak, ngumpul_premium_<idAkun>
  *
  * API lama tetap ada: getTheme(), setTheme(), toggleTheme().
  */
@@ -18,6 +19,7 @@
 
     var KEY_TEMA = "ngumpul_tema";
     var KEY_SKY = "ngumpul_sky_mode";
+    var KEY_GERAK = "ngumpul_aurora_gerak";
     var JAM_SIANG = 6;   // siang mulai 06:00
     var JAM_MALAM = 18;  // malam mulai 18:00
 
@@ -37,10 +39,28 @@
         lemonlime: { nama: "Lemon Lime", pack: "citrus",  premium: true, tone: "light" },
         moonriver:     { nama: "Moon River",    pack: "single", premium: true, tone: "dark" },
         reignaissance: { nama: "Reignaissance", pack: "single", premium: true, tone: "dark" },
-        sakurabloom:   { nama: "Sakura Bloom",  pack: "single", premium: true, tone: "dark" }
+        sakurabloom:   { nama: "Sakura Bloom",  pack: "single", premium: true, tone: "dark" },
+        aurora: { nama: "Aurora Borealis", pack: "aurora", premium: true, tone: "dark", aurora: true },
+        glacier: { nama: "Glacier", pack: "aurora", premium: true, tone: "dark", aurora: true },
+        polardusk: { nama: "Polar Dusk", pack: "aurora", premium: true, tone: "dark", aurora: true },
+        matchalatte: { nama: "Matcha Latte", pack: "dessert", premium: true, tone: "light" },
+        taromilk: { nama: "Taro Milk", pack: "dessert", premium: true, tone: "light" },
+        strawberrymilk: { nama: "Strawberry Milk", pack: "dessert", premium: true, tone: "light" },
+        cremebrulee: { nama: "Creme Brulee", pack: "dessert", premium: true, tone: "light" },
+        brownsugar: { nama: "Brown Sugar Boba", pack: "dessert", premium: true, tone: "dark" },
+        redvelvet: { nama: "Red Velvet", pack: "dessert", premium: true, tone: "dark" },
+        noir: { nama: "Noir", pack: "noirgold", premium: true, tone: "dark" },
+        ivory: { nama: "Ivory", pack: "noirgold", premium: true, tone: "light" },
+        springmeadow: { nama: "Spring Meadow", pack: "musim", premium: true, tone: "light" },
+        summersolstice: { nama: "Summer Solstice", pack: "musim", premium: true, tone: "light" },
+        autumnmist: { nama: "Autumn Mist", pack: "musim", premium: true, tone: "light" },
+        winterfrost: { nama: "Winter Frost", pack: "musim", premium: true, tone: "light" },
+        mapleamber: { nama: "Maple Amber", pack: "single", premium: true, tone: "dark" },
+        pastelparty: { nama: "Pastel Party", pack: "single", premium: true, tone: "light" }
     };
 
     var MODE_SKY = ["auto", "day", "night", "reverse"];
+    var MODE_GERAK = ["jalan", "pelan", "diam"];
     var timer;
 
     function baca(k) {
@@ -84,6 +104,12 @@
         return MODE_SKY.indexOf(m) !== -1 ? m : "auto";
     }
 
+    // Gerak latar tema Aurora: jalan | pelan | diam
+    function getGerak() {
+        var m = baca(KEY_GERAK);
+        return MODE_GERAK.indexOf(m) !== -1 ? m : "jalan";
+    }
+
     // Simulasi premium (tanpa server): kunci per akun di localStorage
     function isPremium() {
         try {
@@ -122,6 +148,8 @@
         } else {
             el.removeAttribute("data-phase");
         }
+
+        el.setAttribute("data-gerak", getGerak());
 
         el.style.colorScheme = tone;
 
@@ -167,6 +195,14 @@
         return true;
     }
 
+    function setGerak(mode) {
+        if (MODE_GERAK.indexOf(mode) === -1) return false;
+
+        tulis(KEY_GERAK, mode);
+        apply();
+        return true;
+    }
+
     // Tombol bulan/matahari: bolak-balik antara terang dan gelap dasar
     function toggleTheme() {
         var gelap = document.documentElement.getAttribute("data-tone") === "dark";
@@ -191,7 +227,7 @@
 
     // Sinkron antar tab
     window.addEventListener("storage", function (e) {
-        if (e.key && (e.key.indexOf(KEY_TEMA) === 0 || e.key === KEY_SKY)) apply();
+        if (e.key && (e.key.indexOf(KEY_TEMA) === 0 || e.key === KEY_SKY || e.key === KEY_GERAK)) apply();
     });
 
     // API untuk halaman lain
@@ -203,6 +239,8 @@
         toggleTheme: toggleTheme,
         getSkyMode: getSkyMode,
         setSkyMode: setSkyMode,
+        getGerak: getGerak,
+        setGerak: setGerak,
         getPhase: function () { return getPhase(getSkyMode()); }
     };
 })();

@@ -1,6 +1,7 @@
 /* Variabel lokal dipetakan ke variabel global (variables.css / themes.css),
    jadi halaman OTP ikut tema yang dipilih. --teks dan --garis memakai nilai global. */
 :root {
+<<<<<<< HEAD
     --utama: var(--hijau);
     --utama-gelap: var(--hijau-tua);
     --utama-teks: var(--aksen-teks);
@@ -9,10 +10,42 @@
     --latar: var(--bg);
     --kartu: var(--kotak);
     --salah: var(--merah);
+=======
+  --utama: #00e5ff;
+  --utama-gelap: #00c4dc;
+  --utama-teks: #007c8c;
+  --di-utama: #042a30;
+  --teks: #1b2a25;
+  --redup: #62726b;
+  --latar: #eef6f8;
+  --kartu: #fff;
+  --garis: #cfdde0;
+  --salah: #c0392b;
+}
+
+@media (prefers-color-scheme:dark) {
+  :root {
+    --utama-teks: #00e5ff;
+    --teks: #e8f1f3;
+    --redup: #9bb3b8;
+    --latar: #0d1a1d;
+    --kartu: #152428;
+    --garis: #2a4248;
+    --salah: #ff7b6b
+  }
+>>>>>>> origin/main
 }
 
 * {
-    box-sizing: border-box
+  box-sizing: border-box
+}
+
+[hidden] {
+  display: none !important
+}
+
+html {
+  -webkit-text-size-adjust: 100%
 }
 
 [hidden] {
@@ -24,6 +57,7 @@ html {
 }
 
 body {
+<<<<<<< HEAD
     margin: 0;
     min-height: 100vh;
     min-height: 100dvh;
@@ -33,6 +67,21 @@ body {
     background: var(--latar);
     color: var(--teks);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+=======
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background: var(--latar);
+  color: var(--teks);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+}
+
+body.ada-notif {
+  padding-top: calc(max(12px, env(safe-area-inset-top)) + 92px)
+>>>>>>> origin/main
 }
 
 body.ada-notif {
@@ -40,6 +89,7 @@ body.ada-notif {
 }
 
 .kartu {
+<<<<<<< HEAD
     width: 100%;
     max-width: 440px;
     background: var(--kartu);
@@ -59,10 +109,32 @@ h1 {
     color: var(--redup);
     line-height: 1.5;
     font-size: clamp(.9rem, 3.5vw, 1rem)
+=======
+  width: 100%;
+  max-width: 440px;
+  background: var(--kartu);
+  border-radius: 16px;
+  padding: clamp(18px, 5vw, 32px);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .08)
+}
+
+h1 {
+  font-size: clamp(1.2rem, 4.5vw, 1.5rem);
+  margin: 12px 0 6px;
+  line-height: 1.25
+}
+
+.sub {
+  margin: 0 0 22px;
+  color: var(--redup);
+  line-height: 1.5;
+  font-size: clamp(.9rem, 3.5vw, 1rem)
+>>>>>>> origin/main
 }
 
 .kembali,
 .tautan {
+<<<<<<< HEAD
     background: none;
     border: 0;
     color: var(--utama-teks);
@@ -91,31 +163,62 @@ h1 {
     border-radius: 10px;
     background: transparent;
     color: var(--teks)
+=======
+  background: none;
+  border: 0;
+  color: var(--utama-teks);
+  font: inherit;
+  cursor: pointer;
+  padding: 8px 0;
+  min-height: 44px
+}
+
+.kotak-otp {
+  display: flex;
+  gap: clamp(5px, 2vw, 10px);
+  justify-content: space-between
+}
+
+.digit {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 58px;
+  height: clamp(46px, 14vw, 60px);
+  text-align: center;
+  font-size: clamp(1.15rem, 5vw, 1.6rem);
+  font-weight: 600;
+  padding: 0;
+  border: 2px solid var(--garis);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--teks)
+>>>>>>> origin/main
 }
 
 .digit:focus {
-    outline: none;
-    border-color: var(--utama-teks);
-    box-shadow: 0 0 0 3px rgba(0, 229, 255, .35)
+  outline: none;
+  border-color: var(--utama-teks);
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, .35)
 }
 
 .kotak-otp.salah .digit {
-    border-color: var(--salah);
-    animation: getar .3s
+  border-color: var(--salah);
+  animation: getar .3s
 }
 
 .pesan {
-    min-height: 22px;
-    margin: 10px 0 14px;
-    font-size: .9rem;
-    color: var(--salah)
+  min-height: 22px;
+  margin: 10px 0 14px;
+  font-size: .9rem;
+  color: var(--salah)
 }
 
 .pesan.ok {
-    color: var(--utama-teks)
+  color: var(--utama-teks)
 }
 
 .tombol {
+<<<<<<< HEAD
     width: 100%;
     min-height: 48px;
     padding: 13px;
@@ -126,29 +229,54 @@ h1 {
     font: inherit;
     font-weight: 700;
     cursor: pointer
+=======
+  width: 100%;
+  min-height: 48px;
+  padding: 13px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--utama);
+  color: var(--di-utama);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer
+>>>>>>> origin/main
 }
 
 .tombol:hover:not(:disabled) {
-    background: var(--utama-gelap)
+  background: var(--utama-gelap)
 }
 
 .tombol:disabled {
-    opacity: .5;
-    cursor: not-allowed
+  opacity: .5;
+  cursor: not-allowed
 }
 
 .ulang {
+<<<<<<< HEAD
     text-align: center;
     margin: 14px 0 2px;
     color: var(--redup);
     font-size: .92rem
+=======
+  text-align: center;
+  margin: 14px 0 2px;
+  color: var(--redup);
+  font-size: .92rem
+>>>>>>> origin/main
 }
 
 .kadaluarsa {
-    text-align: center;
-    margin: 0;
-    color: var(--redup);
-    font-size: .85rem
+  text-align: center;
+  margin: 0;
+  color: var(--redup);
+  font-size: .85rem
+}
+
+.lihat-kode {
+  display: block;
+  margin: 6px auto 0;
+  font-size: .9rem
 }
 
 .lihat-kode {
@@ -161,12 +289,18 @@ h1 {
 .tautan:focus-visible,
 .tombol:focus-visible,
 .notif-tutup:focus-visible {
+<<<<<<< HEAD
     outline: 3px solid var(--utama-teks);
     outline-offset: 2px
+=======
+  outline: 3px solid var(--utama-teks);
+  outline-offset: 2px
+>>>>>>> origin/main
 }
 
 /* Notifikasi SMS simulasi: tetap tampil sampai ditutup */
 #notif {
+<<<<<<< HEAD
     position: fixed;
     z-index: 10;
     left: 50%;
@@ -185,10 +319,42 @@ h1 {
     font-size: .92rem;
     line-height: 1.45;
     box-shadow: 0 6px 20px rgba(0, 0, 0, .3)
+=======
+  position: fixed;
+  z-index: 10;
+  left: 50%;
+  top: max(10px, env(safe-area-inset-top));
+  transform: translate(-50%, -160%);
+  transition: transform .3s;
+  width: calc(100% - 24px);
+  max-width: 440px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #0f2a30;
+  color: #fff;
+  border-radius: 14px;
+  padding: 12px 8px 12px 16px;
+  font-size: .92rem;
+  line-height: 1.45;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .3)
+>>>>>>> origin/main
 }
 
 #notif.tampil {
-    transform: translate(-50%, 0)
+  transform: translate(-50%, 0)
+}
+
+.notif-isi {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column
+}
+
+.notif-judul {
+  font-size: .78rem;
+  opacity: .75
 }
 
 .notif-isi {
@@ -204,9 +370,32 @@ h1 {
 }
 
 #notif b {
+<<<<<<< HEAD
     font-size: clamp(1.2rem, 5vw, 1.5rem);
     letter-spacing: 4px;
     color: var(--utama)
+=======
+  font-size: clamp(1.2rem, 5vw, 1.5rem);
+  letter-spacing: 4px;
+  color: var(--utama)
+}
+
+.notif-tutup {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer
+}
+
+.notif-tutup:hover {
+  background: rgba(255, 255, 255, .12)
+>>>>>>> origin/main
 }
 
 .notif-tutup {
@@ -227,13 +416,42 @@ h1 {
 }
 
 @keyframes getar {
-    25% {
-        transform: translateX(-6px)
-    }
+  25% {
+    transform: translateX(-6px)
+  }
 
-    75% {
-        transform: translateX(6px)
-    }
+  75% {
+    transform: translateX(6px)
+  }
+}
+
+/* HP kecil */
+@media (max-width:360px) {
+  .kartu {
+    border-radius: 12px
+  }
+
+  .sub {
+    margin-bottom: 16px
+  }
+}
+
+/* Tablet dan desktop */
+@media (min-width:768px) {
+  .kartu {
+    max-width: 480px
+  }
+}
+
+/* HP landscape / layar pendek */
+@media (max-height:560px) {
+  body {
+    place-items: start center
+  }
+
+  .sub {
+    margin-bottom: 14px
+  }
 }
 
 /* HP kecil */
@@ -266,11 +484,11 @@ h1 {
 }
 
 @media (prefers-reduced-motion:reduce) {
-    .kotak-otp.salah .digit {
-        animation: none
-    }
+  .kotak-otp.salah .digit {
+    animation: none
+  }
 
-    #notif {
-        transition: none
-    }
+  #notif {
+    transition: none
+  }
 }
