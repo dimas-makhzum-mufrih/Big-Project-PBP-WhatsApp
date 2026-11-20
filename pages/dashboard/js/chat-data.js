@@ -317,6 +317,7 @@ function isPesanBergambar(item) {
 
 function formatPreviewPesan(terakhir) {
     if (!terakhir) return 'Mulai chat baru';
+    if (terakhir.dihapusSemua) return 'Pesan ini telah dihapus';
     const teks = (terakhir.text || '').trim();
     if (isPesanBergambar(terakhir)) {
         return teks || 'Foto';
@@ -564,4 +565,46 @@ function isKontakPengguna(idLawan) {
 
     return NgumpulKontakData.list(userAktif.id)
         .some(kontak => samakanHp(kontak.phone, user.hp));
+}
+
+// ===== Hapus pesan (untuk saya / untuk semua) =====
+function pesanDisembunyikan(item) {
+    return Boolean(item && userAktif && Array.isArray(item.hiddenFor) &&
+        item.hiddenFor.includes(String(userAktif.id)));
+}
+
+function ambilPesanTampil(idLawan) {
+    return ambilPesanChat(idLawan).filter(item => !pesanDisembunyikan(item));
+}
+
+function hapusPesanUntukSaya(idLawan, idPesan) {
+    const daftar = ambilPesanChat(idLawan);
+    const pesan = daftar.find(item => item.id === idPesan);
+    if (!pesan) return false;
+    const tersembunyi = Array.isArray(pesan.hiddenFor) ? pesan.hiddenFor : [];
+    if (!tersembunyi.includes(String(userAktif.id))) tersembunyi.push(String(userAktif.id));
+    pesan.hiddenFor = tersembunyi;
+    if (ambilPinPesan(idLawan) === idPesan) hapusPinPesan(idLawan);
+    return simpanPesanChat(idLawan, daftar);
+}
+
+function urungkanHapusUntukSaya(idLawan, idPesan) {
+    const daftar = ambilPesanChat(idLawan);
+    const pesan = daftar.find(item => item.id === idPesan);
+    if (!pesan || !Array.isArray(pesan.hiddenFor)) return false;
+    pesan.hiddenFor = pesan.hiddenFor.filter(id => id !== String(userAktif.id));
+    return simpanPesanChat(idLawan, daftar);
+}
+
+function hapusPesanUntukSemua(idLawan, idPesan) {
+    const daftar = ambilPesanChat(idLawan);
+    const pesan = daftar.find(item => item.id === idPesan);
+    if (!pesan || pesan.sender !== userAktif.id) return false;
+    pesan.dihapusSemua = true;
+    pesan.text = '';
+    delete pesan.image;
+    delete pesan.imageId;
+    delete pesan.hasImage;
+    if (ambilPinPesan(idLawan) === idPesan) hapusPinPesan(idLawan);
+    return simpanPesanChat(idLawan, daftar);
 }

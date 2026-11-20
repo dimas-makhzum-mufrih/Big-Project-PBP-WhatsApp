@@ -517,19 +517,25 @@
                     </div>
                 </div>
                 <footer class="active-chat-footer">
+                    <div class="toast-hapus-pesan" id="toast-hapus-pesan" role="status" aria-live="polite" hidden>
+                        <span>1 pesan dihapus untuk saya</span>
+                        <button type="button" id="btn-urungkan-hapus">Urungkan</button>
+                    </div>
                     <!-- input file tersembunyi: dipicu menu lampiran "Foto & video" -->
                     <input type="file" id="input-file-gambar" accept="image/*" multiple hidden>
-                    <!-- Plus, emoji, dan mic baru tampilan (belum fungsional). Pasang aksi lewat data-fitur. -->
+                    <!-- Tombol lampiran dan emoji; fitur mikrofon belum didukung. -->
                     <button class="btn-lampir" id="btn-lampir" type="button" data-fitur="lampirkan"
                         aria-label="Lampirkan" aria-expanded="false" aria-controls="panel-lampiran"><svg class="ikon"
                             aria-hidden="true">
                             <use href="#i-plus" />
                         </svg></button>
                     <button class="btn-lampir" id="btn-emoji" type="button" data-fitur="emoji"
-                        aria-label="Emoji (segera hadir)" title="Emoji (segera hadir)"><svg class="ikon"
-                            aria-hidden="true">
+                        aria-label="Pilih emoji" title="Pilih emoji" aria-expanded="false"
+                        aria-controls="chat-emoji-picker"><svg class="ikon" aria-hidden="true">
                             <use href="#i-smile" />
                         </svg></button>
+                    <div class="chat-emoji-picker" id="chat-emoji-picker" role="group" aria-label="Pilih emoji"
+                        hidden></div>
                     <input class="chat-input-field" id="input-teks-kirim" type="text" placeholder="Ketik pesan..."
                         autocomplete="off">
                     <button class="btn-mic" id="btn-mic" type="button" data-fitur="mic"
@@ -1004,6 +1010,16 @@
                 ><button class="grup-tombol-utama" id="btn-konfirmasi-grup" value="lanjut">Lanjutkan</button>
             </div>
         </form>
+    </dialog>
+    <dialog class="grup-dialog" id="dialog-hapus-pesan" aria-labelledby="judul-hapus-pesan">
+        <div class="detail-panel-content">
+            <h2 id="judul-hapus-pesan">Hapus pesan?</h2>
+            <div class="grup-form-aksi">
+                <button class="grup-tombol-utama" type="button" id="btn-hapus-semua">Hapus untuk semua orang</button>
+                <button class="grup-tombol-utama" type="button" id="btn-hapus-saya">Hapus untuk saya</button>
+                <button class="grup-tombol-sekunder" type="button" id="btn-batal-hapus">Batal</button>
+            </div>
+        </div>
     </dialog>
     <!-- Peninjau Gambar Layar Penuh (Lightbox ala WhatsApp) -->
     <div class="chat-lightbox" id="lightbox-gambar" role="dialog" aria-modal="true" aria-label="Peninjau gambar obrolan"
