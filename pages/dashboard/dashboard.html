@@ -393,7 +393,7 @@
                         </svg>
                     </button>
 
-                    <!-- Panel emoji picker; mulai baris = 397 - 415 -->
+                    <!-- Panel emoji picker; mulai baris -->
                     <div class="emoji-picker-popup" id="panel-emoji-popup" style="display:none">
                         <div class="emoji-picker-header">
                             <input type="search" class="emoji-cari-input" id="input-cari-emoji" placeholder="Cari emoji..." autocomplete="off">
@@ -425,15 +425,23 @@
                     <button class="send-action-btn" id="btn-kirim-pesan" hidden>Kirim</button>
                 </footer>
             
-                <!-- Popup reaksi dan hover pesan; mulai baris = 429 - 437 -->
-                <div class="reaksi-popup-picker" id="reaksi-popup-picker" style="display:none">
-                    <button class="reaksi-cepat" data-emoji="👍">👍</button>
-                    <button class="reaksi-cepat" data-emoji="❤️">❤️</button>
-                    <button class="reaksi-cepat" data-emoji="😂">😂</button>
-                    <button class="reaksi-cepat" data-emoji="😮">😮</button>
-                    <button class="reaksi-cepat" data-emoji="😢">😢</button>
-                    <button class="reaksi-cepat" data-emoji="🙏">🙏</button>
-                    <button class="reaksi-cepat reaksi-lainnya" id="btn-reaksi-lainnya" title="Emoji lainnya">➕</button>
+                <!-- Popup reaksi dan hover pesan -->
+                <div class="reaksi-popup-picker" id="reaksi-popup-picker" role="group"
+                    aria-label="Pilih reaksi pesan" style="display:none">
+                    <button class="reaksi-cepat" type="button" data-emoji="👍" aria-label="Reaksi jempol"
+                        title="Jempol">👍</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="❤️" aria-label="Reaksi hati"
+                        title="Hati">❤️</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="😂" aria-label="Reaksi tertawa"
+                        title="Tertawa">😂</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="😮" aria-label="Reaksi terkejut"
+                        title="Terkejut">😮</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="😢" aria-label="Reaksi sedih"
+                        title="Sedih">😢</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="🙏" aria-label="Reaksi terima kasih"
+                        title="Terima kasih">🙏</button>
+                    <button class="reaksi-cepat reaksi-lainnya" id="btn-reaksi-lainnya" type="button"
+                        aria-label="Pilih emoji lainnya" title="Emoji lainnya">➕</button>
                 </div>
 
             </section>

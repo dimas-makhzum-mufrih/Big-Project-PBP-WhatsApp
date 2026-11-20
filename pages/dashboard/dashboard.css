@@ -2442,3 +2442,165 @@ html[data-theme="dark"] .message-status.dibaca {
     background: var(--bg-abu-terang);
     transform: scale(1.2);
 }
+
+.emoji-picker-popup.pemilih-reaksi-aktif {
+    position: fixed;
+    top: 50%;
+    bottom: auto;
+    left: 50%;
+    z-index: 1000;
+    width: min(340px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    transform: translate(-50%, -50%);
+}
+
+.message-content {
+    position: relative;
+    width: fit-content;
+    max-width: min(78%, 620px);
+    min-width: 0;
+}
+
+.message-content .chat-bubble {
+    width: fit-content;
+    max-width: 100%;
+}
+
+.message-content .chat-bubble.kirim {
+    margin-left: auto;
+}
+
+.message-content .chat-bubble.terima {
+    margin-right: auto;
+}
+
+.btn-react-trigger {
+    position: absolute;
+    top: 4px;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--border-warna);
+    border-radius: 50%;
+    background: var(--bg-putih);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .14);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .15s ease, visibility .15s ease, transform .15s ease;
+}
+
+.message-row.terima .btn-react-trigger {
+    right: -36px;
+}
+
+.message-row.kirim .btn-react-trigger {
+    left: -36px;
+}
+
+.message-content:hover .btn-react-trigger,
+.message-content:focus-within .btn-react-trigger {
+    opacity: 1;
+    visibility: visible;
+}
+
+.btn-react-trigger:hover {
+    transform: scale(1.08);
+}
+
+.btn-react-trigger:focus-visible,
+.reaksi-cepat:focus-visible,
+.reaction-badge:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px;
+}
+
+.reaction-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: -3px;
+}
+
+.message-row.kirim .reaction-bar {
+    justify-content: flex-end;
+}
+
+.reaction-badge {
+    min-width: 42px;
+    padding: 3px 8px;
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: .82rem;
+    cursor: pointer;
+}
+
+.reaction-badge.mine {
+    border-color: var(--warna-utama);
+    background: var(--warna-tipis);
+}
+
+.reaksi-popup-picker {
+    position: fixed;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px;
+    border: 1px solid var(--border-warna);
+    border-radius: 24px;
+    background: var(--bg-putih);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .18);
+}
+
+.reaksi-cepat {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 21px;
+    cursor: pointer;
+    transition: background .12s ease, transform .12s ease;
+}
+
+.reaksi-cepat:hover {
+    background: var(--bg-abu-terang);
+    transform: scale(1.12);
+}
+
+@media (hover: none) {
+    .btn-react-trigger {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (max-width: 520px) {
+    .message-content {
+        max-width: calc(100% - 38px);
+    }
+
+    .reaksi-popup-picker {
+        gap: 1px;
+        padding: 4px;
+    }
+
+    .reaksi-cepat {
+        width: 32px;
+        height: 32px;
+        font-size: 19px;
+    }
+}
