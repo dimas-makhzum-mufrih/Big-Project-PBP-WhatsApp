@@ -23,7 +23,7 @@
 
 .attach-gallery-btn:hover {
     background: var(--bg-abu-input);
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
 }
 
 .attach-gallery-btn:focus-visible {
@@ -66,7 +66,7 @@
 .chat-dropzone-box .ikon {
     width: 44px;
     height: 44px;
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
 }
 
 .chat-dropzone-box strong {
@@ -105,7 +105,7 @@
 }
 
 .pinned-message-icon {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     font-size: 1.1rem;
 }
 
@@ -245,7 +245,7 @@
 .media-preview-counter {
     font-size: .82rem;
     font-weight: 600;
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     background: var(--warna-tipis);
     padding: 4px 10px;
     border-radius: 999px;
@@ -380,7 +380,7 @@
 
 .media-add-more-btn:hover {
     border-color: var(--warna-utama);
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
 }
 
 .media-send-fab {
@@ -391,7 +391,7 @@
     border: 0;
     border-radius: 50%;
     background: var(--warna-utama);
-    color: #fff;
+    color: var(--teks-kontras, #fff);
     display: grid;
     place-items: center;
     cursor: pointer;
@@ -678,3 +678,4 @@
 .btn-pin-message .ikon-pin {
     width: 16px;
     height: 16px
+}
