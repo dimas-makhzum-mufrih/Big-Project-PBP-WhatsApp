@@ -1,3 +1,6 @@
+/* Dashboard Ngumpul - satu tema TERANG tetap (tidak ikut mode gelap/terang perangkat).
+   Warna disamakan dengan halaman registrasi/login (cyan). */
+
 * {
     box-sizing: border-box
 }
@@ -363,6 +366,7 @@ input {
     flex: none;
     color: var(--teks-redup);
     font-size: .74rem
+    flex: none
 }
 
 .card-preview {
@@ -379,3 +383,4 @@ input {
     text-align: center;
     line-height: 1.5
 }
+

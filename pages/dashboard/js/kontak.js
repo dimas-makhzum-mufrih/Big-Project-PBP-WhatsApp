@@ -122,6 +122,9 @@
                 document.dispatchEvent(new CustomEvent('ngumpul:buka-chat', {
                     detail: { idLawan: user.id }
                 }));
+                if (!document.getElementById('panel-tab-kontak')) {
+                    location.href = 'dashboard.html#buka-chat=' + encodeURIComponent(user.id);
+                }
             });
 
             const tombolTelepon = document.createElement('button');

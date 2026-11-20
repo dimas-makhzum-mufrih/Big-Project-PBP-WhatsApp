@@ -154,6 +154,24 @@ tabChat.addEventListener('click', () => pilihTabDashboard(false));
 tabGrup.addEventListener('click', () => pilihTabDashboard('grup'));
 tabKontak.addEventListener('click', () => pilihTabDashboard(true));
 tabTelepon.addEventListener('click', () => pilihTabDashboard('telepon'));
+// ===== Tab Chat / Kontak di dalam dashboard =====
+const tabChat = document.getElementById('tab-chat');
+const tabKontak = document.getElementById('tab-kontak');
+const panelTabChat = document.getElementById('panel-tab-chat');
+const panelTabKontak = document.getElementById('panel-tab-kontak');
+
+function pilihTabDashboard(kontakAktif) {
+    panelTabChat.hidden = kontakAktif;
+    panelTabKontak.hidden = !kontakAktif;
+    tabChat.classList.toggle('aktif', !kontakAktif);
+    tabKontak.classList.toggle('aktif', kontakAktif);
+    tabChat.setAttribute('aria-pressed', String(!kontakAktif));
+    tabKontak.setAttribute('aria-pressed', String(kontakAktif));
+    if (!kontakAktif) renderChatList();
+}
+
+tabChat.addEventListener('click', () => pilihTabDashboard(false));
+tabKontak.addEventListener('click', () => pilihTabDashboard(true));
 document.getElementById('btn-kembali-dari-kontak').addEventListener('click', () => {
     pilihTabDashboard(false);
     tabChat.focus();
@@ -178,3 +196,4 @@ if (userAktif && idChatTertunda) {
         );
     }, 0);
 }
+

@@ -350,3 +350,4 @@ document.addEventListener('paste', e => {
         tambahFileKeAntrean(files);
     }
 });
+
