@@ -806,19 +806,19 @@ function renderPesanAktif() {
             'd',
             'M32 5C17.1 5 5 16.9 5 31.7c0 5.4 1.6 10.5 4.4 14.8L6 58l12.4-3.8c4.1 2.3 8.7 3.5 13.6 3.5 14.9 0 27-11.8 27-26S46.9 5 32 5Z'
         );
-        bentukBalon.setAttribute('fill', '#53bdeb');
+        bentukBalon.classList.add('ikon-reaksi-latar');
         ikonReaksi.appendChild(bentukBalon);
         [22, 42].forEach(posisiX => {
             const mata = document.createElementNS(nsSvg, 'circle');
             mata.setAttribute('cx', String(posisiX));
             mata.setAttribute('cy', '27');
             mata.setAttribute('r', '3.5');
-            mata.setAttribute('fill', '#101820');
+            mata.classList.add('ikon-reaksi-wajah');
             ikonReaksi.appendChild(mata);
         });
         const senyum = document.createElementNS(nsSvg, 'path');
         senyum.setAttribute('d', 'M20 36h24c-.8 7-5.3 11-12 11s-11.2-4-12-11Z');
-        senyum.setAttribute('fill', '#101820');
+        senyum.classList.add('ikon-reaksi-wajah');
         ikonReaksi.appendChild(senyum);
         tombolReaksi.appendChild(ikonReaksi);
         tombolReaksi.addEventListener('click', event => {
