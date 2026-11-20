@@ -1,5 +1,5 @@
 // ===== Footer chat: tombol plus (panel lampiran), emoji, mic =====
-// Hanya tampilan. Aksi tiap tombol dipasang anggota lewat atribut data-fitur.
+// Menghubungkan elemen picker, data emoji, dan target reaksi yang sedang dipilih.
 const btnLampir = document.getElementById('btn-lampir');
 const panelLampiran = document.getElementById('panel-lampiran');
 const btnMic = document.getElementById('btn-mic');
@@ -18,6 +18,7 @@ let reaksiPesanTargetId = null;
 let reaksiPesanTargetChatId = null;
 let modePemilihanReaksi = false;
 
+// Mengisi grid dengan emoji kategori aktif atau hasil pencarian.
 function renderPilihanEmoji(filter = '') {
     if (!kotakPilihanEmoji) return;
 
@@ -50,6 +51,7 @@ function renderPilihanEmoji(filter = '') {
             (modePemilihanReaksi ? 'Beri reaksi ' : 'Sisipkan emoji ') + emoji
         );
         tombol.addEventListener('click', () => {
+            // Dalam mode reaksi, emoji dipasang ke pesan; selain itu disisipkan ke input.
             if (modePemilihanReaksi) {
                 toggleReaksiPesan(reaksiPesanTargetChatId, reaksiPesanTargetId, emoji);
                 tutupReaksiPesanPicker();
@@ -62,6 +64,7 @@ function renderPilihanEmoji(filter = '') {
     });
 }
 
+// Menyisipkan emoji pada posisi kursor di kolom pesan.
 function sisipkanEmojiKePesan(emoji) {
     if (!inputTeksKirim) return;
 
@@ -75,6 +78,7 @@ function sisipkanEmojiKePesan(emoji) {
     perbaruiTombolKirim();
 }
 
+// Membuka/menutup picker dan menyelaraskan ikon serta mode pilih reaksi.
 function aturPanelEmoji(terbuka) {
     if (!panelEmoji || !btnEmoji) return;
     panelEmoji.style.display = terbuka ? 'flex' : 'none';
@@ -90,6 +94,7 @@ function aturPanelEmoji(terbuka) {
     }
 }
 
+// Membuka picker dari tombol footer dan menutupnya saat klik di luar.
 if (btnEmoji && panelEmoji) {
     btnEmoji.setAttribute('aria-controls', 'panel-emoji-popup');
     btnEmoji.setAttribute('aria-expanded', 'false');
@@ -115,6 +120,7 @@ if (btnEmoji && panelEmoji) {
     });
 }
 
+// Berpindah kategori emoji dan merender ulang grid.
 if (penandaEmoji) {
     penandaEmoji.addEventListener('click', event => {
         const tab = event.target.closest('.emoji-tab');
@@ -132,10 +138,12 @@ if (penandaEmoji) {
     });
 }
 
+// Memperbarui grid setiap kali query pencarian berubah.
 if (cariEmoji) {
     cariEmoji.addEventListener('input', () => renderPilihanEmoji(cariEmoji.value));
 }
 
+// Membuat badge reaksi dan jumlah pengguna untuk satu pesan.
 function buatBarReaksiPesan(reaksi, idLawan, pesanId) {
     const emojiTerpakai = Object.entries(reaksi)
         .filter(([, pengguna]) => Array.isArray(pengguna) && pengguna.length > 0);
@@ -163,6 +171,7 @@ function buatBarReaksiPesan(reaksi, idLawan, pesanId) {
     return bar;
 }
 
+// Mengganti reaksi pengguna pada pesan, atau menghapusnya jika emoji sama dipilih lagi.
 function toggleReaksiPesan(idLawan, pesanId, emoji) {
     if (!userAktif || !idLawan || !pesanId || !emoji) return;
 
@@ -195,6 +204,7 @@ function toggleReaksiPesan(idLawan, pesanId, emoji) {
     }
 }
 
+// Menempatkan popup pilihan reaksi di dekat pesan yang dipilih.
 function tampilkanReaksiPesanPicker(pesanId, pembungkusPesan) {
     if (!reaksiPesanEmojiPopup || !panelChatAktif || !chatAktifId) return;
     const gelembung = pembungkusPesan.querySelector('.chat-bubble');
@@ -217,6 +227,7 @@ function tampilkanReaksiPesanPicker(pesanId, pembungkusPesan) {
     reaksiPesanEmojiPopup.style.top = Math.max(margin, top) + 'px';
 }
 
+// Menutup popup dan mengosongkan target reaksi aktif.
 function tutupReaksiPesanPicker() {
     if (!reaksiPesanEmojiPopup) return;
     reaksiPesanEmojiPopup.style.display = 'none';
@@ -224,6 +235,7 @@ function tutupReaksiPesanPicker() {
     reaksiPesanTargetChatId = null;
 }
 
+// Menangani pilihan cepat dari popup reaksi.
 if (reaksiPesanEmojiPopup) {
     reaksiPesanEmojiPopup.querySelectorAll('.reaksi-cepat:not(.reaksi-lainnya)').forEach(btn => {
         btn.addEventListener('click', event => {
@@ -236,6 +248,7 @@ if (reaksiPesanEmojiPopup) {
     reaksiPesanEmojiPopup.addEventListener('click', event => event.stopPropagation());
 }
 
+// Membuka picker penuh untuk memilih emoji reaksi lainnya.
 if (btnReaksiLainnya) {
     btnReaksiLainnya.addEventListener('click', event => {
         event.stopPropagation();
@@ -249,6 +262,7 @@ if (btnReaksiLainnya) {
     });
 }
 
+// Menutup popup reaksi jika pengguna mengeklik area lain.
 document.addEventListener('click', event => {
     if (
         reaksiPesanEmojiPopup &&
@@ -260,6 +274,7 @@ document.addEventListener('click', event => {
     }
 });
 
+// Menutup picker dengan Escape.
 document.addEventListener('keydown', event => {
     if (event.key === 'Escape') {
         if (modePemilihanReaksi) tutupReaksiPesanPicker();
@@ -268,6 +283,7 @@ document.addEventListener('keydown', event => {
     }
 });
 
+// Memperbarui tampilan jika reaksi berubah di tab browser lain.
 window.addEventListener('storage', event => {
     if (event.key === KEY_REAKSI_PESAN && chatAktifId) renderPesanAktif();
 });

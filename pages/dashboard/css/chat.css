@@ -594,6 +594,7 @@ html[data-theme="dark"] .message-status.dibaca {
     FITUR: EMOJI PICKER & REAKSI PESAN 
   =============================================================================*/
 
+/* Tata letak picker emoji, pencarian, kategori, dan grid emoji. */
 .active-chat-footer {
     position: relative;
 }
@@ -751,6 +752,7 @@ html[data-theme="dark"] .message-status.dibaca {
     transform: translate(-50%, -50%);
 }
 
+/* Tombol pemicu dan badge reaksi yang melekat pada setiap pesan. */
 .message-content {
     position: relative;
     width: fit-content;
@@ -875,6 +877,7 @@ html[data-theme="dark"] .message-status.dibaca {
     background: var(--warna-tipis);
 }
 
+/* Popup pilihan reaksi cepat di sekitar pesan yang dipilih. */
 .reaksi-popup-picker {
     position: fixed;
     z-index: 1100;

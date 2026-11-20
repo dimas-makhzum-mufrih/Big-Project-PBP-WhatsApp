@@ -246,6 +246,8 @@ function renderPesanAktif() {
             footer.appendChild(buatIndikatorStatusPesan(item.status));
         }
         bubble.appendChild(footer);
+
+        // Membungkus bubble dengan tombol pemicu dan badge reaksi pesan.
         const kontenPesan = document.createElement('div');
         kontenPesan.className = 'message-content';
         kontenPesan.appendChild(bubble);
@@ -255,6 +257,7 @@ function renderPesanAktif() {
             tampilkanReaksiPesanPicker(item.id, kontenPesan);
         });
 
+        // Membuat tombol untuk membuka pilihan reaksi pada pesan ini.
         const tombolReaksi = document.createElement('button');
         tombolReaksi.type = 'button';
         tombolReaksi.className = 'btn-react-trigger';
@@ -291,6 +294,7 @@ function renderPesanAktif() {
         });
         kontenPesan.appendChild(tombolReaksi);
 
+        // Menampilkan badge reaksi yang sudah tersimpan pada pesan.
         const reaksiPesan = ambilReaksiPesan(chatAktifId, item.id);
         const barReaksi = buatBarReaksiPesan(reaksiPesan, chatAktifId, item.id);
         if (barReaksi) kontenPesan.appendChild(barReaksi);

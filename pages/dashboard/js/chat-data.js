@@ -407,6 +407,7 @@ function simpanPesanChat(idLawan, daftarPesan) {
     return simpanSemuaChat(semua);
 }
 
+// Membaca kumpulan reaksi pesan dari penyimpanan lokal.
 function bacaSemuaReaksiPesan() {
     try {
         const data = JSON.parse(localStorage.getItem(KEY_REAKSI_PESAN)) || {};
@@ -416,6 +417,7 @@ function bacaSemuaReaksiPesan() {
     }
 }
 
+// Menyimpan reaksi pesan dan memberi tahu bagian UI untuk memperbarui tampilan.
 function simpanSemuaReaksiPesan(data) {
     try {
         localStorage.setItem(KEY_REAKSI_PESAN, JSON.stringify(data));
@@ -427,6 +429,7 @@ function simpanSemuaReaksiPesan(data) {
     }
 }
 
+// Mengambil reaksi untuk satu pesan dalam percakapan tertentu.
 function ambilReaksiPesan(idLawan, pesanId) {
     if (!userAktif || !idLawan || !pesanId) return {};
     const percakapanId = kunciKonversasi(userAktif.id, idLawan);
