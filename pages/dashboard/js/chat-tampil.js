@@ -147,6 +147,7 @@ function renderPesanAktif() {
         baris.className = 'message-row';
         baris.classList.add(item.sender === userAktif.id ? 'kirim' : 'terima');
         baris.dataset.messageIndex = String(index);
+        baris.dataset.messageId = item.id;
 
         const punyaGambar = isPesanBergambar(item);
         const teksIsi = String(item.text || '').trim();
@@ -223,8 +224,11 @@ function renderPesanAktif() {
         btnPin.appendChild(ikonPin);
 
         btnPin.addEventListener('click', () => {
-            const berhasil = simpanPinPesan(chatAktifId, item.id);
-
+            // klik lagi pada pesan yang sedang disematkan = lepas sematan
+            const sudahTersemat = ambilPinPesan(chatAktifId) === item.id;
+            const berhasil = sudahTersemat
+                ? hapusPinPesan(chatAktifId)
+                : simpanPinPesan(chatAktifId, item.id);
             if (berhasil) {
                 renderPinPesanAktif();
             }
@@ -239,23 +243,7 @@ function renderPesanAktif() {
         footer.className = 'message-footer';
         footer.appendChild(waktu);
         if (item.sender === userAktif.id) {
-            const status = document.createElement('span');
-            status.className = 'message-status' + (item.status === 'dibaca' ? ' dibaca' : '');
-            const sudahDiterima = item.status === 'diterima' || item.status === 'dibaca';
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('viewBox', '0 0 24 24');
-            svg.setAttribute('aria-hidden', 'true');
-            svg.classList.add('message-status-icon');
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            path.setAttribute('d', sudahDiterima
-                ? 'M2.305,11.235a1,1,0,0,1,1.414.024l3.206,3.319L14.3,7.289A1,1,0,0,1,15.7,8.711l-8.091,8a1,1,0,0,1-.7.289H6.9a1,1,0,0,1-.708-.3L2.281,12.649A1,1,0,0,1,2.305,11.235ZM20.3,7.289l-7.372,7.289-.263-.273a1,1,0,1,0-1.438,1.39l.966,1a1,1,0,0,0,.708.3h.011a1,1,0,0,0,.7-.289l8.091-8A1,1,0,0,0,20.3,7.289Z'
-                : 'M2.305,11.235a1,1,0,0,1,1.414.024l3.206,3.319L14.3,7.289A1,1,0,0,1,15.7,8.711l-8.091,8a1,1,0,0,1-.7.289H6.9a1,1,0,0,1-.708-.3L2.281,12.649A1,1,0,0,1,2.305,11.235Z');
-            svg.appendChild(path);
-            status.appendChild(svg);
-            status.setAttribute('aria-label', 'Status pesan: ' + (
-                item.status === 'dibaca' ? 'Dibaca' : sudahDiterima ? 'Diterima' : 'Terkirim'
-            ));
-            footer.appendChild(status);
+            footer.appendChild(buatIndikatorStatusPesan(item.status));
         }
         bubble.appendChild(footer);
         const kontenPesan = document.createElement('div');
@@ -462,6 +450,8 @@ function bukaChat(idLawan) {
     renderPinPesanAktif();
     renderChatList();
 
+    document.getElementById('panel-sisi-kiri').classList.add('room-open');
+    document.getElementById('panel-sisi-kanan').classList.add('room-open');
     if (inputTeksKirim && !pencarianPesanTerbuka()) {
         inputTeksKirim.focus();
     }
