@@ -85,21 +85,14 @@ if (btnKembaliKeChat) {
             panelPengaturanNotifikasi.hidden = true;
             daftarPengaturan.style.display = 'block';
             judulPanelSetelan.textContent = 'Pengaturan';
+
             const menuNotifikasi = document.getElementById('btn-setelan-notifikasi');
-            menuNotifikasi.setAttribute('aria-expanded', 'false');
-            menuNotifikasi.focus();
-            return;
-        }
-        if (panelPengaturanTema && !panelPengaturanTema.hidden) {
+            menuNotifikasi?.setAttribute('aria-expanded', 'false');
+            menuNotifikasi?.focus();
+        } else if (panelPengaturanTema && !panelPengaturanTema.hidden) {
             panelPengaturanTema.hidden = true;
-
-            if (daftarPengaturan) {
-                daftarPengaturan.style.display = 'block';
-            }
-
-            if (judulPanelSetelan) {
-                judulPanelSetelan.textContent = 'Pengaturan';
-            }
+            daftarPengaturan.style.display = 'block';
+            judulPanelSetelan.textContent = 'Pengaturan';
         } else {
             tutupSetelan();
         }
@@ -216,8 +209,6 @@ document.addEventListener('click', e => {
         window.location.href = '../profile/edit-profile.html';
     }
 });
-
-
 // ===== Isi kartu profil sesuai akun yang login =====
 if (userAktif) {
     const profil = getProfil(userAktif.id);
@@ -425,4 +416,3 @@ if (daftarSetelanScroll) {
         });
     }, { passive: true });
 }
-
