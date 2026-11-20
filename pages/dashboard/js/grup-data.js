@@ -106,6 +106,15 @@
         dibuat: Date.now(),
       });
     },
+    canEdit(g, pesan) {
+      const umur = Date.now() - pesan?.dibuat;
+      return !!g && !g.keluar && g.anggotaIds.includes(akun) &&
+        getUserAktif()?.id === akun && pesan?.pengirimId === akun &&
+        pesan.jenis !== "aktivitas" && Number.isFinite(pesan.dibuat) &&
+        umur >= 0 && umur <= BATAS_WAKTU_EDIT_PESAN;
+    },
+    edit: (gid, channelId, idPesan, isi) =>
+      dasar.layanan.editPesan(gid, channelId, idPesan, isi),
     async read(g, channelId, visible) {
       const changed =
         !g.keluar &&

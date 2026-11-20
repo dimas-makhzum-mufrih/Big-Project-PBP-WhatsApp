@@ -160,6 +160,12 @@ function renderPesanAktif() {
             (punyaGambar ? ' ada-gambar' : '') +
             (punyaGambar && !adaTeks ? ' hanya-gambar' : '');
 
+        if (item.sender === userAktif.id) {
+            bubble.tabIndex = 0;
+            bubble.setAttribute('aria-haspopup', 'menu');
+            bubble.setAttribute('aria-controls', 'menu-edit-pesan');
+        }
+
         if (punyaGambar) {
             const bungkusGambar = document.createElement('div');
             bungkusGambar.className = 'chat-image-wrapper';
@@ -241,6 +247,12 @@ function renderPesanAktif() {
         bubble.appendChild(btnPin);
         const footer = document.createElement('div');
         footer.className = 'message-footer';
+        if (item.editedAt) {
+            const diedit = document.createElement('span');
+            diedit.className = 'message-edited';
+            diedit.textContent = 'Diedit';
+            footer.appendChild(diedit);
+        }
         footer.appendChild(waktu);
         if (item.sender === userAktif.id) {
             footer.appendChild(buatIndikatorStatusPesan(item.status));
@@ -363,6 +375,7 @@ function bukaChat(idLawan) {
     if (!getUserById(idLawan) || String(idLawan) === String(userAktif.id)) return;
 
     if (chatAktifId && chatAktifId !== idLawan) {
+        tutupEditPesan();
         tutupPreviewGambar();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
         aturPencarianPesanTerbuka(false, true, false);
