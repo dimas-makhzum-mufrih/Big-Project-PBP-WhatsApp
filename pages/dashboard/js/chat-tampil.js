@@ -147,6 +147,7 @@ function renderPesanAktif() {
         baris.className = 'message-row';
         baris.classList.add(item.sender === userAktif.id ? 'kirim' : 'terima');
         baris.dataset.messageIndex = String(index);
+        baris.dataset.messageId = item.id;
 
         const punyaGambar = isPesanBergambar(item);
         const teksIsi = String(item.text || '').trim();
@@ -158,6 +159,12 @@ function renderPesanAktif() {
             (item.sender === userAktif.id ? 'kirim' : 'terima') +
             (punyaGambar ? ' ada-gambar' : '') +
             (punyaGambar && !adaTeks ? ' hanya-gambar' : '');
+
+        if (item.sender === userAktif.id) {
+            bubble.tabIndex = 0;
+            bubble.setAttribute('aria-haspopup', 'menu');
+            bubble.setAttribute('aria-controls', 'menu-edit-pesan');
+        }
 
         if (punyaGambar) {
             const bungkusGambar = document.createElement('div');
@@ -237,6 +244,12 @@ function renderPesanAktif() {
         bubble.appendChild(btnPin);
         const footer = document.createElement('div');
         footer.className = 'message-footer';
+        if (item.editedAt) {
+            const diedit = document.createElement('span');
+            diedit.className = 'message-edited';
+            diedit.textContent = 'Diedit';
+            footer.appendChild(diedit);
+        }
         footer.appendChild(waktu);
         if (item.sender === userAktif.id) {
             const status = document.createElement('span');
@@ -375,6 +388,7 @@ function bukaChat(idLawan) {
     if (!getUserById(idLawan) || String(idLawan) === String(userAktif.id)) return;
 
     if (chatAktifId && chatAktifId !== idLawan) {
+        tutupEditPesan();
         tutupPreviewGambar();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
         aturPencarianPesanTerbuka(false, true, false);
