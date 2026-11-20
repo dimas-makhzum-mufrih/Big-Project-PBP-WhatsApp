@@ -164,3 +164,12 @@ function simpanProfil(id, data) {
   semua[id] = data;
   try { localStorage.setItem(KEY_PROFIL, JSON.stringify(semua)); return true; } catch (e) { return false; }
 }
+
+// ===== Media profil (avatar & banner) + tautan sosmed: dipakai dashboard, kontak, edit profil =====
+var KUNCI_MEDIA = 'ngumpul_media_';   // + id user -> { avatar, banner } (data URL hasil crop)
+var KUNCI_SOSMED = 'ngumpul_sosmed_'; // + id user -> [{ id, nama, platform, url }]
+
+function bacaMedia(idUser) {
+  try { return JSON.parse(localStorage.getItem(KUNCI_MEDIA + idUser)) || {}; }
+  catch (e) { return {}; }
+}
