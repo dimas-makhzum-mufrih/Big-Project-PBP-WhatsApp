@@ -1308,15 +1308,10 @@ function tampilkanReaksiPesanPicker(pesanId, pembungkusPesan) {
         rect.left + rect.width / 2 - popupW / 2,
         window.innerWidth - popupW - margin
     ));
-    let top = rect.bottom + margin;
-    if (top + popupH > window.innerHeight - margin) {
-        top = rect.top - popupH - margin;
-    }
+    let top = rect.top - popupH - margin;
+    if (top < margin) top = Math.min(rect.bottom + margin, window.innerHeight - popupH - margin);
     reaksiPesanEmojiPopup.style.left = left + 'px';
-    reaksiPesanEmojiPopup.style.top = Math.max(
-        margin,
-        Math.min(top, window.innerHeight - popupH - margin)
-    ) + 'px';
+    reaksiPesanEmojiPopup.style.top = Math.max(margin, top) + 'px';
 }
 
 // Menutup popup dan menghapus data pesan yang sedang dipilih
