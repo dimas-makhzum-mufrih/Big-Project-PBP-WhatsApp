@@ -30,6 +30,7 @@ function buatIndikatorStatusPesan(nilai) {
 // ===== Fitur Chat =====
 const KEY_CHAT = 'ngumpul_pesan';
 const KEY_PIN_PESAN = 'ngumpul_pesan_tersemat';
+const KEY_REAKSI_PESAN = 'ngumpul_reaksi_pesan';
 const KEY_BLOKIR = 'ngumpul_blokir_';
 const panelChatKosong = document.getElementById('panel-chat-kosong');
 const panelChatAktif = document.getElementById('panel-chat-aktif');
@@ -404,6 +405,36 @@ function simpanPesanChat(idLawan, daftarPesan) {
     const kunci = kunciKonversasi(userAktif.id, idLawan);
     semua[kunci] = Array.isArray(daftarPesan) ? daftarPesan : [];
     return simpanSemuaChat(semua);
+}
+
+// Membaca kumpulan reaksi pesan dari penyimpanan lokal.
+function bacaSemuaReaksiPesan() {
+    try {
+        const data = JSON.parse(localStorage.getItem(KEY_REAKSI_PESAN)) || {};
+        return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+    } catch (error) {
+        return {};
+    }
+}
+
+// Menyimpan reaksi pesan dan memberi tahu bagian UI untuk memperbarui tampilan.
+function simpanSemuaReaksiPesan(data) {
+    try {
+        localStorage.setItem(KEY_REAKSI_PESAN, JSON.stringify(data));
+        window.dispatchEvent(new CustomEvent('ngumpul:reaksi-pesan', { detail: { data } }));
+        return true;
+    } catch (error) {
+        console.warn('Tidak dapat menyimpan reaksi pesan:', error);
+        return false;
+    }
+}
+
+// Mengambil reaksi untuk satu pesan dalam percakapan tertentu.
+function ambilReaksiPesan(idLawan, pesanId) {
+    if (!userAktif || !idLawan || !pesanId) return {};
+    const percakapanId = kunciKonversasi(userAktif.id, idLawan);
+    const semuaReaksi = bacaSemuaReaksiPesan();
+    return semuaReaksi[percakapanId]?.[pesanId] || {};
 }
 
 function bacaSemuaPinPesan() {
