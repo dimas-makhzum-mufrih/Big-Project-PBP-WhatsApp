@@ -2465,6 +2465,8 @@ html[data-theme="dark"] .message-status.dibaca {
     overscroll-behavior-y: contain;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
+    grid-auto-rows: 38px;
+    align-content: start;
     gap: 2px;
     padding: 6px 10px 10px;
 }
@@ -2478,13 +2480,12 @@ html[data-theme="dark"] .message-status.dibaca {
     background: none;
     font-size: 1.35rem;
     cursor: pointer;
-    transition: background .12s, transform .12s;
+    transition: background .12s;
     aspect-ratio: 1;
 }
 
 .emoji-grid button:hover {
     background: var(--bg-abu-terang);
-    transform: scale(1.2);
 }
 
 .emoji-picker-popup.pemilih-reaksi-aktif {

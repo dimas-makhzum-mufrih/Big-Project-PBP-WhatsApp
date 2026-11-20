@@ -1082,6 +1082,10 @@ function aturPanelEmoji(terbuka) {
     if (!panelEmoji || !btnEmoji) return;
     panelEmoji.style.display = terbuka ? 'flex' : 'none';
     btnEmoji.setAttribute('aria-expanded', String(terbuka));
+    btnEmoji.setAttribute('aria-label', terbuka ? 'Tampilkan keyboard' : 'Pilih emoji');
+    btnEmoji.title = terbuka ? 'Tampilkan keyboard' : 'Emoji';
+    const ikonEmoji = btnEmoji.querySelector('use');
+    if (ikonEmoji) ikonEmoji.setAttribute('href', terbuka ? '#i-keyboard' : '#i-smile');
 
     // Mengembalikan picker ke mode emoji biasa saat panel ditutup
     if (!terbuka) {
