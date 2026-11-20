@@ -516,6 +516,14 @@
                                 </svg></span>Lokasi</button>
                     </div>
                 </div>
+                <div class="reply-composer-preview" id="reply-composer-preview" hidden>
+                    <div class="reply-composer-quote">
+                        <strong id="reply-composer-sender"></strong>
+                        <span id="reply-composer-text"></span>
+                    </div>
+                    <button class="reply-composer-close" id="btn-cancel-reply" type="button"
+                        aria-label="Batalkan balasan">&times;</button>
+                </div>
                 <footer class="active-chat-footer">
                     <!-- input file tersembunyi: dipicu menu lampiran "Foto & video" -->
                     <input type="file" id="input-file-gambar" accept="image/*" multiple hidden>
@@ -539,6 +547,20 @@
                         </svg></button>
                     <button class="send-action-btn" id="btn-kirim-pesan" hidden>Kirim</button>
                 </footer>
+                <div class="message-context-menu" id="message-context-menu" role="menu" hidden>
+                    <button type="button" class="message-context-action" id="btn-context-reply" role="menuitem">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 6 6v2" />
+                        </svg>
+                        <span>Balas</span>
+                    </button>
+                    <button type="button" class="message-context-action" id="btn-context-pin" role="menuitem">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M8 3h8l-1 6 3 3v2H6v-2l3-3-1-6ZM12 14v7" />
+                        </svg>
+                        <span>Sematkan</span>
+                    </button>
+                </div>
             </section>
             <aside class="contact-info-panel" id="panel-info-pengguna" aria-label="Informasi kontak" aria-hidden="true">
                 <header class="contact-info-header">
