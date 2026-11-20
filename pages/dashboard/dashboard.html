@@ -517,6 +517,10 @@
                     </div>
                 </div>
                 <footer class="active-chat-footer">
+                    <div class="toast-hapus-pesan" id="toast-hapus-pesan" role="status" aria-live="polite" hidden>
+                        <span>1 pesan dihapus untuk saya</span>
+                        <button type="button" id="btn-urungkan-hapus">Urungkan</button>
+                    </div>
                     <!-- input file tersembunyi: dipicu menu lampiran "Foto & video" -->
                     <input type="file" id="input-file-gambar" accept="image/*" multiple hidden>
                     <!-- Plus, emoji, dan mic baru tampilan (belum fungsional). Pasang aksi lewat data-fitur. -->
@@ -1004,6 +1008,16 @@
                 ><button class="grup-tombol-utama" id="btn-konfirmasi-grup" value="lanjut">Lanjutkan</button>
             </div>
         </form>
+    </dialog>
+    <dialog class="grup-dialog" id="dialog-hapus-pesan" aria-labelledby="judul-hapus-pesan">
+        <div class="detail-panel-content">
+            <h2 id="judul-hapus-pesan">Hapus pesan?</h2>
+            <div class="grup-form-aksi">
+                <button class="grup-tombol-utama" type="button" id="btn-hapus-semua">Hapus untuk semua orang</button>
+                <button class="grup-tombol-utama" type="button" id="btn-hapus-saya">Hapus untuk saya</button>
+                <button class="grup-tombol-sekunder" type="button" id="btn-batal-hapus">Batal</button>
+            </div>
+        </div>
     </dialog>
     <!-- Peninjau Gambar Layar Penuh (Lightbox ala WhatsApp) -->
     <div class="chat-lightbox" id="lightbox-gambar" role="dialog" aria-modal="true" aria-label="Peninjau gambar obrolan"

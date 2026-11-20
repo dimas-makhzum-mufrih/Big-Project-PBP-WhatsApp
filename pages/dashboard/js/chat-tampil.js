@@ -18,7 +18,7 @@ function renderChatList() {
     });
     const hasil = Array.from(kandidat.values())
         .map(user => {
-            const pesan = ambilPesanChat(user.id);
+            const pesan = ambilPesanCTampil(user.id);
             const terakhir = pesan.length ? pesan[pesan.length - 1] : null;
             const profil = getProfilChat(user.id);
             const diblokir = penggunaDiblokir(userAktif.id, user.id);
@@ -143,11 +143,49 @@ function renderPesanAktif() {
     }
 
     pesan.forEach((item, index) => {
+        if (pesanDisembunyikan(item)) return; // "hapus untuk saya"
         const baris = document.createElement('div');
         baris.className = 'message-row';
         baris.classList.add(item.sender === userAktif.id ? 'kirim' : 'terima');
         baris.dataset.messageIndex = String(index);
         baris.dataset.messageId = item.id;
+
+        if (item.dihapusSemua) {
+            const dariSaya = item.sender === userAktif.id;
+            const bubbleHapus = document.createElement('div');
+            bubbleHapus.className = 'chat-bubble pesan-dihapus ' + (dariSaya ? 'kirim' : 'terima');
+
+            const ns = 'http://www.w3.org/2000/svg';
+            const ikon = document.createElementNS(ns, 'svg');
+            ikon.setAttribute('class', 'ikon-pesan-dihapus');
+            ikon.setAttribute('viewBox', '0 0 24 24');
+            ikon.setAttribute('aria-hidden', 'true');
+            const lingkaran = document.createElementNS(ns, 'circle');
+            lingkaran.setAttribute('cx', '12');
+            lingkaran.setAttribute('cy', '12');
+            lingkaran.setAttribute('r', '9');
+            const garis = document.createElementNS(ns, 'path');
+            garis.setAttribute('d', 'M5.6 5.6l12.8 12.8');
+            ikon.append(lingkaran, garis);
+
+            const isi = document.createElement('span');
+            isi.className = 'pesan-dihapus-isi';
+            isi.append(ikon, document.createTextNode(
+                dariSaya ? 'Kamu menghapus pesan ini' : 'Pesan ini telah dihapus'
+            ));
+
+            const waktuHapus = document.createElement('span');
+            waktuHapus.className = 'timestamp';
+            waktuHapus.textContent = formatJamPesan(item.time);
+            const footerHapus = document.createElement('div');
+            footerHapus.className = 'message-footer';
+            footerHapus.appendChild(waktuHapus);
+
+            bubbleHapus.append(isi, footerHapus, buatTombolHapusPesan(item));
+            baris.appendChild(bubbleHapus);
+            boxListPesan.appendChild(baris);
+            return;
+        }
 
         const punyaGambar = isPesanBergambar(item);
         const teksIsi = String(item.text || '').trim();
@@ -239,6 +277,7 @@ function renderPesanAktif() {
         waktu.textContent = formatJamPesan(item.time);
 
         bubble.appendChild(btnPin);
+        bubble.appendChild(buatTombolHapusPesan(item));
         const footer = document.createElement('div');
         footer.className = 'message-footer';
         footer.appendChild(waktu);
@@ -406,4 +445,25 @@ function bukaChat(idLawan) {
     if (inputTeksKirim && !pencarianPesanTerbuka()) {
         inputTeksKirim.focus();
     }
+}
+
+function buatTombolHapusPesan(item) {
+    const tombol = document.createElement('button');
+    tombol.type = 'button';
+    tombol.className = 'btn-hapus-message';
+    tombol.title = 'Hapus pesan';
+    tombol.setAttribute('aria-label', 'Hapus pesan');
+    const ns = 'http://www.w3.org/2000/svg';
+    const ikon = document.createElementNS(ns, 'svg');
+    ikon.setAttribute('class', 'ikon');
+    ikon.setAttribute('aria-hidden', 'true');
+    const pakai = document.createElementNS(ns, 'use');
+    pakai.setAttribute('href', '#i-trash-grup');
+    ikon.appendChild(pakai);
+    tombol.appendChild(ikon);
+    tombol.addEventListener('click', event => {
+        event.stopPropagation();
+        mintaHapusPesan(item.id); // ada di chat-aksi.js
+    });
+    return tombol;
 }

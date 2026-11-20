@@ -178,3 +178,82 @@ if (userAktif && idChatTertunda) {
         );
     }, 0);
 }
+
+// ===== Hapus pesan: dialog pilihan + toast Urungkan =====
+const dialogHapusPesan = document.getElementById('dialog-hapus-pesan');
+const btnHapusSemua = document.getElementById('btn-hapus-semua');
+const btnHapusSaya = document.getElementById('btn-hapus-saya');
+const btnBatalHapus = document.getElementById('btn-batal-hapus');
+const toastHapusPesan = document.getElementById('toast-hapus-pesan');
+const btnUrungkanHapus = document.getElementById('btn-urungkan-hapus');
+let idPesanDihapus = null;
+let dataUrungkanHapus = null;
+let timerToastHapus = null;
+
+function mintaHapusPesan(idPesan) {
+    if (!chatAktifId || !dialogHapusPesan) return;
+    const pesan = ambilPesanChat(chatAktifId).find(item => item.id === idPesan);
+    if (!pesan) return;
+    idPesanDihapus = idPesan;
+    // "Hapus untuk semua" hanya untuk pesan sendiri yang belum dihapus
+    btnHapusSemua.hidden = pesan.sender !== userAktif.id || Boolean(pesan.dihapusSemua);
+    dialogHapusPesan.showModal();
+}
+
+function segarkanSetelahHapus() {
+    const posisi = boxListPesan.scrollTop; // jangan lompat ke bawah
+    renderPesanAktif();
+    boxListPesan.scrollTop = posisi;
+    renderPinPesanAktif();
+    renderChatList();
+    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
+}
+
+function sembunyikanToastHapus() {
+    if (timerToastHapus) window.clearTimeout(timerToastHapus);
+    timerToastHapus = null;
+    dataUrungkanHapus = null;
+    if (toastHapusPesan) toastHapusPesan.hidden = true;
+}
+
+function tampilkanToastHapus(idLawan, idPesan) {
+    if (!toastHapusPesan) return;
+    dataUrungkanHapus = { idLawan: idLawan, idPesan: idPesan };
+    toastHapusPesan.hidden = false;
+    if (timerToastHapus) window.clearTimeout(timerToastHapus);
+    timerToastHapus = window.setTimeout(sembunyikanToastHapus, 6000);
+}
+
+if (dialogHapusPesan) {
+    btnBatalHapus.addEventListener('click', () => dialogHapusPesan.close());
+
+    btnHapusSemua.addEventListener('click', () => {
+        if (chatAktifId && idPesanDihapus) hapusPesanUntukSemua(chatAktifId, idPesanDihapus);
+        dialogHapusPesan.close();
+        idPesanDihapus = null;
+        segarkanSetelahHapus(); // langsung berubah, tanpa popup
+    });
+
+    btnHapusSaya.addEventListener('click', () => {
+        const idLawan = chatAktifId;
+        const idPesan = idPesanDihapus;
+        dialogHapusPesan.close();
+        idPesanDihapus = null;
+        if (!idLawan || !idPesan) return;
+        if (hapusPesanUntukSaya(idLawan, idPesan)) {
+            segarkanSetelahHapus();
+            tampilkanToastHapus(idLawan, idPesan);
+        }
+    });
+}
+
+if (btnUrungkanHapus) {
+    btnUrungkanHapus.addEventListener('click', () => {
+        if (!dataUrungkanHapus) return;
+        const { idLawan, idPesan } = dataUrungkanHapus;
+        urungkanHapusUntukSaya(idLawan, idPesan);
+        sembunyikanToastHapus();
+        if (chatAktifId === idLawan) segarkanSetelahHapus();
+        else renderChatList();
+    });
+}
