@@ -14,7 +14,9 @@ function renderChatList() {
     getUsers().forEach(pengguna => {
         if (!pengguna || String(pengguna.id) === String(userAktif.id)) return;
         const pesan = semua[kunciKonversasi(userAktif.id, pengguna.id)];
-        if (Array.isArray(pesan) && pesan.length) kandidat.set(String(pengguna.id), pengguna);
+        if ((Array.isArray(pesan) && pesan.length) || bacaDrafChat(pengguna.id)) {
+            kandidat.set(String(pengguna.id), pengguna);
+        }
     });
     const hasil = Array.from(kandidat.values())
         .map(user => {
@@ -22,12 +24,13 @@ function renderChatList() {
             const terakhir = pesan.length ? pesan[pesan.length - 1] : null;
             const profil = getProfilChat(user.id);
             const diblokir = penggunaDiblokir(userAktif.id, user.id);
+            const draf = bacaDrafChat(user.id);
             return {
                 id: user.id,
                 nama: profil.nama,
-                preview: diblokir ? 'Kamu memblokir pengguna ini' : formatPreviewPesan(terakhir),
-                adaGambar: !diblokir && isPesanBergambar(terakhir),
-                waktu: terakhir ? terakhir.time : null,
+                preview: diblokir ? 'Kamu memblokir pengguna ini' : draf ? 'Draf: ' + draf.teks : formatPreviewPesan(terakhir),
+                adaGambar: !diblokir && !draf && isPesanBergambar(terakhir),
+                waktu: draf?.waktu || (terakhir ? terakhir.time : null),
                 hp: user.hp,
                 diblokir
             };
@@ -362,13 +365,19 @@ function bukaChat(idLawan) {
     if (!idLawan || !userAktif) return;
     if (!getUserById(idLawan) || String(idLawan) === String(userAktif.id)) return;
 
+    const chatSebelumnya = chatAktifId;
     if (chatAktifId && chatAktifId !== idLawan) {
         tutupPreviewGambar();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
         aturPencarianPesanTerbuka(false, true, false);
+        if (inputTeksKirim) simpanDrafChat(chatSebelumnya, inputTeksKirim.value);
     }
 
     chatAktifId = idLawan;
+    if (inputTeksKirim && chatSebelumnya !== idLawan) {
+        inputTeksKirim.value = bacaDrafChat(idLawan)?.teks || '';
+        perbaruiTombolKirim();
+    }
     tutupPanelLampiran();
     const target = getProfilChat(idLawan);
 

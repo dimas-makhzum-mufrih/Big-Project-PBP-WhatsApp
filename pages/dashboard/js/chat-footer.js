@@ -36,7 +36,12 @@ if (btnLampir && panelLampiran) {
     });
 }
 
-if (inputTeksKirim) inputTeksKirim.addEventListener('input', perbaruiTombolKirim);
+if (inputTeksKirim) inputTeksKirim.addEventListener('input', () => {
+    perbaruiTombolKirim();
+    if (!chatAktifId) return;
+    simpanDrafChat(chatAktifId, inputTeksKirim.value);
+    renderChatList();
+});
 perbaruiTombolKirim();
 
 function kirimPesanAktif() {
@@ -60,7 +65,8 @@ function kirimPesanAktif() {
         status: 'terkirim'
     });
 
-    simpanPesanChat(chatAktifId, daftarPesan);
+    if (!simpanPesanChat(chatAktifId, daftarPesan)) return;
+    simpanDrafChat(chatAktifId, '');
 
     if (inputTeksKirim) {
         inputTeksKirim.value = '';
