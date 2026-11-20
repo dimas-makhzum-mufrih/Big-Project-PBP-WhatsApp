@@ -1,8 +1,9 @@
 // ===== Footer chat: tombol plus (panel lampiran), emoji, mic =====
-// Hanya tampilan. Aksi tiap tombol dipasang anggota lewat atribut data-fitur.
 const btnLampir = document.getElementById('btn-lampir');
 const panelLampiran = document.getElementById('panel-lampiran');
 const btnMic = document.getElementById('btn-mic');
+const btnEmojiChat = document.getElementById('btn-emoji');
+const panelEmojiChat = document.getElementById('chat-emoji-picker');
 
 function tutupPanelLampiran() {
     if (!panelLampiran || panelLampiran.hidden) return;
@@ -10,6 +11,15 @@ function tutupPanelLampiran() {
     if (btnLampir) {
         btnLampir.setAttribute('aria-expanded', 'false');
         btnLampir.classList.remove('terbuka');
+    }
+}
+
+function tutupPanelEmojiChat() {
+    if (!panelEmojiChat || panelEmojiChat.hidden) return;
+    panelEmojiChat.hidden = true;
+    if (btnEmojiChat) {
+        btnEmojiChat.setAttribute('aria-expanded', 'false');
+        btnEmojiChat.classList.remove('terbuka');
     }
 }
 
@@ -23,6 +33,7 @@ function perbaruiTombolKirim() {
 if (btnLampir && panelLampiran) {
     btnLampir.addEventListener('click', event => {
         event.stopPropagation();
+        tutupPanelEmojiChat();
         const buka = panelLampiran.hidden;
         panelLampiran.hidden = !buka;
         btnLampir.setAttribute('aria-expanded', String(buka));
@@ -30,9 +41,54 @@ if (btnLampir && panelLampiran) {
     });
     document.addEventListener('click', event => {
         if (!event.target.closest('#panel-lampiran')) tutupPanelLampiran();
+        if (!event.target.closest('#chat-emoji-picker, #btn-emoji')) tutupPanelEmojiChat();
     });
     document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') tutupPanelLampiran();
+        if (event.key === 'Escape') {
+            tutupPanelLampiran();
+            tutupPanelEmojiChat();
+        }
+    });
+}
+
+const emojiChat = [
+    '😀', '😁', '😂', '😊', '😍', '🥰', '😎',
+    '🥳', '🤔', '😢', '😭', '😮', '😴', '👍',
+    '👎', '👏', '🙏', '💪', '❤️', '🔥', '🎉',
+    '✅', '👋', '🌟', '💯', '📚', '💻', '☕'
+];
+
+if (btnEmojiChat && panelEmojiChat) {
+    emojiChat.forEach(emoji => {
+        const tombol = document.createElement('button');
+        tombol.type = 'button';
+        tombol.className = 'chat-emoji-item';
+        tombol.textContent = emoji;
+        tombol.setAttribute('aria-label', 'Sisipkan ' + emoji);
+        tombol.addEventListener('click', event => {
+            event.stopPropagation();
+            if (!inputTeksKirim) return;
+
+            const nilai = inputTeksKirim.value;
+            const awal = inputTeksKirim.selectionStart;
+            const akhir = inputTeksKirim.selectionEnd;
+            const posisiAwal = awal === null ? nilai.length : awal;
+            const posisiAkhir = akhir === null ? posisiAwal : akhir;
+            inputTeksKirim.setRangeText(emoji, posisiAwal, posisiAkhir, 'end');
+            tutupPanelEmojiChat();
+            inputTeksKirim.focus();
+            inputTeksKirim.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        panelEmojiChat.appendChild(tombol);
+    });
+
+    btnEmojiChat.addEventListener('click', event => {
+        event.stopPropagation();
+        tutupPanelLampiran();
+        const buka = panelEmojiChat.hidden;
+        panelEmojiChat.hidden = !buka;
+        btnEmojiChat.setAttribute('aria-expanded', String(buka));
+        btnEmojiChat.classList.toggle('terbuka', buka);
     });
 }
 

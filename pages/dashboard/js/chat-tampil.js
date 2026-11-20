@@ -18,7 +18,7 @@ function renderChatList() {
     });
     const hasil = Array.from(kandidat.values())
         .map(user => {
-            const pesan = ambilPesanCTampil(user.id);
+            const pesan = ambilPesanTampil(user.id);
             const terakhir = pesan.length ? pesan[pesan.length - 1] : null;
             const profil = getProfilChat(user.id);
             const diblokir = penggunaDiblokir(userAktif.id, user.id);
@@ -338,7 +338,8 @@ function renderHasilPencarianPesan() {
 
     const hasil = ambilPesanChat(chatAktifId)
         .map((item, index) => ({ item: item, index: index }))
-        .filter(entry => String(entry.item.text || '').toLowerCase().includes(query))
+        .filter(entry => !pesanDisembunyikan(entry.item) &&
+            String(entry.item.text || '').toLowerCase().includes(query))
         .reverse();
 
     if (!hasil.length) {
