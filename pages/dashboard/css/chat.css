@@ -13,7 +13,7 @@
 }
 
 .welcome-screen h2 {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     margin-bottom: 10px;
     font-size: 1.8rem
 }
@@ -191,7 +191,7 @@
 
 .message-search-toggle:hover {
     background: var(--bg-abu-input);
-    color: var(--warna-utama)
+    color: var(--aksen-teks)
 }
 
 .message-search-toggle:focus-visible {
@@ -325,7 +325,7 @@
 .message-search-result mark {
     padding: 0;
     background: transparent;
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     font-weight: 700
 }
 
@@ -490,13 +490,13 @@ html[data-theme="dark"] .message-status.dibaca {
 }
 
 .btn-lampir.terbuka {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     background: var(--warna-tipis)
 }
 
 .btn-lampir:hover {
     background: var(--bg-abu-input);
-    color: var(--warna-utama)
+    color: var(--aksen-teks)
 }
 
 .btn-lampir:focus-visible {
