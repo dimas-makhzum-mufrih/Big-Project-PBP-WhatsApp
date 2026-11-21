@@ -954,3 +954,9 @@ html[data-objek="sembunyi"] .latar-hidup .kupu,
 html[data-objek="sembunyi"] .latar-hidup .ubur,
 html[data-objek="sembunyi"] .latar-hidup .ikan,
 html[data-objek="sembunyi"] .latar-hidup .bara { display: none; }
+
+/* pratinjau tema (kartu) */
+/* ---------- Preview kartu tema bergaya ---------- */
+.pv-rainy { --pv-bg: linear-gradient(150deg,#0d1620,#34526d); --pv-border: #223140; --pv-line: #4a6a85; --pv-acc: #7fb6d9; }
+.pv-ocean { --pv-bg: linear-gradient(180deg,#0a6f86,#021c28); --pv-border: #0f4558; --pv-line: #1aa0a8; --pv-acc: #3dd6d0; }
+.pv-campfire { --pv-bg: linear-gradient(180deg,#0d0603,#6a2f10); --pv-border: #3a2012; --pv-line: #6a2f10; --pv-acc: #ff8a2a; }
