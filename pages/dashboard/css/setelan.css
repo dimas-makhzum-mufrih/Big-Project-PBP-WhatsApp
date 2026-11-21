@@ -145,7 +145,6 @@
     }
 }
 
-
 /* ==========================================
    PENGATURAN TEMA
 ========================================== */
@@ -677,14 +676,3 @@
     height: 18px;
     color: var(--aksen-teks);
 }
-
-/*pinned message*/
-.pinned-message-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 20px;
-    background: var(--bg-putih);
-    border-bottom: 1px solid var(--border-warna);
-}
-

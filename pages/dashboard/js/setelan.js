@@ -23,6 +23,14 @@ const PACK_BARU = [
             ['sunflower', 'Sunflower', 'Bunga menghadap matahari sesuai jam'],
             ['lotus', 'Lotus Pond', 'Kolam teratai, riak saat kirim']
         ]
+    },
+    {
+        id: 'elemen', judul: 'Elemen', ket: 'Hujan, laut, dan api \u00b7 3 tema',
+        tema: [
+            ['rainy', 'Rainy Window', 'Kaca berembun, bisa diusap dengan kursor'],
+            ['ocean', 'Deep Ocean', 'Gelembung, ubur-ubur, sinar dari permukaan'],
+            ['campfire', 'Campfire', 'Api unggun dan bara beterbangan']
+        ]
     }
 ];
 
@@ -117,6 +125,15 @@ function bukaSetelan() {
 
     perbaruiEfekKartuProfil();
 }
+
+// Pintasan seperti WhatsApp: saat panel pengaturan terbuka, memilih chat/grup/kontak langsung membuka percakapan
+document.addEventListener('click', event => {
+    if (!panelLayerSetelan || getComputedStyle(panelLayerSetelan).display === 'none') return;
+    if (event.target.closest('.chat-card, .ruang-channel-row, .contact-chat-button')) tutupSetelan();
+}, true);
+document.addEventListener('ngumpul:buka-chat', () => {
+    if (panelLayerSetelan && getComputedStyle(panelLayerSetelan).display !== 'none') tutupSetelan();
+});
 
 function tutupSetelan() {
     if (panelLayerSetelan) {
@@ -364,7 +381,18 @@ if (panelGolden) {
     });
 }
 
-// ===== Tingkat hiasan: Penuh / Ringan / Polos =====
+// ===== Pengaturan tema umum (hiasan, objek, efek, kecepatan, kerapatan, hujan) =====
+const BARIS_PREF = [
+    { k: 'hiasan', judul: 'Tingkat hiasan', pil: [['penuh', 'Penuh'], ['ringan', 'Ringan'], ['polos', 'Polos']],
+      ket: 'Penuh: hiasan, gerak, dan efek. Ringan: hiasan diam, hemat baterai. Polos: hanya warna.' },
+    { k: 'objek', judul: 'Objek hiasan', pil: [['tampil', 'Tampil'], ['sembunyi', 'Sembunyi']],
+      ket: 'Sembunyikan matahari, bunga, kupu-kupu, ikan, dan objek lain. Warna dan latar tetap.' },
+    { k: 'efek', judul: 'Efek kirim', pil: [['nyala', 'Nyala'], ['mati', 'Mati']] },
+    { k: 'kecepatan', judul: 'Kecepatan gerak', pil: [['pelan', 'Pelan'], ['normal', 'Normal'], ['cepat', 'Cepat']] },
+    { k: 'rapat', judul: 'Kerapatan hiasan', pil: [['sedikit', 'Sedikit'], ['normal', 'Normal'], ['banyak', 'Banyak']] },
+    { k: 'hujan', judul: 'Hujan', pil: [['mati', 'Mati'], ['gerimis', 'Gerimis'], ['deras', 'Deras']], hanya: 'rainy' }
+];
+
 function buatPanelHiasan() {
     const bar = document.getElementById('bar-genre-tema');
     if (!bar || !window.NgumpulTheme || document.getElementById('panel-hiasan')) return;
@@ -372,31 +400,31 @@ function buatPanelHiasan() {
     const p = document.createElement('div');
     p.id = 'panel-hiasan';
     p.className = 'sky-cycle hiasan';
-    p.innerHTML =
-        '<div class="sky-cycle-kepala"><b>Tingkat hiasan</b><small id="hiasan-status"></small></div>' +
-        '<div class="sky-segmen tiga" role="group" aria-label="Tingkat hiasan tema">' +
-        '<button type="button" data-hiasan-mode="penuh">Penuh</button>' +
-        '<button type="button" data-hiasan-mode="ringan">Ringan</button>' +
-        '<button type="button" data-hiasan-mode="polos">Polos</button></div>' +
-        '<p class="sky-ket">Penuh: hiasan, gerak, dan efek kirim. Ringan: hiasan tanpa animasi, cocok untuk HP lemah. Polos: hanya warna.</p>';
+    p.innerHTML = '<div class="sky-cycle-kepala"><b>Pengaturan tema</b><small>Disimpan per akun</small></div>' +
+        BARIS_PREF.map(r =>
+            '<div class="pref-baris" data-pref-baris="' + r.k + '"' + (r.hanya ? ' data-hanya="' + r.hanya + '"' : '') + '>' +
+            '<span class="pref-judul">' + r.judul + '</span>' +
+            '<div class="sky-segmen" role="group" aria-label="' + r.judul + '">' +
+            r.pil.map(o => '<button type="button" data-pref="' + r.k + '" data-nilai="' + o[0] + '">' + o[1] + '</button>').join('') +
+            '</div>' + (r.ket ? '<p class="sky-ket">' + r.ket + '</p>' : '') + '</div>'
+        ).join('');
     bar.after(p);
 
-    p.querySelectorAll('[data-hiasan-mode]').forEach(b => {
-        b.addEventListener('click', () => NgumpulTheme.setHiasan(b.dataset.hiasanMode));
+    p.querySelectorAll('[data-pref]').forEach(b => {
+        b.addEventListener('click', () => NgumpulTheme.setPref(b.dataset.pref, b.dataset.nilai));
     });
 }
 
 function perbaruiPanelHiasan() {
     const p = document.getElementById('panel-hiasan');
     if (!p || !window.NgumpulTheme) return;
-    const mode = NgumpulTheme.getHiasan();
-    p.querySelectorAll('[data-hiasan-mode]').forEach(b => {
-        const on = b.dataset.hiasanMode === mode;
+    const tema = NgumpulTheme.getTheme();
+    p.querySelectorAll('[data-pref]').forEach(b => {
+        const on = NgumpulTheme.getPref(b.dataset.pref) === b.dataset.nilai;
         b.classList.toggle('aktif', on);
         b.setAttribute('aria-pressed', String(on));
     });
-    const st = document.getElementById('hiasan-status');
-    if (st) st.textContent = { penuh: 'Penuh', ringan: 'Ringan', polos: 'Polos' }[mode];
+    p.querySelectorAll('[data-hanya]').forEach(r => { r.hidden = r.dataset.hanya !== tema; });
 }
 
 // ===== Pack tema: satu pack terbuka sekaligus =====

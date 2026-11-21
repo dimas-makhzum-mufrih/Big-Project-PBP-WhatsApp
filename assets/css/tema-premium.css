@@ -874,6 +874,7 @@ html[data-pack]:not([data-pack="dasar"]) .tab.aktif {
 .tema-pack[data-pack="retro"] { --pack-a: #8bac0f; --pack-b: #33ff66; }
 .tema-pack[data-pack="cosmos"] { --pack-a: #9d7bff; --pack-b: #ff4fa8; }
 .tema-pack[data-pack="bunga"] { --pack-a: #9b7fd6; --pack-b: #f5b800; }
+.tema-pack[data-pack="elemen"] { --pack-a: #3dd6d0; --pack-b: #ff8a2a; }
 
 .sky-segmen.golden { grid-template-columns: repeat(4, 1fr); }
 
@@ -931,3 +932,25 @@ html[data-pack]:not([data-pack="dasar"]) .tab.aktif {
 .pv-sunflower { --pv-bg: #fff8e1; --pv-border: #f0e2a8; --pv-line: #fbe08a; --pv-acc: #f5b800; }
 .pv-lotus { --pv-bg: linear-gradient(180deg,#fff3f7,#cfe9d9); --pv-border: #f6d6e3; --pv-line: #fbc9dc; --pv-acc: #f08fb0; }
 .pv-goldenhour { --pv-bg: linear-gradient(160deg,#3b2a5e,#f08a6a 45%,#4aa8ec 75%,#0b1640); --pv-border: #8a5a7a; --pv-line: #ffe0b0; --pv-acc: #ffd27a; }
+
+
+/* ===== Pengaturan tema umum ===== */
+html { --kec: 1; }
+html[data-kecepatan="pelan"] { --kec: 2; }
+html[data-kecepatan="cepat"] { --kec: .55; }
+.pref-baris { margin-top: 10px; }
+.pref-baris[hidden] { display: none; }
+.pref-judul { display: block; font-size: .8rem; font-weight: 600; margin-bottom: 4px; }
+.pref-baris .sky-segmen { display: flex; }
+.pref-baris .sky-segmen button { flex: 1; }
+
+/* sembunyikan objek hiasan (warna & latar tetap) */
+html[data-objek="sembunyi"]:not([data-theme="terminal"]) .active-chat-room::before,
+html[data-objek="sembunyi"]:not([data-theme="terminal"]) .active-chat-room::after,
+html[data-objek="sembunyi"] .chat-bubble::after { display: none; }
+html[data-objek="sembunyi"][data-theme="sunflower"] .active-chat-room::before,
+html[data-objek="sembunyi"][data-theme="sunflower"] .active-chat-room::after,
+html[data-objek="sembunyi"] .latar-hidup .kupu,
+html[data-objek="sembunyi"] .latar-hidup .ubur,
+html[data-objek="sembunyi"] .latar-hidup .ikan,
+html[data-objek="sembunyi"] .latar-hidup .bara { display: none; }

@@ -62,12 +62,15 @@
         gameboy: { nama: "Gameboy", pack: "retro", premium: true, tone: "light", gaya: true, genre: ["retro", "interaktif", "tata"] },
         terminal: { nama: "Terminal", pack: "retro", premium: true, tone: "dark", gaya: true, efek: "kilat", genre: ["retro", "gelap", "tata", "efek"] },
         synthwave: { nama: "Synthwave", pack: "retro", premium: true, tone: "dark", gaya: true, genre: ["retro", "gelap", "gradasi", "bergerak"] },
-        nebula: { nama: "Nebula", pack: "cosmos", premium: true, tone: "dark", gaya: true, efek: "bintang", genre: ["kosmos", "gelap", "efek", "bergerak"] },
+        nebula: { nama: "Nebula", pack: "cosmos", premium: true, tone: "dark", gaya: true, latar: "nebula", efek: "bintang", genre: ["kosmos", "gelap", "efek", "bergerak", "interaktif"] },
         supernova: { nama: "Supernova", pack: "cosmos", premium: true, tone: "dark", gaya: true, efek: "bintang", genre: ["kosmos", "gelap", "gradasi", "efek"] },
-        stardust: { nama: "Stardust", pack: "cosmos", premium: true, tone: "dark", gaya: true, efek: "bintang", genre: ["kosmos", "gelap", "bergerak", "efek"] },
-        lavender: { nama: "Lavender Field", pack: "bunga", premium: true, tone: "light", gaya: true, efek: "kelopak", genre: ["bunga", "terang", "pastel", "efek"] },
+        stardust: { nama: "Stardust", pack: "cosmos", premium: true, tone: "dark", gaya: true, latar: "stardust", efek: "bintang", genre: ["kosmos", "gelap", "bergerak", "efek"] },
+        lavender: { nama: "Lavender Field", pack: "bunga", premium: true, tone: "light", gaya: true, latar: "lavender", efek: "kelopak", genre: ["bunga", "terang", "pastel", "efek", "bergerak"] },
         sunflower: { nama: "Sunflower", pack: "bunga", premium: true, tone: "light", gaya: true, genre: ["bunga", "terang", "waktu", "ceria"] },
-        lotus: { nama: "Lotus Pond", pack: "bunga", premium: true, tone: "light", gaya: true, efek: "riak", genre: ["bunga", "pastel", "efek"] }
+        lotus: { nama: "Lotus Pond", pack: "bunga", premium: true, tone: "light", gaya: true, latar: "lotus", efek: "air", genre: ["bunga", "pastel", "elemen", "bergerak", "efek"] },
+        rainy: { nama: "Rainy Window", pack: "elemen", premium: true, tone: "dark", gaya: true, latar: "hujan", genre: ["elemen", "gelap", "interaktif", "bergerak"] },
+        ocean: { nama: "Deep Ocean", pack: "elemen", premium: true, tone: "dark", gaya: true, latar: "laut", efek: "gelembung", genre: ["elemen", "gelap", "bergerak", "efek"] },
+        campfire: { nama: "Campfire", pack: "elemen", premium: true, tone: "dark", gaya: true, latar: "api", efek: "percikan", genre: ["elemen", "hangat", "gelap", "bergerak", "efek"] }
     };
 
     // Label genre (satu tema boleh punya beberapa). Dipakai kartu tema dan filter.
@@ -76,7 +79,7 @@
         siklus: "Siang & malam", alam: "Alam", segar: "Segar", dingin: "Dingin", manis: "Manis",
         hangat: "Hangat", mewah: "Mewah", ceria: "Ceria", musim: "Musim", gradasi: "Gradasi",
         bergerak: "Bergerak", interaktif: "Interaktif",
-        retro: "Retro", kosmos: "Kosmos", bunga: "Bunga", waktu: "Bereaksi waktu", efek: "Efek kirim", tata: "Tata letak"
+        retro: "Retro", kosmos: "Kosmos", bunga: "Bunga", waktu: "Bereaksi waktu", efek: "Efek kirim", tata: "Tata letak", elemen: "Elemen"
     };
 
     var MODE_SKY = ["auto", "day", "night", "reverse"];
@@ -154,27 +157,37 @@
     // ---------- Pemuatan CSS gaya + pengaturan hiasan ----------
     var KEY_HIASAN = "ngumpul_hiasan";   // penuh | ringan | polos
     var KEY_GH = "ngumpul_golden_mode";  // auto | reverse | fajar | siang | sore | senja | malam
-    var MODE_HIASAN = ["penuh", "ringan", "polos"];
+    // Pengaturan tema umum. Nilai pertama = bawaan. Dipasang sebagai atribut data-<nama> di <html>.
+    var PREF = {
+        hiasan: ["penuh", "ringan", "polos"],
+        objek: ["tampil", "sembunyi"],
+        efek: ["nyala", "mati"],
+        kecepatan: ["normal", "pelan", "cepat"],
+        rapat: ["normal", "sedikit", "banyak"],
+        hujan: ["gerimis", "deras", "mati"]
+    };
+    var MODE_HIASAN = PREF.hiasan;
     var MODE_GH = ["auto", "reverse", "fajar", "siang", "sore", "senja", "malam"];
 
     var BASE = (function () {
         var s = document.currentScript && document.currentScript.src;
         return s ? s.replace(/js\/theme\.js.*$/, "") : "";
     })();
-    var gayaDimuat = false;
+    var cssDimuat = {};
 
-    function muatGaya() {
-        if (gayaDimuat || !BASE) return;
-        gayaDimuat = true;
-        var href = BASE + "css/tema-gaya.css";
+    function muatCss(nama) {
+        if (cssDimuat[nama] || !BASE) return;
+        cssDimuat[nama] = true;
+        var href = BASE + "css/" + nama + ".css";
         if (document.readyState === "loading") {
-            document.write('<link rel="stylesheet" id="tema-gaya-css" href="' + href + '">'); // sebelum paint pertama
+            document.write('<link rel="stylesheet" id="' + nama + '-css" href="' + href + '">'); // sebelum paint pertama
         } else {
             var l = document.createElement("link");
-            l.rel = "stylesheet"; l.id = "tema-gaya-css"; l.href = href;
+            l.rel = "stylesheet"; l.id = nama + "-css"; l.href = href;
             document.head.appendChild(l);
         }
     }
+    function muatGaya() { muatCss("tema-gaya"); }
 
     function muatEfek() {
         if (!BASE || window.__ngumpulEfek) return;
@@ -185,10 +198,21 @@
         document.head.appendChild(s);
     }
 
-    function getHiasan() {
-        var m = baca(KEY_HIASAN);
-        return MODE_HIASAN.indexOf(m) !== -1 ? m : "penuh";
+    function kunciPref(k) { return k === "hiasan" ? KEY_HIASAN : "ngumpul_pref_" + k; }
+
+    function getPref(k) {
+        var m = baca(kunciPref(k));
+        return PREF[k] && PREF[k].indexOf(m) !== -1 ? m : PREF[k][0];
     }
+
+    function setPref(k, v) {
+        if (!PREF[k] || PREF[k].indexOf(v) === -1) return false;
+        tulis(kunciPref(k), v);
+        apply();
+        return true;
+    }
+
+    function getHiasan() { return getPref("hiasan"); }
 
     function getGhMode() {
         var m = baca(KEY_GH);
@@ -254,6 +278,7 @@
         var gh = def.fase5 ? hitungGH(ghMode) : null;
         if (gh) { tone = gh.tone; phase = gh.fase; }
         if (def.gaya) muatGaya();
+        if (def.premium) muatCss("tema-grup"); // gaya yang sama untuk ruang grup/server
 
         el.setAttribute("data-theme", id);
         el.setAttribute("data-tone", tone);
@@ -266,7 +291,7 @@
         }
 
         el.setAttribute("data-gerak", getGerak());
-        el.setAttribute("data-hiasan", getHiasan());
+        Object.keys(PREF).forEach(function (k) { el.setAttribute("data-" + k, getPref(k)); });
 
         if (def.gaya) el.setAttribute("data-gaya", "1"); else el.removeAttribute("data-gaya");
 
@@ -374,7 +399,7 @@
 
     // Sinkron antar tab
     window.addEventListener("storage", function (e) {
-        if (e.key && (e.key.indexOf(KEY_TEMA) === 0 || e.key === KEY_SKY || e.key === KEY_GERAK || e.key === KEY_HIASAN || e.key === KEY_GH)) apply();
+        if (e.key && (e.key.indexOf(KEY_TEMA) === 0 || e.key === KEY_SKY || e.key === KEY_GERAK || e.key === KEY_HIASAN || e.key === KEY_GH || e.key.indexOf("ngumpul_pref_") === 0)) apply();
     });
 
     // API untuk halaman lain
@@ -388,6 +413,9 @@
         getSkyMode: getSkyMode,
         setSkyMode: setSkyMode,
         getGerak: getGerak,
+        PREF: PREF,
+        getPref: getPref,
+        setPref: setPref,
         getHiasan: getHiasan,
         setHiasan: setHiasan,
         getGhMode: getGhMode,

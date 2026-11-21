@@ -44,6 +44,7 @@ function tampilkanInfoPengguna() {
     banner.style.backgroundImage = urlBanner ? 'url("' + urlBanner + '")' : '';
     perbaruiKontrolBlokir();
     perbaruiKontrolKontak();
+    if (typeof perkayaPanelInfoPengguna === 'function') perkayaPanelInfoPengguna(chatAktifId);
 }
 
 if (btnInfoPengguna) btnInfoPengguna.addEventListener('click', () => {
@@ -124,24 +125,36 @@ if (userAktif) {
     }
 }
 
-// ===== Tab Chat / Kontak di dalam dashboard =====
+// ===== Tab Chat / Grup / Kontak di dalam dashboard =====
 const tabChat = document.getElementById('tab-chat');
+const tabGrup = document.getElementById('tab-grup');
 const tabKontak = document.getElementById('tab-kontak');
+const tabTelepon = document.getElementById('tab-telepon');
 const panelTabChat = document.getElementById('panel-tab-chat');
+const panelTabGrup = document.getElementById('panel-tab-grup');
 const panelTabKontak = document.getElementById('panel-tab-kontak');
 
-function pilihTabDashboard(kontakAktif) {
-    panelTabChat.hidden = kontakAktif;
-    panelTabKontak.hidden = !kontakAktif;
-    tabChat.classList.toggle('aktif', !kontakAktif);
-    tabKontak.classList.toggle('aktif', kontakAktif);
-    tabChat.setAttribute('aria-pressed', String(!kontakAktif));
-    tabKontak.setAttribute('aria-pressed', String(kontakAktif));
-    if (!kontakAktif) renderChatList();
+function pilihTabDashboard(tabTujuan) {
+    // Tetap mendukung pemanggilan boolean dari alur Chat dan Kontak yang sudah ada.
+    const tabAktif = typeof tabTujuan === 'boolean' ? (tabTujuan ? 'kontak' : 'chat') : tabTujuan;
+    window.NgumpulRuang?.sinkronSidebarGrup(tabAktif);
+    panelTabChat.hidden = tabAktif !== 'chat';
+    panelTabGrup.hidden = tabAktif !== 'grup';
+    panelTabKontak.hidden = tabAktif !== 'kontak';
+    document.getElementById('panel-tab-telepon').hidden = tabAktif !== 'telepon';
+    [[tabChat, 'chat'], [tabGrup, 'grup'], [tabKontak, 'kontak'], [tabTelepon, 'telepon']].forEach(([tombol, nama]) => {
+        tombol.classList.toggle('aktif', tabAktif === nama);
+        tombol.setAttribute('aria-pressed', String(tabAktif === nama));
+    });
+    if (tabAktif === 'chat') renderChatList();
+    if (tabAktif === 'grup') document.dispatchEvent(new CustomEvent('ngumpul:tab-grup'));
+    document.dispatchEvent(new CustomEvent('ngumpul:tab-dashboard', { detail: { tabAktif } }));
 }
 
 tabChat.addEventListener('click', () => pilihTabDashboard(false));
+tabGrup.addEventListener('click', () => pilihTabDashboard('grup'));
 tabKontak.addEventListener('click', () => pilihTabDashboard(true));
+tabTelepon.addEventListener('click', () => pilihTabDashboard('telepon'));
 document.getElementById('btn-kembali-dari-kontak').addEventListener('click', () => {
     pilihTabDashboard(false);
     tabChat.focus();
@@ -166,4 +179,3 @@ if (userAktif && idChatTertunda) {
         );
     }, 0);
 }
-

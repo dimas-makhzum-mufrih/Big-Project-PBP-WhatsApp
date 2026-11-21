@@ -14,6 +14,43 @@
     const tombolTambahKontak = document.getElementById('btn-tambah-kontak');
     const statusKontak = document.getElementById('contact-status');
 
+    // Gaya tambahan kartu kontak & panel profil (file terpisah supaya kontak.css tidak bentrok saat merge)
+    (function muatCssTambahan() {
+        if (document.getElementById('css-profil-kontak')) return;
+        const skrip = document.currentScript;
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.id = 'css-profil-kontak';
+        link.href = (skrip && skrip.src ? skrip.src.replace(/js\/[^/]*$/, '') : 'css/../') + 'css/profil-kontak.css';
+        document.head.appendChild(link);
+    })();
+
+    function tombolIkon(tombol, ikon, label) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'ikon');
+        svg.setAttribute('aria-hidden', 'true');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', '#' + ikon);
+        svg.appendChild(use);
+        const teks = document.createElement('span');
+        teks.className = 'lbl';
+        teks.textContent = label;
+        tombol.replaceChildren(svg, teks);
+    }
+
+    function mulaiPanggilan(user, nama, video) {
+        if (!user) {
+            tampilkanStatusKontak('Nomor ini belum terdaftar di Ngumpul, belum bisa dipanggil', true);
+            return;
+        }
+        if (!window.NgumpulRuang || !window.NgumpulRuang.panggilPribadi) {
+            tampilkanStatusKontak('Fitur panggilan belum siap, muat ulang halaman', true);
+            return;
+        }
+        tampilkanStatusKontak('', false);
+        window.NgumpulRuang.panggilPribadi(user.id, video);
+    }
+
     function tampilkanStatusKontak(teks, error) {
         statusKontak.textContent = teks;
         statusKontak.dataset.error = error ? 'true' : 'false';
@@ -94,6 +131,15 @@
                 avatar.style.backgroundColor = warnaAvatar[indeksWarna % warnaAvatar.length];
             }
 
+            if (item.user) {
+                avatar.tabIndex = 0;
+                avatar.setAttribute('role', 'button');
+                avatar.setAttribute('aria-label', 'Lihat profil ' + item.name);
+                const bukaProfil = () => window.tampilkanInfoKontak && window.tampilkanInfoKontak(item.user.id);
+                avatar.addEventListener('click', bukaProfil);
+                avatar.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bukaProfil(); } });
+            }
+
             const detail = document.createElement('div');
             detail.className = 'contact-details';
             const nama = document.createElement('span');
@@ -110,7 +156,7 @@
             const tombolChat = document.createElement('button');
             tombolChat.className = 'contact-chat-button';
             tombolChat.type = 'button';
-            tombolChat.textContent = 'Chat';
+            tombolIkon(tombolChat, 'i-chat', 'Chat');
             tombolChat.setAttribute('aria-label', 'Chat dengan ' + item.name);
             tombolChat.addEventListener('click', () => {
                 const user = cariPengguna(item.phone);
@@ -122,24 +168,21 @@
                 document.dispatchEvent(new CustomEvent('ngumpul:buka-chat', {
                     detail: { idLawan: user.id }
                 }));
-                if (!document.getElementById('panel-tab-kontak')) {
-                    location.href = 'dashboard.html#buka-chat=' + encodeURIComponent(user.id);
-                }
             });
 
             const tombolTelepon = document.createElement('button');
             tombolTelepon.className = 'contact-call-button';
             tombolTelepon.type = 'button';
-            tombolTelepon.textContent = 'Segera hadir';
-            tombolTelepon.disabled = true;
-            tombolTelepon.setAttribute('aria-label', 'Telepon suara segera hadir untuk ' + item.name);
+            tombolIkon(tombolTelepon, 'i-phone', 'Telepon');
+            tombolTelepon.setAttribute('aria-label', 'Telepon suara ' + item.name);
+            tombolTelepon.addEventListener('click', () => mulaiPanggilan(cariPengguna(item.phone), item.name, false));
 
             const tombolVideo = document.createElement('button');
             tombolVideo.className = 'contact-call-button';
             tombolVideo.type = 'button';
-            tombolVideo.textContent = 'Segera hadir';
-            tombolVideo.disabled = true;
-            tombolVideo.setAttribute('aria-label', 'Video call segera hadir untuk ' + item.name);
+            tombolIkon(tombolVideo, 'i-video', 'Video');
+            tombolVideo.setAttribute('aria-label', 'Video call ' + item.name);
+            tombolVideo.addEventListener('click', () => mulaiPanggilan(cariPengguna(item.phone), item.name, true));
 
             const tombolHapus = document.createElement('button');
             tombolHapus.className = 'contact-remove-button';

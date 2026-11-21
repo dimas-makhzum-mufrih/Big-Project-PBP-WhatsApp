@@ -1,0 +1,161 @@
+/* Kartu kontak + panel info profil. Dimuat otomatis oleh js/kontak.js. Memakai variabel tema, jadi ikut berganti tema. */
+
+/* ===== Kartu kontak ===== */
+.contact-card {
+    position: relative;
+    border: 1px solid var(--border-warna);
+    border-radius: 16px;
+    background: var(--bg-putih);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.contact-card::before {
+    content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0;
+    background: var(--warna-utama); opacity: 0; transition: opacity .18s ease;
+}
+.contact-card:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--warna-utama) 40%, var(--border-warna)); box-shadow: 0 10px 22px -16px var(--warna-utama); }
+.contact-card:hover::before { opacity: 1; }
+.contact-avatar[role="button"] { cursor: pointer; box-shadow: 0 0 0 2px var(--bg-putih), 0 0 0 4px color-mix(in srgb, var(--warna-utama) 35%, transparent); transition: transform .15s ease; }
+.contact-avatar[role="button"]:hover { transform: scale(1.05); }
+.contact-card-actions { gap: 8px; padding: 12px 0 0 56px; flex-wrap: wrap; }
+.contact-chat-button, .contact-call-button {
+    display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; font-weight: 600;
+    border: 1px solid transparent; transition: background .15s ease, transform .15s ease, color .15s ease;
+}
+.contact-chat-button { background: var(--warna-utama); color: var(--teks-kontras); }
+.contact-chat-button:hover { background: var(--warna-utama-hover, var(--warna-utama)); transform: translateY(-1px); }
+.contact-call-button { background: var(--warna-tipis); color: var(--warna-utama); border-color: transparent; }
+.contact-call-button:hover { background: color-mix(in srgb, var(--warna-utama) 22%, var(--bg-putih)); transform: translateY(-1px); }
+.contact-chat-button .ikon, .contact-call-button .ikon { width: 17px; height: 17px; flex: none; }
+.contact-remove-button { border-radius: 999px; }
+@media (max-width: 560px) {
+    .contact-card-actions { padding-left: 0; }
+    .contact-chat-button .lbl, .contact-call-button .lbl { display: none; }
+    .contact-chat-button, .contact-call-button { width: 40px; height: 40px; padding: 0; justify-content: center; }
+}
+
+/* ===== Panel info profil ===== */
+.info-banner {
+    height: 112px; margin: -4px -4px 0; border-radius: 16px;
+    background: var(--grad-header, linear-gradient(120deg, var(--warna-utama), color-mix(in srgb, var(--warna-utama) 40%, var(--bg-putih))));
+    background-size: cover; background-position: center;
+}
+.detail-identity { margin-top: -52px; text-align: center; }
+.detail-identity .detail-avatar { box-shadow: 0 0 0 5px var(--bg-putih), 0 8px 20px -8px var(--warna-utama); margin-inline: auto; }
+.info-username { margin: 4px 0 0; color: var(--teks-redup); font-size: .82rem; }
+
+.info-aksi-baris { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 8px; margin: 14px 0 6px; }
+.info-aksi {
+    display: grid; justify-items: center; gap: 5px; padding: 11px 6px; border: 1px solid var(--border-warna); border-radius: 14px;
+    background: var(--bg-putih); color: var(--warna-utama); font: inherit; font-size: .76rem; font-weight: 600; cursor: pointer;
+    transition: background .15s ease, transform .15s ease;
+}
+.info-aksi:hover { background: var(--warna-tipis); transform: translateY(-2px); }
+.info-aksi .ikon { width: 21px; height: 21px; }
+.info-aksi.bahaya { color: var(--merah); }
+
+.info-salin { margin-top: 6px; padding: 4px 11px; border: 1px solid var(--border-warna); border-radius: 999px; background: transparent; color: var(--warna-utama); font: inherit; font-size: .75rem; cursor: pointer; }
+.info-salin:hover { background: var(--warna-tipis); }
+
+.info-stat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.info-stat-item { display: grid; gap: 2px; padding: 12px 6px; border-radius: 14px; background: var(--warna-tipis); text-align: center; }
+.info-stat-item strong { font-size: 1.25rem; color: var(--warna-utama); }
+.info-stat-item span { font-size: .72rem; color: var(--teks-redup); }
+
+.info-sosial { display: flex; flex-wrap: wrap; gap: 6px; }
+.info-chip { padding: 6px 12px; border-radius: 999px; background: var(--warna-tipis); color: var(--warna-utama); font-size: .8rem; font-weight: 600; text-decoration: none; }
+.info-chip:hover { background: var(--warna-utama); color: var(--teks-kontras); }
+
+.info-foto { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.info-foto-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--warna-tipis); }
+.info-foto-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.info-tautan { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.info-tautan a { color: var(--warna-utama); font-size: .85rem; word-break: break-all; }
+
+.info-grup { display: grid; gap: 6px; }
+.info-grup-item {
+    display: grid; grid-template-columns: 38px 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center; text-align: left;
+    padding: 8px 10px; border: 1px solid var(--border-warna); border-radius: 14px; background: var(--bg-putih); color: var(--teks-gelap); font: inherit; cursor: pointer;
+}
+.info-grup-item:hover { background: var(--warna-tipis); }
+.info-grup-ikon { grid-row: 1 / 3; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--warna-utama); color: var(--teks-kontras); font-weight: 700; }
+.info-grup-nama { font-weight: 600; font-size: .9rem; }
+.info-grup-item small { color: var(--teks-redup); }
+
+/* ===== Gaya per tema ===== */
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .contact-card,
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .info-aksi,
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .info-grup-item { border: 2.5px solid var(--tinta); box-shadow: 3px 3px 0 var(--tinta); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .contact-chat-button,
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .contact-call-button { border: 2px solid var(--tinta); box-shadow: 2px 2px 0 var(--tinta); color: var(--tinta); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .info-banner { border: 2.5px solid var(--tinta); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .info-stat-item { border: 2px solid var(--tinta); }
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .contact-card,
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .info-aksi,
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .info-stat-item,
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .info-banner,
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .info-grup-item,
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .contact-card,
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .info-aksi,
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .info-stat-item,
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .info-banner,
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .info-grup-item { border-radius: 0; }
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .contact-chat-button,
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .contact-call-button,
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .contact-chat-button,
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .contact-call-button { border-radius: 0; }
+html[data-theme="synthwave"]:not([data-hiasan="polos"]) .contact-card:hover,
+html[data-theme="supernova"]:not([data-hiasan="polos"]) .contact-card:hover { box-shadow: 0 0 20px color-mix(in srgb, var(--warna-utama) 50%, transparent); }
+
+/* ===== Info kontak gaya WhatsApp (panel chat + dialog profil) ===== */
+.contact-info-panel { display: flex; flex-direction: column; background: var(--bg-abu-terang, var(--bg-putih)); }
+.contact-info-content { flex: 1; overflow-y: auto; padding: 0 0 24px; text-align: center; }
+.contact-info-banner:not([hidden]) { height: 120px; background-size: cover; background-position: center; }
+.contact-info-content .contact-info-avatar { margin: 18px auto 0; box-shadow: 0 0 0 5px var(--bg-putih); position: relative; }
+.contact-info-content h2 { margin: 10px 0 2px; font-size: 1.25rem; }
+.contact-info-content > p { margin: 2px 0; color: var(--teks-redup); font-size: .9rem; }
+.contact-info-content .contact-info-actions { display: grid; gap: 8px; margin: 14px 14px 0; }
+.contact-info-content .info-tambahan { text-align: left; }
+.contact-info-content .info-aksi-baris { margin: 14px 14px 0; }
+.info-tambahan { margin: 8px 0 0; padding: 12px 16px; background: var(--bg-putih); border-top: 1px solid var(--border-warna); border-bottom: 1px solid var(--border-warna); }
+.info-tambahan > h3 { margin: 0 0 8px; font-size: .78rem; font-weight: 600; letter-spacing: .02em; color: var(--warna-utama); }
+.info-tanpa-judul { padding: 4px 8px; }
+.info-tanpa-judul > h3 { display: none; }
+.info-teks { margin: 0; font-size: .92rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+.info-baris { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 8px; border: 0; border-radius: 12px; background: transparent; color: var(--teks-gelap); font: inherit; text-align: left; cursor: pointer; }
+.info-baris:hover { background: var(--warna-tipis); }
+.info-baris > .ikon { width: 20px; height: 20px; color: var(--warna-utama); flex: none; }
+.info-baris > .ikon:last-child { width: 16px; height: 16px; color: var(--teks-redup); }
+.info-baris-teks { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.info-baris-teks strong { font-size: .92rem; font-weight: 600; }
+.info-baris-teks small { color: var(--teks-redup); font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.info-foto-strip { grid-template-columns: repeat(4, 1fr); padding: 4px 8px 8px; }
+.info-toggle { display: flex; align-items: center; gap: 12px; padding: 10px 8px; cursor: pointer; }
+.info-toggle > .ikon { width: 20px; height: 20px; color: var(--warna-utama); }
+.info-toggle span { flex: 1; font-size: .92rem; font-weight: 600; }
+.info-toggle input { width: 38px; height: 22px; accent-color: var(--warna-utama); cursor: pointer; }
+.info-daftar { display: grid; gap: 8px; }
+.info-daftar-baris { display: flex; justify-content: space-between; gap: 12px; font-size: .88rem; }
+.info-daftar-baris span { color: var(--teks-redup); }
+.info-blokir { display: block; width: calc(100% - 32px); margin: 10px 16px 0; padding: 12px; border: 1px solid var(--merah); border-radius: 14px; background: transparent; color: var(--merah); font: inherit; font-weight: 600; cursor: pointer; }
+.info-blokir:hover { background: var(--bg-hover-merah); }
+.info-kosong { margin: 28px 8px; text-align: center; color: var(--teks-redup); font-size: .9rem; }
+.info-tautan li { display: grid; gap: 2px; padding: 8px 0; border-bottom: 1px solid var(--border-warna); }
+.info-tautan small { color: var(--teks-redup); }
+
+/* galeri media/tautan */
+.info-galeri { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; background: var(--bg-putih); animation: info-galeri-masuk .2s ease; }
+@keyframes info-galeri-masuk { from { transform: translateX(24px); opacity: 0; } }
+.info-galeri-kepala { display: flex; align-items: center; gap: 12px; height: 65px; padding: 0 16px; border-bottom: 1px solid var(--border-warna); }
+.info-galeri-kembali { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; color: var(--teks-gelap); cursor: pointer; }
+.info-galeri-kembali:hover { background: var(--warna-tipis); }
+.info-galeri-kembali .ikon { width: 20px; height: 20px; }
+.info-galeri-tab { display: flex; border-bottom: 1px solid var(--border-warna); }
+.info-galeri-tab button { flex: 1; padding: 12px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--teks-redup); font: inherit; font-weight: 600; cursor: pointer; }
+.info-galeri-tab button.aktif { color: var(--warna-utama); border-bottom-color: var(--warna-utama); }
+.info-galeri-isi { flex: 1; overflow-y: auto; padding: 8px 12px 16px; }
+.info-foto-besar { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.info-foto-item { padding: 0; border: 0; cursor: pointer; }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .info-tambahan { border-color: var(--tinta); }
+
+.contact-info-banner:not([hidden]) + .contact-info-avatar { margin-top: -48px; }

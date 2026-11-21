@@ -26,6 +26,8 @@
     height: 100%;
     overflow: hidden;
     background: var(--bg-chat);
+    min-width: 0;
+    min-height: 0;
 }
 
 .active-chat-header,
@@ -388,6 +390,10 @@
     line-height: 1.45;
     display: flex;
     flex-direction: column;
+    box-shadow: var(--bayangan-card);
+    min-width: 0;
+    flex-shrink: 0;
+    overflow-wrap: anywhere;
     color: var(--teks-bubble);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
     overflow-wrap: anywhere;
@@ -455,6 +461,7 @@ html[data-theme="dark"] .message-status.dibaca {
 }
 
 .chat-input-field {
+    font-family: inherit;
     flex: 1;
     min-width: 0;
     background: var(--bg-abu-input);

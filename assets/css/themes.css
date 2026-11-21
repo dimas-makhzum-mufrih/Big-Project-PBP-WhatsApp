@@ -1477,7 +1477,7 @@ html[data-theme="sakurabloom"] .active-chat-room::before {
         radial-gradient(ellipse 4px 6px at 90px 120px, #ffd0e0 98%, transparent 100%),
         radial-gradient(ellipse 6px 3px at 150px 20px, #ff9fc0 98%, transparent 100%);
     background-size: 200px 260px, 260px 320px, 310px 380px;
-    animation: sakura-jatuh 34s linear infinite;
+    animation: sakura-jatuh calc(34s * var(--kec, 1)) linear infinite;
 }
 
 html[data-gerak="diam"][data-theme="sakurabloom"] .active-chat-room::before {
