@@ -386,7 +386,7 @@ const BARIS_PREF = [
     { k: 'hiasan', judul: 'Tingkat hiasan', pil: [['penuh', 'Penuh'], ['ringan', 'Ringan'], ['polos', 'Polos']],
       ket: 'Penuh: hiasan, gerak, dan efek. Ringan: hiasan diam, hemat baterai. Polos: hanya warna.' },
     { k: 'objek', judul: 'Objek hiasan', pil: [['tampil', 'Tampil'], ['sembunyi', 'Sembunyi']],
-      ket: 'Sembunyikan matahari, bunga, kupu-kupu, ikan, dan objek lain. Warna dan latar tetap.' },
+      ket: 'Sembunyikan matahari, bunga matahari, serbuk sari, plankton, dan objek lain. Warna dan latar tetap.' },
     { k: 'efek', judul: 'Efek kirim', pil: [['nyala', 'Nyala'], ['mati', 'Mati']] },
     { k: 'kecepatan', judul: 'Kecepatan gerak', pil: [['pelan', 'Pelan'], ['normal', 'Normal'], ['cepat', 'Cepat']] },
     { k: 'rapat', judul: 'Kerapatan hiasan', pil: [['sedikit', 'Sedikit'], ['normal', 'Normal'], ['banyak', 'Banyak']] },

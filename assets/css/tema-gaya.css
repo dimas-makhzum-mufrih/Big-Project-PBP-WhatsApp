@@ -183,13 +183,17 @@ html[data-theme="goldenhour"][data-tone="dark"] {
    ===================================================================== */
 
 /* hiasan duduk di bawah isi chat */
+/* Hiasan (latar hidup, matahari, titik pastel) duduk di lapisan PALING BAWAH ruang: z-index -1 di dalam
+   ruang yang terisolasi. Jadi semua isi (header, pesan, bilah sematan, tombol pin, lobi suara, panel) otomatis di depannya. */
+html[data-gaya] .active-chat-room { isolation: isolate; }
 html[data-gaya] .active-chat-header,
+html[data-gaya] .pinned-message-container,
 html[data-gaya] .messages-container,
 html[data-gaya] .active-chat-footer { position: relative; z-index: 1; }
 
 html[data-gaya] .active-chat-room::before,
 html[data-gaya] .active-chat-room::after {
-    content: none; position: absolute; z-index: 0; pointer-events: none;
+    content: none; position: absolute; z-index: -1; pointer-events: none;
 }
 
 /* ---------- Gameboy: LCD hijau, bubble piksel, 4 tingkat ---------- */
@@ -290,7 +294,7 @@ html[data-theme="nebula"]:not([data-hiasan="polos"]) .active-chat-room {
 }
 html[data-theme="nebula"]:not([data-hiasan="polos"]) .chat-bubble.kirim { box-shadow: 0 0 12px rgba(157,123,255,.35); }
 
-.latar-hidup { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.latar-hidup { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .latar-hidup canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .latar-hidup .lapis {
     position: absolute; inset: -70px;
@@ -313,7 +317,7 @@ html[data-theme="supernova"]:not([data-hiasan="polos"]) .active-chat-room::befor
 /* ---------- Stardust ---------- */
 html[data-theme="stardust"]:not([data-hiasan="polos"]) .active-chat-room { background-image: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(232,200,116,.10), transparent 70%), linear-gradient(180deg, #05050a, #0a0a12); }
 
-/* ---------- Lavender Field: langit lilac, ladang lavender bergoyang, kupu-kupu ---------- */
+/* ---------- Lavender Field: langit lilac, ladang lavender bergoyang, serbuk sari ---------- */
 html[data-theme="lavender"]:not([data-hiasan="polos"]) .active-chat-room { background-image: linear-gradient(180deg, #efe6fb 0%, #e3d6f7 55%, #f4eefc 100%); }
 html[data-theme="lavender"]:not([data-hiasan="polos"]) .chat-bubble { border-radius: 16px; }
 html[data-theme="lavender"]:not([data-hiasan="polos"]) .chat-bubble.kirim::after {
@@ -327,14 +331,15 @@ html[data-theme="lavender"]:not([data-hiasan="polos"]) .chat-bubble.kirim::after
 .latar-hidup[data-jenis="lavender"] svg { position: absolute; left: 0; bottom: 0; width: 100%; opacity: .92; }
 .latar-hidup[data-jenis="lavender"] .goyang { animation: goyang calc(var(--t, 4s) * var(--kec, 1)) ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
 @keyframes goyang { from { transform: rotate(-2.6deg); } to { transform: rotate(2.6deg); } }
-.latar-hidup .kupu { position: absolute; left: -40px; top: var(--y, 40%); width: 22px; height: 16px; animation: kupu-terbang calc(var(--t, 28s) * var(--kec, 1)) linear infinite; animation-delay: var(--d, 0s); }
-.latar-hidup .kupu i { position: absolute; top: 0; width: 11px; height: 14px; background: var(--w, #f0a6d8); border-radius: 80% 20% 70% 30%; animation: kepak .28s ease-in-out infinite alternate; transform-origin: 100% 50%; }
-.latar-hidup .kupu i:first-child { left: 0; }
-.latar-hidup .kupu i:last-child { right: 0; transform: scaleX(-1); transform-origin: 0 50%; }
-@keyframes kepak { from { transform: scaleX(1); } to { transform: scaleX(.25); } }
-@keyframes kupu-terbang {
-    0% { transform: translate(0, 0); } 25% { transform: translate(30vw, -40px); }
-    50% { transform: translate(60vw, 20px); } 75% { transform: translate(90vw, -30px); } 100% { transform: translate(120vw, 10px); }
+.latar-hidup .serbuk {
+    position: absolute; left: var(--x); bottom: 6%; width: var(--s, 3px); height: var(--s, 3px); border-radius: 50%;
+    background: #d9c6ff; box-shadow: 0 0 8px 2px rgba(190,160,255,.6); opacity: 0;
+    animation: serbuk-naik calc(var(--t, 16s) * var(--kec, 1)) ease-in-out infinite; animation-delay: var(--d, 0s);
+}
+.latar-hidup .serbuk.kuning { background: #fff0a0; box-shadow: 0 0 8px 2px rgba(255,210,70,.7); }
+@keyframes serbuk-naik {
+    0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: .9; }
+    70% { opacity: .7; } 100% { transform: translate(var(--dx, 20px), -62vh); opacity: 0; }
 }
 
 /* ---------- Sunflower: matahari sederhana (bergerak sesuai jam) + bunga di dasar ---------- */
@@ -346,15 +351,9 @@ html[data-theme="sunflower"]:not([data-hiasan="polos"]) .active-chat-room::befor
     box-shadow: 0 0 46px 16px rgba(255,200,60,.55);
     transition: left 60s linear, top 60s linear;
 }
-html[data-theme="sunflower"]:not([data-hiasan="polos"]) .active-chat-room::after {
-    content: ""; left: 0; right: 0; bottom: 0; height: 64px;
-    background:
-        radial-gradient(circle 6px at 8% 38px, #6b3f10 98%, transparent), radial-gradient(circle 14px at 8% 38px, #f5b800 98%, transparent),
-        radial-gradient(circle 6px at 30% 44px, #6b3f10 98%, transparent), radial-gradient(circle 14px at 30% 44px, #f5b800 98%, transparent),
-        radial-gradient(circle 6px at 62% 40px, #6b3f10 98%, transparent), radial-gradient(circle 14px at 62% 40px, #f5b800 98%, transparent),
-        radial-gradient(circle 6px at 92% 46px, #6b3f10 98%, transparent), radial-gradient(circle 14px at 92% 46px, #f5b800 98%, transparent),
-        linear-gradient(to top, rgba(120,170,70,.45), transparent);
-}
+.latar-hidup[data-jenis="sunflower"] svg { position: absolute; left: 0; bottom: 0; width: 100%; }
+.latar-hidup[data-jenis="sunflower"] .goyang { animation: goyang-bunga calc(var(--t, 4s) * var(--kec, 1)) ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
+@keyframes goyang-bunga { from { transform: rotate(-1.8deg); } to { transform: rotate(1.8deg); } }
 html[data-theme="sunflower"]:not([data-hiasan="polos"]) .chat-bubble { border-radius: 18px; }
 
 /* ---------- Lotus Pond: bubble mengapung di atas kolam (kolam digambar tema-efek.js) ---------- */
@@ -383,7 +382,14 @@ html[data-theme="rainy"]:not([data-hiasan="polos"]) .active-chat-room {
 }
 html[data-theme="rainy"]:not([data-hiasan="polos"]) .chat-bubble { border: 1px solid rgba(180,215,240,.28); }
 
-/* ---------- Deep Ocean: gelembung naik, sinar menembus air, ubur-ubur, ikan ---------- */
+.latar-hidup .kilat-hujan {
+    position: absolute; inset: 0; opacity: 0;
+    background: radial-gradient(ellipse 80% 70% at 62% 0%, rgba(215,228,255,.6), rgba(215,228,255,.12) 70%);
+}
+.latar-hidup .kilat-hujan.nyala { animation: petir .7s ease-out; }
+@keyframes petir { 0% { opacity: 0; } 8% { opacity: 1; } 18% { opacity: .15; } 28% { opacity: .8; } 100% { opacity: 0; } }
+
+/* ---------- Deep Ocean: gelembung naik, sinar menembus air, plankton bercahaya ---------- */
 html[data-theme="ocean"]:not([data-hiasan="polos"]) .active-chat-room { background-image: linear-gradient(180deg, #0a6f86 0%, #04435a 40%, #021c28 100%); }
 html[data-theme="ocean"]:not([data-hiasan="polos"]) .chat-bubble { border: 1px solid rgba(120,230,230,.25); }
 .latar-hidup[data-jenis="laut"] .sinar {
@@ -399,13 +405,17 @@ html[data-theme="ocean"]:not([data-hiasan="polos"]) .chat-bubble { border: 1px s
     animation: gel-naik calc(var(--t) * var(--kec, 1)) linear infinite; animation-delay: var(--d);
 }
 @keyframes gel-naik { to { transform: translate(var(--dx, 0px), -115vh); opacity: .2; } }
-.latar-hidup .ubur { position: absolute; left: var(--x); top: var(--y); width: 46px; height: 60px; animation: ubur-apung calc(var(--t, 9s) * var(--kec, 1)) ease-in-out infinite alternate; }
-.latar-hidup .ubur::before { content: ""; display: block; width: 46px; height: 28px; border-radius: 50% 50% 30% 30%; background: radial-gradient(ellipse at 50% 30%, rgba(255,170,230,.75), rgba(160,120,255,.35)); box-shadow: 0 0 18px rgba(255,150,230,.5); }
-.latar-hidup .ubur::after { content: ""; position: absolute; left: 6px; right: 6px; top: 26px; height: 32px; background: repeating-linear-gradient(90deg, rgba(255,170,230,.55) 0 2px, transparent 2px 7px); -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
-@keyframes ubur-apung { from { transform: translate(0, 0); } to { transform: translate(24px, -70px); } }
-.latar-hidup .ikan { position: absolute; left: -40px; top: var(--y); width: 26px; height: 10px; border-radius: 60% 40% 40% 60%; background: rgba(160,235,235,.55); animation: ikan-lewat calc(var(--t, 30s) * var(--kec, 1)) linear infinite; animation-delay: var(--d); }
-.latar-hidup .ikan::after { content: ""; position: absolute; left: -8px; top: 0; border: 5px solid transparent; border-right: 9px solid rgba(160,235,235,.55); border-left: 0; }
-@keyframes ikan-lewat { to { transform: translateX(125vw); } }
+.latar-hidup[data-jenis="laut"] .sinar { animation: sinar-goyang calc(14s * var(--kec, 1)) ease-in-out infinite alternate; transform-origin: 50% 0; }
+@keyframes sinar-goyang { from { transform: rotate(-2.5deg); opacity: .8; } to { transform: rotate(2.5deg); opacity: 1; } }
+.latar-hidup .plankton {
+    position: absolute; left: var(--x); top: var(--y); width: var(--s, 3px); height: var(--s, 3px); border-radius: 50%;
+    background: #aef5ff; box-shadow: 0 0 10px 3px rgba(110,230,255,.55); opacity: 0;
+    animation: plankton-hanyut calc(var(--t, 10s) * var(--kec, 1)) ease-in-out infinite; animation-delay: var(--d, 0s);
+}
+@keyframes plankton-hanyut {
+    0% { transform: translate(0, 0); opacity: 0; } 30% { opacity: .85; }
+    70% { opacity: .5; } 100% { transform: translate(var(--dx, 30px), -34px); opacity: 0; }
+}
 
 /* ---------- Campfire: api unggun, bara terbang ---------- */
 html[data-theme="campfire"]:not([data-hiasan="polos"]) .active-chat-room { background-image: linear-gradient(180deg, #0d0603 0%, #1c0d06 70%, #3a1706 100%); }
@@ -446,7 +456,7 @@ html[data-theme="goldenhour"]:not([data-hiasan="polos"]) .chat-bubble { box-shad
 html[data-theme="pastelparty"]:not([data-hiasan="polos"]) { --tinta: #4a3a63; }
 html[data-theme="pastelparty"] { font-family: ui-rounded, "Nunito", "Varela Round", "Segoe UI", system-ui, sans-serif; }
 html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .active-chat-room::after {
-    content: ""; inset: 0; z-index: 0;
+    content: ""; inset: 0; z-index: -1;
     background:
         radial-gradient(circle 5px at 8% 14%, #ffc4da 98%, transparent), radial-gradient(circle 4px at 22% 86%, #bfe1ff 98%, transparent),
         radial-gradient(circle 6px at 92% 22%, #dccbff 98%, transparent), radial-gradient(circle 4px at 80% 90%, #c2efdc 98%, transparent),

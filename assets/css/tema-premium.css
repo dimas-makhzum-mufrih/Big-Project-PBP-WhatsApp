@@ -950,9 +950,8 @@ html[data-objek="sembunyi"]:not([data-theme="terminal"]) .active-chat-room::afte
 html[data-objek="sembunyi"] .chat-bubble::after { display: none; }
 html[data-objek="sembunyi"][data-theme="sunflower"] .active-chat-room::before,
 html[data-objek="sembunyi"][data-theme="sunflower"] .active-chat-room::after,
-html[data-objek="sembunyi"] .latar-hidup .kupu,
-html[data-objek="sembunyi"] .latar-hidup .ubur,
-html[data-objek="sembunyi"] .latar-hidup .ikan,
+html[data-objek="sembunyi"] .latar-hidup .serbuk,
+html[data-objek="sembunyi"] .latar-hidup .plankton,
 html[data-objek="sembunyi"] .latar-hidup .bara { display: none; }
 
 /* pratinjau tema (kartu) */

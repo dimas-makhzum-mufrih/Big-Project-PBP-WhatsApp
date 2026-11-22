@@ -1,0 +1,16 @@
+
+
+/* ---------- Preview kartu tema bergaya ---------- */
+.pv-gameboy { --pv-bg: #9bbc0f; --pv-border: #306230; --pv-line: #0f380f; --pv-acc: #0f380f; }
+.pv-terminal { --pv-bg: #000; --pv-border: #0f4a1f; --pv-line: #1fa84a; --pv-acc: #33ff66; }
+.pv-synthwave { --pv-bg: linear-gradient(180deg,#140826,#5a1a6a); --pv-border: #3a1a66; --pv-line: #2de2e6; --pv-acc: #ff3cac; }
+.pv-nebula { --pv-bg: linear-gradient(150deg,#08071a,#3a2f8f); --pv-border: #2a2870; --pv-line: #6a5ad0; --pv-acc: #9d7bff; }
+.pv-supernova { --pv-bg: linear-gradient(150deg,#14060f,#a8216a 70%,#ff8a4a); --pv-border: #5a1a48; --pv-line: #a8216a; --pv-acc: #ff4fa8; }
+.pv-stardust { --pv-bg: #07070c; --pv-border: #25252f; --pv-line: #3a3320; --pv-acc: #e8c874; }
+.pv-lavender { --pv-bg: #f6f2fc; --pv-border: #e3d9f4; --pv-line: #dccbff; --pv-acc: #9b7fd6; }
+.pv-sunflower { --pv-bg: #fff8e1; --pv-border: #f0e2a8; --pv-line: #fbe08a; --pv-acc: #f5b800; }
+.pv-lotus { --pv-bg: linear-gradient(180deg,#fff3f7,#cfe9d9); --pv-border: #f6d6e3; --pv-line: #fbc9dc; --pv-acc: #f08fb0; }
+.pv-rainy { --pv-bg: linear-gradient(150deg,#0d1620,#34526d); --pv-border: #223140; --pv-line: #4a6a85; --pv-acc: #7fb6d9; }
+.pv-ocean { --pv-bg: linear-gradient(180deg,#0a6f86,#021c28); --pv-border: #0f4558; --pv-line: #1aa0a8; --pv-acc: #3dd6d0; }
+.pv-campfire { --pv-bg: linear-gradient(180deg,#0d0603,#6a2f10); --pv-border: #3a2012; --pv-line: #6a2f10; --pv-acc: #ff8a2a; }
+.pv-goldenhour { --pv-bg: linear-gradient(160deg,#3b2a5e,#f08a6a 45%,#4aa8ec 75%,#0b1640); --pv-border: #8a5a7a; --pv-line: #ffe0b0; --pv-acc: #ffd27a; }
