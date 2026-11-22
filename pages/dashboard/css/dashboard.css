@@ -132,7 +132,7 @@ input {
 .dropdown-option .ikon {
     width: 18px;
     height: 18px;
-    color: var(--warna-utama)
+    color: var(--aksen-teks)
 }
 
 .dropdown-sekat {
@@ -181,7 +181,7 @@ input {
 }
 
 .tab.aktif {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     border-color: var(--warna-utama);
     font-weight: 600
 }
@@ -378,4 +378,5 @@ input {
     margin: 24px 16px;
     text-align: center;
     line-height: 1.5
+
 }
