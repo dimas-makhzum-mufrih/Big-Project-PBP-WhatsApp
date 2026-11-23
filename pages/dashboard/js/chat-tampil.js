@@ -127,6 +127,17 @@ function renderChatList() {
     });
 }
 
+// Tingkat panjang pesan (1 sampai 4). Dipakai tema (Maple Amber, Pastel Party)
+// untuk mewarnai bubble milik pengirim. Pesan lawan bicara tidak diberi warna.
+function tingkatPesan(item) {
+    const panjang = String(item && item.text ? item.text : '').trim().length;
+
+    if (panjang <= 30) return 1;
+    if (panjang <= 80) return 2;
+    if (panjang <= 160) return 3;
+    return 4;
+}
+
 function renderPesanAktif() {
     if (!boxListPesan || !chatAktifId) return;
 
@@ -165,6 +176,11 @@ function renderPesanAktif() {
             labelTeruskan.className = 'message-forwarded-label';
             labelTeruskan.textContent = 'Diteruskan';
             bubble.appendChild(labelTeruskan);
+        }
+
+        // Atribut untuk tema: hanya pesan keluar yang berwarna
+        if (item.sender === userAktif.id) {
+            bubble.dataset.tingkat = String(tingkatPesan(item));
         }
 
         if (punyaGambar) {
