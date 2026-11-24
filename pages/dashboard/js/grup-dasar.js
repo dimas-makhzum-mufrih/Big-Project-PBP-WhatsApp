@@ -587,6 +587,33 @@
                 return baru;
             });
         },
+        async editPesan(id, channelId, idPesan, isi) {
+            return transaksiGrup(() => {
+                if (getUserAktif()?.id !== userAktif.id)
+                    throw new Error('Sesi berakhir. Silakan masuk kembali.');
+                const g = grupLokal(id);
+                const pesan = pesanUntuk(g).find((p) => p.id === idPesan);
+                if (!pesan || pesan.jenis === 'aktivitas' || pesan.pengirimId !== userAktif.id)
+                    throw new Error('Pesan tidak ditemukan atau bukan milik kamu.');
+                const channelPesan = pesan.channelId || g.ruang?.channels.find((c) => c.bawaan)?.id;
+                if (channelPesan !== channelId || !g.ruang?.channels.some((c) => c.id === channelId && c.jenis === 'teks'))
+                    throw new Error('Pesan atau channel sudah tidak tersedia.');
+                const umur = Date.now() - pesan.dibuat;
+                if (!Number.isFinite(pesan.dibuat) || umur < 0 || umur > BATAS_WAKTU_EDIT_PESAN)
+                    throw new Error('Batas waktu edit 5 menit sejak pesan dikirim sudah habis.');
+                const teks = String(isi || '').trim();
+                if (!teks || teks.length > 4000)
+                    throw new Error('Isi pesan wajib diisi, maksimal 4000 karakter.');
+                if (teks === pesan.isi) return pesan;
+                const baru = { ...pesan, isi: teks, editedAt: new Date().toISOString() };
+                try {
+                    localStorage.setItem(awalPesan(id) + encodeURIComponent(pesan.id), JSON.stringify(baru));
+                } catch (_) {
+                    throw new Error('Perubahan gagal disimpan. Silakan coba lagi.');
+                }
+                return baru;
+            });
+        },
         async tandaiStatus(id, dibaca, channelId = null) {
             const g = grupLokal(id);
             pesanUntuk(g)
