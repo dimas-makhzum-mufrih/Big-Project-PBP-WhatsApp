@@ -1,6 +1,6 @@
 /**
  * NGUMPUL - Efek & latar hidup tema (dashboard saja, dimuat otomatis oleh theme.js)
- *  - latar hidup di belakang chat: Nebula/Stardust (paralaks berlapis), Lavender (ladang + kupu-kupu),
+ *  - latar hidup di belakang chat: Nebula/Stardust (paralaks berlapis), Lavender (ladang + serbuk sari), Sunflower (ladang bunga matahari),
  *    Lotus (kolam + riak), Rainy Window (kaca berembun bisa diusap), Deep Ocean, Campfire
  *  - efek saat pesan terkirim (bintang, riak, kelopak, kilat, konfeti, gelembung, percikan, air)
  *  - matahari Sunflower mengikuti jam, boot Terminal
@@ -143,17 +143,102 @@
         }
         host.appendChild(svg);
         if (objekTampil()) {
-            var w = ["#f0a6d8", "#ffd27a", "#9fd0ff"];
-            for (i = 0; i < Math.max(2, Math.round(3 * m)); i++) {
-                var k = el("div", "kupu");
-                k.style.setProperty("--y", acak(15, 60).toFixed(0) + "%");
-                k.style.setProperty("--w", w[i % w.length]);
-                k.style.setProperty("--t", acak(24, 38).toFixed(0) + "s");
-                k.style.setProperty("--d", (-acak(0, 30)).toFixed(0) + "s");
-                k.appendChild(el("i")); k.appendChild(el("i"));
-                host.appendChild(k);
+            // serbuk sari: titik cahaya kecil yang melayang naik pelan dari ladang
+            for (i = 0; i < Math.round(16 * m); i++) {
+                var sb = el("i", "serbuk");
+                sb.style.setProperty("--x", acak(3, 97).toFixed(0) + "%");
+                sb.style.setProperty("--s", acak(2, 5).toFixed(1) + "px");
+                sb.style.setProperty("--t", acak(11, 22).toFixed(0) + "s");
+                sb.style.setProperty("--d", (-acak(0, 22)).toFixed(0) + "s");
+                sb.style.setProperty("--dx", acak(-40, 40).toFixed(0) + "px");
+                host.appendChild(sb);
             }
         }
+        return null;
+    }
+
+    // ---- Sunflower (ladang bunga matahari, kepala condong ke arah matahari) ----
+    var kepalaSurya = [];
+    function arahSurya() {
+        var m = parseFloat(room.style.getPropertyValue("--mt-x"));
+        return isNaN(m) ? 70 : m;
+    }
+    function condongkan() {
+        var sx = arahSurya();
+        kepalaSurya.forEach(function (k) {
+            var d = Math.max(-1, Math.min(1, (sx - k.px) / 55));
+            k.g.setAttribute("transform", "rotate(" + (d * 16).toFixed(1) + " " + k.cx + " " + k.cy + ")");
+        });
+    }
+    function bunMatahari(host, W, H) {
+        kepalaSurya = [];
+        if (!objekTampil()) return null;
+        var m = rapat(), tinggi = 210, i, j, k;
+        var svg = svgEl("svg", { viewBox: "0 0 " + W + " " + tinggi, width: W, height: tinggi, preserveAspectRatio: "none" });
+        var uid = "sf" + (++instansiKe);
+        var defs = svgEl("defs", {});
+        var rg = svgEl("radialGradient", { id: uid });
+        rg.appendChild(svgEl("stop", { offset: "0", "stop-color": "#3a2108" }));
+        rg.appendChild(svgEl("stop", { offset: "0.7", "stop-color": "#6a3f10" }));
+        rg.appendChild(svgEl("stop", { offset: "1", "stop-color": "#8a5618" }));
+        defs.appendChild(rg); svg.appendChild(defs);
+        var n = Math.max(7, Math.round(W / 52 * m));
+        var daftarB = [];
+        for (i = 0; i < n; i++) daftarB.push({ x: Math.min(W - 10, Math.max(10, (i + acak(0.1, 0.9)) * W / n)), d: Math.random() });
+        daftarB.sort(function (a, b) { return a.d - b.d; });   // belakang (kecil) dulu
+
+        function petal(cx, cy, r0, r1, w, jumlah, geser) {
+            var d = "";
+            for (var q = 0; q < jumlah; q++) {
+                var a = q * 6.2832 / jumlah + geser, c = Math.cos(a), sn = Math.sin(a);
+                var bx = cx + c * r0, by = cy + sn * r0, tx = cx + c * r1, ty = cy + sn * r1;
+                var mx = (bx + tx) / 2, my = (by + ty) / 2, px = -sn * w, py = c * w;
+                d += "M" + bx.toFixed(1) + "," + by.toFixed(1) + " Q" + (mx + px).toFixed(1) + "," + (my + py).toFixed(1) + " " + tx.toFixed(1) + "," + ty.toFixed(1) +
+                    " Q" + (mx - px).toFixed(1) + "," + (my - py).toFixed(1) + " " + bx.toFixed(1) + "," + by.toFixed(1) + "Z ";
+            }
+            return d;
+        }
+        daftarB.forEach(function (b) {
+            var sk = 0.55 + b.d * 0.65, x = b.x, h = (66 + b.d * 84 + acak(0, 24)), lean = acak(-7, 7);
+            var cx = x + lean, cy = tinggi - h, R = 18 * sk;
+            var g = svgEl("g", { "class": "goyang" });
+            g.style.transformOrigin = x.toFixed(0) + "px " + tinggi + "px";
+            g.style.setProperty("--d", (-acak(0, 4)).toFixed(1) + "s");
+            g.style.setProperty("--t", acak(3.4, 6) .toFixed(1) + "s");
+            g.style.opacity = (0.82 + b.d * 0.18).toFixed(2);
+            var hijau = b.d > 0.5 ? "#4f9238" : "#5aa043";
+            g.appendChild(svgEl("path", { d: "M" + x + "," + tinggi + " Q" + (x + lean * 0.3) + "," + (tinggi - h * 0.55) + " " + cx + "," + cy, stroke: hijau, "stroke-width": (2.6 * sk).toFixed(1), fill: "none", "stroke-linecap": "round" }));
+            // daun
+            var ly = tinggi - h * 0.42, ls = 15 * sk;
+            g.appendChild(svgEl("path", { d: "M" + (x + lean * 0.2) + "," + ly + " q" + (-ls * 1.5) + "," + (-ls * 0.9) + " " + (-ls * 2) + "," + (ls * 0.2) + " q" + (ls * 1.2) + "," + (ls * 0.7) + " " + (ls * 2) + "," + (-ls * 0.2) + "z", fill: "#6cb04a" }));
+            g.appendChild(svgEl("path", { d: "M" + (x + lean * 0.35) + "," + (ly - ls * 0.9) + " q" + (ls * 1.5) + "," + (-ls * 0.9) + " " + (ls * 2) + "," + (ls * 0.2) + " q" + (-ls * 1.2) + "," + (ls * 0.7) + " " + (-ls * 2) + "," + (-ls * 0.2) + "z", fill: "#5da53f" }));
+            // kepala
+            var kg = svgEl("g", {});
+            kg.appendChild(svgEl("path", { d: petal(cx, cy, R * 0.55, R * 1.45, R * 0.34, 18, 0.1), fill: "#ee9d00" }));
+            kg.appendChild(svgEl("path", { d: petal(cx, cy, R * 0.5, R * 1.28, R * 0.32, 18, 0.1 + 0.17), fill: "#ffc81a" }));
+            kg.appendChild(svgEl("circle", { cx: cx, cy: cy, r: R * 0.62, fill: "url(#" + uid + ")" }));
+            var biji = "";
+            for (k = 1; k <= 14; k++) {
+                var rr = R * 0.5 * Math.sqrt(k / 14), th = k * 2.39996;
+                biji += "M" + (cx + Math.cos(th) * rr - 0.9).toFixed(1) + "," + (cy + Math.sin(th) * rr).toFixed(1) + " a0.9,0.9 0 1,0 1.8,0 a0.9,0.9 0 1,0 -1.8,0 ";
+            }
+            kg.appendChild(svgEl("path", { d: biji, fill: "#2a1606", opacity: 0.75 }));
+            g.appendChild(kg);
+            svg.appendChild(g);
+            kepalaSurya.push({ g: kg, px: x / W * 100, cx: cx, cy: cy });
+        });
+        host.appendChild(svg);
+        // serbuk sari
+        for (j = 0; j < Math.round(12 * m); j++) {
+            var sb = el("i", "serbuk kuning");
+            sb.style.setProperty("--x", acak(3, 97).toFixed(0) + "%");
+            sb.style.setProperty("--s", acak(2, 4.5).toFixed(1) + "px");
+            sb.style.setProperty("--t", acak(12, 24).toFixed(0) + "s");
+            sb.style.setProperty("--d", (-acak(0, 24)).toFixed(0) + "s");
+            sb.style.setProperty("--dx", acak(-40, 40).toFixed(0) + "px");
+            host.appendChild(sb);
+        }
+        condongkan();
         return null;
     }
 
@@ -162,7 +247,7 @@
     function lotus(host, W, H) {
         var C = kanvas(host, W, H), x = C.x;
         var m = rapat();
-        var ripples = [], drops = [], pads = [], flowers = [], koi = [], i;
+        var ripples = [], drops = [], pads = [], flowers = [], i;
 
         function posBubble(b) {
             var rr = room.getBoundingClientRect(), br = b.getBoundingClientRect();
@@ -185,7 +270,6 @@
                 pads.push({ x: W * sisi, y: H * acak(0.6, 0.94), rx: acak(26, 44), rot: acak(0, 6.28), ph: acak(0, 6.28) });
             }
             for (i = 0; i < Math.min(3, np); i++) flowers.push({ pad: pads[i], s: acak(0.8, 1.15), c: pilih(["#ff9dc4", "#ffc2dc", "#fff0f6"]) });
-            koi = [{ ph: 0, c: "#ff8a3d", b: 1.0 }, { ph: 3.4, c: "#ffd9b0", b: 0.85 }];
         }
 
         function daun(p, t) {
@@ -210,20 +294,6 @@
             x.globalAlpha = 1; x.fillStyle = "#ffe27a"; x.beginPath(); x.arc(0, -4, 4, 0, 6.3); x.fill();
             x.restore();
         }
-        function ikan(k, t) {
-            var a = t * 0.00017 + k.ph, b = t * 0.00023 + k.ph * 1.7;
-            var px = W * (0.5 + 0.42 * Math.sin(a)), py = H * (0.62 + 0.28 * Math.sin(b));
-            var dx = Math.cos(a) * 0.42 * W * 0.00017, dy = Math.cos(b) * 0.28 * H * 0.00023;
-            var ang = Math.atan2(dy, dx), wig = Math.sin(t / 220 + k.ph) * 0.35;
-            x.save(); x.translate(px, py); x.rotate(ang); x.globalAlpha = 0.7;
-            x.fillStyle = k.c;
-            x.beginPath(); x.ellipse(0, 0, 18 * k.b, 6 * k.b, 0, 0, 6.3); x.fill();
-            x.save(); x.translate(-17 * k.b, 0); x.rotate(wig);
-            x.beginPath(); x.moveTo(2, 0); x.lineTo(-12 * k.b, -6 * k.b); x.lineTo(-12 * k.b, 6 * k.b); x.closePath(); x.fill(); x.restore();
-            x.fillStyle = "rgba(255,255,255,.75)"; x.beginPath(); x.ellipse(3, 0, 6 * k.b, 3 * k.b, 0, 0, 6.3); x.fill();
-            x.restore();
-        }
-
         var ambien = 0;
         return {
             update: function (t, dt, diam) {
@@ -240,7 +310,6 @@
                     }
                     x.stroke();
                 }
-                koi.forEach(function (k) { ikan(k, t); });
                 pads.forEach(function (p) { daun(p, t); });
                 flowers.forEach(function (f) { bunga(f, t); });
 
@@ -277,14 +346,41 @@
         };
     }
 
-    // ---- Rainy Window (kabut + tetes, bisa diusap) ----
+    // ---- Rainy Window (kaca berembun: tetes menyatu & meluncur, hujan di balik kaca, kilat, bisa diusap) ----
     function hujan(host, W, H) {
         var F = kanvas(host, W, H), D = kanvas(host, W, H);
         var fx = F.x, dx = D.x, level = attr("hujan", "gerimis");
-        var beads = [], tetes = [], i;
-        function kabut() { fx.globalCompositeOperation = "source-over"; fx.fillStyle = "rgba(170,192,212,.42)"; fx.fillRect(0, 0, W, H); }
+        var deras = level === "deras", hidup = level !== "mati";
+        var statis = [], gelincir = [], garis = [], i;
+        var BOKEH = ["255,190,90", "90,200,255", "255,90,170", "255,230,140", "120,255,200"];
+        var kilatEl = el("div", "kilat-hujan");
+        host.appendChild(kilatEl);
+
+        function kabut() {
+            var g = fx.createLinearGradient(0, 0, 0, H);
+            g.addColorStop(0, "rgba(160,184,208,.30)"); g.addColorStop(1, "rgba(176,199,219,.58)");
+            fx.globalCompositeOperation = "source-over"; fx.fillStyle = g; fx.fillRect(0, 0, W, H);
+        }
         kabut();
-        for (i = 0; i < Math.round(55 * rapat()); i++) beads.push({ x: acak(0, W), y: acak(0, H), r: acak(1.2, 3) });
+        function tetesBaru(px, py, r) { return { x: px, y: py, r: r, c: BOKEH[Math.floor(Math.random() * BOKEH.length)] }; }
+        var n0 = Math.min(240, Math.round(W * H / 3600 * rapat()));
+        for (i = 0; i < n0; i++) statis.push(tetesBaru(acak(0, W), acak(0, H), 1.1 + Math.pow(Math.random(), 2.1) * 5.4));
+        var nGaris = hidup ? Math.round((deras ? 90 : 30) * rapat()) : 0;
+        for (i = 0; i < nGaris; i++) garis.push({ x: acak(-40, W), y: acak(0, H), v: acak(900, 1500), p: acak(20, 52), a: acak(0.1, 0.3) });
+
+        // satu tetes kaca: bayangan, badan bening, pantulan lampu kota di tepi bawah, kilau
+        function gambar(d, melar) {
+            var r = d.r, ry = r * (melar || 1.0);
+            dx.fillStyle = "rgba(0,0,0,.16)"; dx.beginPath(); dx.ellipse(d.x, d.y + r * 0.35, r * 1.05, ry * 1.05, 0, 0, 6.3); dx.fill();
+            var g = dx.createRadialGradient(d.x - r * 0.25, d.y - ry * 0.35, r * 0.1, d.x, d.y, ry * 1.1);
+            g.addColorStop(0, "rgba(235,246,255,.34)"); g.addColorStop(0.7, "rgba(200,225,245,.16)"); g.addColorStop(1, "rgba(150,185,215,.3)");
+            dx.fillStyle = g; dx.beginPath(); dx.ellipse(d.x, d.y, r, ry, 0, 0, 6.3); dx.fill();
+            dx.strokeStyle = "rgba(255,255,255,.32)"; dx.lineWidth = 0.8; dx.stroke();
+            if (r > 2) {
+                dx.fillStyle = "rgba(" + d.c + ",.42)"; dx.beginPath(); dx.ellipse(d.x + r * 0.1, d.y + ry * 0.45, r * 0.5, ry * 0.26, 0, 0, 6.3); dx.fill();
+            }
+            dx.fillStyle = "rgba(255,255,255,.88)"; dx.beginPath(); dx.arc(d.x - r * 0.3, d.y - ry * 0.4, Math.max(0.6, r * 0.2), 0, 6.3); dx.fill();
+        }
 
         function usap(px, py, r) {
             fx.globalCompositeOperation = "destination-out";
@@ -295,44 +391,74 @@
         }
         function onMove(e) {
             var rr = room.getBoundingClientRect();
-            usap(e.clientX - rr.left, e.clientY - rr.top, 26);
+            usap(e.clientX - rr.left, e.clientY - rr.top, 28);
         }
         if (mode() === "penuh") room.addEventListener("pointermove", onMove, { passive: true });
 
-        var regrow = 0;
-        function tetes1(big) {
-            tetes.push({ x: acak(0, W), y: acak(-10, H * 0.5), r: big ? acak(3.2, 5.2) : acak(2, 3.4), v: 0, tunggu: acak(0.2, 1.8) });
+        var regrow = 0, tKilat = acak(7, 16), tKilatHapus = null;
+        function luncurkan() {
+            gelincir.push({ x: acak(0, W), y: acak(-10, H * 0.45), r: deras ? acak(3, 5.4) : acak(2.4, 4.2), v: 0, tunggu: acak(0.1, 1.6), c: BOKEH[Math.floor(Math.random() * BOKEH.length)], jejak: 0 });
         }
         return {
             update: function (t, dt, diam) {
-                var sp = kec();
+                var sp = kec(), a, d, k;
                 dx.clearRect(0, 0, W, H);
-                // tumbuh kembali embun
-                regrow -= dt;
-                if (regrow <= 0 && !diam) { regrow = 0.8; fx.fillStyle = "rgba(170,192,212,.02)"; fx.fillRect(0, 0, W, H); }
-                var laju = level === "deras" ? 0.5 : level === "gerimis" ? 0.1 : 0;
-                if (!diam && Math.random() < laju * sp && tetes.length < 70) tetes1(level === "deras");
-                beads.forEach(function (b) {
-                    dx.fillStyle = "rgba(210,230,250,.3)"; dx.beginPath(); dx.arc(b.x, b.y, b.r, 0, 6.3); dx.fill();
-                    dx.fillStyle = "rgba(255,255,255,.65)"; dx.beginPath(); dx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.35, 0, 6.3); dx.fill();
-                });
-                for (i = tetes.length - 1; i >= 0; i--) {
-                    var d = tetes[i];
+                if (!diam && hidup) {
+                    // embun tumbuh kembali pelan
+                    regrow -= dt;
+                    if (regrow <= 0) { regrow = 0.8; fx.fillStyle = "rgba(170,192,212,.025)"; fx.fillRect(0, 0, W, H); }
+                    if (Math.random() < (deras ? 0.32 : 0.06) * sp && gelincir.length < (deras ? 38 : 12)) luncurkan();
+                    // kilat (deras saja)
+                    if (deras) {
+                        tKilat -= dt;
+                        if (tKilat <= 0) {
+                            tKilat = acak(9, 22);
+                            kilatEl.classList.remove("nyala"); void kilatEl.offsetWidth; kilatEl.classList.add("nyala");
+                        }
+                    }
+                }
+                // hujan di balik kaca
+                if (nGaris) {
+                    dx.lineWidth = 1; dx.lineCap = "round";
+                    for (i = 0; i < garis.length; i++) {
+                        a = garis[i];
+                        if (!diam) { a.y += a.v * dt * sp; a.x -= a.v * dt * sp * 0.18; if (a.y > H + 40) { a.y = -40; a.x = acak(0, W + 80); } }
+                        dx.strokeStyle = "rgba(205,228,250," + a.a.toFixed(2) + ")";
+                        dx.beginPath(); dx.moveTo(a.x, a.y); dx.lineTo(a.x + a.p * 0.18, a.y - a.p); dx.stroke();
+                    }
+                }
+                // tetes diam
+                for (i = 0; i < statis.length; i++) gambar(statis[i]);
+                // tetes meluncur: menyerap tetes diam, meninggalkan jejak bersih + titik kecil
+                for (i = gelincir.length - 1; i >= 0; i--) {
+                    d = gelincir[i];
                     if (!diam) {
                         if (d.tunggu > 0) d.tunggu -= dt;
                         else {
-                            d.v = Math.min(d.v + (Math.random() < 0.08 ? acak(80, 260) : -30) * dt, 340 * sp);
-                            if (d.v < 8) { d.v = 0; d.tunggu = acak(0.1, 1.2); }
+                            d.v = Math.min(d.v + (Math.random() < 0.1 ? acak(90, 300) : -40) * dt * 6, (deras ? 460 : 330) * sp);
+                            if (d.v < 10) { d.v = 0; d.tunggu = acak(0.1, 1.1); }
                             var oy = d.y; d.y += d.v * dt * sp;
-                            // jejak: usap kabut tipis
-                            fx.globalCompositeOperation = "destination-out"; fx.strokeStyle = "rgba(0,0,0,.55)"; fx.lineWidth = d.r * 1.3; fx.lineCap = "round";
+                            fx.globalCompositeOperation = "destination-out"; fx.strokeStyle = "rgba(0,0,0,.6)"; fx.lineWidth = d.r * 1.35; fx.lineCap = "round";
                             fx.beginPath(); fx.moveTo(d.x, oy); fx.lineTo(d.x, d.y); fx.stroke(); fx.globalCompositeOperation = "source-over";
+                            d.jejak += d.y - oy;
+                            if (d.jejak > 22 && d.r > 2.4) {
+                                d.jejak = 0; d.r *= 0.985;
+                                if (statis.length < n0 + 260) statis.push(tetesBaru(d.x + acak(-1, 1), d.y - d.r * 1.8, acak(0.7, 1.5)));
+                            }
+                            for (k = statis.length - 1; k >= 0; k--) {
+                                var s = statis[k], jx = s.x - d.x, jy = s.y - d.y;
+                                if (jx * jx + jy * jy < (d.r + s.r) * (d.r + s.r) * 0.8) {
+                                    d.r = Math.min(7.5, Math.sqrt(d.r * d.r + s.r * s.r * 0.7)); statis.splice(k, 1);
+                                }
+                            }
                         }
                     }
-                    if (d.y > H + 10) { tetes.splice(i, 1); continue; }
-                    dx.fillStyle = "rgba(215,235,255,.35)"; dx.beginPath(); dx.ellipse(d.x, d.y, d.r * 0.85, d.r * 1.25, 0, 0, 6.3); dx.fill();
-                    dx.strokeStyle = "rgba(255,255,255,.5)"; dx.lineWidth = 1; dx.stroke();
-                    dx.fillStyle = "rgba(255,255,255,.8)"; dx.beginPath(); dx.arc(d.x - d.r * 0.25, d.y - d.r * 0.4, d.r * 0.3, 0, 6.3); dx.fill();
+                    if (d.y > H + 12) {
+                        gelincir.splice(i, 1);
+                        if (statis.length < n0 + 260) statis.push(tetesBaru(acak(0, W), acak(0, H * 0.4), 1 + Math.pow(Math.random(), 2.4) * 3));
+                        continue;
+                    }
+                    gambar(d, 1.45);
                 }
             },
             resik: function () { room.removeEventListener("pointermove", onMove); }
@@ -353,19 +479,16 @@
             host.appendChild(g);
         }
         if (objekTampil()) {
-            for (i = 0; i < Math.max(1, Math.round(2 * m)); i++) {
-                var u = el("div", "ubur");
-                u.style.setProperty("--x", acak(8, 88).toFixed(0) + "%");
-                u.style.setProperty("--y", acak(30, 75).toFixed(0) + "%");
-                u.style.setProperty("--t", acak(8, 13).toFixed(0) + "s");
-                host.appendChild(u);
-            }
-            for (i = 0; i < Math.round(4 * m); i++) {
-                var f = el("div", "ikan");
-                f.style.setProperty("--y", acak(15, 85).toFixed(0) + "%");
-                f.style.setProperty("--t", acak(24, 44).toFixed(0) + "s");
-                f.style.setProperty("--d", (-acak(0, 40)).toFixed(0) + "s");
-                host.appendChild(f);
+            // plankton bercahaya: titik kecil yang hanyut pelan di arus
+            for (i = 0; i < Math.round(22 * m); i++) {
+                var pl = el("i", "plankton");
+                pl.style.setProperty("--x", acak(2, 98).toFixed(0) + "%");
+                pl.style.setProperty("--y", acak(8, 92).toFixed(0) + "%");
+                pl.style.setProperty("--s", acak(2, 4.5).toFixed(1) + "px");
+                pl.style.setProperty("--t", acak(7, 15).toFixed(0) + "s");
+                pl.style.setProperty("--d", (-acak(0, 15)).toFixed(0) + "s");
+                pl.style.setProperty("--dx", acak(-50, 50).toFixed(0) + "px");
+                host.appendChild(pl);
             }
         }
         return null;
@@ -386,7 +509,7 @@
         return null;
     }
 
-    var PEMBANGUN = { nebula: nebula, stardust: stardust, lavender: lavender, lotus: lotus, hujan: hujan, laut: laut, api: api };
+    var PEMBANGUN = { nebula: nebula, stardust: stardust, lavender: lavender, sunflower: bunMatahari, lotus: lotus, hujan: hujan, laut: laut, api: api };
 
     function hentikan() {
         if (latar) {
@@ -531,7 +654,7 @@
         room.style.setProperty("--mt-y", y.toFixed(1) + "%");
     }
     posisiMatahari();
-    setInterval(posisiMatahari, 60000);
+    setInterval(function () { posisiMatahari(); condongkan(); }, 60000);
 
     // ---------- boot Terminal ----------
     var temaTerakhir = html.getAttribute("data-theme");
@@ -548,7 +671,7 @@
     });
     }
 
-    var kamar = [["panel-chat-aktif", "box-list-pesan"], ["ruang-channel-grup", "ruang-messages"]];
+    var kamar = [["panel-chat-aktif", "box-list-pesan"], ["ruang-channel-grup", "ruang-messages"], ["ruang-call", null]];
     kamar.forEach(function (k, n) {
         var r = document.getElementById(k[0]);
         if (r) pasang(r, document.getElementById(k[1]), n === 0);

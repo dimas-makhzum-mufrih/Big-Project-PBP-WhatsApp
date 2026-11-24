@@ -563,20 +563,21 @@ html[data-theme="lemonlime"] {
    Warna dasar (background-color) tetap dari variabel, gradasi hanya
    ditumpuk sebagai gambar di atasnya.
    ===================================================================== */
-.settings-panel-header,
-.profile-header,
-.account-header {
+/* awalan "html" menaikkan kekhususan supaya tetap menang walau CSS halaman (chat.css dll) dimuat sesudah berkas ini */
+html .settings-panel-header,
+html .profile-header,
+html .account-header {
     background-image: var(--grad-header, none);
 }
 
-.welcome-screen,
-.settings-slide-panel,
-.account-container,
-.profile-container {
+html .welcome-screen,
+html .settings-slide-panel,
+html .account-container,
+html .profile-container {
     background-image: var(--grad-latar, none);
 }
 
-.active-chat-room {
+html .active-chat-room {
     background-image: var(--bg-chat-gambar, none);
     background-size: var(--bg-chat-ukuran, auto);
 }

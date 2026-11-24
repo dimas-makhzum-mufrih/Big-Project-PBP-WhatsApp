@@ -265,6 +265,8 @@ input.salah {
 .tombol-kembali {
   margin: 0 0 14px;
   font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .catatan-demo {
@@ -309,8 +311,10 @@ input.salah {
   font-size: 20px;
   line-height: 1.45;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  transform: translate(-50%, calc(-100% - 20px));
-  transition: transform 0.3s ease;
+  transform: translate(-50%, calc(-100% - 60px));
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
 }
 
 #notif-otp-reset p {
@@ -323,6 +327,9 @@ input.salah {
 
 #notif-otp-reset.tampil {
   transform: translate(-50%, 0);
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 #notif-otp-reset b {

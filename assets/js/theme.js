@@ -66,7 +66,7 @@
         supernova: { nama: "Supernova", pack: "cosmos", premium: true, tone: "dark", gaya: true, efek: "bintang", genre: ["kosmos", "gelap", "gradasi", "efek"] },
         stardust: { nama: "Stardust", pack: "cosmos", premium: true, tone: "dark", gaya: true, latar: "stardust", efek: "bintang", genre: ["kosmos", "gelap", "bergerak", "efek"] },
         lavender: { nama: "Lavender Field", pack: "bunga", premium: true, tone: "light", gaya: true, latar: "lavender", efek: "kelopak", genre: ["bunga", "terang", "pastel", "efek", "bergerak"] },
-        sunflower: { nama: "Sunflower", pack: "bunga", premium: true, tone: "light", gaya: true, genre: ["bunga", "terang", "waktu", "ceria"] },
+        sunflower: { nama: "Sunflower", pack: "bunga", premium: true, tone: "light", gaya: true, latar: "sunflower", genre: ["bunga", "terang", "waktu", "ceria"] },
         lotus: { nama: "Lotus Pond", pack: "bunga", premium: true, tone: "light", gaya: true, latar: "lotus", efek: "air", genre: ["bunga", "pastel", "elemen", "bergerak", "efek"] },
         rainy: { nama: "Rainy Window", pack: "elemen", premium: true, tone: "dark", gaya: true, latar: "hujan", genre: ["elemen", "gelap", "interaktif", "bergerak"] },
         ocean: { nama: "Deep Ocean", pack: "elemen", premium: true, tone: "dark", gaya: true, latar: "laut", efek: "gelembung", genre: ["elemen", "gelap", "bergerak", "efek"] },
@@ -188,6 +188,25 @@
         }
     }
     function muatGaya() { muatCss("tema-gaya"); }
+
+    // Skrip tambahan dashboard (efek tema, teks berformat) dimuat dari sini supaya dashboard.html tidak perlu diubah
+    function muatSkrip(nama, flag) {
+        if (!BASE || window[flag]) return;
+        window[flag] = true;
+        var s = document.createElement("script");
+        s.src = BASE + "js/" + nama + ".js";
+        s.defer = true;
+        document.head.appendChild(s);
+    }
+
+    // CSS tema dasar milik dashboard: dipasang otomatis kalau belum ada di HTML (kalau terhapus waktu merge, tampilan tidak polos)
+    function pastikanCssDashboard() {
+        if (!BASE || !/\/dashboard\//.test(location.pathname)) return;
+        ["themes", "tema-premium", "format-teks", "aksi-pesan"].forEach(function (n) {
+            if (document.querySelector('link[href$="/' + n + '.css"], link[href$="' + n + '.css"]')) return;
+            muatCss(n);
+        });
+    }
 
     function muatEfek() {
         if (!BASE || window.__ngumpulEfek) return;
@@ -381,10 +400,11 @@
     }
 
     // Terapkan langsung saat script jalan (di <head>) supaya tidak berkedip
+    pastikanCssDashboard();
     apply();
 
     document.addEventListener("DOMContentLoaded", function () {
-        if (document.getElementById("panel-chat-aktif")) muatEfek();
+        if (document.getElementById("panel-chat-aktif")) { muatEfek(); muatSkrip("format-teks", "__ngumpulFormat"); muatSkrip("aksi-pesan", "__ngumpulAksiPesanMuat"); }
         document.querySelectorAll("[data-theme-toggle]").forEach(function (button) {
             button.addEventListener("click", toggleTheme);
         });
