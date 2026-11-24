@@ -44,6 +44,7 @@ function tampilkanInfoPengguna() {
     banner.style.backgroundImage = urlBanner ? 'url("' + urlBanner + '")' : '';
     perbaruiKontrolBlokir();
     perbaruiKontrolKontak();
+    if (typeof perkayaPanelInfoPengguna === 'function') perkayaPanelInfoPengguna(chatAktifId);
 }
 
 if (btnInfoPengguna) btnInfoPengguna.addEventListener('click', () => {

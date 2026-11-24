@@ -2615,7 +2615,12 @@
     }
     callStarted = current?.started || null;
     if (current) {
-      $("ruang-call-name").textContent = current.nama;
+      const lawanPribadi = String(current.gid).startsWith("pribadi_")
+        ? state.participants.find((p) => p.akun && p.akun !== akun)
+        : null;
+      $("ruang-call-name").textContent = lawanPribadi
+        ? B.nama(lawanPribadi.akun)
+        : current.nama;
       call.querySelector("header span").textContent = current.grup;
       $("ruang-call-time").dataset.mode = state.participants.some(
         (p) => p.video,
@@ -2668,9 +2673,14 @@
     const message = e.detail;
     pendingInvite = message;
     clearTimeout(incomingTimer);
+    const pribadi = String(message.gid).startsWith("pribadi_");
     incoming.replaceChildren(
       el("h2", "", B.nama(message.akun)),
-      el("p", "", "Panggilan " + (message.video ? "video" : "suara") + " grup"),
+      el(
+        "p",
+        "",
+        "Panggilan " + (message.video ? "video" : "suara") + (pribadi ? "" : " grup"),
+      ),
     );
     const actions = el("div", "grup-form-aksi");
     actions.append(
@@ -2686,7 +2696,7 @@
         "Terima",
         async () => {
           incoming.close();
-          await open(message.gid, message.cid);
+          if (!pribadi) await open(message.gid, message.cid);
           await P.join(message.gid, message.cid, message.video);
           showCall(true);
         },
@@ -2974,6 +2984,18 @@
     if (location.hash.includes("undangan-grup=")) invite().catch(error);
   });
   const api = {
+    // Panggilan 1-lawan-1 dari daftar kontak / info profil, lewat ruang tersembunyi
+    async panggilPribadi(idLawan, video) {
+      try {
+        const g = await D.get((await B.layanan.grupPribadi(idLawan)).id);
+        const teks = g.ruang.channels.find((c) => c.jenis === "teks");
+        await startCall(!!video, true, g.id, teks.id);
+        return true;
+      } catch (e) {
+        toast(e.message || "Panggilan gagal dimulai.");
+        return false;
+      }
+    },
     prepareInfo() {
       closeDrawer(false);
       return rightPanelVersion;
