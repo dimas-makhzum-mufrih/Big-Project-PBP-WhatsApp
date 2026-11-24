@@ -171,6 +171,10 @@ function renderPesanAktif() {
             (punyaGambar ? ' ada-gambar' : '') +
             (punyaGambar && !adaTeks ? ' hanya-gambar' : '');
 
+        if (item.sender === userAktif.id) {
+            bubble.tabIndex = 0;
+            bubble.setAttribute('aria-haspopup', 'menu');
+            bubble.setAttribute('aria-controls', 'menu-edit-pesan');
         if (item.forwarded) {
             const labelTeruskan = document.createElement('span');
             labelTeruskan.className = 'message-forwarded-label';
@@ -273,6 +277,12 @@ function renderPesanAktif() {
 
         const footer = document.createElement('div');
         footer.className = 'message-footer';
+        if (item.editedAt) {
+            const diedit = document.createElement('span');
+            diedit.className = 'message-edited';
+            diedit.textContent = 'Diedit';
+            footer.appendChild(diedit);
+        }
         const waktu = document.createElement('span');
         waktu.className = 'timestamp';
         waktu.textContent = formatJamPesan(item.time);
@@ -400,6 +410,7 @@ function bukaChat(idLawan) {
     if (!getUserById(idLawan) || String(idLawan) === String(userAktif.id)) return;
 
     if (chatAktifId && chatAktifId !== idLawan) {
+        tutupEditPesan();
         tutupPreviewGambar();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
         aturPencarianPesanTerbuka(false, true, false);

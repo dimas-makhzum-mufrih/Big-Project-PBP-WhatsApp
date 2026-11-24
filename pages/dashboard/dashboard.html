@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/kontak.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/chat-edit.css">
     <link rel="stylesheet" href="css/setelan.css">
     <link rel="stylesheet" href="css/grup.css">
     <link rel="stylesheet" href="css/media.css">
@@ -1460,6 +1461,24 @@
         </footer>
     </div>
 
+    <!-- Menu klik kanan dan formulir edit pesan milik sendiri -->
+    <div id="menu-edit-pesan" class="message-context-menu" role="menu" aria-label="Aksi pesan" hidden>
+        <button type="button" id="btn-edit-pesan" role="menuitem">
+            <img src="../../assets/img/edit-pesan.png" width="22" height="22" alt="">
+            <span>Edit pesan</span>
+        </button>
+    </div>
+
+    <dialog id="dialog-edit-pesan" class="message-edit-dialog" aria-labelledby="judul-edit-pesan">
+        <form id="form-edit-pesan">
+            <h2 id="judul-edit-pesan">Edit pesan</h2>
+            <label for="input-edit-pesan">Pesan</label>
+            <textarea id="input-edit-pesan" rows="4" required aria-describedby="error-edit-pesan"></textarea>
+            <p id="error-edit-pesan" class="message-edit-error" role="alert"></p>
+            <div class="message-edit-actions">
+                <button type="button" id="btn-batal-edit-pesan">Batal</button>
+                <button type="submit" class="message-edit-save">Simpan</button>
+            </div>
     <dialog class="forward-message-dialog" id="dialog-teruskan-pesan" aria-labelledby="judul-teruskan-pesan"
         aria-describedby="instruksi-teruskan-pesan status-daftar-tujuan">
         <form class="forward-message-form" id="form-teruskan-pesan">
@@ -1497,6 +1516,7 @@
     <script src="js/chat-footer.js"></script>
     <script src="js/chat-gambar.js"></script>
     <script src="js/lightbox.js"></script>
+    <script src="js/chat-edit.js"></script>
     <script src="js/chat-aksi.js"></script>
     <script src="js/chat-teruskan.js"></script>
     <script src="js/setelan.js"></script>
