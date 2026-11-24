@@ -1460,6 +1460,34 @@
         </footer>
     </div>
 
+    <dialog class="forward-message-dialog" id="dialog-teruskan-pesan" aria-labelledby="judul-teruskan-pesan"
+        aria-describedby="instruksi-teruskan-pesan status-daftar-tujuan">
+        <form class="forward-message-form" id="form-teruskan-pesan">
+            <header class="forward-message-header">
+                <h2 id="judul-teruskan-pesan">Teruskan pesan</h2>
+                <button class="forward-message-close" id="btn-tutup-teruskan-pesan" type="button"
+                    aria-label="Tutup dialog penerusan">&times;</button>
+            </header>
+            <p class="forward-message-instruction" id="instruksi-teruskan-pesan">
+                Pilih satu atau beberapa kontak tujuan.
+            </p>
+            <label class="forward-message-search">
+                <span class="sr-only">Cari kontak</span>
+                <input id="input-cari-tujuan-teruskan" type="search" placeholder="Cari kontak..."
+                    autocomplete="off">
+            </label>
+            <p class="forward-list-status" id="status-daftar-tujuan" role="status" aria-live="polite"></p>
+            <div class="forward-contact-list" id="daftar-tujuan-teruskan"></div>
+            <p class="forward-group-note">Grup belum dapat dipilih karena fitur chat grup belum tersedia.</p>
+            <footer class="forward-message-footer">
+                <button class="forward-message-cancel" id="btn-batal-teruskan-pesan" type="button">Batal</button>
+                <button class="forward-message-submit" id="btn-konfirmasi-teruskan-pesan" type="submit" disabled>
+                    Teruskan
+                </button>
+            </footer>
+        </form>
+    </dialog>
+
     <script src="../../assets/js/kompat.js"></script>
     <script src="../../assets/js/storage.js"></script>
     <script src="../../assets/js/negara-data.js"></script>
@@ -1470,6 +1498,7 @@
     <script src="js/chat-gambar.js"></script>
     <script src="js/lightbox.js"></script>
     <script src="js/chat-aksi.js"></script>
+    <script src="js/chat-teruskan.js"></script>
     <script src="js/setelan.js"></script>
     <script src="js/kontak.js"></script>
     <script src="js/info-kontak.js"></script>
