@@ -285,6 +285,9 @@
     }
 
     function teruskan(pesan, pemicu) {
+        // salinan bersih: tanda "Diedit" dan sematan milik pesan asal tidak ikut terbawa
+        pesan = Object.assign({}, pesan);
+        delete pesan.editedAt;
         if (adaTeruskanBawaan()) { window.bukaDialogTeruskanPesan(pesan, pemicu); return; }
         if (!fw) fw = bangunFw();
         fw.pesan = Object.assign({}, pesan);

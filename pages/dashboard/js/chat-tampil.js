@@ -175,6 +175,7 @@ function renderPesanAktif() {
             bubble.tabIndex = 0;
             bubble.setAttribute('aria-haspopup', 'menu');
             bubble.setAttribute('aria-controls', 'menu-edit-pesan');
+        }
         if (item.forwarded) {
             const labelTeruskan = document.createElement('span');
             labelTeruskan.className = 'message-forwarded-label';
