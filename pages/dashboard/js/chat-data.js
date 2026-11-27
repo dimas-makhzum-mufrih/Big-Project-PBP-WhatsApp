@@ -30,6 +30,7 @@ function buatIndikatorStatusPesan(nilai) {
 // ===== Fitur Chat =====
 const KEY_CHAT = 'ngumpul_pesan';
 const KEY_PIN_PESAN = 'ngumpul_pesan_tersemat';
+const KEY_REAKSI_PESAN = 'ngumpul_reaksi_pesan';
 const KEY_BLOKIR = 'ngumpul_blokir_';
 const panelChatKosong = document.getElementById('panel-chat-kosong');
 const panelChatAktif = document.getElementById('panel-chat-aktif');
@@ -41,6 +42,10 @@ const inputCariChat = document.getElementById('input-cari-chat');
 const inputCariPesan = document.getElementById('input-cari-pesan');
 const panelCariPesan = document.getElementById('panel-cari-pesan');
 const hasilCariPesan = document.getElementById('hasil-cari-pesan');
+const panelPratinjauBalasan = document.getElementById('reply-composer-preview');
+const namaPengirimBalasan = document.getElementById('reply-composer-sender');
+const teksPratinjauBalasan = document.getElementById('reply-composer-text');
+const btnBatalBalasan = document.getElementById('btn-cancel-reply');
 const btnToggleCariPesan = document.getElementById('btn-toggle-cari-pesan');
 const btnTutupCariPesan = document.getElementById('btn-tutup-cari-pesan');
 const chatScrollArea = document.querySelector('.chat-scroll-area');
@@ -50,14 +55,11 @@ const btnBlokirPengguna = document.getElementById('btn-blokir-pengguna');
 const btnSimpanKontakChat = document.getElementById('btn-simpan-kontak-chat');
 const btnInfoPengguna = document.getElementById('btn-info-pengguna');
 const panelInfoPengguna = document.getElementById('panel-info-pengguna');
-const panelPratinjauBalasan = document.getElementById('reply-composer-preview');
-const namaPengirimBalasan = document.getElementById('reply-composer-sender');
-const teksPratinjauBalasan = document.getElementById('reply-composer-text');
-const btnBatalBalasan = document.getElementById('btn-cancel-reply');
 let chatAktifId = null;
 let timerSorotPesanCari = null;
 let idBalasanAktif = null;
 
+// ===== Balas pesan (chat pribadi) =====
 function ringkasanPesan(item) {
     const teks = String(item && item.text || '').trim();
     return teks || (isPesanBergambar(item) ? 'Foto' : '');
@@ -448,6 +450,36 @@ function simpanPesanChat(idLawan, daftarPesan) {
     const kunci = kunciKonversasi(userAktif.id, idLawan);
     semua[kunci] = Array.isArray(daftarPesan) ? daftarPesan : [];
     return simpanSemuaChat(semua);
+}
+
+// Membaca kumpulan reaksi pesan dari penyimpanan lokal.
+function bacaSemuaReaksiPesan() {
+    try {
+        const data = JSON.parse(localStorage.getItem(KEY_REAKSI_PESAN)) || {};
+        return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+    } catch (error) {
+        return {};
+    }
+}
+
+// Menyimpan reaksi pesan dan memberi tahu bagian UI untuk memperbarui tampilan.
+function simpanSemuaReaksiPesan(data) {
+    try {
+        localStorage.setItem(KEY_REAKSI_PESAN, JSON.stringify(data));
+        window.dispatchEvent(new CustomEvent('ngumpul:reaksi-pesan', { detail: { data } }));
+        return true;
+    } catch (error) {
+        console.warn('Tidak dapat menyimpan reaksi pesan:', error);
+        return false;
+    }
+}
+
+// Mengambil reaksi untuk satu pesan dalam percakapan tertentu.
+function ambilReaksiPesan(idLawan, pesanId) {
+    if (!userAktif || !idLawan || !pesanId) return {};
+    const percakapanId = kunciKonversasi(userAktif.id, idLawan);
+    const semuaReaksi = bacaSemuaReaksiPesan();
+    return semuaReaksi[percakapanId]?.[pesanId] || {};
 }
 
 function bacaSemuaPinPesan() {

@@ -1,0 +1,56 @@
+
+/* ===== Tambahan khusus ruang grup/server ===== */
+html[data-pack]:not([data-pack="dasar"]) .ruang-channel { position: relative; }
+html[data-pack]:not([data-pack="dasar"]) .ruang-header,
+html[data-pack]:not([data-pack="dasar"]) .ruang-composer,
+html[data-pack]:not([data-pack="dasar"]) .ruang-search { position: relative; z-index: 2; }
+html[data-pack]:not([data-pack="dasar"]) .ruang-messages { position: relative; z-index: 1; }
+
+/* sidebar channel: sapuan warna tema di atas, penanda channel aktif */
+html[data-pack]:not([data-pack="dasar"]) .ruang-sidebar {
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--warna-utama) 14%, transparent), transparent 38%);
+}
+html[data-pack]:not([data-pack="dasar"]) .ruang-group-header { background-image: var(--grad-header, none); }
+html[data-pack]:not([data-pack="dasar"]) .ruang-channel-row.aktif { box-shadow: inset 3px 0 0 var(--warna-utama); }
+html[data-pack]:not([data-pack="dasar"]) .grup-intro { border-color: color-mix(in srgb, var(--warna-utama) 45%, var(--border-warna)); }
+html[data-pack]:not([data-pack="dasar"]) .grup-intro-avatar { box-shadow: 0 0 0 4px color-mix(in srgb, var(--warna-utama) 22%, transparent); }
+html[data-pack]:not([data-pack="dasar"]) .ruang-call { background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--warna-utama) 30%, var(--bg-chat)), var(--bg-chat) 70%); }
+html[data-pack]:not([data-pack="dasar"]) .ruang-incoming { border: 1px solid color-mix(in srgb, var(--warna-utama) 50%, transparent); }
+
+/* Pastel Party: tebal, bulat, bayangan keras */
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .ruang-channel-row.aktif { border: 2.5px solid var(--tinta); border-radius: 999px; box-shadow: 2px 2px 0 var(--tinta); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .grup-intro { border: 2.5px solid var(--tinta); border-radius: 26px; box-shadow: 5px 5px 0 var(--tinta); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .ruang-icon { border: 2px solid var(--tinta); box-shadow: 2px 2px 0 var(--tinta); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .grup-date-divider time { border: 2px solid var(--tinta); border-radius: 999px; box-shadow: 2px 2px 0 var(--tinta); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .grup-intro-actions button { border: 2px solid var(--tinta); border-radius: 999px; box-shadow: 2px 2px 0 var(--tinta); }
+
+/* Terminal & Gameboy: kotak tegas */
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .ruang-sidebar *,
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .grup-intro,
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .grup-intro,
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .ruang-channel-row { border-radius: 0; }
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .ruang-hash::before { content: ">"; }
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .ruang-hash { font-size: 0; }
+html[data-theme="terminal"]:not([data-hiasan="polos"]) .ruang-hash::before { font-size: 1rem; }
+html[data-theme="gameboy"]:not([data-hiasan="polos"]) .grup-intro { border: 3px solid #0f380f; box-shadow: 4px 4px 0 #306230; }
+
+/* Synthwave & Supernova: neon */
+html[data-theme="synthwave"]:not([data-hiasan="polos"]) .ruang-channel-row.aktif,
+html[data-theme="supernova"]:not([data-hiasan="polos"]) .ruang-channel-row.aktif { box-shadow: inset 3px 0 0 var(--warna-utama), 0 0 14px color-mix(in srgb, var(--warna-utama) 45%, transparent); }
+html[data-theme="synthwave"]:not([data-hiasan="polos"]) .grup-intro { box-shadow: 0 0 22px color-mix(in srgb, var(--warna-utama) 40%, transparent); }
+
+/* Lotus, Lavender, Sunflower: lembut */
+html[data-theme="lotus"]:not([data-hiasan="polos"]) .grup-intro,
+html[data-theme="lavender"]:not([data-hiasan="polos"]) .grup-intro,
+html[data-theme="sunflower"]:not([data-hiasan="polos"]) .grup-intro { border-radius: 28px; box-shadow: 0 14px 30px -18px color-mix(in srgb, var(--warna-utama) 70%, transparent); }
+
+/* Rainy, Ocean, Campfire: kaca */
+html[data-theme="rainy"]:not([data-hiasan="polos"]) .grup-intro,
+html[data-theme="ocean"]:not([data-hiasan="polos"]) .grup-intro { backdrop-filter: blur(6px); background-color: color-mix(in srgb, var(--bg-putih) 70%, transparent); }
+html[data-theme="campfire"]:not([data-hiasan="polos"]) .ruang-channel-row.aktif { box-shadow: inset 3px 0 0 var(--warna-utama), 0 0 12px rgba(255, 130, 40, .25); }
+
+/* ===== Lapisan: hiasan di paling bawah, semua isi ruang (lobi suara, panel, pratinjau) di depannya ===== */
+html[data-pack]:not([data-pack="dasar"]) .ruang-channel { isolation: isolate; }
+html[data-pack]:not([data-pack="dasar"]) .ruang-call { isolation: isolate; }
+html[data-gaya] .ruang-channel::before, html[data-gaya] .ruang-channel::after,
+html[data-gaya] .ruang-call::before, html[data-gaya] .ruang-call::after { z-index: -1; }

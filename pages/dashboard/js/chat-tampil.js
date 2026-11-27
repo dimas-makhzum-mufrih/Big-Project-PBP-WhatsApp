@@ -127,6 +127,17 @@ function renderChatList() {
     });
 }
 
+// Tingkat panjang pesan (1 sampai 4). Dipakai tema (Maple Amber, Pastel Party)
+// untuk mewarnai bubble milik pengirim. Pesan lawan bicara tidak diberi warna.
+function tingkatPesan(item) {
+    const panjang = String(item && item.text ? item.text : '').trim().length;
+
+    if (panjang <= 30) return 1;
+    if (panjang <= 80) return 2;
+    if (panjang <= 160) return 3;
+    return 4;
+}
+
 function renderPesanAktif() {
     if (!boxListPesan || !chatAktifId) return;
 
@@ -147,7 +158,7 @@ function renderPesanAktif() {
         baris.className = 'message-row';
         baris.classList.add(item.sender === userAktif.id ? 'kirim' : 'terima');
         baris.dataset.messageIndex = String(index);
-        baris.dataset.messageId = item.id;
+        baris.dataset.messageId = String(item.id || '');
 
         const punyaGambar = isPesanBergambar(item);
         const teksIsi = String(item.text || '').trim();
@@ -160,28 +171,52 @@ function renderPesanAktif() {
             (punyaGambar ? ' ada-gambar' : '') +
             (punyaGambar && !adaTeks ? ' hanya-gambar' : '');
 
+        if (item.sender === userAktif.id) {
+            bubble.tabIndex = 0;
+            bubble.setAttribute('aria-haspopup', 'menu');
+            bubble.setAttribute('aria-controls', 'menu-edit-pesan');
+        }
+        if (item.forwarded) {
+            const labelTeruskan = document.createElement('span');
+            labelTeruskan.className = 'message-forwarded-label';
+            labelTeruskan.textContent = 'Diteruskan';
+            bubble.appendChild(labelTeruskan);
+        }
+
+        // Atribut untuk tema: hanya pesan keluar yang berwarna
+        if (item.sender === userAktif.id) {
+            bubble.dataset.tingkat = String(tingkatPesan(item));
+        }
+
         if (item.replyTo) {
             const pesanDikutip = pesan.find(pesanAsal => String(pesanAsal.id) === String(item.replyTo));
+            const kutipan = document.createElement('button');
+            kutipan.type = 'button';
+            kutipan.className = 'message-quoted-message' + (pesanDikutip ? '' : ' hilang');
+            const pengirimKutipan = document.createElement('strong');
+            const teksKutipan = document.createElement('span');
             if (pesanDikutip) {
-                const kutipan = document.createElement('button');
-                kutipan.type = 'button';
-                kutipan.className = 'message-quoted-message';
-                kutipan.setAttribute('aria-label', 'Lompat ke pesan dari ' + namaPengirimPesan(pesanDikutip));
-                const pengirimKutipan = document.createElement('strong');
                 pengirimKutipan.textContent = namaPengirimPesan(pesanDikutip);
-                const teksKutipan = document.createElement('span');
                 teksKutipan.textContent = ringkasanPesan(pesanDikutip);
-                kutipan.append(pengirimKutipan, teksKutipan);
-                kutipan.addEventListener('click', () => {
-                    const barisAsal = [...boxListPesan.children]
-                        .find(barisPesan => String(barisPesan.dataset.messageId) === String(pesanDikutip.id));
-                    if (!barisAsal) return;
-                    barisAsal.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                    barisAsal.classList.add('pesan-cari-terpilih');
-                    window.setTimeout(() => barisAsal.classList.remove('pesan-cari-terpilih'), 1000);
-                });
-                bubble.appendChild(kutipan);
+                kutipan.setAttribute('aria-label', 'Lompat ke pesan dari ' + pengirimKutipan.textContent);
+            } else {
+                pengirimKutipan.textContent = 'Pesan asli';
+                teksKutipan.textContent = 'Pesan tidak tersedia';
             }
+            kutipan.append(pengirimKutipan, teksKutipan);
+            kutipan.addEventListener('click', event => {
+                event.stopPropagation();
+                if (!pesanDikutip) return;
+                const barisAsal = [...boxListPesan.children]
+                    .find(barisPesan => String(barisPesan.dataset.messageId) === String(pesanDikutip.id));
+                if (!barisAsal) return;
+                barisAsal.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                barisAsal.classList.remove('ba-sorot');
+                void barisAsal.offsetWidth;
+                barisAsal.classList.add('ba-sorot');
+                window.setTimeout(() => barisAsal.classList.remove('ba-sorot'), 1400);
+            });
+            bubble.appendChild(kutipan);
         }
 
         if (punyaGambar) {
@@ -258,35 +293,92 @@ function renderPesanAktif() {
             }
         });
 
+        const btnTeruskan = document.createElement('button');
+        btnTeruskan.type = 'button';
+        btnTeruskan.className = 'btn-forward-message';
+        btnTeruskan.dataset.teruskanPesan = String(item.id || '');
+        btnTeruskan.title = item.id ? 'Teruskan pesan' : 'Pesan ini tidak dapat diteruskan';
+        btnTeruskan.setAttribute('aria-label', btnTeruskan.title);
+        btnTeruskan.disabled = !item.id;
+        const ikonTeruskan = document.createElement('img');
+        ikonTeruskan.className = 'forward-message-icon';
+        ikonTeruskan.src = '../../assets/img/forward-message.png';
+        ikonTeruskan.alt = '';
+        ikonTeruskan.setAttribute('aria-hidden', 'true');
+        btnTeruskan.appendChild(ikonTeruskan);
+
+        const footer = document.createElement('div');
+        footer.className = 'message-footer';
+        if (item.editedAt) {
+            const diedit = document.createElement('span');
+            diedit.className = 'message-edited';
+            diedit.textContent = 'Diedit';
+            footer.appendChild(diedit);
+        }
         const waktu = document.createElement('span');
         waktu.className = 'timestamp';
         waktu.textContent = formatJamPesan(item.time);
-
-        bubble.appendChild(btnPin);
-        const btnMenuPesan = document.createElement('button');
-        btnMenuPesan.type = 'button';
-        btnMenuPesan.className = 'message-menu-toggle';
-        btnMenuPesan.title = 'Opsi pesan';
-        btnMenuPesan.setAttribute('aria-label', 'Opsi pesan');
-        btnMenuPesan.setAttribute('aria-haspopup', 'menu');
-        btnMenuPesan.setAttribute('aria-expanded', 'false');
-        btnMenuPesan.dataset.messageMenuId = String(item.id);
-        const ikonMenuPesan = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        ikonMenuPesan.setAttribute('viewBox', '0 0 24 24');
-        ikonMenuPesan.setAttribute('aria-hidden', 'true');
-        const jalurMenuPesan = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        jalurMenuPesan.setAttribute('d', 'm6 9 6 6 6-6');
-        ikonMenuPesan.appendChild(jalurMenuPesan);
-        btnMenuPesan.appendChild(ikonMenuPesan);
-        bubble.appendChild(btnMenuPesan);
-        const footer = document.createElement('div');
-        footer.className = 'message-footer';
         footer.appendChild(waktu);
         if (item.sender === userAktif.id) {
             footer.appendChild(buatIndikatorStatusPesan(item.status));
         }
+        bubble.appendChild(btnPin);
         bubble.appendChild(footer);
-        baris.appendChild(bubble);
+
+        // Membungkus bubble dengan tombol pemicu dan badge reaksi pesan.
+        const kontenPesan = document.createElement('div');
+        kontenPesan.className = 'message-content';
+        kontenPesan.appendChild(bubble);
+        bubble.addEventListener('click', event => {
+            if (event.target.closest('.btn-pin-message, .chat-image-wrapper')) return;
+            event.stopPropagation();
+            tampilkanReaksiPesanPicker(item.id, kontenPesan);
+        });
+
+        // Membuat tombol untuk membuka pilihan reaksi pada pesan ini.
+        const tombolReaksi = document.createElement('button');
+        tombolReaksi.type = 'button';
+        tombolReaksi.className = 'btn-react-trigger';
+        tombolReaksi.title = 'Beri reaksi';
+        tombolReaksi.setAttribute('aria-label', 'Beri reaksi pada pesan');
+        const nsSvg = 'http://www.w3.org/2000/svg';
+        const ikonReaksi = document.createElementNS(nsSvg, 'svg');
+        ikonReaksi.setAttribute('viewBox', '0 0 64 64');
+        ikonReaksi.setAttribute('aria-hidden', 'true');
+        ikonReaksi.classList.add('ikon-reaksi-pesan');
+        const bentukBalon = document.createElementNS(nsSvg, 'path');
+        bentukBalon.setAttribute(
+            'd',
+            'M32 5C17.1 5 5 16.9 5 31.7c0 5.4 1.6 10.5 4.4 14.8L6 58l12.4-3.8c4.1 2.3 8.7 3.5 13.6 3.5 14.9 0 27-11.8 27-26S46.9 5 32 5Z'
+        );
+        bentukBalon.classList.add('ikon-reaksi-latar');
+        ikonReaksi.appendChild(bentukBalon);
+        [22, 42].forEach(posisiX => {
+            const mata = document.createElementNS(nsSvg, 'circle');
+            mata.setAttribute('cx', String(posisiX));
+            mata.setAttribute('cy', '27');
+            mata.setAttribute('r', '3.5');
+            mata.classList.add('ikon-reaksi-wajah');
+            ikonReaksi.appendChild(mata);
+        });
+        const senyum = document.createElementNS(nsSvg, 'path');
+        senyum.setAttribute('d', 'M20 36h24c-.8 7-5.3 11-12 11s-11.2-4-12-11Z');
+        senyum.classList.add('ikon-reaksi-wajah');
+        ikonReaksi.appendChild(senyum);
+        tombolReaksi.appendChild(ikonReaksi);
+        tombolReaksi.addEventListener('click', event => {
+            event.stopPropagation();
+            tampilkanReaksiPesanPicker(item.id, kontenPesan);
+        });
+        kontenPesan.appendChild(tombolReaksi);
+
+        // Menampilkan badge reaksi yang sudah tersimpan pada pesan.
+        const reaksiPesan = ambilReaksiPesan(chatAktifId, item.id);
+        const barReaksi = buatBarReaksiPesan(reaksiPesan, chatAktifId, item.id);
+        if (barReaksi) kontenPesan.appendChild(barReaksi);
+
+        baris.appendChild(kontenPesan);
+        baris.appendChild(btnTeruskan);
         boxListPesan.appendChild(baris);
     });
 
@@ -404,6 +496,7 @@ function bukaChat(idLawan) {
     if (!getUserById(idLawan) || String(idLawan) === String(userAktif.id)) return;
 
     if (chatAktifId && chatAktifId !== idLawan) {
+        tutupEditPesan();
         tutupPreviewGambar();
         batalkanBalasanPesan();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
