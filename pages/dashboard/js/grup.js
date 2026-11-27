@@ -402,7 +402,9 @@
     $("ruang-emoji").hidden = true;
     await refresh(true);
     if (version !== channelSelection || groupId !== gid) return;
+    if (c.jenis === "teks" && !group.keluar) await D.read(group, c.id, true);
     await renderSidebar();
+    await renderList();
     await renderPreview();
     autosize();
     if (
