@@ -8,6 +8,7 @@ if (!userAktif) {
 // ===== Fitur Chat =====
 const KEY_CHAT = 'ngumpul_pesan';
 const KEY_PIN_PESAN = 'ngumpul_pesan_tersemat';
+const KEY_REAKSI_PESAN = 'ngumpul_reaksi_pesan';
 const KEY_BLOKIR = 'ngumpul_blokir_';
 const panelChatKosong = document.getElementById('panel-chat-kosong');
 const panelChatAktif = document.getElementById('panel-chat-aktif');
@@ -112,6 +113,30 @@ function bacaSemuaChat() {
         return JSON.parse(localStorage.getItem(KEY_CHAT)) || {};
     } catch (error) {
         return {};
+    }
+}
+
+//membaca semua data reaksi pesan dari localStorage
+function bacaSemuaReaksiPesan() {
+    try {
+        const data = JSON.parse(localStorage.getItem(KEY_REAKSI_PESAN)) || {};
+        return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+    } catch (error) {
+        return {};
+    }
+}
+
+// Menyimpan data reaksi dan memberitau bagian lain agar tampilan diupdate
+function simpanSemuaReaksiPesan(data) {
+    try {
+        localStorage.setItem(KEY_REAKSI_PESAN, JSON.stringify(data));
+        window.dispatchEvent(new CustomEvent('ngumpul:reaksi-pesan', {
+            detail: { data }
+        }));
+        return true;
+    } catch (error) {
+        console.warn('Tidak dapat menyimpan reaksi pesan:', error);
+        return false;
     }
 }
 
@@ -756,7 +781,57 @@ function renderPesanAktif() {
             footer.appendChild(status);
         }
         bubble.appendChild(footer);
-        baris.appendChild(bubble);
+        const kontenPesan = document.createElement('div');
+        kontenPesan.className = 'message-content';
+        kontenPesan.appendChild(bubble);
+        bubble.addEventListener('click', event => {
+            if (event.target.closest('.btn-pin-message, .chat-image-wrapper')) return;
+            event.stopPropagation();
+            tampilkanReaksiPesanPicker(item.id, kontenPesan);
+        });
+
+        // membuat tombol untuk membuka picker dan menampilkan reaksi pada pesan
+        const tombolReaksi = document.createElement('button');
+        tombolReaksi.type = 'button';
+        tombolReaksi.className = 'btn-react-trigger';
+        tombolReaksi.title = 'Beri reaksi';
+        tombolReaksi.setAttribute('aria-label', 'Beri reaksi pada pesan');
+        const nsSvg = 'http://www.w3.org/2000/svg';
+        const ikonReaksi = document.createElementNS(nsSvg, 'svg');
+        ikonReaksi.setAttribute('viewBox', '0 0 64 64');
+        ikonReaksi.setAttribute('aria-hidden', 'true');
+        ikonReaksi.classList.add('ikon-reaksi-pesan');
+        const bentukBalon = document.createElementNS(nsSvg, 'path');
+        bentukBalon.setAttribute(
+            'd',
+            'M32 5C17.1 5 5 16.9 5 31.7c0 5.4 1.6 10.5 4.4 14.8L6 58l12.4-3.8c4.1 2.3 8.7 3.5 13.6 3.5 14.9 0 27-11.8 27-26S46.9 5 32 5Z'
+        );
+        bentukBalon.classList.add('ikon-reaksi-latar');
+        ikonReaksi.appendChild(bentukBalon);
+        [22, 42].forEach(posisiX => {
+            const mata = document.createElementNS(nsSvg, 'circle');
+            mata.setAttribute('cx', String(posisiX));
+            mata.setAttribute('cy', '27');
+            mata.setAttribute('r', '3.5');
+            mata.classList.add('ikon-reaksi-wajah');
+            ikonReaksi.appendChild(mata);
+        });
+        const senyum = document.createElementNS(nsSvg, 'path');
+        senyum.setAttribute('d', 'M20 36h24c-.8 7-5.3 11-12 11s-11.2-4-12-11Z');
+        senyum.classList.add('ikon-reaksi-wajah');
+        ikonReaksi.appendChild(senyum);
+        tombolReaksi.appendChild(ikonReaksi);
+        tombolReaksi.addEventListener('click', event => {
+            event.stopPropagation();
+            tampilkanReaksiPesanPicker(item.id, kontenPesan);
+        });
+        kontenPesan.appendChild(tombolReaksi);
+
+        const reaksiPesan = ambilReaksiPesan(chatAktifId, item.id);
+        const barReaksi = buatBarReaksiPesan(reaksiPesan, chatAktifId, item.id);
+        if (barReaksi) kontenPesan.appendChild(barReaksi);
+
+        baris.appendChild(kontenPesan);
         boxListPesan.appendChild(baris);
     });
 
@@ -921,6 +996,161 @@ function bukaChat(idLawan) {
 const btnLampir = document.getElementById('btn-lampir');
 const panelLampiran = document.getElementById('panel-lampiran');
 const btnMic = document.getElementById('btn-mic');
+const btnEmoji = document.getElementById('btn-emoji');
+const panelEmoji = document.getElementById('panel-emoji-popup');
+const cariEmoji = document.getElementById('input-cari-emoji');
+const penandaEmoji = document.getElementById('emoji-tabs');
+const emojiKetagoriLabel = document.getElementById('emoji-kategori-label');
+const kotakPilihanEmoji = document.getElementById('emoji-grid');
+const reaksiPesanEmojiPopup = document.getElementById('reaksi-popup-picker');
+const btnReaksiLainnya = document.getElementById('btn-reaksi-lainnya');
+
+const DATA_EMOJI = window.DATA_EMOJI;
+const DATA_PENCARIAN_EMOJI = window.DATA_PENCARIAN_EMOJI;
+
+let kategoriEmojiAktif = 'smileys'; 
+let reaksiPesanTargetId = null;
+let reaksiPesanTargetChatId = null;
+let modePemilihanReaksi = false;
+
+
+// Menampilkan emoji dari kategori aktif atau hasil pencarian di grid picker.
+function renderPilihanEmoji(filter = '') {
+    if (!kotakPilihanEmoji) return;
+
+    const query = filter.trim();
+    const queryNormal = query.toLocaleLowerCase('id-ID');
+    const sumber = query
+        ? Object.values(DATA_EMOJI).flatMap(kategori => kategori.list)
+        : (DATA_EMOJI[kategoriEmojiAktif]?.list || []);
+    const daftarEmoji = [...new Set(sumber)]
+        .filter(emoji => {
+            if (!query) return true;
+            if (emoji.includes(query)) return true;
+
+            const kataKunci = DATA_PENCARIAN_EMOJI[emoji] || [];
+            const teksKataKunci = kataKunci.join(' ').toLocaleLowerCase('id-ID');
+            if (queryNormal.length === 1) {
+                return kataKunci.some(kata =>
+                    kata.toLocaleLowerCase('id-ID').startsWith(queryNormal)
+                );
+            }
+            return teksKataKunci.includes(queryNormal);
+        });
+
+    kotakPilihanEmoji.replaceChildren();
+    daftarEmoji.forEach(emoji => {
+        const tombol = document.createElement('button');
+        tombol.type = 'button';
+        tombol.textContent = emoji;
+        tombol.title = emoji;
+        tombol.setAttribute(
+            'aria-label',
+            (modePemilihanReaksi ? 'Beri reaksi ' : 'Sisipkan emoji ') + emoji
+        );
+        tombol.addEventListener('click', () => {
+
+            // Gunakan emoji yang dipilih sbg reaksi jika picker sedang dalam mode reaksi
+            if (modePemilihanReaksi) {
+                toggleReaksiPesan(reaksiPesanTargetChatId, reaksiPesanTargetId, emoji);
+                tutupReaksiPesanPicker();
+                aturPanelEmoji(false);
+                return;
+            }
+            sisipkanEmojiKePesan(emoji);
+        });
+        kotakPilihanEmoji.appendChild(tombol);
+    });
+}
+
+// Menyisipkan emoji pada posisi kursor di kolom pesan.
+function sisipkanEmojiKePesan(emoji) {
+    if (!inputTeksKirim) return;
+
+    const awal = inputTeksKirim.selectionStart ?? inputTeksKirim.value.length;
+    const akhir = inputTeksKirim.selectionEnd ?? awal;
+    inputTeksKirim.value =
+        inputTeksKirim.value.slice(0, awal) + emoji + inputTeksKirim.value.slice(akhir);
+    const posisiKursor = awal + emoji.length;
+    inputTeksKirim.focus();
+    inputTeksKirim.setSelectionRange(posisiKursor, posisiKursor);
+    perbaruiTombolKirim();
+}
+
+// Membuka atau menutup panel picker emoji dan memperbarui status aksesibilitas tombol.
+function aturPanelEmoji(terbuka) {
+    if (!panelEmoji || !btnEmoji) return;
+    panelEmoji.style.display = terbuka ? 'flex' : 'none';
+    btnEmoji.setAttribute('aria-expanded', String(terbuka));
+    btnEmoji.setAttribute('aria-label', terbuka ? 'Tampilkan keyboard' : 'Pilih emoji');
+    btnEmoji.title = terbuka ? 'Tampilkan keyboard' : 'Emoji';
+    const ikonEmoji = btnEmoji.querySelector('use');
+    if (ikonEmoji) ikonEmoji.setAttribute('href', terbuka ? '#i-keyboard' : '#i-smile');
+
+    // Mengembalikan picker ke mode emoji biasa saat panel ditutup
+    if (!terbuka) {
+        modePemilihanReaksi = false;
+        panelEmoji.classList.remove('pemilih-reaksi-aktif');
+    }
+}
+
+// Mengatur aksi tombol emoji untuk membuka/menutup picker.
+if (btnEmoji && panelEmoji) {
+    btnEmoji.setAttribute('aria-controls', 'panel-emoji-popup');
+    btnEmoji.setAttribute('aria-expanded', 'false');
+    btnEmoji.addEventListener('click', event => {
+        event.stopPropagation();
+        const terbuka = panelEmoji.style.display !== 'none';
+        const menutupPickerReaksi = terbuka && modePemilihanReaksi;
+        aturPanelEmoji(!terbuka);
+        if (menutupPickerReaksi) tutupReaksiPesanPicker();
+        if (!terbuka) {
+            renderPilihanEmoji(cariEmoji ? cariEmoji.value : '');
+            if (cariEmoji) cariEmoji.focus();
+        }
+    });
+
+    // Menutup picker ketika pengguna mengeklik di luar panel.
+    document.addEventListener('click', event => {
+        if (!panelEmoji.contains(event.target) && !btnEmoji.contains(event.target)) {
+            if (modePemilihanReaksi && !event.target.closest('.btn-react-trigger')) {
+                tutupReaksiPesanPicker();
+            }
+            aturPanelEmoji(false);
+        }
+    });
+}
+
+// Mengganti kategori emoji dan memperbarui isi grid picker.
+if (penandaEmoji) {
+    penandaEmoji.addEventListener('click', event => {
+        const tab = event.target.closest('.emoji-tab');
+        if (!tab || !DATA_EMOJI[tab.dataset.kategori]) return;
+
+        penandaEmoji.querySelectorAll('.emoji-tab').forEach(item => {
+            item.classList.toggle('aktif', item === tab);
+        });
+        kategoriEmojiAktif = tab.dataset.kategori;
+        if (emojiKetagoriLabel) {
+            emojiKetagoriLabel.textContent = DATA_EMOJI[kategoriEmojiAktif].label;
+        }
+        if (cariEmoji) cariEmoji.value = '';
+        renderPilihanEmoji();
+    });
+}
+
+// Memfilter emoji saat teks pencarian berubah.
+if (cariEmoji) {
+    cariEmoji.addEventListener('input', () => renderPilihanEmoji(cariEmoji.value));
+}
+
+// Menutup picker emoji saat tombol Escape ditekan.
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+        if (modePemilihanReaksi) tutupReaksiPesanPicker();
+        aturPanelEmoji(false);
+    }
+});
 
 function tutupPanelLampiran() {
     if (!panelLampiran || panelLampiran.hidden) return;
@@ -989,6 +1219,153 @@ function kirimPesanAktif() {
     renderChatList();
     if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
 }
+
+// ==================== REAKSI PESAN DENGAN EMOJI ====================
+
+// Mengambil reaksi untuk pesan tertentu dalam percakapan
+function ambilReaksiPesan(idLawan, pesanId) {
+    if (!userAktif || !idLawan || !pesanId) return {};
+    const percakapanId = kunciKonversasi(userAktif.id, idLawan);
+    const semuaReaksi = bacaSemuaReaksiPesan();
+    return semuaReaksi[percakapanId]?.[pesanId] || {};
+}
+
+// Membuat kumpulan tombol reaksi beserta jumlah pengguna yang memilihnya
+function buatBarReaksiPesan(reaksi, idLawan, pesanId) {
+    const emojiTerpakai = Object.entries(reaksi)
+        .filter(([, pengguna]) => Array.isArray(pengguna) && pengguna.length > 0);
+    if (!emojiTerpakai.length) return null;
+
+    const bar = document.createElement('div');
+    bar.className = 'reaction-bar';
+    const idPengguna = String(userAktif.id);
+
+    emojiTerpakai.forEach(([emoji, pengguna]) => {
+        const tombol = document.createElement('button');
+        const sudahDipilih = pengguna.map(String).includes(idPengguna);
+        tombol.type = 'button';
+        tombol.className = 'reaction-badge' + (sudahDipilih ? ' mine' : '');
+        tombol.textContent = emoji + ' ' + pengguna.length;
+        tombol.title = sudahDipilih ? 'Klik untuk menghapus reaksi' : 'Klik untuk memberi reaksi';
+        tombol.setAttribute('aria-label', `${emoji}, ${pengguna.length} reaksi`);
+        tombol.addEventListener('click', event => {
+            event.stopPropagation();
+            toggleReaksiPesan(idLawan, pesanId, emoji);
+        });
+        bar.appendChild(tombol);
+    });
+
+    return bar;
+}
+
+// Menambah, mengganti, atau menghapus pengguna pada pesan
+function toggleReaksiPesan(idLawan, pesanId, emoji) {
+    if (!userAktif || !idLawan || !pesanId || !emoji) return;
+
+    const percakapanId = kunciKonversasi(userAktif.id, idLawan);
+    const semuaReaksi = bacaSemuaReaksiPesan();
+    const reaksiPercakapan = semuaReaksi[percakapanId] || (semuaReaksi[percakapanId] = {});
+    const reaksiPesan = reaksiPercakapan[pesanId] || (reaksiPercakapan[pesanId] = {});
+    const idPengguna = String(userAktif.id);
+    const reaksiSebelumnya = Object.keys(reaksiPesan).find(namaEmoji =>
+        Array.isArray(reaksiPesan[namaEmoji]) &&
+        reaksiPesan[namaEmoji].map(String).includes(idPengguna)
+    );
+
+    if (reaksiSebelumnya) {
+        reaksiPesan[reaksiSebelumnya] = reaksiPesan[reaksiSebelumnya]
+            .filter(id => String(id) !== idPengguna);
+        if (!reaksiPesan[reaksiSebelumnya].length) delete reaksiPesan[reaksiSebelumnya];
+    }
+    if (reaksiSebelumnya !== emoji) {
+        if (!Array.isArray(reaksiPesan[emoji])) reaksiPesan[emoji] = [];
+        if (!reaksiPesan[emoji].map(String).includes(idPengguna)) {
+            reaksiPesan[emoji].push(idPengguna);
+        }
+    }
+
+    if (!Object.keys(reaksiPesan).length) delete reaksiPercakapan[pesanId];
+    if (!Object.keys(reaksiPercakapan).length) delete semuaReaksi[percakapanId];
+    if (simpanSemuaReaksiPesan(semuaReaksi) && chatAktifId === idLawan) {
+        renderPesanAktif();
+    }
+}
+
+// Menampilkan popup reaksi didekat bubble pesan
+function tampilkanReaksiPesanPicker(pesanId, pembungkusPesan) {
+    if (!reaksiPesanEmojiPopup || !panelChatAktif || !chatAktifId) return;
+    const gelembung = pembungkusPesan.querySelector('.chat-bubble');
+    if (!gelembung) return;
+
+    reaksiPesanTargetId = pesanId;
+    reaksiPesanTargetChatId = chatAktifId;
+    const rect = gelembung.getBoundingClientRect();
+    const margin = 8;
+    reaksiPesanEmojiPopup.style.display = 'flex';
+    const popupW = reaksiPesanEmojiPopup.offsetWidth;
+    const popupH = reaksiPesanEmojiPopup.offsetHeight;
+    const left = Math.max(margin, Math.min(
+        rect.left + rect.width / 2 - popupW / 2,
+        window.innerWidth - popupW - margin
+    ));
+    let top = rect.top - popupH - margin;
+    if (top < margin) top = Math.min(rect.bottom + margin, window.innerHeight - popupH - margin);
+    reaksiPesanEmojiPopup.style.left = left + 'px';
+    reaksiPesanEmojiPopup.style.top = Math.max(margin, top) + 'px';
+}
+
+// Menutup popup dan menghapus data pesan yang sedang dipilih
+function tutupReaksiPesanPicker() {
+    if (!reaksiPesanEmojiPopup) return;
+    reaksiPesanEmojiPopup.style.display = 'none';
+    reaksiPesanTargetId = null;
+    reaksiPesanTargetChatId = null;
+}
+
+// Klik pilih reaksi
+if (reaksiPesanEmojiPopup) {
+    reaksiPesanEmojiPopup.querySelectorAll('.reaksi-cepat:not(.reaksi-lainnya)').forEach(btn => {
+        btn.addEventListener('click', event => {
+            event.stopPropagation();
+            if (!reaksiPesanTargetId || !reaksiPesanTargetChatId) return;
+            toggleReaksiPesan(reaksiPesanTargetChatId, reaksiPesanTargetId, btn.dataset.emoji);
+            tutupReaksiPesanPicker();
+        });
+    });
+
+    reaksiPesanEmojiPopup.addEventListener('click', event => event.stopPropagation());
+}
+
+if (btnReaksiLainnya) {
+    btnReaksiLainnya.addEventListener('click', event => {
+        event.stopPropagation();
+        if (!reaksiPesanTargetId || !reaksiPesanTargetChatId || !panelEmoji) return;
+        reaksiPesanEmojiPopup.style.display = 'none';
+        modePemilihanReaksi = true;
+        panelEmoji.classList.add('pemilih-reaksi-aktif');
+        aturPanelEmoji(true);
+        renderPilihanEmoji(cariEmoji ? cariEmoji.value : '');
+        if (cariEmoji) cariEmoji.focus();
+    });
+}
+
+document.addEventListener('click', event => {
+    if (
+        reaksiPesanEmojiPopup &&
+        reaksiPesanEmojiPopup.style.display !== 'none' &&
+        !reaksiPesanEmojiPopup.contains(event.target) &&
+        !event.target.closest('.btn-react-trigger')
+    ) {
+        tutupReaksiPesanPicker();
+    }
+});
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+        tutupReaksiPesanPicker();
+        aturPanelEmoji(false);
+    }
+});
 
 // ===== Fitur Kirim Gambar dari Galeri (Tanpa Batas Ukuran, Gaya WhatsApp) =====
 const inputFileGambar = document.getElementById('input-file-gambar');
@@ -1584,11 +1961,20 @@ document.getElementById('btn-tutup-info-pengguna').addEventListener('click', tut
 document.addEventListener('keydown', event => { if (event.key === 'Escape') tutupInfoPengguna(); });
 
 window.addEventListener('storage', event => {
-    if (event.key !== KEY_CHAT) return;
-    prosesPesanMasuk();
+    if (event.key === KEY_CHAT) {
+        prosesPesanMasuk();
+    }
+
+    if (event.key === KEY_CHAT || event.key === KEY_REAKSI_PESAN || event.key === null) {
+        if (chatAktifId) renderPesanAktif();
+        if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
+        renderChatList();
+    }
+});
+
+window.addEventListener('ngumpul:reaksi-pesan', () => {
     if (chatAktifId) renderPesanAktif();
     if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
-    renderChatList();
 });
 
 if (inputCariChat) {

@@ -1,4 +1,16 @@
+/* Variabel lokal dipetakan ke variabel global (variables.css / themes.css),
+   jadi halaman OTP ikut tema yang dipilih. --teks dan --garis memakai nilai global. */
 :root {
+<<<<<<< HEAD
+    --utama: var(--hijau);
+    --utama-gelap: var(--hijau-tua);
+    --utama-teks: var(--aksen-teks);
+    --di-utama: var(--teks-kontras);
+    --redup: var(--abu);
+    --latar: var(--bg);
+    --kartu: var(--kotak);
+    --salah: var(--merah);
+=======
   --utama: #00e5ff;
   --utama-gelap: #00c4dc;
   --utama-teks: #007c8c;
@@ -21,6 +33,7 @@
     --garis: #2a4248;
     --salah: #ff7b6b
   }
+>>>>>>> origin/main
 }
 
 * {
@@ -35,7 +48,26 @@ html {
   -webkit-text-size-adjust: 100%
 }
 
+[hidden] {
+    display: none !important
+}
+
+html {
+    -webkit-text-size-adjust: 100%
+}
+
 body {
+<<<<<<< HEAD
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    background: var(--latar);
+    color: var(--teks);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+=======
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
@@ -49,9 +81,35 @@ body {
 
 body.ada-notif {
   padding-top: calc(max(12px, env(safe-area-inset-top)) + 92px)
+>>>>>>> origin/main
+}
+
+body.ada-notif {
+    padding-top: calc(max(12px, env(safe-area-inset-top)) + 92px)
 }
 
 .kartu {
+<<<<<<< HEAD
+    width: 100%;
+    max-width: 440px;
+    background: var(--kartu);
+    border-radius: 16px;
+    padding: clamp(18px, 5vw, 32px);
+    box-shadow: 0 2px 14px rgba(0, 0, 0, .08)
+}
+
+h1 {
+    font-size: clamp(1.2rem, 4.5vw, 1.5rem);
+    margin: 12px 0 6px;
+    line-height: 1.25
+}
+
+.sub {
+    margin: 0 0 22px;
+    color: var(--redup);
+    line-height: 1.5;
+    font-size: clamp(.9rem, 3.5vw, 1rem)
+=======
   width: 100%;
   max-width: 440px;
   background: var(--kartu);
@@ -71,10 +129,41 @@ h1 {
   color: var(--redup);
   line-height: 1.5;
   font-size: clamp(.9rem, 3.5vw, 1rem)
+>>>>>>> origin/main
 }
 
 .kembali,
 .tautan {
+<<<<<<< HEAD
+    background: none;
+    border: 0;
+    color: var(--utama-teks);
+    font: inherit;
+    cursor: pointer;
+    padding: 8px 0;
+    min-height: 44px
+}
+
+.kotak-otp {
+    display: flex;
+    gap: clamp(5px, 2vw, 10px);
+    justify-content: space-between
+}
+
+.digit {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 58px;
+    height: clamp(46px, 14vw, 60px);
+    text-align: center;
+    font-size: clamp(1.15rem, 5vw, 1.6rem);
+    font-weight: 600;
+    padding: 0;
+    border: 2px solid var(--garis);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--teks)
+=======
   background: none;
   border: 0;
   color: var(--utama-teks);
@@ -103,6 +192,7 @@ h1 {
   border-radius: 10px;
   background: transparent;
   color: var(--teks)
+>>>>>>> origin/main
 }
 
 .digit:focus {
@@ -128,6 +218,18 @@ h1 {
 }
 
 .tombol {
+<<<<<<< HEAD
+    width: 100%;
+    min-height: 48px;
+    padding: 13px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--utama);
+    color: var(--di-utama);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer
+=======
   width: 100%;
   min-height: 48px;
   padding: 13px;
@@ -138,6 +240,7 @@ h1 {
   font: inherit;
   font-weight: 700;
   cursor: pointer
+>>>>>>> origin/main
 }
 
 .tombol:hover:not(:disabled) {
@@ -150,10 +253,17 @@ h1 {
 }
 
 .ulang {
+<<<<<<< HEAD
+    text-align: center;
+    margin: 14px 0 2px;
+    color: var(--redup);
+    font-size: .92rem
+=======
   text-align: center;
   margin: 14px 0 2px;
   color: var(--redup);
   font-size: .92rem
+>>>>>>> origin/main
 }
 
 .kadaluarsa {
@@ -169,16 +279,47 @@ h1 {
   font-size: .9rem
 }
 
+.lihat-kode {
+    display: block;
+    margin: 6px auto 0;
+    font-size: .9rem
+}
+
 .kembali:focus-visible,
 .tautan:focus-visible,
 .tombol:focus-visible,
 .notif-tutup:focus-visible {
+<<<<<<< HEAD
+    outline: 3px solid var(--utama-teks);
+    outline-offset: 2px
+=======
   outline: 3px solid var(--utama-teks);
   outline-offset: 2px
+>>>>>>> origin/main
 }
 
 /* Notifikasi SMS simulasi: tetap tampil sampai ditutup */
 #notif {
+<<<<<<< HEAD
+    position: fixed;
+    z-index: 10;
+    left: 50%;
+    top: max(10px, env(safe-area-inset-top));
+    transform: translate(-50%, -160%);
+    transition: transform .3s;
+    width: calc(100% - 24px);
+    max-width: 440px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--notif-bg, #0f2a30);
+    color: #fff;
+    border-radius: 14px;
+    padding: 12px 8px 12px 16px;
+    font-size: .92rem;
+    line-height: 1.45;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .3)
+=======
   position: fixed;
   z-index: 10;
   left: 50%;
@@ -197,6 +338,7 @@ h1 {
   font-size: .92rem;
   line-height: 1.45;
   box-shadow: 0 6px 20px rgba(0, 0, 0, .3)
+>>>>>>> origin/main
 }
 
 #notif.tampil {
@@ -215,7 +357,24 @@ h1 {
   opacity: .75
 }
 
+.notif-isi {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column
+}
+
+.notif-judul {
+    font-size: .78rem;
+    opacity: .75
+}
+
 #notif b {
+<<<<<<< HEAD
+    font-size: clamp(1.2rem, 5vw, 1.5rem);
+    letter-spacing: 4px;
+    color: var(--utama)
+=======
   font-size: clamp(1.2rem, 5vw, 1.5rem);
   letter-spacing: 4px;
   color: var(--utama)
@@ -236,6 +395,24 @@ h1 {
 
 .notif-tutup:hover {
   background: rgba(255, 255, 255, .12)
+>>>>>>> origin/main
+}
+
+.notif-tutup {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer
+}
+
+.notif-tutup:hover {
+    background: rgba(255, 255, 255, .12)
 }
 
 @keyframes getar {
@@ -275,6 +452,35 @@ h1 {
   .sub {
     margin-bottom: 14px
   }
+}
+
+/* HP kecil */
+@media (max-width:360px) {
+    .kartu {
+        border-radius: 12px
+    }
+
+    .sub {
+        margin-bottom: 16px
+    }
+}
+
+/* Tablet dan desktop */
+@media (min-width:768px) {
+    .kartu {
+        max-width: 480px
+    }
+}
+
+/* HP landscape / layar pendek */
+@media (max-height:560px) {
+    body {
+        place-items: start center
+    }
+
+    .sub {
+        margin-bottom: 14px
+    }
 }
 
 @media (prefers-reduced-motion:reduce) {

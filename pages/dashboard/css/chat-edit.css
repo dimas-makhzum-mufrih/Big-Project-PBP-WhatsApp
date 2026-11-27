@@ -1,0 +1,133 @@
+/* Edit pesan: menu mengikuti posisi klik, formulir memakai dialog native. */
+.message-context-menu {
+    position: fixed;
+    z-index: 500;
+    min-width: 148px;
+    max-width: calc(100vw - 16px);
+    padding: 4px;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    box-shadow: var(--bayangan-dropdown);
+}
+
+.message-context-menu[hidden] {
+    display: none;
+}
+
+.message-context-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 9px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: .875rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.message-context-menu button:hover,
+.message-context-menu button:focus-visible {
+    background: var(--bg-abu-input);
+}
+
+.message-context-menu img {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    object-fit: contain;
+}
+
+html[data-theme="dark"] .message-context-menu img {
+    filter: invert(1);
+}
+
+.chat-bubble[aria-haspopup]:focus-visible,
+.message-edit-dialog :focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 3px;
+}
+
+.message-edited {
+    font-size: .68rem;
+    color: color-mix(in srgb, var(--teks-bubble) 55%, transparent);
+}
+
+.message-edit-dialog {
+    width: min(440px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 24px;
+    border: 1px solid var(--border-warna);
+    border-radius: 16px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    box-shadow: var(--bayangan-dropdown);
+}
+
+.message-edit-dialog::backdrop {
+    background: rgba(0, 0, 0, .4);
+}
+
+.message-edit-dialog h2 {
+    margin: 0 0 20px;
+    font-size: 1.2rem;
+}
+
+.message-edit-dialog label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.message-edit-dialog textarea {
+    display: block;
+    width: 100%;
+    min-height: 110px;
+    max-height: 45dvh;
+    padding: 12px;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: var(--bg-abu-input);
+    color: inherit;
+    font: inherit;
+    resize: vertical;
+}
+
+.message-edit-error {
+    min-height: 1.4em;
+    margin: 8px 0 16px;
+    color: var(--merah);
+    font-size: .875rem;
+}
+
+.message-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.message-edit-actions button {
+    padding: 10px 18px;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: var(--bg-putih);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.message-edit-actions .message-edit-save {
+    border-color: var(--warna-utama);
+    background: var(--warna-utama);
+    color: var(--teks-kontras);
+}
+
+.message-edit-actions .message-edit-save:hover {
+    background: var(--warna-utama-hover);
+}

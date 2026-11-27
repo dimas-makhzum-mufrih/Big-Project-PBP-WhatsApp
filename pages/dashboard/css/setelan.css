@@ -68,7 +68,7 @@
     flex: none;
     border-radius: 12px;
     background: var(--warna-tipis);
-    color: var(--warna-utama)
+    color: var(--aksen-teks)
 }
 
 .settings-item-text {
@@ -440,7 +440,7 @@
 
 .theme-check {
     display: none;
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     font-size: 1.3rem;
     font-weight: bold;
 }
@@ -533,7 +533,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     box-shadow: var(--bayangan-profil);
 }
 
@@ -581,7 +581,7 @@
 
 .btn-ganti-akun:hover {
     background: var(--bg-abu-input);
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
 }
 
 .btn-ganti-akun .ikon {
@@ -595,7 +595,7 @@
 }
 
 .profil-username {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     font-weight: 500;
     font-size: 0.9rem;
 }
@@ -646,7 +646,7 @@
 }
 
 .akun-menu-aktif small {
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
     font-size: .8rem;
 }
 
@@ -674,5 +674,5 @@
 .akun-menu-aksi .ikon {
     width: 18px;
     height: 18px;
-    color: var(--warna-utama);
+    color: var(--aksen-teks);
 }

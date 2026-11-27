@@ -89,7 +89,7 @@
         .filter((p) => !channelId || p.channelId === channelId)
         .sort((a, b) => a.dibuat - b.dibuat || a.id.localeCompare(b.id));
     },
-    async send(gid, channelId, isi, lampiran = [], id = uid()) {
+    async send(gid, channelId, isi, lampiran = [], id = uid(), balas = null) {
       const g = await this.get(gid);
       if (g.keluar) throw new Error("Kamu sudah keluar dari grup ini.");
       if (
@@ -102,10 +102,20 @@
         grupId: gid,
         isi: isi.trim(),
         lampiran,
+        ...(balas ? { balas } : {}),
         pengirimId: akun,
         dibuat: Date.now(),
       });
     },
+    canEdit(g, pesan) {
+      const umur = Date.now() - pesan?.dibuat;
+      return !!g && !g.keluar && g.anggotaIds.includes(akun) &&
+        getUserAktif()?.id === akun && pesan?.pengirimId === akun &&
+        pesan.jenis !== "aktivitas" && Number.isFinite(pesan.dibuat) &&
+        umur >= 0 && umur <= BATAS_WAKTU_EDIT_PESAN;
+    },
+    edit: (gid, channelId, idPesan, isi) =>
+      dasar.layanan.editPesan(gid, channelId, idPesan, isi),
     async read(g, channelId, visible) {
       const changed =
         !g.keluar &&

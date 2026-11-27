@@ -1,0 +1,80 @@
+/* Teks berformat (format-teks.js) */
+.fx-isi { white-space: pre-wrap; overflow-wrap: anywhere; }
+.fx-isi strong { font-weight: 700; }
+.fx-isi em { font-style: italic; }
+.fx-isi u { text-decoration: underline; text-underline-offset: 2px; }
+.fx-isi s { text-decoration: line-through; opacity: .85; }
+
+.fx-l { font-weight: 700; }
+.fx-o { font-style: italic; }
+.fx-n { text-decoration: underline; text-underline-offset: 2px; }
+.fx-m { text-decoration: line-through; }
+.fx-n.fx-m { text-decoration: underline line-through; }
+.fx-w { color: var(--fx); }
+/* warna sangat gelap / sangat terang diberi halo tipis supaya tetap terbaca di tema gelap / terang */
+html[data-tone="dark"] .fx-w[data-lum="gelap"] { text-shadow: 0 0 1px rgba(255,255,255,.9), 0 0 5px rgba(255,255,255,.35); }
+html:not([data-tone="dark"]) .fx-w[data-lum="terang"] { text-shadow: 0 0 1px rgba(0,0,0,.85), 0 0 4px rgba(0,0,0,.3); }
+
+.fx-p {
+    background: linear-gradient(90deg, #ff5f6d, #ffc371, #f6ff6b, #6bff9a, #5ec8ff, #b07cff, #ff5f6d);
+    background-size: 220% 100%; -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent; animation: fx-pelangi 4s linear infinite;
+}
+@keyframes fx-pelangi { to { background-position: -220% 0; } }
+.fx-k { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+@media (prefers-reduced-motion: reduce) { .fx-p { animation: none; } .fx-k { filter: blur(2.5px); } }
+
+.fx-kode {
+    padding: 1px 5px; border-radius: 5px; font: .88em ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    background: rgba(127,127,127,.22); border: 1px solid rgba(127,127,127,.25);
+}
+.fx-blok {
+    margin: 4px 0; padding: 8px 10px; border-radius: 8px; overflow-x: auto; white-space: pre; max-width: 100%;
+    background: rgba(0,0,0,.2); border: 1px solid rgba(127,127,127,.28);
+    font: .86em/1.45 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+.fx-blok code { font: inherit; }
+.fx-baris-kode {
+    margin: 3px 0; padding: 5px 9px; border-radius: 4px 8px 8px 4px; white-space: pre-wrap;
+    border-left: 3px solid var(--warna-utama); background: rgba(127,127,127,.16);
+    font: .88em/1.45 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+.fx-tautan { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+.fx-spoiler {
+    cursor: pointer; border-radius: 4px; padding: 0 2px;
+    background: rgba(40,40,50,.92); color: transparent; -webkit-text-fill-color: transparent; text-shadow: none;
+    transition: background .2s, color .2s;
+}
+.fx-spoiler * { color: transparent !important; -webkit-text-fill-color: transparent !important; text-shadow: none !important; background: none !important; }
+.fx-spoiler:hover { background: rgba(40,40,50,.8); }
+.fx-spoiler.buka { background: rgba(127,127,127,.2); color: inherit; -webkit-text-fill-color: currentColor; cursor: default; }
+.fx-spoiler.buka * { color: inherit !important; -webkit-text-fill-color: currentColor !important; }
+.fx-spoiler:focus-visible { outline: 2px solid var(--warna-utama); outline-offset: 1px; }
+
+/* tombol "Aa" + papan format */
+.fx-tombol { font-weight: 800; font-size: .82rem; letter-spacing: -.02em; font-family: inherit; }
+.fx-papan {
+    position: fixed; z-index: 4000; width: 300px; max-width: calc(100vw - 16px); padding: 10px 10px 8px;
+    background: var(--bg-putih); color: var(--teks-gelap); border: 1px solid var(--border-warna);
+    border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.28);
+}
+.fx-papan[hidden] { display: none; }
+.fx-papan-gaya { display: flex; flex-wrap: wrap; gap: 5px; }
+.fx-btn {
+    min-width: 34px; height: 30px; padding: 0 8px; border: 1px solid var(--border-warna); border-radius: 8px;
+    background: var(--bg-abu-terang); color: var(--teks-gelap); font: inherit; font-size: .8rem; cursor: pointer;
+}
+.fx-btn:hover { border-color: var(--warna-utama); color: var(--warna-utama); }
+.fx-btn-b { font-weight: 800; } .fx-btn-i { font-style: italic; } .fx-btn-u { text-decoration: underline; }
+.fx-btn-s { text-decoration: line-through; } .fx-btn-k { font-family: ui-monospace, Menlo, Consolas, monospace; }
+.fx-btn-p { background: linear-gradient(90deg, #ff5f6d, #ffc371, #6bff9a, #5ec8ff, #b07cff); color: #1b1b1b; border-color: transparent; font-weight: 700; }
+.fx-btn-sp { background: #2b2b36; color: #fff; }
+.fx-papan-judul { margin: 10px 2px 6px; font-size: .74rem; font-weight: 700; color: var(--teks-redup); }
+.fx-grid { display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px; }
+.fx-warna {
+    aspect-ratio: 1; min-width: 0; padding: 0; border-radius: 5px; cursor: pointer;
+    border: 1px solid rgba(127,127,127,.4);
+}
+.fx-warna:hover, .fx-warna:focus-visible { outline: 2px solid var(--warna-utama); outline-offset: 1px; transform: scale(1.25); position: relative; z-index: 1; }
+.fx-papan-bantu { margin: 8px 2px 0; font-size: .72rem; line-height: 1.4; color: var(--teks-redup); }
