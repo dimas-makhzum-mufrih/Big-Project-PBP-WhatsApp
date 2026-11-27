@@ -1,6 +1,0 @@
-credentials-file: /etc/cloudflared/credentials.json
-
-ingress:
-  - hostname: ngumpul.afadhili.my.id
-    service: http://web:80
-  - service: http_status:404

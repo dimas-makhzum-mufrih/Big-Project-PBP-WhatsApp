@@ -14,11 +14,15 @@ function renderChatList() {
             const profil = getProfilChat(user.id);
             const diblokir = penggunaDiblokir(userAktif.id, user.id);
             const draf = diblokir ? null : bacaDrafChat(user.id);
+            const unreadCount = pesan.filter(p =>
+                p.sender !== userAktif.id && p.status !== 'dibaca' && !p.dihapusSemua
+            ).length;
             return {
                 id: user.id,
                 favorite: preference.favorite,
                 archived: preference.archived,
-                unread: preference.markedUnread || pesan.some(p => p.sender !== userAktif.id && p.status !== 'dibaca' && !p.dihapusSemua),
+                unread: preference.markedUnread || unreadCount > 0,
+                unreadCount,
                 markedUnread: preference.markedUnread,
                 nama: profil.nama,
                 draf: Boolean(draf),
@@ -76,7 +80,10 @@ function renderChatList() {
         kartu.type = 'button';
         kartu.className = 'chat-card' + (chatAktifId === item.id ? ' aktif' : '');
         kartu.setAttribute('data-chat-id', item.id);
-        kartu.setAttribute('aria-label', 'Buka chat dengan ' + item.nama);
+        const labelBelumDibaca = item.unreadCount
+            ? ', ' + item.unreadCount + ' pesan belum dibaca'
+            : item.markedUnread ? ', ditandai belum dibaca' : '';
+        kartu.setAttribute('aria-label', 'Buka chat dengan ' + item.nama + labelBelumDibaca);
 
         const avatar = document.createElement('div');
         avatar.className = 'circle-avatar';
@@ -104,6 +111,17 @@ function renderChatList() {
         jam.style.color = 'var(--teks-redup)';
         jam.style.fontSize = '.74rem';
 
+        const trailing = document.createElement('span');
+        trailing.className = 'chat-card-trailing';
+        trailing.appendChild(jam);
+        if (item.unreadCount || item.markedUnread) {
+            const badge = document.createElement('span');
+            badge.className = 'chat-unread-badge' + (item.unreadCount ? '' : ' manual');
+            badge.setAttribute('aria-hidden', 'true');
+            badge.textContent = item.unreadCount ? (item.unreadCount > 99 ? '99+' : String(item.unreadCount)) : '';
+            trailing.appendChild(badge);
+        }
+
         const preview = document.createElement('p');
         preview.className = 'card-preview';
         if (item.adaGambar) {
@@ -127,7 +145,7 @@ function renderChatList() {
         }
 
         top.appendChild(judul);
-        top.appendChild(jam);
+        top.appendChild(trailing);
         meta.append(top, preview);
         kartu.append(avatar, meta);
 
