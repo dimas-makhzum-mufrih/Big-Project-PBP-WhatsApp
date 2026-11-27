@@ -86,6 +86,40 @@
     renderedSidebar = "";
   const key = () => gid + "/" + cid;
   window.NgumpulGrupKunci = () => key();
+  // hapus pesan grup: dipanggil dari dropdown aksi pesan (aksi-pesan.js)
+  window.NgumpulGrupHapus = {
+    async minta(idPesan) {
+      const id = gid,
+        channelId = cid;
+      if (!id || !channelId || !window.NgumpulHapus) return;
+      const g = await D.get(id);
+      const p = (await D.messages(g, channelId)).find((x) => x.id === idPesan);
+      if (!p || p.jenis === "aktivitas") return;
+      const segarkan = async () => {
+        if (gid === id && cid === channelId) await refresh();
+        await renderList();
+      };
+      window.NgumpulHapus.dialog({
+        langsung: !!p.dihapus,
+        bisaSemua: !p.dihapus && p.pengirimId === akun && !g.keluar,
+        cuplikan: p.dihapus ? "" : p.isi || labelAttachment(p),
+        hapusSaya: async () => {
+          await D.sembunyi(id, idPesan, true);
+          await segarkan();
+          return true;
+        },
+        hapusSemua: async () => {
+          await D.hapus(id, idPesan);
+          await segarkan();
+          return true;
+        },
+        urungkan: async () => {
+          await D.sembunyi(id, idPesan, false);
+          await segarkan();
+        },
+      });
+    },
+  };
   const isAdmin = (g) => !g.keluar && g.adminIds.includes(akun);
   function toast(text) {
     $("ruang-toast").textContent = text;
@@ -458,7 +492,7 @@
           ? B.aktivitas(last)
           : (last.pengirimId === akun ? "Kamu" : B.nama(last.pengirimId)) +
             ": " +
-            (last.isi || labelAttachment(last))
+            (last.dihapus ? "Pesan ini telah dihapus" : last.isi || labelAttachment(last))
         : "Mulai chat grup";
       meta.append(
         top,
@@ -655,6 +689,8 @@
     p.lampiran?.some((f) => f.mime?.startsWith("audio/"))
       ? "Pesan suara"
       : p.lampiran?.[0]?.nama || "Lampiran";
+  // id pesan yang sudah tampil per channel: hanya pesan baru yang dapat animasi masuk (tema Pastel Party)
+  const idTerender = new Map();
   async function refresh(force = false) {
     if (!gid || !cid || root.hidden) return;
     const v = ++chatVersion,
@@ -732,6 +768,7 @@
     const anchorId = anchor?.dataset.message,
       offset = anchor?.getBoundingClientRect().top - top;
     const fragment = document.createDocumentFragment();
+    const sebelumnya = idTerender.get(id + "/" + channelId);
     let previous = null,
       day = null;
     const intro = c.bawaan ? B.kartu(g, false) : null;
@@ -782,6 +819,7 @@
           (consecutive ? " lanjutan" : ""),
       );
       row.dataset.message = p.id;
+      if (sebelumnya && !sebelumnya.has(p.id)) row.classList.add("pesan-baru");
       row.style.setProperty(
         "--anggota-hue",
         String(g.warnaAnggota[p.pengirimId] ?? 190),
@@ -800,6 +838,42 @@
           av.setAttribute("aria-hidden", "true");
         }
         row.append(av);
+      }
+      if (p.dihapus) {
+        const hapusBubble = el(
+          "div",
+          "chat-bubble grup-pesan pesan-dihapus " + (own ? "kirim" : "terima"),
+        );
+        if (!consecutive)
+          hapusBubble.append(
+            el("strong", "grup-pesan-pengirim", own ? "Kamu" : B.nama(p.pengirimId)),
+          );
+        const ns = "http://www.w3.org/2000/svg";
+        const ikonHapus = document.createElementNS(ns, "svg");
+        ikonHapus.setAttribute("class", "ikon-pesan-dihapus");
+        ikonHapus.setAttribute("viewBox", "0 0 24 24");
+        ikonHapus.setAttribute("aria-hidden", "true");
+        const lingkaran = document.createElementNS(ns, "circle");
+        lingkaran.setAttribute("cx", "12");
+        lingkaran.setAttribute("cy", "12");
+        lingkaran.setAttribute("r", "9");
+        const garis = document.createElementNS(ns, "path");
+        garis.setAttribute("d", "M5.6 5.6l12.8 12.8");
+        ikonHapus.append(lingkaran, garis);
+        const isiHapus = el("span", "pesan-dihapus-isi");
+        isiHapus.append(
+          ikonHapus,
+          document.createTextNode(own ? "Kamu menghapus pesan ini" : "Pesan ini telah dihapus"),
+        );
+        const footerHapus = el("div", "message-footer");
+        footerHapus.append(
+          el("time", "timestamp", formatJamPesan(new Date(p.dibuat).toISOString())),
+        );
+        hapusBubble.append(isiHapus, footerHapus);
+        row.append(hapusBubble);
+        fragment.append(row);
+        previous = p;
+        continue;
       }
       const bubble = el(
         "div",
@@ -824,7 +898,13 @@
         kutip.setAttribute("aria-label", "Lompat ke pesan asli");
         kutip.append(
           el("strong", "", String(p.balas.nama || "Pesan asli")),
-          el("span", "", String(p.balas.teks || "Lampiran")),
+          el(
+            "span",
+            "",
+            messages.find((m) => m.id === p.balas.id)?.dihapus
+              ? "Pesan ini telah dihapus"
+              : String(p.balas.teks || "Lampiran"),
+          ),
         );
         kutip.onclick = (ev) => {
           ev.stopPropagation();
@@ -864,6 +944,7 @@
     }
     if (v !== chatVersion || gid !== id || cid !== channelId) return;
     renderedHistory = fingerprint;
+    idTerender.set(id + "/" + channelId, new Set(messages.map((m) => m.id)));
     box.replaceChildren(fragment);
     if (force) box.scrollTop = positions.get(key()) ?? box.scrollHeight;
     else if (atBottom) box.scrollTop = box.scrollHeight;
@@ -2065,7 +2146,7 @@
       messages = await D.messages(g),
       active = new Set(g.ruang.channels.map((c) => c.id));
     return messages
-      .filter((p) => active.has(p.channelId))
+      .filter((p) => active.has(p.channelId) && !p.dihapus)
       .flatMap((p) =>
         [
           ...(p.lampiran || []),
@@ -3039,6 +3120,7 @@
           for (const p of await D.messages(g)) {
             if (
               p.jenis === "aktivitas" ||
+              p.dihapus ||
               p.pengirimId === akun ||
               !p.penerimaIds?.includes(akun) ||
               !g.ruang.channels.some((c) => c.id === p.channelId)

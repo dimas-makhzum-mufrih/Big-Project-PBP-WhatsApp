@@ -131,3 +131,6 @@ html[data-theme="synthwave"] .ba-pita.siap { box-shadow: 0 0 14px color-mix(in s
 @media (prefers-reduced-motion: reduce) {
     .reply-composer-preview, .ba-sorot { animation: none; }
 }
+
+/* bubble pendek + kutipan: beri lebar minimum supaya kutipan tidak terpotong */
+html .chat-bubble:has(> .message-quoted-message) { min-width: 220px; max-width: 100%; }

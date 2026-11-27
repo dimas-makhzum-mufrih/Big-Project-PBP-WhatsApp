@@ -473,7 +473,7 @@ html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .chat-bubble.kirim[dat
 html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .chat-bubble.kirim[data-tingkat="2"] { background: #bfe1ff; }
 html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .chat-bubble.kirim[data-tingkat="3"] { background: #dccbff; }
 html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .chat-bubble.kirim[data-tingkat="4"] { background: #c2efdc; }
-html[data-theme="pastelparty"][data-hiasan="penuh"] .message-row:last-child .chat-bubble { animation: pop-masuk .42s cubic-bezier(.3, 1.7, .5, 1); }
+html[data-theme="pastelparty"][data-hiasan="penuh"] .message-row.pesan-baru .chat-bubble { animation: pop-masuk .42s cubic-bezier(.3, 1.7, .5, 1); }
 @keyframes pop-masuk { from { transform: scale(.5) rotate(-4deg); opacity: 0; } }
 html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .chat-card {
     --pp: #ffc4da; width: calc(100% - 20px); margin: 10px 10px 4px; padding: 10px 14px;

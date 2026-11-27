@@ -108,7 +108,7 @@ html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .ruang-channel::after{
         radial-gradient(circle 3px at 50% 6%, #ffe48a 98%, transparent), radial-gradient(circle 5px at 4% 56%, #ffe48a 98%, transparent);
     opacity: .9;
 }
-html[data-theme="pastelparty"][data-hiasan="penuh"] .grup-pesan-baris:last-child .chat-bubble{ animation: pop-masuk .42s cubic-bezier(.3, 1.7, .5, 1); }
+html[data-theme="pastelparty"][data-hiasan="penuh"] .grup-pesan-baris.pesan-baru .chat-bubble{ animation: pop-masuk .42s cubic-bezier(.3, 1.7, .5, 1); }
 html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .ruang-header{
     background: #ffe3ef; border-bottom: 3px solid var(--tinta);
 }

@@ -78,7 +78,7 @@ async function tampilkanSlideLightbox() {
 
 function bukaLightboxGambar(idPesan) {
     if (!lightboxGambar || !chatAktifId) return;
-    daftarPesanGambarLightbox = ambilPesanChat(chatAktifId).filter(isPesanBergambar);
+    daftarPesanGambarLightbox = ambilPesanTampil(chatAktifId).filter(item => !item.dihapusSemua && isPesanBergambar(item));
     if (!daftarPesanGambarLightbox.length) return;
 
     const idx = daftarPesanGambarLightbox.findIndex(p => p.id === idPesan);

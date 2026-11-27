@@ -111,8 +111,18 @@
       const umur = Date.now() - pesan?.dibuat;
       return !!g && !g.keluar && g.anggotaIds.includes(akun) &&
         getUserAktif()?.id === akun && pesan?.pengirimId === akun &&
-        pesan.jenis !== "aktivitas" && Number.isFinite(pesan.dibuat) &&
+        pesan.jenis !== "aktivitas" && !pesan.dihapus && Number.isFinite(pesan.dibuat) &&
         umur >= 0 && umur <= BATAS_WAKTU_EDIT_PESAN;
+    },
+    hapus(gid, idPesan) {
+      if (typeof dasar.layanan.hapusPesan !== "function")
+        return Promise.reject(new Error("Hapus pesan belum didukung oleh server grup."));
+      return dasar.layanan.hapusPesan(gid, idPesan);
+    },
+    sembunyi(gid, idPesan, sembunyi = true) {
+      if (typeof dasar.layanan.sembunyikanPesan !== "function")
+        return Promise.reject(new Error("Hapus untuk saya belum didukung."));
+      return dasar.layanan.sembunyikanPesan(gid, idPesan, sembunyi);
     },
     edit: (gid, channelId, idPesan, isi) =>
       dasar.layanan.editPesan(gid, channelId, idPesan, isi),
@@ -128,6 +138,7 @@
       return messages.filter(
         (p) =>
           p.jenis !== "aktivitas" &&
+          !p.dihapus &&
           p.pengirimId !== akun &&
           p.penerimaIds?.includes(akun) &&
           localStorage.getItem(
