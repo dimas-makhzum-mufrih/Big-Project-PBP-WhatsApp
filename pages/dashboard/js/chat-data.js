@@ -29,6 +29,7 @@ function buatIndikatorStatusPesan(nilai) {
 
 // ===== Fitur Chat =====
 const KEY_CHAT = 'ngumpul_pesan';
+const KEY_DRAF_CHAT = 'ngumpul_draf_chat_';
 const KEY_PIN_PESAN = 'ngumpul_pesan_tersemat';
 const KEY_REAKSI_PESAN = 'ngumpul_reaksi_pesan';
 const KEY_BLOKIR = 'ngumpul_blokir_';
@@ -57,6 +58,33 @@ const btnInfoPengguna = document.getElementById('btn-info-pengguna');
 const panelInfoPengguna = document.getElementById('panel-info-pengguna');
 let chatAktifId = null;
 let timerSorotPesanCari = null;
+
+// ===== Draf pesan: teks yang belum terkirim tersimpan per chat (seperti WhatsApp) =====
+function kunciDrafChat(idLawan) {
+    return KEY_DRAF_CHAT + JSON.stringify([String(userAktif.id), String(idLawan)]);
+}
+
+function bacaDrafChat(idLawan) {
+    if (!userAktif || !idLawan) return null;
+    try {
+        const draf = JSON.parse(localStorage.getItem(kunciDrafChat(idLawan)));
+        return draf && typeof draf.teks === 'string' && draf.teks.trim() ? draf : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function simpanDrafChat(idLawan, teks) {
+    if (!userAktif || !idLawan) return false;
+    try {
+        const kunci = kunciDrafChat(idLawan);
+        if (!String(teks || '').trim()) localStorage.removeItem(kunci);
+        else localStorage.setItem(kunci, JSON.stringify({ teks, waktu: new Date().toISOString() }));
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
 let idBalasanAktif = null;
 
 // ===== Balas pesan (chat pribadi) =====

@@ -257,3 +257,7 @@ html[data-theme="terminal"] .dialog-hapus-pesan, html[data-theme="terminal"] .to
 html[data-theme="synthwave"] .dialog-hapus-pesan { border-color: var(--warna-utama); box-shadow: 0 0 0 1px var(--warna-utama), 0 0 28px color-mix(in srgb, var(--warna-utama) 55%, transparent); }
 html[data-theme="synthwave"] .toast-hapus-pesan { box-shadow: 0 0 18px color-mix(in srgb, var(--warna-utama) 60%, transparent); }
 html .message-row .chat-bubble.pesan-dihapus { padding-right: 36px !important; min-width: 150px; }
+
+/* label "Draf:" di daftar chat */
+.card-draf { color: var(--warna-utama); font-weight: 700; }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .card-draf { color: #d6457f; }

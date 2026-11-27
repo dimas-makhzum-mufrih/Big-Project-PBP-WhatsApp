@@ -320,7 +320,15 @@ if (btnLampir && panelLampiran) {
     });
 }
 
-if (inputTeksKirim) inputTeksKirim.addEventListener('input', perbaruiTombolKirim);
+// draf disimpan tiap ketikan; daftar chat diperbarui dengan jeda supaya tidak berat
+let timerDrafDaftarChat = null;
+if (inputTeksKirim) inputTeksKirim.addEventListener('input', () => {
+    perbaruiTombolKirim();
+    if (!chatAktifId) return;
+    simpanDrafChat(chatAktifId, inputTeksKirim.value);
+    window.clearTimeout(timerDrafDaftarChat);
+    timerDrafDaftarChat = window.setTimeout(renderChatList, 250);
+});
 perbaruiTombolKirim();
 
 function kirimPesanAktif() {
@@ -345,7 +353,9 @@ function kirimPesanAktif() {
         status: 'terkirim'
     });
 
-    simpanPesanChat(chatAktifId, daftarPesan);
+    if (!simpanPesanChat(chatAktifId, daftarPesan)) return;
+    window.clearTimeout(timerDrafDaftarChat);
+    simpanDrafChat(chatAktifId, '');
     batalkanBalasanPesan();
 
     if (inputTeksKirim) {

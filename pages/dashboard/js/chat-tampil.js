@@ -14,20 +14,24 @@ function renderChatList() {
     getUsers().forEach(pengguna => {
         if (!pengguna || String(pengguna.id) === String(userAktif.id)) return;
         const pesan = semua[kunciKonversasi(userAktif.id, pengguna.id)];
-        if (Array.isArray(pesan) && pesan.length) kandidat.set(String(pengguna.id), pengguna);
+        if ((Array.isArray(pesan) && pesan.length) || bacaDrafChat(pengguna.id)) {
+            kandidat.set(String(pengguna.id), pengguna);
+        }
     });
     const hasil = Array.from(kandidat.values())
         .map(user => {
-            const pesan = ambilPesanChat(user.id);
+            const pesan = ambilPesanTampil(user.id);
             const terakhir = pesan.length ? pesan[pesan.length - 1] : null;
             const profil = getProfilChat(user.id);
             const diblokir = penggunaDiblokir(userAktif.id, user.id);
+            const draf = diblokir ? null : bacaDrafChat(user.id);
             return {
                 id: user.id,
                 nama: profil.nama,
-                preview: diblokir ? 'Kamu memblokir pengguna ini' : formatPreviewPesan(terakhir),
-                adaGambar: !diblokir && isPesanBergambar(terakhir),
-                waktu: terakhir ? terakhir.time : null,
+                draf: Boolean(draf),
+                preview: diblokir ? 'Kamu memblokir pengguna ini' : draf ? draf.teks : formatPreviewPesan(terakhir),
+                adaGambar: !diblokir && !draf && isPesanBergambar(terakhir),
+                waktu: draf?.waktu || (terakhir ? terakhir.time : null),
                 hp: user.hp,
                 diblokir
             };
@@ -110,6 +114,11 @@ function renderChatList() {
             ikonGambar.appendChild(pakai);
             preview.appendChild(ikonGambar);
             preview.appendChild(document.createTextNode(' ' + item.preview));
+        } else if (item.draf) {
+            const labelDraf = document.createElement('span');
+            labelDraf.className = 'card-draf';
+            labelDraf.textContent = 'Draf:';
+            preview.append(labelDraf, document.createTextNode(' ' + item.preview));
         } else {
             preview.textContent = item.preview;
         }
@@ -545,6 +554,7 @@ function bukaChat(idLawan) {
     if (!idLawan || !userAktif) return;
     if (!getUserById(idLawan) || String(idLawan) === String(userAktif.id)) return;
 
+    const chatSebelumnya = chatAktifId;
     if (chatAktifId && chatAktifId !== idLawan) {
         tutupEditPesan();
         tutupPreviewGambar();
@@ -552,9 +562,15 @@ function bukaChat(idLawan) {
         if (typeof sembunyikanToastHapus === 'function') sembunyikanToastHapus();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
         aturPencarianPesanTerbuka(false, true, false);
+        if (inputTeksKirim) simpanDrafChat(chatSebelumnya, inputTeksKirim.value);
     }
 
     chatAktifId = idLawan;
+    // buka chat: tampilkan lagi draf yang tadi belum terkirim
+    if (inputTeksKirim && chatSebelumnya !== idLawan) {
+        inputTeksKirim.value = bacaDrafChat(idLawan)?.teks || '';
+        perbaruiTombolKirim();
+    }
     tutupPanelLampiran();
     const target = getProfilChat(idLawan);
 

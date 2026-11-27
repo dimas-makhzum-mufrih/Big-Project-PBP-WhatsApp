@@ -42,6 +42,11 @@ function bersihkanAntreanGambar() {
 }
 
 function tutupPreviewGambar() {
+    // teks yang tadi dipindah ke keterangan gambar dikembalikan dari draf
+    if (antreanGambar.length && inputTeksKirim && !inputTeksKirim.value && chatAktifId) {
+        inputTeksKirim.value = bacaDrafChat(chatAktifId)?.teks || '';
+        perbaruiTombolKirim();
+    }
     bersihkanAntreanGambar();
     if (panelPreviewGambar) panelPreviewGambar.hidden = true;
     if (inputFileGambar) inputFileGambar.value = '';
@@ -238,7 +243,12 @@ async function kirimSemuaGambarAntrean() {
         });
     }
 
-    simpanPesanChat(targetChatId, daftarPesan);
+    if (!simpanPesanChat(targetChatId, daftarPesan)) {
+        sedangMengirimGambar = false;
+        if (btnKirimGambar) btnKirimGambar.disabled = false;
+        return;
+    }
+    if (!inputTeksKirim?.value) simpanDrafChat(targetChatId, '');
     sedangMengirimGambar = false;
     if (btnKirimGambar) btnKirimGambar.disabled = false;
 
