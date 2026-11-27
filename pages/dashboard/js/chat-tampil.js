@@ -138,27 +138,73 @@ function tingkatPesan(item) {
     return 4;
 }
 
+// id pesan yang sudah tampil per chat: hanya pesan yang benar-benar baru yang dapat animasi masuk
+const idPesanTerender = new Map();
+
 function renderPesanAktif() {
     if (!boxListPesan || !chatAktifId) return;
+    const sebelumnya = idPesanTerender.get(String(chatAktifId));
 
     boxListPesan.replaceChildren();
     const pesan = ambilPesanChat(chatAktifId);
     const target = getProfilChat(chatAktifId);
 
-    if (!pesan.length) {
+    if (!pesan.some(item => !pesanDisembunyikan(item))) {
         const kosong = document.createElement('p');
         kosong.className = 'contact-empty';
-        kosong.textContent = 'Belum ada pesan dengan ' + target.nama + '. Mulai percakapan baru.';
+        kosong.textContent = pesan.length
+            ? 'Tidak ada pesan yang ditampilkan. Pesan baru akan muncul di sini.'
+            : 'Belum ada pesan dengan ' + target.nama + '. Mulai percakapan baru.';
         boxListPesan.appendChild(kosong);
+        renderPratinjauBalasan();
         return;
     }
 
     pesan.forEach((item, index) => {
+        if (pesanDisembunyikan(item)) return; // "hapus untuk saya"
         const baris = document.createElement('div');
         baris.className = 'message-row';
         baris.classList.add(item.sender === userAktif.id ? 'kirim' : 'terima');
         baris.dataset.messageIndex = String(index);
         baris.dataset.messageId = String(item.id || '');
+        if (sebelumnya && !sebelumnya.has(String(item.id))) baris.classList.add('pesan-baru');
+
+        if (item.dihapusSemua) {
+            const dariSaya = String(item.sender) === String(userAktif.id);
+            const bubbleHapus = document.createElement('div');
+            bubbleHapus.className = 'chat-bubble pesan-dihapus ' + (dariSaya ? 'kirim' : 'terima');
+
+            const ns = 'http://www.w3.org/2000/svg';
+            const ikon = document.createElementNS(ns, 'svg');
+            ikon.setAttribute('class', 'ikon-pesan-dihapus');
+            ikon.setAttribute('viewBox', '0 0 24 24');
+            ikon.setAttribute('aria-hidden', 'true');
+            const lingkaran = document.createElementNS(ns, 'circle');
+            lingkaran.setAttribute('cx', '12');
+            lingkaran.setAttribute('cy', '12');
+            lingkaran.setAttribute('r', '9');
+            const garis = document.createElementNS(ns, 'path');
+            garis.setAttribute('d', 'M5.6 5.6l12.8 12.8');
+            ikon.append(lingkaran, garis);
+
+            const isi = document.createElement('span');
+            isi.className = 'pesan-dihapus-isi';
+            isi.append(ikon, document.createTextNode(
+                dariSaya ? 'Kamu menghapus pesan ini' : 'Pesan ini telah dihapus'
+            ));
+
+            const waktuHapus = document.createElement('span');
+            waktuHapus.className = 'timestamp';
+            waktuHapus.textContent = formatJamPesan(item.time);
+            const footerHapus = document.createElement('div');
+            footerHapus.className = 'message-footer';
+            footerHapus.appendChild(waktuHapus);
+
+            bubbleHapus.append(isi, footerHapus);
+            baris.appendChild(bubbleHapus);
+            boxListPesan.appendChild(baris);
+            return;
+        }
 
         const punyaGambar = isPesanBergambar(item);
         const teksIsi = String(item.text || '').trim();
@@ -189,7 +235,9 @@ function renderPesanAktif() {
         }
 
         if (item.replyTo) {
-            const pesanDikutip = pesan.find(pesanAsal => String(pesanAsal.id) === String(item.replyTo));
+            const pesanAsli = pesan.find(pesanAsal => String(pesanAsal.id) === String(item.replyTo));
+            const dikutipDihapus = Boolean(pesanAsli && pesanAsli.dihapusSemua);
+            const pesanDikutip = pesanAsli && !dikutipDihapus && !pesanDisembunyikan(pesanAsli) ? pesanAsli : null;
             const kutipan = document.createElement('button');
             kutipan.type = 'button';
             kutipan.className = 'message-quoted-message' + (pesanDikutip ? '' : ' hilang');
@@ -201,7 +249,7 @@ function renderPesanAktif() {
                 kutipan.setAttribute('aria-label', 'Lompat ke pesan dari ' + pengirimKutipan.textContent);
             } else {
                 pengirimKutipan.textContent = 'Pesan asli';
-                teksKutipan.textContent = 'Pesan tidak tersedia';
+                teksKutipan.textContent = dikutipDihapus ? 'Pesan ini telah dihapus' : 'Pesan tidak tersedia';
             }
             kutipan.append(pengirimKutipan, teksKutipan);
             kutipan.addEventListener('click', event => {
@@ -382,6 +430,7 @@ function renderPesanAktif() {
         boxListPesan.appendChild(baris);
     });
 
+    idPesanTerender.set(String(chatAktifId), new Set(pesan.map(item => String(item.id))));
     boxListPesan.scrollTop = boxListPesan.scrollHeight;
     renderPratinjauBalasan();
 }
@@ -432,7 +481,8 @@ function renderHasilPencarianPesan() {
 
     const hasil = ambilPesanChat(chatAktifId)
         .map((item, index) => ({ item: item, index: index }))
-        .filter(entry => String(entry.item.text || '').toLowerCase().includes(query))
+        .filter(entry => !pesanDisembunyikan(entry.item) && !entry.item.dihapusSemua &&
+            String(entry.item.text || '').toLowerCase().includes(query))
         .reverse();
 
     if (!hasil.length) {
@@ -499,6 +549,7 @@ function bukaChat(idLawan) {
         tutupEditPesan();
         tutupPreviewGambar();
         batalkanBalasanPesan();
+        if (typeof sembunyikanToastHapus === 'function') sembunyikanToastHapus();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
         aturPencarianPesanTerbuka(false, true, false);
     }

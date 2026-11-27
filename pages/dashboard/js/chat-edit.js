@@ -20,7 +20,7 @@ function editPesanChat(idLawan, idPesan, teksBaru) {
 
     const daftar = ambilPesanChat(idLawan);
     const pesan = daftar.find(item => item.id === idPesan);
-    if (!pesan || pesan.sender !== userAktif.id) {
+    if (!pesan || pesan.sender !== userAktif.id || pesan.dihapusSemua) {
         return { berhasil: false, pesan: 'Pesan tidak ditemukan atau bukan milik kamu.' };
     }
     if (!dalamBatasWaktuEditPesan(pesan)) {

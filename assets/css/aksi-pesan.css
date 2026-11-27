@@ -174,3 +174,86 @@
 .forward-message-footer .forward-message-submit:disabled { pointer-events: none; }
 .ap-kaki .ap-simpan.belum { opacity: .55; }
 .forward-list-status:not(:empty) { color: var(--teks-gelap); font-weight: 600; }
+
+/* =====================================================================
+   Hapus pesan: pesan yang dihapus, dialog pilihan, toast "Urungkan"
+   Semua warna lewat variabel tema, jadi ikut berganti otomatis.
+   ===================================================================== */
+.chat-bubble.pesan-dihapus {
+    font-style: italic; color: var(--teks-redup);
+    background: color-mix(in srgb, var(--bg-abu-input) 70%, transparent);
+    border: 1px dashed var(--border-warna); box-shadow: none; filter: none;
+}
+.chat-bubble.pesan-dihapus .timestamp { font-style: normal; }
+.pesan-dihapus-isi { display: inline-flex; align-items: center; gap: 7px; font-size: .9rem; }
+.ikon-pesan-dihapus { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; opacity: .8; }
+
+.toast-hapus-pesan {
+    position: fixed; z-index: 5300; left: 50%; bottom: 86px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px; max-width: calc(100% - 32px); box-sizing: border-box;
+    padding: 10px 12px 10px 18px; border-radius: 999px; font-size: .88rem; white-space: nowrap;
+    background: var(--teks-gelap); color: var(--bg-putih); box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+    animation: hapus-toast-masuk .2s ease-out;
+}
+@keyframes hapus-toast-masuk { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.toast-hapus-pesan[hidden] { display: none; }
+.toast-hapus-pesan button {
+    padding: 6px 12px; border: 0; border-radius: 999px; background: color-mix(in srgb, var(--bg-putih) 18%, transparent);
+    color: inherit; font: inherit; font-weight: 700; cursor: pointer;
+}
+.toast-hapus-pesan button:hover { background: color-mix(in srgb, var(--bg-putih) 30%, transparent); }
+.toast-hapus-pesan button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.toast-hapus-pesan button[hidden] { display: none; }
+
+.dialog-hapus-pesan {
+    width: min(400px, calc(100vw - 24px)); border-radius: 18px; overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .38);
+}
+.dialog-hapus-pesan::backdrop { background: rgba(10, 12, 20, .5); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.dialog-hapus-pesan[open] { animation: ap-dialog .18s ease-out; }
+.dialog-hapus-pesan .detail-panel-content { padding: 22px 22px 18px; }
+.dialog-hapus-pesan h2 { margin: 0 0 12px; font-size: 1.12rem; }
+.hapus-pesan-cuplikan {
+    margin: 0 0 12px; padding: 9px 12px; border-left: 3px solid var(--warna-utama); border-radius: 4px 10px 10px 4px;
+    background: var(--bg-abu-input); color: var(--teks-gelap); font-size: .88rem; line-height: 1.4;
+    overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.hapus-pesan-cuplikan[hidden] { display: none; }
+.dialog-hapus-pesan .grup-form-aksi { flex-direction: column; align-items: stretch; margin-top: 14px; gap: 8px; }
+.dialog-hapus-pesan .grup-form-aksi button { width: 100%; padding: 11px 14px; border-radius: 12px; font-size: .92rem; }
+.dialog-hapus-pesan .hapus-pesan-bahaya { background: #d64545; color: #fff; }
+.dialog-hapus-pesan .hapus-pesan-bahaya:hover { background: #bf3535; }
+.dialog-hapus-pesan .hapus-pesan-batal { border-color: transparent; background: transparent; color: var(--teks-redup); }
+.dialog-hapus-pesan .hapus-pesan-batal:hover { background: var(--bg-abu-input); color: var(--teks-gelap); }
+.dialog-hapus-pesan [hidden] { display: none; }
+
+@media (max-width: 600px) {
+    .dialog-hapus-pesan { margin: auto auto 0; width: 100vw; max-width: 100vw; border-radius: 18px 18px 0 0; }
+    .toast-hapus-pesan { white-space: normal; border-radius: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .toast-hapus-pesan, .dialog-hapus-pesan[open] { animation: none; } }
+
+/* ---- sentuhan per tema ---- */
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .dialog-hapus-pesan {
+    border: 2.5px solid var(--tinta, #4a3a63); box-shadow: 5px 5px 0 var(--tinta, #4a3a63); border-radius: 22px;
+}
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .toast-hapus-pesan {
+    border: 2.5px solid var(--tinta, #4a3a63); box-shadow: 3px 3px 0 var(--tinta, #4a3a63);
+    background: #fff; color: var(--tinta, #4a3a63);
+}
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .toast-hapus-pesan button { background: #ffc4da; color: var(--tinta, #4a3a63); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .dialog-hapus-pesan .grup-form-aksi button:not(.hapus-pesan-batal) { border: 2px solid var(--tinta, #4a3a63); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .hapus-pesan-cuplikan { border-left-color: var(--tinta, #4a3a63); background: #fff4fa; }
+
+html[data-theme="gameboy"] .dialog-hapus-pesan, html[data-theme="terminal"] .dialog-hapus-pesan,
+html[data-theme="gameboy"] .toast-hapus-pesan, html[data-theme="terminal"] .toast-hapus-pesan {
+    border: 2px solid var(--warna-utama); border-radius: 0; box-shadow: 4px 4px 0 var(--warna-utama);
+}
+html[data-theme="gameboy"] .dialog-hapus-pesan *, html[data-theme="terminal"] .dialog-hapus-pesan *,
+html[data-theme="gameboy"] .toast-hapus-pesan *, html[data-theme="terminal"] .toast-hapus-pesan * { border-radius: 0 !important; }
+html[data-theme="gameboy"] .chat-bubble.pesan-dihapus, html[data-theme="terminal"] .chat-bubble.pesan-dihapus { border-radius: 0; }
+html[data-theme="terminal"] .dialog-hapus-pesan, html[data-theme="terminal"] .toast-hapus-pesan { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+
+html[data-theme="synthwave"] .dialog-hapus-pesan { border-color: var(--warna-utama); box-shadow: 0 0 0 1px var(--warna-utama), 0 0 28px color-mix(in srgb, var(--warna-utama) 55%, transparent); }
+html[data-theme="synthwave"] .toast-hapus-pesan { box-shadow: 0 0 18px color-mix(in srgb, var(--warna-utama) 60%, transparent); }
+html .message-row .chat-bubble.pesan-dihapus { padding-right: 36px !important; min-width: 150px; }

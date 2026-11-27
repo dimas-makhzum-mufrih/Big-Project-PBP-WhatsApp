@@ -201,7 +201,7 @@ function filterDaftarTujuanTeruskan() {
 }
 
 function bukaDialogTeruskanPesan(pesan, tombolPemicu) {
-    if (!pesan || !pesan.id || !userAktif) return;
+    if (!pesan || !pesan.id || !userAktif || pesan.dihapusSemua) return;
     pesanUntukDiteruskan = Object.assign({}, pesan);
     pemicuDialogTeruskan = tombolPemicu;
     inputCariTujuanTeruskan.value = '';

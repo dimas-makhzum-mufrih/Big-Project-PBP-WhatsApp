@@ -61,6 +61,7 @@ let idBalasanAktif = null;
 
 // ===== Balas pesan (chat pribadi) =====
 function ringkasanPesan(item) {
+    if (item && item.dihapusSemua) return 'Pesan ini telah dihapus';
     const teks = String(item && item.text || '').trim();
     return teks || (isPesanBergambar(item) ? 'Foto' : '');
 }
@@ -74,7 +75,8 @@ function renderPratinjauBalasan() {
     const pesanBalasan = chatAktifId && idBalasanAktif
         ? ambilPesanChat(chatAktifId).find(item => String(item.id) === String(idBalasanAktif))
         : null;
-    if (!pesanBalasan) {
+    // pesan yang dibalas sudah dihapus (untuk semua / untuk saya): batalkan balasan
+    if (!pesanBalasan || pesanBalasan.dihapusSemua || pesanDisembunyikan(pesanBalasan)) {
         idBalasanAktif = null;
         panelPratinjauBalasan.hidden = true;
         return;
@@ -86,7 +88,7 @@ function renderPratinjauBalasan() {
 
 function mulaiBalasPesan(idPesan) {
     const pesan = ambilPesanChat(chatAktifId).find(item => String(item.id) === String(idPesan));
-    if (!pesan) return;
+    if (!pesan || pesan.dihapusSemua || pesanDisembunyikan(pesan)) return;
     idBalasanAktif = pesan.id;
     renderPratinjauBalasan();
     if (inputTeksKirim) inputTeksKirim.focus();
@@ -363,6 +365,11 @@ function isPesanBergambar(item) {
 
 function formatPreviewPesan(terakhir) {
     if (!terakhir) return 'Mulai chat baru';
+    if (terakhir.dihapusSemua) {
+        return userAktif && String(terakhir.sender) === String(userAktif.id)
+            ? 'Kamu menghapus pesan ini'
+            : 'Pesan ini telah dihapus';
+    }
     const teks = (terakhir.text || '').trim();
     if (isPesanBergambar(terakhir)) {
         return teks || 'Foto';
@@ -640,4 +647,81 @@ function isKontakPengguna(idLawan) {
 
     return NgumpulKontakData.list(userAktif.id)
         .some(kontak => samakanHp(kontak.phone, user.hp));
+}
+
+// ===== Hapus pesan (untuk saya / untuk semua) =====
+// Berlaku untuk semua jenis pesan: teks, gambar, teruskan, balasan.
+function pesanDisembunyikan(item) {
+    return Boolean(item && userAktif && Array.isArray(item.hiddenFor) &&
+        item.hiddenFor.includes(String(userAktif.id)));
+}
+
+function ambilPesanTampil(idLawan) {
+    return ambilPesanChat(idLawan).filter(item => !pesanDisembunyikan(item));
+}
+
+function hapusPesanUntukSaya(idLawan, idPesan) {
+    const daftar = ambilPesanChat(idLawan);
+    const pesan = daftar.find(item => String(item.id) === String(idPesan));
+    if (!pesan) return false;
+    const tersembunyi = Array.isArray(pesan.hiddenFor) ? pesan.hiddenFor : [];
+    if (!tersembunyi.includes(String(userAktif.id))) tersembunyi.push(String(userAktif.id));
+    pesan.hiddenFor = tersembunyi;
+    if (ambilPinPesan(idLawan) === pesan.id) hapusPinPesan(idLawan);
+    return simpanPesanChat(idLawan, daftar);
+}
+
+function urungkanHapusUntukSaya(idLawan, idPesan) {
+    const daftar = ambilPesanChat(idLawan);
+    const pesan = daftar.find(item => String(item.id) === String(idPesan));
+    if (!pesan || !Array.isArray(pesan.hiddenFor)) return false;
+    pesan.hiddenFor = pesan.hiddenFor.filter(id => id !== String(userAktif.id));
+    if (!pesan.hiddenFor.length) delete pesan.hiddenFor;
+    return simpanPesanChat(idLawan, daftar);
+}
+
+// Hapus blob gambar dari IndexedDB, kecuali masih dipakai pesan lain
+// (pesan yang diteruskan memakai imageId yang sama dengan aslinya).
+function gambarMasihDipakai(imageId, kecualiId) {
+    const semua = bacaSemuaChat();
+    return Object.keys(semua).some(kunci => Array.isArray(semua[kunci]) &&
+        semua[kunci].some(pesan => pesan && pesan.imageId === imageId &&
+            String(pesan.id) !== String(kecualiId) && !pesan.dihapusSemua));
+}
+
+async function hapusGambarIdb(imageId) {
+    if (!imageId) return;
+    const url = cacheUrlGambar.get(imageId);
+    if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+    cacheUrlGambar.delete(imageId);
+    const db = await bukaDbMediaChat();
+    if (!db) return;
+    try {
+        db.transaction(STORE_MEDIA_CHAT, 'readwrite').objectStore(STORE_MEDIA_CHAT).delete(imageId);
+    } catch (error) { /* abaikan: hanya pembersihan */ }
+}
+
+function hapusPesanUntukSemua(idLawan, idPesan) {
+    const daftar = ambilPesanChat(idLawan);
+    const pesan = daftar.find(item => String(item.id) === String(idPesan));
+    if (!pesan || String(pesan.sender) !== String(userAktif.id) || pesan.dihapusSemua) return false;
+    const imageId = pesan.imageId;
+    // sisakan hanya kerangka pesan supaya urutan, jam, dan status tetap utuh
+    ['text', 'image', 'imageId', 'hasImage', 'replyTo', 'forwarded', 'editedAt']
+        .forEach(kunci => { delete pesan[kunci]; });
+    pesan.text = '';
+    pesan.dihapusSemua = true;
+    pesan.dihapusPada = new Date().toISOString();
+    if (ambilPinPesan(idLawan) === pesan.id) hapusPinPesan(idLawan);
+    if (typeof bacaSemuaReaksiPesan === 'function') {
+        const reaksi = bacaSemuaReaksiPesan();
+        const kunci = kunciKonversasi(userAktif.id, idLawan);
+        if (reaksi[kunci] && reaksi[kunci][pesan.id]) {
+            delete reaksi[kunci][pesan.id];
+            simpanSemuaReaksiPesan(reaksi);
+        }
+    }
+    const berhasil = simpanPesanChat(idLawan, daftar);
+    if (berhasil && imageId && !gambarMasihDipakai(imageId, pesan.id)) hapusGambarIdb(imageId);
+    return berhasil;
 }

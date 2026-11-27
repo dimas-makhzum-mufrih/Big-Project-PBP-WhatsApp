@@ -32,7 +32,8 @@
         balas: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v2"/>',
         teruskan: '<polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/>',
         edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
-        tutup: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'
+        tutup: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+        hapus: '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>'
     };
 
     function svg(nama, kelas) {
@@ -352,6 +353,10 @@
         if (!p) return [];
         var daftar = [];
         var teks = String(p.text || "").trim();
+        var hapusItem = typeof mintaHapusPesan === "function" && p.id
+            ? item("hapus", "Hapus", function () { mintaHapusPesan(p.id); }, true) : null;
+        // pesan yang sudah dihapus untuk semua: hanya boleh disembunyikan dari tampilan sendiri
+        if (p.dihapusSemua) return hapusItem ? [hapusItem] : [];
         if (p.id && typeof mulaiBalasPesan === "function" && !(typeof chatTerblokir === "function" && chatTerblokir(chatAktifId))) {
             daftar.push(item("balas", "Balas", function () { mulaiBalasPesan(p.id); }));
         }
@@ -372,6 +377,7 @@
             else if (!dalamBatas(p.time)) daftar.push(item("edit", "Edit", function () { kabar("Batas waktu edit 5 menit sudah habis."); }, false, true));
             else daftar.push(item("edit", "Edit", function () { bukaEditPribadi(p); }));
         }
+        if (hapusItem) daftar.push(hapusItem);
         return daftar;
     }
 
@@ -456,6 +462,11 @@
         var bubble = baris.querySelector(".chat-bubble");
         if (!bubble) return [];
         var daftar = [], teks = teksGrup(baris);
+        var idHapus = baris.dataset.message;
+        var hapusG = window.NgumpulGrupHapus && idHapus
+            ? item("hapus", "Hapus", function () { window.NgumpulGrupHapus.minta(idHapus); }, true) : null;
+        // sisa pesan yang dihapus untuk semua: hanya bisa disembunyikan dari tampilan sendiri
+        if (bubble.classList.contains("pesan-dihapus")) return hapusG ? [hapusG] : [];
         var komposer = document.getElementById("ruang-composer");
         if (window.NgumpulBalas && komposer && !komposer.hidden) {
             daftar.push(item("balas", "Balas", function () { window.NgumpulBalas.mulaiGrup(baris); }));
@@ -471,6 +482,7 @@
             daftar.push(item("teruskan", "Teruskan", function () { teruskan({ id: "grup-" + baris.dataset.message, text: teks }, null); }));
         }
         if (bubble.classList.contains("kirim") && teks) daftar.push(item("edit", "Edit", function () { editGrup(bubble); }));
+        if (hapusG) daftar.push(hapusG);
         return daftar;
     }
 

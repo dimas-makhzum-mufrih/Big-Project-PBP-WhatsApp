@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="css/kontak.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/chat.css">
-    <link rel="stylesheet" href="css/chat-edit.css">
     <link rel="stylesheet" href="css/setelan.css">
     <link rel="stylesheet" href="css/grup.css">
     <link rel="stylesheet" href="css/media.css">
@@ -1476,6 +1475,21 @@
             </div>
         </form>
     </dialog>
+    <dialog class="grup-dialog dialog-hapus-pesan" id="dialog-hapus-pesan" aria-labelledby="judul-hapus-pesan">
+        <div class="detail-panel-content">
+            <h2 id="judul-hapus-pesan">Hapus pesan?</h2>
+            <p class="hapus-pesan-cuplikan" id="cuplikan-hapus-pesan" hidden></p>
+            <div class="grup-form-aksi">
+                <button class="grup-tombol-utama hapus-pesan-bahaya" type="button" id="btn-hapus-semua">Hapus untuk semua orang</button>
+                <button class="grup-tombol-sekunder" type="button" id="btn-hapus-saya">Hapus untuk saya</button>
+                <button class="grup-tombol-sekunder hapus-pesan-batal" type="button" id="btn-batal-hapus">Batal</button>
+            </div>
+        </div>
+    </dialog>
+    <div class="toast-hapus-pesan" id="toast-hapus-pesan" role="status" aria-live="polite" hidden>
+        <span id="teks-toast-hapus">Pesan dihapus</span>
+        <button type="button" id="btn-urungkan-hapus" hidden>Urungkan</button>
+    </div>
     <!-- Peninjau Gambar Layar Penuh (Lightbox ala WhatsApp) -->
     <div class="chat-lightbox" id="lightbox-gambar" role="dialog" aria-modal="true" aria-label="Peninjau gambar obrolan"
         hidden>

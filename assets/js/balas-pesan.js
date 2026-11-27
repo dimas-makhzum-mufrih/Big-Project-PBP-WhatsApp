@@ -141,9 +141,9 @@
         function bisaBalas(r) {
             if (jenis === "grup") {
                 var k = document.getElementById("ruang-composer");
-                return !!(k && !k.hidden && r.querySelector(".chat-bubble"));
+                return !!(k && !k.hidden && r.querySelector(".chat-bubble") && !r.querySelector(".pesan-dihapus"));
             }
-            return typeof window.mulaiBalasPesan === "function" && !(typeof chatTerblokir === "function" && chatTerblokir(chatAktifId)) && !!r.dataset.messageId;
+            return typeof window.mulaiBalasPesan === "function" && !(typeof chatTerblokir === "function" && chatTerblokir(chatAktifId)) && !!r.dataset.messageId && !r.querySelector(".pesan-dihapus");
         }
         function bersihkan() {
             if (!st) return;
