@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Masuk ke Ngumpul - Chat, grup, dan telepon</title>
   <link rel="stylesheet" href="login.css" />
+  <link rel="stylesheet" href="../../assets/css/auth.css">
   <meta name="color-scheme" content="light dark">
   <link rel="stylesheet" href="../../assets/css/variables.css">
   <link rel="stylesheet" href="../../assets/css/themes.css">
@@ -64,94 +65,80 @@
           Kembali
         </a>
         <h2>Masuk ke Ngumpul</h2>
-        <p class="sub">Silakan masuk dengan akun yang sudah terdaftar</p>
+        <p class="sub">Masuk dengan email atau akun Google.</p>
+        <p class="auth-notice" id="status-masuk" role="status"></p>
+        <form id="masuk-email" method="post">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" name="email" autocomplete="username" required>
 
-        <label for="login-identifier">Email atau Nomor HP</label>
-        <input type="text" id="login-identifier" placeholder="Masukkan Email atau Nomor HP" autocomplete="username" />
-        <div class="error" id="error-login-identifier"></div>
+          <label for="login-sandi">Sandi</label>
+          <div class="kolom-sandi">
+            <input type="password" id="login-sandi" name="password" autocomplete="current-password" required>
+            <button type="button" class="lihat" data-target="login-sandi">Lihat</button>
+          </div>
 
-        <label for="login-sandi">Sandi</label>
-        <div class="kolom-sandi">
-          <input type="password" id="login-sandi" placeholder="Masukkan kata sandi Anda"
-            autocomplete="current-password" />
-          <button type="button" class="lihat" data-target="login-sandi">
-            Lihat
-          </button>
-        </div>
-        <div class="error" id="error-login-sandi"></div>
+          <p class="bawah lupa-baris"><a href="#lupa-sandi">Lupa sandi?</a></p>
+          <div class="error auth-error" id="error-masuk" role="alert"></div>
+          <button type="submit" class="tombol" id="btn-masuk">Masuk</button>
+        </form>
 
-        <p class="bawah lupa-baris"><a href="#lupa-sandi" id="tautan-lupa-sandi">Lupa sandi?</a></p>
-
-        <button type="button" class="tombol" id="btn-masuk">Masuk</button>
-
+        <a class="tombol google" data-google-login="login.html" href="login.html">
+          <img src="../../assets/img/google.svg" alt="" width="18" height="18"> Lanjutkan dengan Google
+        </a>
         <p class="bawah">
           Belum punya akun?
-          <a href="../../index.html?halaman=form-daftar&splash=none">Daftar sekarang</a>
+          <a href="../../index.html?halaman=form-daftar&amp;splash=none">Daftar sekarang</a>
         </p>
       </section>
 
-      <section class="halaman" id="form-reset-nomor">
-        <button type="button" class="kembali tombol-kembali" data-kembali="form-login">&larr; Kembali ke login</button>
+      <section class="halaman" id="lupa-sandi">
+        <a class="kembali" href="#masuk">&larr; Kembali ke login</a>
         <h2>Lupa sandi?</h2>
-        <p class="sub">Masukkan nomor HP atau alamat email yang terhubung ke akunmu.</p>
+        <p class="sub">Masukkan email yang terhubung ke akunmu.</p>
 
-        <label for="reset-nomor">Nomor HP atau email</label>
-        <input type="text" id="reset-nomor" placeholder="081234567890 atau nama@gmail.com" autocomplete="username" />
-        <div class="error" id="error-reset-nomor" role="alert"></div>
-        <p class="catatan-demo">OTP hanya simulasi antarmuka. Tidak ada SMS atau email yang benar-benar dikirim.</p>
-        <button type="button" class="tombol" id="btn-kirim-otp-reset">Minta kode OTP</button>
+        <form id="minta-reset" method="post">
+          <label for="reset-email">Email</label>
+          <input type="email" id="reset-email" name="email" autocomplete="email" required>
+          <div class="error auth-error" id="error-reset-email" role="alert"></div>
+          <button type="submit" class="tombol" id="btn-kirim-otp-reset">Kirim kode verifikasi</button>
+        </form>
       </section>
 
-      <section class="halaman" id="form-reset-otp">
-        <button type="button" class="kembali tombol-kembali" data-kembali="form-reset-nomor">&larr; Ganti
-          kontak</button>
-        <h2>Verifikasi kontak</h2>
-        <p class="sub">Masukkan kode 6 angka untuk <b id="reset-nomor-tersamar">kontak kamu</b>.</p>
-
-        <div class="kotak-otp-reset" id="kotak-otp-reset" role="group" aria-label="Kode OTP 6 angka">
-          <input class="digit-reset" inputmode="numeric" maxlength="1" autocomplete="one-time-code"
-            aria-label="Angka 1" />
-          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 2" />
-          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 3" />
-          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 4" />
-          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 5" />
-          <input class="digit-reset" inputmode="numeric" maxlength="1" aria-label="Angka 6" />
-        </div>
-        <div class="error" id="error-reset-otp" role="alert"></div>
-        <button type="button" class="tombol" id="btn-verifikasi-reset" disabled>Verifikasi OTP</button>
-      </section>
-
-      <section class="halaman" id="form-sandi-baru">
-        <button type="button" class="kembali tombol-kembali" data-kembali="form-reset-otp">&larr; Kembali</button>
+      <section class="halaman" id="sandi-baru">
+        <a class="kembali" href="#lupa-sandi">&larr; Ganti email</a>
         <h2>Buat sandi baru</h2>
-        <p class="sub">Gunakan sandi baru untuk akunmu.</p>
+        <p class="sub">Jika email <b id="alamat-reset"></b> terdaftar, kamu akan menerima kode 6 angka.</p>
 
-        <label for="reset-sandi-baru">Sandi baru</label>
-        <div class="kolom-sandi">
-          <input type="password" id="reset-sandi-baru" placeholder="Masukkan sandi baru" autocomplete="new-password" />
-          <button type="button" class="lihat" data-target="reset-sandi-baru">Lihat</button>
-        </div>
-        <div class="error" id="error-reset-sandi-baru" role="alert"></div>
+        <form id="reset-sandi" method="post">
+          <label for="reset-otp">Kode verifikasi</label>
+          <input id="reset-otp" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+            autocomplete="one-time-code" required>
 
-        <label for="reset-sandi-konfirmasi">Ulangi sandi baru</label>
-        <div class="kolom-sandi">
-          <input type="password" id="reset-sandi-konfirmasi" placeholder="Masukkan ulang sandi baru"
-            autocomplete="new-password" />
-          <button type="button" class="lihat" data-target="reset-sandi-konfirmasi">Lihat</button>
-        </div>
-        <div class="error" id="error-reset-sandi-konfirmasi" role="alert"></div>
-        <button type="button" class="tombol" id="btn-simpan-sandi">Ubah sandi</button>
+          <label for="reset-sandi-baru">Sandi baru</label>
+          <div class="kolom-sandi">
+            <input type="password" id="reset-sandi-baru" name="password" placeholder="Minimal 8 karakter"
+              autocomplete="new-password" minlength="8" maxlength="128" required>
+            <button type="button" class="lihat" data-target="reset-sandi-baru">Lihat</button>
+          </div>
+
+          <label for="reset-sandi-konfirmasi">Ulangi sandi baru</label>
+          <div class="kolom-sandi">
+            <input type="password" id="reset-sandi-konfirmasi" autocomplete="new-password"
+              aria-describedby="error-konfirmasi" required>
+            <button type="button" class="lihat" data-target="reset-sandi-konfirmasi">Lihat</button>
+          </div>
+          <div class="error auth-error" id="error-konfirmasi" role="alert"></div>
+          <p class="auth-notice" id="status-reset" role="status"></p>
+          <div class="error auth-error" id="error-reset-sandi" role="alert"></div>
+          <button type="submit" class="tombol" id="btn-simpan-sandi">Ubah sandi</button>
+          <button type="button" class="tombol kosong" id="btn-kirim-ulang-reset">Kirim ulang kode</button>
+        </form>
       </section>
     </main>
   </div>
 
-  <div id="notif-otp-reset" role="status" aria-live="polite" aria-atomic="true">
-    <p>Pesan masuk dari Ngumpul:</p>
-    <p>Kode verifikasi kamu <b id="kode-otp-reset"></b></p>
-  </div>
-  <div id="toast"></div>
-
-  <script src="../../assets/js/storage.js"></script>
+  <script src="../../assets/js/auth.js"></script>
+  <script src="../../assets/js/auth-form.js"></script>
   <script src="login.js"></script>
 </body>
 

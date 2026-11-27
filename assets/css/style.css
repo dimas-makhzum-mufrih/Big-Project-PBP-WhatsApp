@@ -133,21 +133,6 @@ body {
   display: block;
 }
 
-.halaman.tengah {
-  text-align: center;
-}
-
-.centang {
-  width: 72px;
-  height: 72px;
-  margin-bottom: 8px;
-  fill: none;
-  stroke: var(--hijau);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 h2 {
   margin: 0;
   font-size: 22px;
@@ -276,22 +261,6 @@ input.salah {
 
 .bawah a {
   color: var(--aksen-teks);
-}
-
-#toast {
-  display: none;
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #222;
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  z-index: 10;
-  max-width: 90%;
-  text-align: center;
 }
 
 @media (min-width: 800px) {
@@ -468,116 +437,4 @@ input.salah {
     animation: none;
   }
 
-}
-
-.kolom-hp {
-  position: relative;
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-}
-
-.kolom-hp>input {
-  flex: 1;
-  min-width: 0;
-}
-
-.pilih-negara {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  flex: none;
-  padding: 0 10px;
-  border: 1px solid var(--garis);
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--teks);
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.pilih-negara:focus-visible,
-.pilih-negara[aria-expanded="true"] {
-  outline: none;
-  border-color: var(--hijau);
-}
-
-.pilih-negara .ikon {
-  width: 16px;
-  height: 16px;
-  color: var(--abu);
-}
-
-.bendera {
-  width: 24px;
-  height: 18px;
-  flex: none;
-  border-radius: 3px;
-  object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
-}
-
-.daftar-negara {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  z-index: 20;
-  background: var(--kotak);
-  border: 1px solid var(--garis);
-  border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
-  overflow: hidden;
-}
-
-.daftar-negara[hidden] {
-  display: none;
-}
-
-.daftar-negara input {
-  border: none;
-  border-bottom: 1px solid var(--garis);
-  border-radius: 0;
-  background: var(--kotak);
-}
-
-.daftar-negara ul {
-  list-style: none;
-  margin: 0;
-  padding: 4px 0;
-  max-height: 260px;
-  overflow-y: auto;
-}
-
-.daftar-negara li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  cursor: pointer;
-}
-
-.daftar-negara li:hover,
-.daftar-negara li.dipilih {
-  background: var(--bg);
-}
-
-.daftar-negara li.dipilih .nama-negara {
-  color: var(--aksen-teks);
-  font-weight: bold;
-}
-
-.daftar-negara li.kosong {
-  color: var(--abu);
-  cursor: default;
-  justify-content: center;
-}
-
-.nama-negara {
-  flex: 1;
-}
-
-.kode-negara {
-  color: var(--abu);
-  font-size: 14px;
 }

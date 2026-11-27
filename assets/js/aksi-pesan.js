@@ -20,8 +20,6 @@
         document.head.appendChild(l);
     })();
 
-    var BATAS = 5 * 60 * 1000;
-    try { if (typeof BATAS_WAKTU_EDIT_PESAN === "number") BATAS = BATAS_WAKTU_EDIT_PESAN; else window.BATAS_WAKTU_EDIT_PESAN = BATAS; } catch (e) {}
 
     var NS = "http://www.w3.org/2000/svg";
     var IKON = {
@@ -173,7 +171,7 @@
         '<button type="button" class="ap-tutup" aria-label="Tutup"></button></header>' +
         '<div class="ap-badan"><label class="sr-only" for="ap-isi-edit">Isi pesan</label>' +
         '<textarea id="ap-isi-edit" rows="4" maxlength="4000"></textarea>' +
-        '<p class="ap-ket">Pesan hanya bisa diedit 5 menit sejak dikirim. Enter untuk simpan, Shift+Enter untuk baris baru.</p>' +
+        '<p class="ap-ket">Enter untuk simpan, Shift+Enter untuk baris baru.</p>' +
         '<p class="ap-galat" role="alert"></p></div>' +
         '<footer class="ap-kaki"><button type="button" class="ap-batal">Batal</button>' +
         '<button type="submit" class="ap-simpan">Simpan</button></footer></form>';
@@ -181,26 +179,6 @@
     dlg.querySelector(".ap-tutup").appendChild(svg("tutup"));
     var formEdit = dlg.querySelector("form"), isiEdit = dlg.querySelector("textarea"), galatEdit = dlg.querySelector(".ap-galat");
     var targetEdit = null;
-
-    function dalamBatas(waktu) {
-        var t = Date.parse(waktu), umur = Date.now() - t;
-        return isFinite(t) && umur >= 0 && umur <= BATAS;
-    }
-
-    function simpanEditPribadi(idLawan, idPesan, teksBaru) {
-        if (typeof window.editPesanChat === "function") return window.editPesanChat(idLawan, idPesan, teksBaru);
-        var teks = String(teksBaru || "").trim();
-        if (!teks) return { berhasil: false, pesan: "Pesan tidak boleh kosong." };
-        var daftar = ambilPesanChat(idLawan);
-        var p = daftar.find(function (i) { return String(i.id) === String(idPesan); });
-        if (!p || p.sender !== userAktif.id) return { berhasil: false, pesan: "Pesan tidak ditemukan atau bukan milik kamu." };
-        if (!dalamBatas(p.time)) return { berhasil: false, pesan: "Batas waktu edit 5 menit sudah habis." };
-        if (teks === p.text) return { berhasil: true, berubah: false };
-        p.text = teks;
-        p.editedAt = new Date().toISOString();
-        if (!simpanPesanChat(idLawan, daftar)) return { berhasil: false, pesan: "Perubahan gagal disimpan." };
-        return { berhasil: true, berubah: true };
-    }
 
     function bukaEditPribadi(p) {
         targetEdit = { idLawan: chatAktifId, idPesan: p.id };
@@ -211,10 +189,16 @@
         isiEdit.setSelectionRange(isiEdit.value.length, isiEdit.value.length);
     }
 
-    formEdit.addEventListener("submit", function (e) {
+    formEdit.addEventListener("submit", async function (e) {
         e.preventDefault();
         if (!targetEdit) return;
-        var h = simpanEditPribadi(targetEdit.idLawan, targetEdit.idPesan, isiEdit.value);
+        var tombol = formEdit.querySelector('[type="submit"]');
+        if (tombol.disabled) return;
+        var target = targetEdit;
+        tombol.disabled = true;
+        var h = await editPesanChat(target.idLawan, target.idPesan, isiEdit.value);
+        tombol.disabled = false;
+        if (target !== targetEdit) return;
         if (!h.berhasil) { galatEdit.textContent = h.pesan; isiEdit.focus(); return; }
         dlg.close();
         if (h.berubah) {
@@ -237,115 +221,20 @@
     dlg.addEventListener("close", function () { targetEdit = null; });
 
     /* ---------- teruskan pesan ---------- */
-    // Dialog teruskan milik teman (chat-teruskan.js) dipakai kalau ada. Kalau belum di-merge,
-    // dialog sederhana di bawah ini yang dipakai, supaya menu tetap lengkap.
-    function adaTeruskanBawaan() {
-        return typeof window.bukaDialogTeruskanPesan === "function" && !!document.getElementById("dialog-teruskan-pesan");
-    }
     function bisaTeruskan() {
-        return adaTeruskanBawaan() || (typeof NgumpulKontakData !== "undefined" && typeof bacaSemuaChat === "function" && typeof simpanSemuaChat === "function");
-    }
-
-    var fw = null;
-    function bangunFw() {
-        var d = el("dialog", "ap-dialog");
-        d.setAttribute("aria-labelledby", "ap-judul-fw");
-        d.innerHTML =
-            '<form class="ap-form" method="dialog">' +
-            '<header class="ap-kepala"><h2 id="ap-judul-fw">Teruskan pesan</h2><button type="button" class="ap-tutup" aria-label="Tutup"></button></header>' +
-            '<p class="forward-message-instruction">Pilih satu atau beberapa kontak tujuan.</p>' +
-            '<label class="forward-message-search"><span class="sr-only">Cari kontak</span><input type="search" placeholder="Cari kontak..." autocomplete="off"></label>' +
-            '<p class="forward-list-status" role="status" aria-live="polite"></p>' +
-            '<div class="forward-contact-list"></div>' +
-            '<footer class="ap-kaki"><button type="button" class="ap-batal">Batal</button><button type="submit" class="ap-simpan ap-fw-kirim">Teruskan</button></footer></form>';
-        document.body.appendChild(d);
-        var o = { d: d, pesan: null, cari: d.querySelector("input"), daftar: d.querySelector(".forward-contact-list"),
-                  status: d.querySelector(".forward-list-status"), kirim: d.querySelector(".ap-fw-kirim") };
-        d.querySelector(".ap-tutup").appendChild(svg("tutup"));
-        d.querySelector(".ap-tutup").addEventListener("click", function () { d.close(); });
-        d.querySelector(".ap-batal").addEventListener("click", function () { d.close(); });
-        d.addEventListener("click", function (e) { if (e.target === d) d.close(); });
-        o.kirim.insertAdjacentHTML("afterbegin", "");
-        function segar() { o.kirim.classList.toggle("belum", !o.daftar.querySelector("input:checked")); if (o.daftar.querySelector("input:checked")) o.status.textContent = ""; }
-        o.daftar.addEventListener("change", segar);
-        o.cari.addEventListener("input", function () {
-            var q = o.cari.value.trim().toLocaleLowerCase("id"), cocok = 0;
-            Array.prototype.forEach.call(o.daftar.children, function (b) {
-                var ok = b.textContent.toLocaleLowerCase("id").indexOf(q) >= 0; b.hidden = !ok; if (ok) cocok++;
-            });
-            o.status.textContent = q && !cocok ? "Kontak tidak ditemukan." : "";
-        });
-        d.querySelector("form").addEventListener("submit", function (e) {
-            e.preventDefault();
-            var tujuan = Array.prototype.map.call(o.daftar.querySelectorAll("input:checked"), function (i) { return i.value; })
-                .filter(function (id) { return id !== String(userAktif.id) && getUserById(id) && !chatTerblokir(id); });
-            if (!tujuan.length) { o.status.textContent = "Pilih dulu kontak tujuannya (centang di kanan nama)."; return; }
-            try {
-            var semua = bacaSemuaChat(), waktu = new Date().toISOString();
-            tujuan.forEach(function (id) {
-                var kunci = kunciKonversasi(userAktif.id, id);
-                var arr = Array.isArray(semua[kunci]) ? semua[kunci].slice() : [];
-                arr.push(Object.assign({}, o.pesan, { id: buatIdPesan(), sender: userAktif.id, time: waktu, status: "terkirim", forwarded: true }));
-                semua[kunci] = arr;
-            });
-            if (!simpanSemuaChat(semua)) { o.status.textContent = "Pesan gagal diteruskan. Penyimpanan browser tidak dapat digunakan."; return; }
-            if (typeof renderChatList === "function") renderChatList();
-            if (typeof chatAktifId !== "undefined" && tujuan.some(function (id) { return String(id) === String(chatAktifId); }) && typeof renderPesanAktif === "function") renderPesanAktif();
-            d.close();
-            kabar("Pesan diteruskan ke " + tujuan.length + " kontak");
-            } catch (err) { console.error(err); o.status.textContent = "Gagal meneruskan: " + (err && err.message ? err.message : "terjadi kesalahan"); }
-        });
-        return o;
+        return typeof window.bukaDialogTeruskanPesan === "function";
     }
 
     function teruskan(pesan, pemicu) {
-        // salinan bersih: tanda "Diedit" dan sematan milik pesan asal tidak ikut terbawa
-        pesan = Object.assign({}, pesan);
-        delete pesan.editedAt;
-        if (adaTeruskanBawaan()) { window.bukaDialogTeruskanPesan(pesan, pemicu); return; }
-        if (!fw) fw = bangunFw();
-        fw.pesan = Object.assign({}, pesan);
-        fw.cari.value = ""; fw.kirim.classList.add("belum"); fw.status.textContent = "";
-        fw.daftar.replaceChildren();
-        var teks = String((pesan && pesan.text) || "").trim();
-        var lama = fw.d.querySelector(".ap-cuplikan"); if (lama) lama.remove();
-        var cup = el("blockquote", "ap-cuplikan");
-        cup.appendChild(svg("teruskan"));
-        cup.appendChild(el("span", "", teks ? (teks.length > 140 ? teks.slice(0, 140) + "…" : teks) : "Gambar"));
-        fw.d.querySelector(".forward-message-instruction").after(cup);
-        var users = getUsers(), warna = [210, 280, 24, 160, 340, 45];
-        var daftar = NgumpulKontakData.list(userAktif.id).filter(function (k) { return k && k.phone; }).map(function (k) {
-            return { k: k, u: users.find(function (u) { return u && u.hp && samakanHp(u.hp, k.phone); }) };
-        }).filter(function (x) { return !x.u || String(x.u.id) !== String(userAktif.id); });
-        daftar.forEach(function (x) {
-            var nama = x.k.name || (x.u ? getProfil(x.u.id).nama : "") || x.k.phone;
-            var b = el("label", "forward-contact");
-            var cb = el("input"); cb.type = "checkbox"; cb.value = String(x.u ? x.u.id : "");
-            var det = el("span", "forward-contact-details");
-            var nomor = el("span", "forward-contact-subtitle", x.k.phone);
-            det.append(el("span", "forward-contact-name", nama), nomor);
-            if (!x.u) { cb.disabled = true; b.classList.add("forward-contact-unavailable"); nomor.textContent += " (belum terdaftar)"; }
-            else if (chatTerblokir(x.u.id)) { cb.disabled = true; b.classList.add("forward-contact-unavailable"); nomor.textContent += " (diblokir)"; }
-            var jum = 0; for (var i = 0; i < nama.length; i++) jum += nama.charCodeAt(i);
-            var av = el("span", "ap-avatar", nama.trim().charAt(0).toUpperCase());
-            av.style.setProperty("--ap-hue", String(warna[jum % warna.length])); av.setAttribute("aria-hidden", "true");
-            b.dataset.ap = "1";
-            b.append(av, det, cb);
-            fw.daftar.appendChild(b);
-        });
-        if (!daftar.length) fw.status.textContent = "Belum ada kontak tujuan yang bisa dipilih.";
-        fw.d.showModal();
-        fw.cari.focus();
+        if (bisaTeruskan()) window.bukaDialogTeruskanPesan(pesan, pemicu);
     }
 
-    /* ---------- chat pribadi ---------- */
     var boxPribadi = document.getElementById("box-list-pesan");
 
     function pesanPribadi(baris) {
-        if (typeof ambilPesanChat !== "function" || typeof chatAktifId === "undefined" || !chatAktifId) return null;
-        var id = baris && baris.dataset.messageId;
-        if (!id) return null;
-        return ambilPesanChat(chatAktifId).find(function (i) { return String(i.id) === id; }) || null;
+        return ambilPesanChat(chatAktifId).find(function (pesan) {
+            return String(pesan.id) === baris.dataset.messageId;
+        });
     }
 
     function daftarPribadi(baris) {
@@ -361,20 +250,20 @@
             daftar.push(item("balas", "Balas", function () { mulaiBalasPesan(p.id); }));
         }
         if (teks) daftar.push(item("salin", "Salin", function () { salinTeks(teks); }));
+        if (teks && !p.encrypted) daftar.push(item("salin", "Terjemahkan", function () { terjemahkanDM(teks); }));
         var btnPin = baris.querySelector(".btn-pin-message");
         if (btnPin && p.id) {
             var tersemat = typeof ambilPinPesan === "function" && ambilPinPesan(chatAktifId) === p.id;
             daftar.push(item(tersemat ? "lepas" : "pin", tersemat ? "Lepas sematan" : "Sematkan", function () { btnPin.click(); }));
         }
-        if (bisaTeruskan() && p.id) {
+        if (bisaTeruskan() && p.id && !p.attachmentId && !p.encrypted) {
             var btnTerus = baris.querySelector("[data-teruskan-pesan]");
             daftar.push(item("teruskan", "Teruskan", function () { teruskan(p, btnTerus); }));
         }
         var milikku = typeof userAktif !== "undefined" && userAktif && p.sender === userAktif.id;
         var blokir = typeof chatTerblokir === "function" && chatTerblokir(chatAktifId);
-        if (milikku && teks) {
+        if (milikku && teks && !p.encrypted) {
             if (blokir) daftar.push(item("edit", "Edit", function () { kabar("Pesan tidak dapat diedit saat pengguna diblokir."); }, false, true));
-            else if (!dalamBatas(p.time)) daftar.push(item("edit", "Edit", function () { kabar("Batas waktu edit 5 menit sudah habis."); }, false, true));
             else daftar.push(item("edit", "Edit", function () { bukaEditPribadi(p); }));
         }
         if (hapusItem) daftar.push(hapusItem);
@@ -408,26 +297,18 @@
         })();
     }
 
-    /* sematan pesan grup: disimpan lokal per akun (id pesan unik), satu sematan per channel yang sedang tampil */
-    function kunciG() { return "ngumpul_grup_sematan_" + (typeof userAktif !== "undefined" && userAktif ? userAktif.id : "x"); }
-    function bacaG() { try { var a = JSON.parse(localStorage.getItem(kunciG()) || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
-    function tulisG(a) { try { localStorage.setItem(kunciG(), JSON.stringify(a.slice(-300))); } catch (e) {} }
     var barG = null;
-    function sematG(id, pasang) {
-        var tampil = {};
-        if (boxGrup) boxGrup.querySelectorAll("[data-message]").forEach(function (b) { tampil[b.dataset.message] = 1; });
-        var a = bacaG().filter(function (x) { return x !== id && !tampil[x]; });
-        if (pasang) a.push(id);
-        tulisG(a);
-        segarG();
-        kabar(pasang ? "Pesan disematkan" : "Sematan dilepas");
+    async function sematG(id, pasang) {
+        try {
+            await window.NgumpulRuang.pin(id, pasang);
+            kabar(pasang ? "Pesan disematkan" : "Sematan dilepas");
+        } catch (error) { kabar(error.message); }
     }
     function segarG() {
         if (!boxGrup) return;
         var rows = {};
         boxGrup.querySelectorAll("[data-message]").forEach(function (b) { rows[b.dataset.message] = b; });
-        var a = bacaG(), aktif = null;
-        for (var i = a.length - 1; i >= 0; i--) if (rows[a[i]]) { aktif = a[i]; break; }
+        var aktif = [...boxGrup.querySelectorAll("[data-pinned=true]")].at(-1)?.dataset.message;
         boxGrup.querySelectorAll(".ap-tersemat").forEach(function (b) { b.classList.remove("ap-tersemat"); });
         if (!barG) {
             barG = el("div", "pinned-message-container ap-bar-grup");
@@ -472,15 +353,18 @@
             daftar.push(item("balas", "Balas", function () { window.NgumpulBalas.mulaiGrup(baris); }));
         }
         if (teks) daftar.push(item("salin", "Salin", function () { salinTeks(teks); }));
-        if (teks) {
+        {
             var idG = baris.dataset.message;
-            var tersematG = bacaG().indexOf(idG) >= 0;
+            var tersematG = baris.dataset.pinned === "true";
             daftar.push(item(tersematG ? "lepas" : "pin", tersematG ? "Lepas sematan" : "Sematkan", function () { sematG(idG, !tersematG); }));
         }
         if (teks && bisaTeruskan()) {
-            // pesan grup diteruskan sebagai teks ke kontak pribadi (lampiran tidak ikut)
-            daftar.push(item("teruskan", "Teruskan", function () { teruskan({ id: "grup-" + baris.dataset.message, text: teks }, null); }));
+            daftar.push(item("teruskan", "Teruskan", function () { teruskan({ id: baris.dataset.message, text: teks }, null); }));
         }
+        daftar.push(item("emoji", "Reaksi 👍", async function () {
+            try { await window.NgumpulRuang.react(baris.dataset.message, "👍"); }
+            catch (error) { kabar(error.message); }
+        }));
         if (bubble.classList.contains("kirim") && teks) daftar.push(item("edit", "Edit", function () { editGrup(bubble); }));
         if (hapusG) daftar.push(hapusG);
         return daftar;

@@ -1,0 +1,7 @@
+**
+!index.html
+!nginx.conf
+!assets/
+!assets/**
+!pages/
+!pages/**

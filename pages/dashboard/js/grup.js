@@ -101,7 +101,7 @@
       };
       window.NgumpulHapus.dialog({
         langsung: !!p.dihapus,
-        bisaSemua: !p.dihapus && p.pengirimId === akun && !g.keluar,
+        bisaSemua: !p.dihapus && (p.pengirimId === akun || isAdmin(g)) && !g.keluar,
         cuplikan: p.dihapus ? "" : p.isi || labelAttachment(p),
         hapusSaya: async () => {
           await D.sembunyi(id, idPesan, true);
@@ -112,10 +112,6 @@
           await D.hapus(id, idPesan);
           await segarkan();
           return true;
-        },
-        urungkan: async () => {
-          await D.sembunyi(id, idPesan, false);
-          await segarkan();
         },
       });
     },
@@ -291,7 +287,7 @@
   }
   $("panel-chat-kosong").replaceChildren(
     el("h2", "", "Pilih obrolan"),
-    el("p", "", "Pilih kontak atau channel grup untuk mulai ngobrol."),
+    el("p", "", "Pilih teman atau channel grup untuk mulai ngobrol."),
   );
 
   function badge(node, count) {
@@ -344,11 +340,13 @@
     $("panel-chat-kosong").style.display = "flex";
   }
   async function open(id, selected = undefined) {
+    const version = ++channelSelection;
     closeMessageMenu();
     saveDraft();
     savePosition();
     await stopRecording(true);
-    const g = await D.get(id);
+    const [g] = await Promise.all([D.get(id), draftsReady]);
+    if (version !== channelSelection) return;
     B.tutupInfo(false);
     closeDrawer(false);
     gid = id;
@@ -357,13 +355,13 @@
     pilihTabDashboard("grup");
     $("panel-chat-grup").hidden = true;
     panelChatAktif.style.display = "none";
-    const saved = selected === undefined ? lastChannel.get(id) : selected;
+    const saved = selected ?? lastChannel.get(id) ?? g.ruang.channels.find((c) => c.jenis === "teks")?.id;
     cid = g.ruang.channels.some((c) => c.id === saved) ? saved : null;
     $("panel-tab-grup").querySelector(".grup-content").hidden = true;
     sidebar.hidden = false;
     sinkronSidebarGrup();
     if (cid) await selectChannel(cid, false);
-    else hideMiddle();
+    else { D.watch(); hideMiddle(); }
     await renderSidebar();
     await renderList();
   }
@@ -386,6 +384,8 @@
     B.tutupInfo(false);
     closeDrawer(false);
     cid = id;
+    showTyping();
+    D.watch(groupId, c.jenis === "teks" ? id : undefined);
     lastChannel.set(gid, cid);
     renderedHistory = "";
     B.seleksi(gid, group);
@@ -425,20 +425,7 @@
   async function renderList() {
     const v = ++listVersion;
     const all = await D.list();
-    const enriched = await Promise.all(
-      all.map(async (g) => {
-        if (!g.keluar) await D.read(g, null, false);
-        const messages = await D.messages(g);
-        const active = new Set(g.ruang.channels.map((c) => c.id));
-        const shown = messages.filter((p) => active.has(p.channelId));
-        return {
-          g,
-          messages: shown,
-          unread: g.keluar ? 0 : D.unread(shown),
-          last: shown.at(-1),
-        };
-      }),
-    );
+    const enriched = await Promise.all(all.map(D.summary));
     if (v !== listVersion) return;
     badge(
       $("tab-grup"),
@@ -550,8 +537,9 @@
   }
   async function renderSidebar() {
     if (!group || sidebar.hidden) return;
+    for (const c of group.ruang.channels) if (c.jenis === "suara") P.watch(group.id, c.id);
     const id = gid,
-      messages = await D.messages(group);
+      counts = await D.unreadCounts(group);
     if (id !== gid || sidebar.hidden) return;
     const fingerprint = JSON.stringify([
       group.id,
@@ -561,7 +549,7 @@
       group.ruang.channels,
       group.ruang.channels.map((c) =>
         c.jenis === "teks"
-          ? D.unread(messages.filter((p) => p.channelId === c.id))
+          ? (counts[c.id]?.unreadCount || 0)
           : 0,
       ),
     ]);
@@ -615,7 +603,7 @@
         el("span", "", category.nama),
       );
       const unread = channels.reduce(
-        (n, c) => n + D.unread(messages.filter((p) => p.channelId === c.id)),
+        (n, c) => n + (counts[c.id]?.unreadCount || 0),
         0,
       );
       badge(toggle, unread);
@@ -636,7 +624,7 @@
           el("span", "ruang-channel-name", c.nama),
         );
         if (c.jenis === "teks" && !group.keluar)
-          badge(row, D.unread(messages.filter((p) => p.channelId === c.id)));
+          badge(row, (counts[c.id]?.unreadCount || 0));
         section.append(row);
         if (c.jenis === "suara") {
           row.dataset.voiceRoom = group.id + "/" + c.id;
@@ -654,6 +642,7 @@
   function backToList() {
     closeMessageMenu();
     channelSelection++;
+    D.watch();
     saveDraft();
     savePosition();
     stopRecording(true).catch(error);
@@ -696,12 +685,19 @@
     const v = ++chatVersion,
       id = gid,
       channelId = cid;
-    const g = await D.get(id),
-      c = g.ruang.channels.find((c) => c.id === channelId);
+    const g = await D.get(id).catch((failure) => {
+      if (failure.status !== 404) throw failure;
+      return null;
+    });
+    const c = g?.ruang.channels.find((c) => c.id === channelId);
     if (v !== chatVersion || gid !== id || cid !== channelId) return;
+    if (!g) { api.afterExit(id); return; }
     if (!c) {
+      D.watch();
       cid = null;
+      group = g;
       hideMiddle();
+      await renderSidebar();
       return;
     }
     group = g;
@@ -730,6 +726,7 @@
       if (c.jenis === "teks") {
         actions.append(button("Info Grup", () => B.info(id), "info"));
         actions.append(button("Cari pesan", openSearch, "search"));
+        actions.append(button("Pesan disematkan", () => showPins(id, c.id), "pin"));
       }
     }
     $("ruang-lobby").hidden = c.jenis !== "suara";
@@ -755,8 +752,7 @@
       g.adminIds,
       g.keluar,
       dateKey(Date.now()),
-      localStorage.getItem("ngumpul_profil"),
-      ...g.anggotaIds.map((u) => localStorage.getItem("ngumpul_media_" + u)),
+      ...g.anggotaIds.map((id) => [B.nama(id), ambilFotoProfilChat(id)]),
     ]);
     if (!force && fingerprint === renderedHistory) return;
     const atBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 80;
@@ -768,6 +764,10 @@
     const anchorId = anchor?.dataset.message,
       offset = anchor?.getBoundingClientRect().top - top;
     const fragment = document.createDocumentFragment();
+    if (D.hasOlder(c.id)) fragment.append(button("Muat pesan sebelumnya", async () => {
+      await D.older(id, c.id);
+      if (gid === id && cid === c.id) await refresh(true);
+    }, null, "ruang-pill"));
     const sebelumnya = idTerender.get(id + "/" + channelId);
     let previous = null,
       day = null;
@@ -892,6 +892,7 @@
             own ? "Kamu" : B.nama(p.pengirimId),
           ),
         );
+      if (p.forwarded) bubble.append(el("small", "timestamp", "Diteruskan"));
       if (p.balas && typeof p.balas === "object") {
         const kutip = el("button", "message-quoted-message");
         kutip.type = "button";
@@ -906,13 +907,10 @@
               : String(p.balas.teks || "Lampiran"),
           ),
         );
-        kutip.onclick = (ev) => {
+        kutip.onclick = async (ev) => {
           ev.stopPropagation();
-          const asal = [...box.children].find((n) => n.dataset.message === p.balas.id);
-          if (!asal) {
-            toast("Pesan asli tidak ditemukan.");
-            return;
-          }
+          const asal = await revealMessage(id, c.id, p.balas.id);
+          if (!asal) return;
           asal.scrollIntoView({ block: "center", behavior: "smooth" });
           asal.classList.remove("ba-sorot");
           void asal.offsetWidth;
@@ -927,6 +925,20 @@
       bubble.append(content);
       for (const attachment of p.lampiran || [])
         bubble.append(await M.tampilkan(attachment));
+      if (p.location) bubble.append(buatLokasiDM(p.location));
+      if (p.poll) bubble.append(buatPollingDM(null, { poll: p.poll, sender: p.pengirimId, id: p.id }, {
+        update: (poll) => D.updateMessage(id, c.id, p.id, { poll }), error, manage: isAdmin(g),
+      }));
+      if (p.pinned) row.dataset.pinned = "true";
+      if (p.reactions?.length) {
+        const reactions = el("div", "dm-reactions");
+        for (const summary of p.reactions) {
+          const b = button(summary.emoji + " " + summary.count, () => D.reaction(id, c.id, p.id, summary.emoji));
+          b.setAttribute("aria-pressed", String(summary.userIds.includes(akun)));
+          reactions.append(b);
+        }
+        bubble.append(reactions);
+      }
       const footer = el("div", "message-footer");
       if (p.editedAt) footer.append(el("span", "timestamp message-edited", "Diedit"));
       footer.append(
@@ -1046,56 +1058,74 @@
   }
   let found = [],
     resultIndex = -1;
+  async function revealMessage(id, channel, mid) {
+    if (gid !== id || cid !== channel) return null;
+    let row = [...box.children].find((n) => n.dataset.message === mid);
+    if (!row && await D.locate(id, channel, mid)) {
+      if (gid !== id || cid !== channel) return null;
+      await refresh(true);
+      row = [...box.children].find((n) => n.dataset.message === mid);
+    }
+    if (!row) { toast("Pesan tidak ditemukan."); return null; }
+    row.scrollIntoView({ block: "center", behavior: "smooth" });
+    return row;
+  }
+
+  async function showPins(id, channel) {
+    const items = await D.pins(id, channel);
+    if (gid !== id || cid !== channel) return;
+    showDrawer("pins", "Pesan disematkan");
+    const body = $("ruang-drawer-content");
+    body.replaceChildren();
+    if (!items.length) body.append(el("p", "ruang-empty-small", "Belum ada pesan disematkan."));
+    for (const p of items) {
+      const entry = el("div", "ruang-manage-row");
+      entry.append(button(p.isi || labelAttachment(p), async () => {
+        closeDrawer(false);
+        await revealMessage(id, channel, p.id);
+      }, null, "ruang-pill"), button("Lepas sematan", async () => {
+        await D.pin(id, channel, p.id, false);
+        await showPins(id, channel);
+      }, "close"));
+      body.append(entry);
+    }
+  }
+
+  let searchTimer, searchVersion = 0;
   function openSearch() {
     $("ruang-search").hidden = false;
-    updateSearch(false);
     $("ruang-cari-pesan").focus();
   }
-  function updateSearch(jump = true) {
-    const query = $("ruang-cari-pesan").value.trim().toLocaleLowerCase("id-ID");
+
+  async function updateSearch(show = false) {
+    if (!show) return;
+    const query = $("ruang-cari-pesan").value.trim();
+    const version = ++searchVersion, id = gid, channel = cid;
+    const label = $("ruang-hasil-cari");
+    const prev = $("ruang-prev"), next = $("ruang-next");
     found = [];
-    box.querySelectorAll("[data-text]").forEach((node) => {
-      const source = node.dataset.text;
-      node.replaceChildren();
-      if (!query) {
-        appendText(node, source);
-        return;
-      }
-      let from = 0,
-        index;
-      const lower = source.toLocaleLowerCase("id-ID");
-      while ((index = lower.indexOf(query, from)) >= 0) {
-        node.append(document.createTextNode(source.slice(from, index)));
-        const mark = el("mark", "", source.slice(index, index + query.length));
-        node.append(mark);
-        found.push(mark);
-        from = index + query.length;
-      }
-      node.append(document.createTextNode(source.slice(from)));
-    });
-    resultIndex = found.length
-      ? Math.max(0, Math.min(resultIndex, found.length - 1))
-      : -1;
-    $("ruang-hasil-cari").textContent = query
-      ? found.length
-        ? resultIndex + 1 + " / " + found.length
-        : "Tidak ditemukan"
-      : "";
-    $("ruang-prev").disabled = $("ruang-next").disabled = !found.length;
-    found.forEach((n, i) => n.classList.toggle("aktif", i === resultIndex));
-    if (jump) jumpResult(0);
+    resultIndex = -1;
+    prev.disabled = next.disabled = true;
+    label.textContent = query ? "Mencari…" : "";
+    if (!query) return;
+    try {
+      const items = await D.search(id, channel, query.slice(0, 200));
+      if (version !== searchVersion || id !== gid || channel !== cid || $("ruang-search").hidden) return;
+      found = items;
+      label.textContent = items.length ? items.length + " hasil" : "Tidak ditemukan";
+      prev.disabled = next.disabled = !items.length;
+    } catch (error) {
+      if (version === searchVersion) label.textContent = error.message;
+    }
   }
-  function jumpResult(delta) {
+
+  async function jumpResult(delta) {
     if (!found.length) return;
-    resultIndex = (resultIndex + delta + found.length) % found.length;
-    found.forEach((n, i) => n.classList.toggle("aktif", i === resultIndex));
-    found[resultIndex].scrollIntoView({
-      block: "center",
-      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "instant"
-        : "smooth",
-    });
-    $("ruang-hasil-cari").textContent = resultIndex + 1 + " / " + found.length;
+    const start = resultIndex < 0 ? 0 : resultIndex + delta;
+    resultIndex = (start + found.length) % found.length;
+    const p = found[resultIndex];
+    $("ruang-hasil-cari").textContent = (resultIndex + 1) + " / " + found.length;
+    await revealMessage(p.grupId, p.channelId, p.id);
   }
   function autosize() {
     if (!root.hidden && !$("ruang-composer").hidden) {
@@ -1334,6 +1364,7 @@
         controls,
       );
     }
+    P.watch(gid, c.id);
     const here = state.current?.room === room;
     const connecting = state.pending?.gid === gid && state.pending.cid === c.id;
     const failed =
@@ -1685,13 +1716,15 @@
     for (const category of g.ruang.categories) {
       const card = el("section", "ruang-info-card"),
         head = el("div", "ruang-card-header");
-      head.append(
-        el("h3", "", category.nama),
-        button("Ubah nama kategori", () => editCategory(category), "edit-grup"),
-        button("Hapus kategori", () => deleteCategory(category), "close"),
-      );
-      head.children[1].dataset.control = "category-edit:" + category.id;
-      head.children[2].dataset.control = "category-delete:" + category.id;
+      head.append(el("h3", "", category.nama));
+      if (!category.bawaan) {
+        head.append(
+          button("Ubah nama kategori", () => editCategory(category), "edit-grup"),
+          button("Hapus kategori", () => deleteCategory(category), "close"),
+        );
+        head.children[1].dataset.control = "category-edit:" + category.id;
+        head.children[2].dataset.control = "category-delete:" + category.id;
+      }
       card.append(head);
       const channels = g.ruang.channels.filter(
         (c) => c.kategoriId === category.id,
@@ -1768,7 +1801,7 @@
   async function newChannel(jenis, existing = null) {
     const id = gid;
     const g = await D.get(id),
-      categories = g.ruang.categories;
+      categories = g.ruang.categories.filter((c) => !c.bawaan || c.id === g.id + ":" + jenis);
     if (!categories.length) {
       toast("Tambahkan kategori terlebih dahulu.");
       return;
@@ -1814,7 +1847,7 @@
   async function deleteCategory(category) {
     const g = await D.get(gid),
       children = g.ruang.channels.filter((c) => c.kategoriId === category.id);
-    const others = g.ruang.categories.filter((c) => c.id !== category.id);
+    const others = g.ruang.categories.filter((c) => !c.bawaan && c.id !== category.id);
     if (!children.length) {
       if (
         await B.konfirmasi(
@@ -1839,6 +1872,7 @@
           value: "",
           options: [
             { id: "", nama: "Hapus semua channel di kategori ini" },
+            { id: "default", nama: "Pindahkan ke kategori Teks atau Suara" },
             ...others.map((c) => ({
               id: c.id,
               nama: "Pindahkan ke " + c.nama,
@@ -2014,7 +2048,7 @@
     body.append(
       avatar,
       el("h3", "", summary.nama),
-      el("p", "ruang-invite-count", summary.jumlah + " anggota"),
+      el("p", "ruang-invite-count", summary.jumlah == null ? "" : summary.jumlah + " anggota"),
     );
     if (summary.deskripsi)
       body.append(el("p", "ruang-invite-description", summary.deskripsi));
@@ -2022,9 +2056,9 @@
       "Undangan grup",
       [],
       async () => {
-        await D.join(id, token);
+        const joinedId = await D.join(id, token);
         clearInvitation();
-        await open(id);
+        await open(joinedId);
         if (!summary.anggota) toast("Kamu bergabung ke grup");
       },
       summary.anggota ? "Buka grup" : "Gabung",
@@ -2094,8 +2128,7 @@
     let g = await D.get(id);
     if (g.keluar || (!isAdmin(g) && !g.anggotaBolehUndang))
       throw new Error("Hanya admin yang dapat membagikan tautan.");
-    if (!g.kodeUndangan && isAdmin(g))
-      g = await D.inviteSettings(id, g.anggotaBolehUndang);
+    g = await D.inviteSettings(id, g.anggotaBolehUndang);
     const url = new URL(location.pathname, location.origin);
     url.hash = new URLSearchParams({
       "undangan-grup": id,
@@ -2256,19 +2289,14 @@
     const target = await D.get(groupId);
     if (target.keluar) return;
     const channel =
-      channelId ||
-      target.ruang.channels.find((c) => c.jenis === "suara")?.id ||
-      target.ruang.channels.find((c) => c.jenis === "teks")?.id;
-    if (!channel) throw new Error("Tambahkan channel terlebih dahulu.");
+      target.ruang.channels.find((c) => c.id === channelId && c.jenis === "suara")?.id ||
+      target.ruang.channels.find((c) => c.jenis === "suara")?.id;
+    if (!channel) throw new Error("Tambahkan channel suara melalui Info grup.");
+    if (gid === groupId && cid !== channel) await selectChannel(channel);
     await stopRecording(true);
     B.tutupInfo(false);
     const joined = await P.join(groupId, channel, video, inviteAll, options);
-    if (
-      joined &&
-      inviteAll &&
-      target.ruang.channels.find((c) => c.id === channel)?.jenis === "teks"
-    )
-      showCall(true);
+    if (joined && inviteAll) showCall(true);
   }
   const duration = (seconds) =>
     String(Math.floor(seconds / 60)).padStart(2, "0") +
@@ -2528,7 +2556,7 @@
         name = B.nama(p.akun);
       avatar.hidden = hasVideo;
       if (avatar.dataset.identitas !== name + photo) {
-        B.avatar(avatar, name, photo);
+        tampilkanAvatarChat(avatar, p.akun, name, photo);
         avatar.dataset.identitas = name + photo;
       }
       tile.style.setProperty("--anggota-hue", String(colors?.[p.akun] ?? 190));
@@ -2541,6 +2569,12 @@
       }
       flag.title = p.deafened ? "Audio dibisukan" : !p.mic ? "Mic mati" : "";
       flag.hidden = !symbol;
+      const ownRoom = !local && state.current?.room === p.room && state.current;
+      const control = tile.querySelector(".ruang-tile-moderate");
+      if (ownRoom && group?.id === ownRoom.gid && isAdmin(group)) {
+        if (!control) tile.append(button("Kelola " + name, () => moderateParticipant(ownRoom, p.akun),
+          "gear", "ruang-tile-moderate ruang-icon"));
+      } else control?.remove();
     }
     for (const tile of [...grid.children])
       if (!alive.has(tile.dataset.tab)) {
@@ -2548,6 +2582,24 @@
         retireParticipant(tile);
       }
     grid.hidden = !members.length && !grid.children.length;
+  }
+  function moderateParticipant(room, id) {
+    const name = B.nama(id);
+    const actions = [
+      ["Bisukan " + name, { muted: true }],
+      ["Izinkan mikrofon " + name, { muted: false }],
+      ["Keluarkan " + name, { remove: true }],
+    ];
+    dialogDM("Kelola peserta", buatFormDM(...actions.map(([label, payload]) => tombolDM(label, async (button) => {
+      button.disabled = true;
+      try {
+        if (payload.remove && !await B.konfirmasi("Keluarkan peserta?", label + " dari ruang suara?", "Keluarkan", true)) return;
+        await P.moderate(room.gid, room.cid, id, payload);
+        button.closest("dialog").close();
+        toast("Izin peserta diperbarui.");
+      } catch (failure) { button.closest("form").querySelector('[role="alert"]').textContent = failure.message; }
+      finally { button.disabled = false; }
+    }))));
   }
   function renderCallControls(controls, state, expand = false) {
     const mode = state.current
@@ -2576,6 +2628,7 @@
         );
         controls.append(
           button("Pengaturan suara dan video", deviceSettings, "gear"),
+          button("Bagikan layar", () => P.screen(), "maximize"),
         );
         if (expand)
           controls.append(
@@ -2623,6 +2676,11 @@
         !!own?.video,
       ],
     ];
+    const screen = controls.children[5];
+    screen.setAttribute("aria-label", state.screen ? "Berhenti berbagi layar" : "Bagikan layar");
+    screen.title = screen.getAttribute("aria-label");
+    screen.setAttribute("aria-pressed", String(state.screen));
+    screen.disabled = state.busy || !navigator.mediaDevices?.getDisplayMedia;
     specs.forEach(([label, symbol, pressed], index) => {
       const b = controls.children[index];
       b.setAttribute("aria-label", label);
@@ -2667,7 +2725,7 @@
           photo = ambilFotoProfilChat(p.akun),
           avatar = row.firstChild;
         if (avatar.dataset.identitas !== name + photo) {
-          B.avatar(avatar, name, photo);
+          tampilkanAvatarChat(avatar, p.akun, name, photo);
           avatar.dataset.identitas = name + photo;
         }
         avatar.style.setProperty(
@@ -2773,6 +2831,7 @@
   });
   P.events.addEventListener("incoming", (e) => {
     const message = e.detail;
+    if (Date.now() - message.started >= 30000) return;
     pendingInvite = message;
     clearTimeout(incomingTimer);
     incoming.replaceChildren(
@@ -2840,7 +2899,27 @@
       send().catch(error);
     }
   };
-  $("ruang-lampiran").onclick = () => $("ruang-files").click();
+  $("ruang-lampiran").onclick = () => {
+    const groupId = gid, channelId = cid;
+    const reply = window.NgumpulBalas?.ambilGrup();
+    const send = async (payload) => {
+      await D.send(groupId, channelId, "", [], D.uid(), reply, payload);
+      window.NgumpulBalas?.batalGrup();
+    };
+    const labels = [
+      ["Pilih berkas", () => $("ruang-files").click()],
+      ["Bagikan lokasi", () => bukaLokasiDM(null, send)],
+      ["Buat polling", () => bukaPollingDM(null, send)],
+      ["Jadwalkan pesan", () => jadwalkanPesan("channel", channelId, text.value.trim(), reply?.id,
+        () => toast("Pesan dijadwalkan."))],
+      ["Pesan terjadwal", () => daftarJadwal("channel", channelId)],
+    ];
+    const actions = labels.map(([label, action]) => tombolDM(label, (b) => {
+      b.closest("dialog").close();
+      try { Promise.resolve(action()).catch(error); } catch (failure) { error(failure); }
+    }));
+    dialogDM("Tambahkan ke channel", buatFormDM(...actions));
+  };
   $("ruang-files").onchange = (e) => {
     const files = [...e.target.files];
     if (files.some((f) => f.size > 25 * 1024 * 1024)) {
@@ -2904,19 +2983,22 @@
   $("ruang-record-cancel").onclick = () => stopRecording(true).catch(error);
   $("ruang-record-send").onclick = () => stopRecording(false).catch(error);
   $("ruang-cari-pesan").oninput = () => {
-    resultIndex = 0;
-    updateSearch();
+    clearTimeout(searchTimer);
+    searchVersion++;
+    searchTimer = setTimeout(() => updateSearch(true), 250);
   };
   $("ruang-search").onsubmit = (e) => {
     e.preventDefault();
-    jumpResult(1);
+    jumpResult(1).catch(error);
   };
-  $("ruang-prev").onclick = () => jumpResult(-1);
-  $("ruang-next").onclick = () => jumpResult(1);
+  $("ruang-prev").onclick = () => jumpResult(-1).catch(error);
+  $("ruang-next").onclick = () => jumpResult(1).catch(error);
   $("ruang-close-search").onclick = () => {
     $("ruang-search").hidden = true;
     $("ruang-cari-pesan").value = "";
-    updateSearch(false);
+    clearTimeout(searchTimer);
+    searchVersion++;
+    found = [];
     text.focus();
   };
   $("ruang-drawer-close").onclick = () => closeDrawer(false, true);
@@ -3037,6 +3119,7 @@
     saveDraft();
     savePosition();
     if (e.detail.tabAktif !== "grup") {
+      D.watch();
       root.hidden = true;
       closeDrawer(false);
       stopRecording(true).catch(error);
@@ -3047,6 +3130,7 @@
       sidebar.hidden = false;
       $("panel-tab-grup").querySelector(".grup-content").hidden = true;
       if (cid) {
+        if (group.ruang.channels.some((c) => c.id === cid && c.jenis === "teks")) D.watch(gid, cid);
         root.hidden = false;
         $("panel-chat-kosong").style.display = "none";
         panelChatAktif.style.display = "none";
@@ -3101,6 +3185,8 @@
         target.focus({ preventScroll: true });
     },
     open,
+    pin(mid, value) { return D.pin(gid, cid, mid, value); },
+    react(mid, emoji) { return D.reaction(gid, cid, mid, emoji); },
     renderList,
     refresh,
     extendInfo,
@@ -3113,33 +3199,23 @@
       if (gid === id) backToList();
     },
     active: () => (visible() && cid ? { gid, cid } : null),
-    async notificationItems() {
-      const result = [];
-      for (const g of await D.list())
-        if (!g.keluar)
-          for (const p of await D.messages(g)) {
-            if (
-              p.jenis === "aktivitas" ||
-              p.dihapus ||
-              p.pengirimId === akun ||
-              !p.penerimaIds?.includes(akun) ||
-              !g.ruang.channels.some((c) => c.id === p.channelId)
-            )
-              continue;
-            result.push({
-              key: JSON.stringify([g.id, p.channelId, p.id]),
-              target: "grup:" + g.id + ":" + p.channelId,
-              title: g.nama,
-              text: B.nama(p.pengirimId) + ": " + (p.isi || labelAttachment(p)),
-              muted: D.muted(g.id),
-              open: () => open(g.id, p.channelId),
-            });
-          }
-      return result;
-    },
+
   };
   window.NgumpulRuang = api;
   $("dialog-undangan-grup").close();
+  const draftsReady = D.loadDrafts().catch(() => {});
+  const typingStatus = el("div", "ruang-status", "");
+  typingStatus.setAttribute("role", "status");
+  $("ruang-composer").before(typingStatus);
+  const showTyping = () => {
+    const users = cid && !root.hidden ? D.typingMembers(cid).map(B.nama) : [];
+    typingStatus.textContent = users.length ? users.join(", ") + " sedang mengetik…" : "";
+    typingStatus.hidden = !users.length;
+  };
+  showTyping();
+  document.addEventListener("ngumpul:channel-mengetik", showTyping);
+  document.addEventListener("ngumpul:tab-dashboard", showTyping);
+  text.addEventListener("input", () => { if (text.value.trim()) D.typing(); });
   renderList().catch(error);
   if (
     location.hash.includes("undangan-grup=") ||
@@ -3147,8 +3223,8 @@
   )
     invite().catch(error);
   setInterval(() => {
-    if (getUserAktif()?.id === akun) {
-      refresh().then(renderList).catch(error);
+    if (getUserAktif()?.id === akun && !document.hidden) {
+      refresh().then(renderSidebar).then(renderList).catch(error);
     }
   }, 10000);
 })();

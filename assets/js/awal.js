@@ -1,5 +1,5 @@
-// halaman awal, form daftar, atau halaman sukses
-var semuaHalaman = ['halaman-awal', 'form-daftar', 'halaman-sukses'];
+// Halaman awal dan form daftar.
+var semuaHalaman = ['halaman-awal', 'form-daftar'];
 
 function tampilHalaman(id) {
   semuaHalaman.forEach(function (h) {

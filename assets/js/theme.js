@@ -98,7 +98,7 @@
 
     // id akun yang sedang login di tab ini (null kalau belum login)
     function sesiId() {
-        try { return sessionStorage.getItem("ngumpul_sesi"); } catch (e) { return null; }
+        return typeof NgumpulAuth === "undefined" ? null : NgumpulAuth.pengguna?.id;
     }
 
     // tema bawaan = mengikuti pengaturan perangkat
@@ -136,7 +136,7 @@
     // Simulasi premium (tanpa server): kunci per akun di localStorage
     function isPremium() {
         try {
-            var id = sessionStorage.getItem("ngumpul_sesi");
+            var id = sesiId();
             return !!id && localStorage.getItem("ngumpul_premium_" + id) === "1";
         } catch (e) {
             return false;
@@ -189,16 +189,6 @@
     }
     function muatGaya() { muatCss("tema-gaya"); }
 
-    // Skrip tambahan dashboard (efek tema, teks berformat) dimuat dari sini supaya dashboard.html tidak perlu diubah
-    function muatSkrip(nama, flag) {
-        if (!BASE || window[flag]) return;
-        window[flag] = true;
-        var s = document.createElement("script");
-        s.src = BASE + "js/" + nama + ".js";
-        s.defer = true;
-        document.head.appendChild(s);
-    }
-
     // CSS tema dasar milik dashboard: dipasang otomatis kalau belum ada di HTML (kalau terhapus waktu merge, tampilan tidak polos)
     function pastikanCssDashboard() {
         if (!BASE || !/\/dashboard\//.test(location.pathname)) return;
@@ -206,15 +196,6 @@
             if (document.querySelector('link[href$="/' + n + '.css"], link[href$="' + n + '.css"]')) return;
             muatCss(n);
         });
-    }
-
-    function muatEfek() {
-        if (!BASE || window.__ngumpulEfek) return;
-        window.__ngumpulEfek = true;
-        var s = document.createElement("script");
-        s.src = BASE + "js/tema-efek.js";
-        s.defer = true;
-        document.head.appendChild(s);
     }
 
     function kunciPref(k) { return k === "hiasan" ? KEY_HIASAN : "ngumpul_pref_" + k; }
@@ -404,7 +385,6 @@
     apply();
 
     document.addEventListener("DOMContentLoaded", function () {
-        if (document.getElementById("panel-chat-aktif")) { muatEfek(); muatSkrip("format-teks", "__ngumpulFormat"); muatSkrip("aksi-pesan", "__ngumpulAksiPesanMuat"); muatSkrip("emoji-ui", "__ngumpulEmojiMuat"); muatSkrip("balas-pesan", "__ngumpulBalasMuat"); }
         document.querySelectorAll("[data-theme-toggle]").forEach(function (button) {
             button.addEventListener("click", toggleTheme);
         });
@@ -424,6 +404,7 @@
 
     // API untuk halaman lain
     window.NgumpulTheme = {
+        apply: apply,
         daftar: TEMA,
         genre: GENRE,
         isPremium: isPremium,

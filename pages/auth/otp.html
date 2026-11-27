@@ -5,38 +5,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Verifikasi akun - Ngumpul</title>
-  <link rel="stylesheet" href="otp.css">
   <meta name="color-scheme" content="light dark">
   <link rel="stylesheet" href="../../assets/css/variables.css">
   <link rel="stylesheet" href="../../assets/css/themes.css">
+  <link rel="stylesheet" href="otp.css">
+  <link rel="stylesheet" href="../../assets/css/auth.css">
   <script src="../../assets/js/theme.js"></script>
 </head>
 
 <body>
   <main class="kartu">
-    <button class="kembali" id="btn-kembali" type="button">&larr; Kembali</button>
-    <h1>Masukkan kode verifikasi</h1>
-    <p class="sub">Kami mengirim kode 6 angka ke <b id="nomor-tersamar">nomor HP kamu</b>.</p>
+    <a class="kembali" href="login.html">&larr; Kembali ke login</a>
+    <h1>Verifikasi email</h1>
+    <p class="sub">Masukkan kode 6 angka yang dikirim ke <b id="email-verifikasi"></b>. Kode berlaku 10 menit.</p>
 
-    <div class="kotak-otp" id="kotak-otp" role="group" aria-label="Kode OTP 6 angka">
-      <input class="digit" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Angka 1">
-      <input class="digit" inputmode="numeric" maxlength="1" aria-label="Angka 2">
-      <input class="digit" inputmode="numeric" maxlength="1" aria-label="Angka 3">
-      <input class="digit" inputmode="numeric" maxlength="1" aria-label="Angka 4">
-      <input class="digit" inputmode="numeric" maxlength="1" aria-label="Angka 5">
-      <input class="digit" inputmode="numeric" maxlength="1" aria-label="Angka 6">
-    </div>
-    <div class="pesan" id="pesan" role="alert"></div>
+    <form id="verifikasi-email" method="post">
+      <label for="otp">Kode verifikasi</label>
+      <input class="otp" id="otp" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+        autocomplete="one-time-code" aria-describedby="error-otp" required>
+      <p class="auth-notice" id="status-otp" role="status"></p>
+      <p class="auth-error" id="error-otp" role="alert"></p>
 
-    <button class="tombol" id="btn-verifikasi" type="button" disabled>Verifikasi</button>
-    <p class="ulang">
-      <span id="info-timer">Kirim ulang kode dalam <b id="detik">60</b> detik</span>
-      <button class="tautan" id="btn-kirim-ulang" type="button" hidden>Kirim ulang kode</button>
-    </p>
-    <p class="kadaluarsa" id="info-kadaluarsa"></p>
+      <button class="tombol" id="btn-verifikasi" type="submit">Verifikasi</button>
+      <button class="tautan" id="btn-kirim-ulang" type="button">Kirim ulang kode</button>
+    </form>
   </main>
 
-  <div id="notif" aria-live="polite"></div>
+  <script src="../../assets/js/auth.js"></script>
+  <script src="../../assets/js/auth-form.js"></script>
   <script src="otp.js"></script>
 </body>
 

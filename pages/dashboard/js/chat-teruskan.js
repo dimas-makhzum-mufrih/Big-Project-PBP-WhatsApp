@@ -9,7 +9,6 @@ const btnBatalTeruskanPesan = document.getElementById('btn-batal-teruskan-pesan'
 
 let pesanUntukDiteruskan = null;
 let pemicuDialogTeruskan = null;
-let urutanRenderTujuan = 0;
 let tombolAksiPesanAktif = null;
 let barisAksiPesanAktif = null;
 let timerTekanLamaPesan = null;
@@ -102,34 +101,29 @@ function perbaruiTombolTeruskan() {
     btnKonfirmasiTeruskan.disabled = dipilih.length === 0;
 }
 
-function buatBarisKontakTujuan(kontak, pengguna) {
+function buatBarisTemanTujuan(teman) {
     const baris = document.createElement('label');
     baris.className = 'forward-contact';
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.value = String(pengguna ? pengguna.id : '');
+    checkbox.value = teman.userId;
 
     const detail = document.createElement('span');
     detail.className = 'forward-contact-details';
     const nama = document.createElement('span');
     nama.className = 'forward-contact-name';
-    nama.textContent = kontak.name || (pengguna ? getProfil(pengguna.id).nama : '') || kontak.phone;
-    const nomor = document.createElement('span');
-    nomor.className = 'forward-contact-subtitle';
-    nomor.textContent = kontak.phone;
-    detail.append(nama, nomor);
+    nama.textContent = NgumpulTeman.nama(teman);
+    const username = document.createElement('span');
+    username.className = 'forward-contact-subtitle';
+    username.textContent = NgumpulTeman.username(teman);
+    detail.append(nama, username);
 
-    if (!pengguna) {
+    if (chatTerblokir(teman.userId)) {
         checkbox.disabled = true;
         baris.classList.add('forward-contact-unavailable');
-        baris.title = 'Nomor ini belum terdaftar di Ngumpul.';
-        nomor.textContent += ' (belum terdaftar)';
-    } else if (chatTerblokir(pengguna.id)) {
-        checkbox.disabled = true;
-        baris.classList.add('forward-contact-unavailable');
-        baris.title = 'Pesan tidak dapat diteruskan ke kontak yang diblokir.';
-        nomor.textContent += ' (diblokir)';
+        baris.title = 'Pesan tidak dapat diteruskan ke teman yang diblokir.';
+        username.textContent += ' (diblokir)';
     }
 
     checkbox.addEventListener('change', perbaruiTombolTeruskan);
@@ -138,48 +132,13 @@ function buatBarisKontakTujuan(kontak, pengguna) {
 }
 
 function renderDaftarTujuanTeruskan() {
-    const nomorRender = ++urutanRenderTujuan;
-    daftarTujuanTeruskan.replaceChildren();
+    const daftar = NgumpulTeman.list()
+        .sort((a, b) => NgumpulTeman.nama(a).localeCompare(NgumpulTeman.nama(b), 'id'));
+    daftarTujuanTeruskan.replaceChildren(...daftar.map(buatBarisTemanTujuan));
     inputCariTujuanTeruskan.disabled = false;
-    aturStatusTujuanPesan('Memuat daftar kontak...', false);
     btnKonfirmasiTeruskan.disabled = true;
-
-    window.setTimeout(() => {
-        if (!dialogTeruskanPesan.open || nomorRender !== urutanRenderTujuan) return;
-
-        try {
-            const kontak = NgumpulKontakData.list(userAktif.id);
-            const pengguna = getUsers();
-            const daftar = kontak
-                .filter(item => item && item.phone)
-                .map(item => {
-                    const pemilik = pengguna.find(user =>
-                        user && user.hp && samakanHp(user.hp, item.phone)
-                    );
-                    return { kontak: item, pengguna: pemilik };
-                })
-                .filter(item => !item.pengguna || String(item.pengguna.id) !== String(userAktif.id))
-                .sort((a, b) => {
-                    const namaA = a.kontak.name || (a.pengguna ? getProfil(a.pengguna.id).nama : a.kontak.phone);
-                    const namaB = b.kontak.name || (b.pengguna ? getProfil(b.pengguna.id).nama : b.kontak.phone);
-                    return namaA.localeCompare(namaB, 'id');
-                });
-
-            daftar.forEach(item => {
-                daftarTujuanTeruskan.appendChild(buatBarisKontakTujuan(item.kontak, item.pengguna));
-            });
-
-            if (!daftar.length) {
-                aturStatusTujuanPesan('Belum ada kontak tujuan yang bisa dipilih.', false);
-            } else {
-                aturStatusTujuanPesan('', false);
-            }
-            filterDaftarTujuanTeruskan();
-        } catch (error) {
-            inputCariTujuanTeruskan.disabled = true;
-            aturStatusTujuanPesan(error.message || 'Daftar kontak tidak dapat dimuat.', true);
-        }
-    }, 0);
+    aturStatusTujuanPesan(daftar.length ? '' : 'Belum ada teman yang bisa dipilih.', false);
+    filterDaftarTujuanTeruskan();
 }
 
 function filterDaftarTujuanTeruskan() {
@@ -194,7 +153,7 @@ function filterDaftarTujuanTeruskan() {
     });
 
     if (query && !jumlahCocok) {
-        aturStatusTujuanPesan('Kontak tidak ditemukan.', false);
+        aturStatusTujuanPesan('Teman tidak ditemukan.', false);
     } else if (jumlahCocok) {
         aturStatusTujuanPesan('', false);
     }
@@ -202,6 +161,10 @@ function filterDaftarTujuanTeruskan() {
 
 function bukaDialogTeruskanPesan(pesan, tombolPemicu) {
     if (!pesan || !pesan.id || !userAktif || pesan.dihapusSemua) return;
+    if (pesan.attachmentId) {
+        setStatusDM(chatAktifId, 'Pesan dengan lampiran tidak dapat diteruskan.');
+        return;
+    }
     pesanUntukDiteruskan = Object.assign({}, pesan);
     pemicuDialogTeruskan = tombolPemicu;
     inputCariTujuanTeruskan.value = '';
@@ -331,7 +294,6 @@ dialogTeruskanPesan.addEventListener('click', event => {
 });
 dialogTeruskanPesan.addEventListener('close', () => {
     if (dialogTeruskanPesan.open) return;
-    urutanRenderTujuan++;
     formTeruskanPesan.reset();
     inputCariTujuanTeruskan.value = '';
     daftarTujuanTeruskan.replaceChildren();
@@ -341,69 +303,59 @@ dialogTeruskanPesan.addEventListener('close', () => {
     pemicuDialogTeruskan = null;
 });
 
-formTeruskanPesan.addEventListener('submit', event => {
+formTeruskanPesan.addEventListener('submit', async event => {
     event.preventDefault();
-    if (!pesanUntukDiteruskan) return;
+    if (!pesanUntukDiteruskan || btnKonfirmasiTeruskan.disabled) return;
 
     const tujuanDipilih = Array.from(
         daftarTujuanTeruskan.querySelectorAll('input[type="checkbox"]:checked')
     ).map(input => input.value);
     if (!tujuanDipilih.length) {
-        aturStatusTujuanPesan('Pilih setidaknya satu kontak.', true);
+        aturStatusTujuanPesan('Pilih setidaknya satu teman.', true);
         return;
     }
 
     const tujuanValid = Array.from(new Set(tujuanDipilih)).filter(id =>
         id !== String(userAktif.id) &&
-        getUserById(id) &&
+        NgumpulTeman.get(id) &&
         !chatTerblokir(id)
     );
     if (!tujuanValid.length) {
-        aturStatusTujuanPesan('Pesan tidak dapat diteruskan ke kontak yang dipilih.', true);
+        aturStatusTujuanPesan('Pesan tidak dapat diteruskan ke teman yang dipilih.', true);
         renderDaftarTujuanTeruskan();
         return;
     }
 
-    const semuaChat = bacaSemuaChat();
-    const waktuKirim = new Date().toISOString();
-    tujuanValid.forEach(idTujuan => {
-        const kunci = kunciKonversasi(userAktif.id, idTujuan);
-        const daftarPesan = Array.isArray(semuaChat[kunci]) ? semuaChat[kunci].slice() : [];
-        daftarPesan.push(Object.assign({}, pesanUntukDiteruskan, {
-            id: buatIdPesan(),
-            sender: userAktif.id,
-            time: waktuKirim,
-            status: 'terkirim',
-            forwarded: true
-        }));
-        semuaChat[kunci] = daftarPesan;
-    });
-    if (!simpanSemuaChat(semuaChat)) {
-        aturStatusTujuanPesan('Pesan gagal diteruskan. Penyimpanan browser tidak dapat digunakan.', true);
-        return;
+    const sumber = pesanUntukDiteruskan;
+    const id = sumber.id;
+    btnKonfirmasiTeruskan.disabled = true;
+    const berhasil = [];
+    for (const targetId of tujuanValid) {
+        try {
+            await NgumpulAuth.api('messages/' + encodeURIComponent(id) + '/forward', {
+                method: 'POST', body: { scope: 'direct', targetId }
+            });
+            berhasil.push(targetId);
+            NgumpulDM.refresh(targetId).catch(() => {});
+        } catch { /* Tujuan yang gagal tetap terpilih untuk dicoba ulang. */ }
     }
-
-    renderChatList();
-    if (tujuanValid.some(id => String(id) === String(chatAktifId))) renderPesanAktif();
-    aturStatusTujuanPesan(
-        'Pesan diteruskan ke ' + tujuanValid.length + ' kontak.' +
-            (tujuanValid.length < tujuanDipilih.length
-                ? ' ' + (tujuanDipilih.length - tujuanValid.length) + ' tujuan tidak tersedia dan dilewati.'
-                : ''),
-        false
-    );
-    daftarTujuanTeruskan.querySelectorAll('input[type="checkbox"]').forEach(input => {
-        input.disabled = true;
+    if (!dialogTeruskanPesan.open || pesanUntukDiteruskan?.id !== id) return;
+    daftarTujuanTeruskan.querySelectorAll('input[type="checkbox"]:checked').forEach(input => {
+        if (berhasil.includes(input.value)) {
+            input.checked = false;
+            input.disabled = true;
+        }
     });
-    btnKonfirmasiTeruskan.hidden = true;
-    btnBatalTeruskanPesan.textContent = 'Selesai';
+    const gagal = tujuanValid.length - berhasil.length;
+    aturStatusTujuanPesan('Pesan diteruskan ke ' + berhasil.length + ' teman.' +
+        (gagal ? ' Gagal untuk ' + gagal + ' teman. Coba lagi.' : ''), Boolean(gagal));
+    if (!gagal) {
+        btnKonfirmasiTeruskan.hidden = true;
+        btnBatalTeruskanPesan.textContent = 'Selesai';
+    }
+    perbaruiTombolTeruskan();
 });
 
-window.addEventListener('storage', event => {
-    if (!userAktif) return;
-    const perubahanKontak = NgumpulKontakData.isContactsStorageKey(userAktif.id, event.key);
-    const perubahanBlokir = typeof event.key === 'string' && event.key.startsWith('ngumpul_blokir_');
-    if (dialogTeruskanPesan.open && (perubahanKontak || perubahanBlokir || event.key === 'ngumpul_users')) {
-        renderDaftarTujuanTeruskan();
-    }
+document.addEventListener('ngumpul:teman-berubah', () => {
+    if (dialogTeruskanPesan.open) renderDaftarTujuanTeruskan();
 });

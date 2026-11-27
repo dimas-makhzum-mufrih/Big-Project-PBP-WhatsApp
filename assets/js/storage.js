@@ -1,48 +1,25 @@
 var KEY_USERS = 'ngumpul_users';
 
-// ambil semua akun
+function akunTeman(teman) {
+  return {
+    id: teman.userId,
+    nama: NgumpulTeman.nama(teman),
+    username: teman.username
+  };
+}
+
+// Akun lokal lama tetap bisa dipakai untuk membaca riwayat chat dan grup.
 function getUsers() {
+  var daftar = new Map();
   try {
-    var data = localStorage.getItem(KEY_USERS);
-    return data ? JSON.parse(data) : [];
-  } catch (e) {
-    return [];
-  }
-}
+    var lokal = JSON.parse(localStorage.getItem(KEY_USERS));
+    if (Array.isArray(lokal)) lokal.forEach(user => { if (user?.id) daftar.set(user.id, user); });
+  } catch (e) {}
 
-// simpan semua akun
-function simpanUsers(list) {
-  try {
-    localStorage.setItem(KEY_USERS, JSON.stringify(list));
-    return true;
-  } catch (e) {
-    return false;
+  if (typeof NgumpulTeman !== 'undefined') {
+    NgumpulTeman.list().forEach(teman => daftar.set(teman.userId, akunTeman(teman)));
   }
-}
-
-// sandi jangan disimpan polos
-async function hashSandi(teks) {
-  // crypto.subtle cuma jalan di https atau localhost
-  if (!window.crypto || !crypto.subtle) {
-    return 'b64:' + btoa(unescape(encodeURIComponent(teks)));
-  }
-  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(teks));
-  var hasil = '';
-  new Uint8Array(buf).forEach(function (b) {
-    hasil += b.toString(16).padStart(2, '0');
-  });
-  return hasil;
-}
-
-// ubah +6281.. / 6281.. / 0812-xxxx ke 0812xxxx
-function rapikanHp(hp) {
-  var x = hp.replace(/[\s\-().]/g, '');
-  if (x.startsWith('+62')) {
-    x = '0' + x.slice(3);
-  } else if (x.startsWith('62')) {
-    x = '0' + x.slice(2);
-  }
-  return x;
+  return Array.from(daftar.values());
 }
 
 function buatId() {
@@ -70,6 +47,7 @@ function hpInternasional(kode, teks) {
 
 // bandingkan 2 nomor, akun lama yang tersimpan "0812..." dianggap +62812...
 function samakanHp(a, b) {
+  if (!a || !b) return false;
   function baku(h) {
     if (h.charAt(0) === '+') return h;
     if (h.charAt(0) === '0') return '+62' + h.slice(1);
@@ -80,65 +58,22 @@ function samakanHp(a, b) {
 
 
 // =====================================================================
-//  SESI & PROFIL PER AKUN
-//  Sesi disimpan di sessionStorage (per TAB): dua tab bisa login sebagai
-//  dua akun berbeda sekaligus, dan tab yang ditutup otomatis logout.
-//  Profil disimpan di localStorage, satu entri per id akun.
+//  PROFIL PER AKUN
 // =====================================================================
-var KEY_SESI = 'ngumpul_sesi';             // id akun yang sedang login di tab ini
-var KEY_PROFIL = 'ngumpul_profil';         // { idAkun: { nama, username, bio, phone } }
-var KEY_VERIFIKASI = 'ngumpul_terverifikasi';
+var KEY_PROFIL = 'ngumpul_profil';
 
 function getUserById(id) {
-  var users = getUsers();
-  for (var i = 0; i < users.length; i++) {
-    if (users[i].id === id) return users[i];
+  var aktif = getUserAktif();
+  if (aktif?.id === id) return aktif;
+  if (typeof NgumpulTeman !== 'undefined') {
+    var teman = NgumpulTeman.get(id);
+    if (teman) return akunTeman(teman);
   }
-  return null;
+  return getUsers().find(user => user.id === id) || null;
 }
 
-// cari akun dari email ATAU nomor HP (0812.., 812.., +62812.. semua dikenali)
-function cariUser(identitas) {
-  var t = String(identitas || '').trim();
-  var users = getUsers();
-  var i;
-  if (t.indexOf('@') !== -1) {
-    var email = t.toLowerCase();
-    for (i = 0; i < users.length; i++) {
-      if (users[i].email === email) return users[i];
-    }
-    return null;
-  }
-  var x = t.replace(/[^\d+]/g, '');
-  var hp;
-  if (x.charAt(0) === '+') hp = x;
-  else if (x.indexOf('00') === 0) hp = '+' + x.slice(2);
-  else if (x.charAt(0) === '0') hp = '+62' + x.slice(1);
-  else hp = '+62' + x;
-  for (i = 0; i < users.length; i++) {
-    if (samakanHp(users[i].hp, hp)) return users[i];
-  }
-  return null;
-}
-
-// sudah lolos OTP? (kunci = digit nomor HP internasional, tanpa +)
-function sudahVerifikasi(user) {
-  var daftar = {};
-  try { daftar = JSON.parse(localStorage.getItem(KEY_VERIFIKASI)) || {}; } catch (e) {}
-  return !!daftar[String(user.hp).replace(/\D/g, '')];
-}
-
-function setSesi(id) {
-  try { sessionStorage.setItem(KEY_SESI, id); } catch (e) {}
-}
-function hapusSesi() {
-  try { sessionStorage.removeItem(KEY_SESI); } catch (e) {}
-}
-// akun yang sedang login di tab ini, atau null kalau belum login
 function getUserAktif() {
-  var id = null;
-  try { id = sessionStorage.getItem(KEY_SESI); } catch (e) {}
-  return id ? getUserById(id) : null;
+  return NgumpulAuth.pengguna;
 }
 
 function bacaSemuaProfil() {
@@ -150,12 +85,17 @@ function getProfil(id) {
   var user = getUserById(id);
   var p = bacaSemuaProfil()[id] || {};
   var nama = p.nama || (user ? user.nama : '');
-  var slug = String(nama).toLowerCase().replace(/[^a-z0-9]/g, '') || 'pengguna';
+  var username = user?.username ? '@' + user.username : '';
+  var akunApi = id === getUserAktif()?.id || (typeof NgumpulTeman !== 'undefined' && NgumpulTeman.get(id));
+  if (!username && !akunApi) {
+    var slug = String(nama).toLowerCase().replace(/[^a-z0-9]/g, '') || 'pengguna';
+    username = p.username || '@' + slug;
+  }
   return {
     nama: nama,
-    username: p.username || '@' + slug,
+    username: username,
     bio: p.bio || 'Halo, aku pakai Ngumpul',
-    phone: p.phone || (user ? user.hp : '')
+    phone: p.phone || user?.hp || ''
   };
 }
 

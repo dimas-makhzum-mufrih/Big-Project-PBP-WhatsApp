@@ -7,18 +7,21 @@
     <meta name="color-scheme" content="light dark">
     <title>Ngumpul - Ruang Chat</title>
     <link rel="stylesheet" href="css/kontak.css">
+    <link rel="stylesheet" href="css/profil-kontak.css?v=3">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/dm.css">
     <link rel="stylesheet" href="css/setelan.css">
     <link rel="stylesheet" href="css/grup.css">
     <link rel="stylesheet" href="css/media.css">
     <link rel="stylesheet" href="../../assets/css/variables.css">
     <link rel="stylesheet" href="../../assets/css/themes.css">
     <link rel="stylesheet" href="../../assets/css/tema-premium.css">
+    <link rel="stylesheet" href="../../assets/css/auth.css">
     <script src="../../assets/js/theme.js"></script>
 </head>
 
-<body>
+<body class="cek-sesi">
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
         <symbol id="i-smile" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" />
@@ -196,10 +199,9 @@
                         <button class="dropdown-option grup-menu-baru" id="menu-grup-baru" type="button"
                             data-fitur="grup-baru">Grup baru</button>
                         <button class="dropdown-option grup-menu-baru" id="menu-grup-gabung" type="button">Gabung grup</button>
-                        <div class="dropdown-option" data-fitur="berbintang" title="Segera hadir">Pesan berbintang</div>
-                        <div class="dropdown-option" data-fitur="tandai-baca" title="Segera hadir">Tandai semua dibaca
-                        </div>
-                        <div class="dropdown-option" data-fitur="arsip" title="Segera hadir">Arsipkan semua chat</div>
+                        <button type="button" class="dropdown-option" data-fitur="berbintang">Filter chat favorit</button>
+                        <button type="button" class="dropdown-option" data-fitur="tandai-baca">Tandai semua dibaca</button>
+                        <button type="button" class="dropdown-option" data-fitur="arsip">Buka arsip chat</button>
                     </div>
                 </div>
             </div>
@@ -215,10 +217,10 @@
                 <button class="tab" id="tab-telepon" type="button" aria-pressed="false" aria-controls="panel-tab-telepon"><svg class="ikon" aria-hidden="true">
                         <use href="#i-phone" />
                     </svg>Telepon</button>
-                <button class="tab" id="tab-kontak" type="button" data-fitur="tab-kontak" aria-pressed="false"
-                    aria-controls="panel-tab-kontak"><svg class="ikon" aria-hidden="true">
+                <button class="tab" id="tab-teman" type="button" data-fitur="tab-teman" aria-pressed="false"
+                    aria-controls="panel-tab-teman"><svg class="ikon" aria-hidden="true">
                         <use href="#i-kontak" />
-                    </svg>Kontak</button>
+                    </svg>Teman</button>
             </nav>
             <div class="dashboard-tab-panel" id="panel-tab-chat" aria-label="Chat">
                 <div class="search-box-wrapper">
@@ -227,6 +229,11 @@
                     </svg>
                     <input class="search-bar-input" id="input-cari-chat" type="search"
                         placeholder="Cari atau mulai chat baru" aria-label="Cari atau mulai chat baru">
+                </div>
+                <div class="dm-inbox-actions">
+                    <button type="button" class="dm-button" id="btn-arsip-dm" aria-pressed="false">Arsip</button>
+                    <button type="button" class="dm-button" id="btn-cari-semua-dm">Cari semua pesan</button>
+                    <button type="button" class="dm-button" id="btn-daftar-blokir">Daftar blokir</button>
                 </div>
                 <div class="chat-scroll-area"></div>
             </div>
@@ -241,40 +248,68 @@
                 </div>
             </section>
             <section class="dashboard-tab-panel" id="panel-tab-telepon" aria-label="Telepon" hidden>
-                <p class="contact-empty">Mulai panggilan dari channel grup.</p>
+                <div class="contact-content">
+                    <h2>Riwayat panggilan</h2>
+                    <p id="status-riwayat-panggilan" role="status"></p>
+                    <div id="daftar-panggilan-dm"></div>
+                </div>
             </section>
-            <section class="contact-page dashboard-tab-panel" id="panel-tab-kontak" aria-labelledby="judul-kontak"
-                hidden>
+            <section class="contact-page dashboard-tab-panel" id="panel-tab-teman" aria-labelledby="judul-teman" hidden>
                 <header class="contact-header">
-                    <button class="contact-back" id="btn-kembali-dari-kontak" type="button"
-                        aria-label="Kembali ke Chat">
+                    <button class="contact-back" id="btn-kembali-dari-teman" type="button" aria-label="Kembali ke Chat">
                         <svg class="contact-back-icon" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M19 12H5M12 19l-7-7 7-7" />
                         </svg>
                     </button>
-                    <h2 id="judul-kontak">Kontak</h2>
-                    <button class="contact-add-button" id="btn-tambah-kontak" type="button" aria-expanded="false"
-                        aria-controls="form-tambah-kontak">+ Tambah kontak</button>
+                    <h2 id="judul-teman">Teman</h2>
+                    <button class="contact-add-button" id="btn-tambah-teman" type="button" aria-expanded="false"
+                        aria-controls="panel-tambah-teman">Tambah teman</button>
                 </header>
-                <div class="contact-content" role="region" aria-label="Daftar kontak">
-                    <label class="sr-only" for="input-cari-kontak">Cari kontak</label>
-                    <input class="contact-search" id="input-cari-kontak" type="search" placeholder="Cari kontak..."
-                        autocomplete="off">
-                    <form class="contact-form" id="form-tambah-kontak" hidden>
-                        <label for="input-nama-kontak">Nama kontak</label>
-                        <input class="contact-name-input" id="input-nama-kontak" type="text" autocomplete="name"
-                            maxlength="60" placeholder="Contoh: Budi" required>
-                        <label for="input-nomor-kontak">Nomor HP kontak</label>
+                <div class="contact-content">
+                    <form class="contact-form" id="form-username-teman" hidden>
+                        <label for="username-teman">Username kamu</label>
+                        <p class="contact-hint" id="petunjuk-username">Buat username agar teman bisa menemukanmu. Gunakan 3–24 huruf, angka, atau garis bawah.</p>
                         <div class="contact-form-row">
-                            <select id="kode-negara-kontak" aria-label="Kode negara nomor kontak"></select>
-                            <input id="input-nomor-kontak" type="tel" inputmode="numeric" autocomplete="tel-national"
-                                pattern="[0-9]{6,14}" maxlength="15" placeholder="81234567890" required>
-                            <button type="submit">Tambah</button>
+                            <input id="username-teman" autocapitalize="none" autocomplete="off" spellcheck="false"
+                                maxlength="25" aria-describedby="petunjuk-username" required>
+                            <button type="submit">Simpan</button>
                         </div>
-
                     </form>
-                    <p class="contact-status" id="contact-status" role="status" aria-live="polite"></p>
-                    <div class="contact-list" id="daftar-kontak"></div>
+                    <section class="contact-form" id="panel-tambah-teman" aria-label="Tambah teman" hidden>
+                        <form id="form-tambah-teman">
+                            <label for="cari-username-teman">Username teman</label>
+                            <div class="contact-form-row">
+                                <input id="cari-username-teman" type="search" autocapitalize="none" autocomplete="off"
+                                    spellcheck="false" maxlength="25" placeholder="Contoh: budi" required>
+                                <button type="submit">Cari</button>
+                            </div>
+                        </form>
+                        <div id="hasil-cari-teman" aria-live="polite"></div>
+                    </section>
+                    <div class="dm-inbox-actions">
+                        <button type="button" class="dm-button" id="btn-qr-saya">Bagikan QR teman</button>
+                        <button type="button" class="dm-button" id="btn-qr-teman">Buka kode teman</button>
+                    </div>
+                    <p class="contact-status" id="status-teman" role="status"></p>
+                    <div class="friend-load">
+                        <p class="contact-status" id="status-muat-teman" role="status"></p>
+                        <button class="friend-action" id="segarkan-teman" type="button" hidden>Muat ulang</button>
+                    </div>
+                    <section class="friend-section" id="bagian-permintaan-masuk" aria-labelledby="judul-permintaan-masuk" hidden>
+                        <h3 id="judul-permintaan-masuk">Permintaan masuk</h3>
+                        <div id="daftar-permintaan-masuk"></div>
+                    </section>
+                    <section class="friend-section" id="bagian-permintaan-terkirim" aria-labelledby="judul-permintaan-terkirim" hidden>
+                        <h3 id="judul-permintaan-terkirim">Permintaan terkirim</h3>
+                        <div id="daftar-permintaan-terkirim"></div>
+                    </section>
+                    <section class="friend-section" aria-labelledby="judul-daftar-teman">
+                        <h3 id="judul-daftar-teman">Daftar teman</h3>
+                        <label class="sr-only" for="input-cari-teman">Cari di daftar teman</label>
+                        <input class="contact-search" id="input-cari-teman" type="search" placeholder="Cari di daftar teman"
+                            autocomplete="off">
+                        <div class="contact-list" id="daftar-teman"></div>
+                    </section>
                 </div>
             </section>
             <section class="grup-wizard" id="panel-alur-grup" aria-labelledby="judul-alur-grup" hidden>
@@ -287,12 +322,12 @@
                 <form class="grup-wizard-stage" id="form-pilih-anggota">
                     <div class="grup-selected" id="anggota-terpilih-grup" aria-label="Anggota terpilih" hidden></div>
                     <span class="sr-only" id="jumlah-pilihan-grup" role="status" aria-live="polite"></span>
-                    <label class="sr-only" for="input-cari-anggota-grup">Cari kontak</label>
+                    <label class="sr-only" for="input-cari-anggota-grup">Cari teman</label>
                     <input
                         class="grup-wizard-search"
                         id="input-cari-anggota-grup"
                         type="search"
-                        placeholder="Cari nama atau nomor"
+                        placeholder="Cari nama atau username"
                         autocomplete="off"
                     />
                     <div class="grup-picker-list" id="pilihan-anggota-grup"></div>
@@ -315,7 +350,7 @@
                                 ><svg class="ikon" aria-hidden="true"><use href="#i-camera-grup" /></svg
                             ></span>
                         </button>
-                        <input id="input-foto-grup-baru" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+                        <input class="grup-input" id="input-foto-grup-baru" type="url" maxlength="2048" aria-label="URL foto grup (opsional)" placeholder="https://… (opsional)" />
                         <label class="sr-only" for="input-nama-grup">Nama grup</label
                         ><input
                             class="grup-name-field"
@@ -379,13 +414,23 @@
                     <button class="grup-tombol-sekunder private-chat-back" id="btn-kembali-chat-pribadi" type="button" aria-label="Kembali ke daftar chat">
                         <svg class="ikon" aria-hidden="true"><use href="#i-back" /></svg>
                     </button>
-                    <button class="chat-contact-trigger" id="btn-info-kontak-chat" type="button" aria-label="Lihat informasi kontak">
+                    <button class="chat-contact-trigger" id="btn-info-kontak-chat" type="button" aria-label="Lihat profil pengguna">
                         <span class="circle-avatar" id="avatar-header-kanan" style="margin:0;background:#3984bd">Z</span>
                     </button>
                     <button class="active-header-info" id="btn-info-pengguna" type="button"
-                        aria-label="Lihat informasi kontak">
-                        <h3 id="nama-header-kanan">Nama Kontak</h3>
-                        <p id="nomor-header-kanan">Nomor kontak</p>
+                        aria-label="Lihat profil pengguna">
+                        <h3 id="nama-header-kanan">Nama pengguna</h3>
+                        <p id="username-header-kanan">Username</p>
+                        <p id="dm-presence" hidden></p>
+                    </button>
+                    <button class="message-search-toggle" id="btn-suara-dm" type="button" aria-label="Telepon suara">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-phone" /></svg>
+                    </button>
+                    <button class="message-search-toggle" id="btn-video-dm" type="button" aria-label="Telepon video">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-video" /></svg>
+                    </button>
+                    <button class="message-search-toggle" id="btn-opsi-dm" type="button" aria-label="Opsi percakapan">
+                        <svg class="ikon" aria-hidden="true"><use href="#i-more" /></svg>
                     </button>
                     <button class="message-search-toggle" id="btn-toggle-cari-pesan" type="button"
                         aria-label="Cari pesan" aria-expanded="false" aria-controls="panel-cari-pesan">
@@ -427,10 +472,15 @@
                             <use href="#i-search" />
                         </svg>
                         <input class="message-search-input" id="input-cari-pesan" type="search"
-                            aria-label="Cari pesan dalam chat" autocomplete="off">
+                            aria-label="Cari pesan dalam chat" maxlength="200" autocomplete="off">
                     </div>
                     <div class="message-search-results" id="hasil-cari-pesan" aria-live="polite"></div>
                 </section>
+                <div class="dm-feedback">
+                    <p id="status-dm" role="status"></p>
+                    <button id="muat-ulang-dm" type="button" class="dm-button" hidden>Muat ulang</button>
+                </div>
+                <p id="dm-typing" class="dm-typing" role="status" hidden></p>
                 <div class="messages-container" id="box-list-pesan"></div>
 
                 <!-- Overlay Drag & Drop Gambar -->
@@ -440,7 +490,7 @@
                             <use href="#i-image" />
                         </svg>
                         <strong>Lepaskan gambar di sini</strong>
-                        <span>Kirim foto ukuran berapa saja langsung ke obrolan</span>
+                        <span>Maksimal 20 MiB per gambar</span>
                     </div>
                 </div>
 
@@ -488,8 +538,7 @@
                     </footer>
                 </div>
 
-                <!-- Panel lampiran (terbuka saat tombol plus ditekan). Baru tampilan, belum fungsional.
-                     Anggota yang kebagian: pasang aksi lewat atribut data-fitur di tiap tombol. -->
+                <!-- Panel lampiran DM -->
                 <div class="lampiran-panel" id="panel-lampiran" hidden>
                     <div class="lampiran-grid">
                         <button type="button" class="lampiran-item" data-fitur="lampir-dokumen"><span
@@ -507,15 +556,11 @@
                         <button type="button" class="lampiran-item" data-fitur="lampir-kontak"><span
                                 class="lampiran-ikon" style="background:#14b8a6"><svg class="ikon">
                                     <use href="#i-user" />
-                                </svg></span>Kontak</button>
+                                </svg></span>Bagikan username</button>
                         <button type="button" class="lampiran-item" data-fitur="lampir-polling"><span
                                 class="lampiran-ikon" style="background:#f59e0b"><svg class="ikon">
                                     <use href="#i-chart" />
                                 </svg></span>Polling</button>
-                        <button type="button" class="lampiran-item" data-fitur="lampir-acara"><span
-                                class="lampiran-ikon" style="background:#ef4444"><svg class="ikon">
-                                    <use href="#i-calendar" />
-                                </svg></span>Acara</button>
                         <button type="button" class="lampiran-item" data-fitur="lampir-lokasi"><span
                                 class="lampiran-ikon" style="background:#16a34a"><svg class="ikon">
                                     <use href="#i-pin" />
@@ -532,8 +577,9 @@
                 </div>
                 <footer class="active-chat-footer">
                     <!-- input file tersembunyi: dipicu menu lampiran "Foto & video" -->
-                    <input type="file" id="input-file-gambar" accept="image/*" multiple hidden>
-                    <!-- Plus, emoji, dan mic baru tampilan (belum fungsional). Pasang aksi lewat data-fitur. -->
+                    <input type="file" id="input-file-gambar" accept="image/*,video/*" multiple hidden>
+                    <input type="file" id="input-file-dm" hidden>
+                    <input type="file" id="input-kamera-dm" accept="image/*" capture="environment" hidden>
                     <button class="btn-lampir" id="btn-lampir" type="button" data-fitur="lampirkan"
                         aria-label="Lampirkan" aria-expanded="false" aria-controls="panel-lampiran"><svg class="ikon"
                             aria-hidden="true">
@@ -604,21 +650,18 @@
                 </div>
 
             </section>
-            <aside class="contact-info-panel" id="panel-info-pengguna" aria-label="Informasi kontak" aria-hidden="true">
+            <aside class="contact-info-panel" id="panel-info-pengguna" aria-label="Profil pengguna" aria-hidden="true">
                 <header class="contact-info-header">
-                    <strong>Info kontak</strong>
+                    <strong>Profil pengguna</strong>
                     <button id="btn-tutup-info-pengguna" type="button" aria-label="Tutup informasi">&times;</button>
                 </header>
                 <div class="contact-info-content">
                     <div class="contact-info-banner" id="banner-info-pengguna" hidden></div>
                     <div class="contact-info-avatar circle-avatar" id="avatar-info-pengguna"></div>
                     <h2 id="nama-info-pengguna"></h2>
-                    <p id="nomor-info-pengguna"></p>
                     <p id="username-info-pengguna"></p>
                     <div class="contact-info-actions">
                         <button class="chat-block-button" id="btn-blokir-pengguna" type="button">Blokir</button>
-                        <button class="chat-save-contact-button" id="btn-simpan-kontak-chat" type="button" hidden>Simpan
-                            kontak</button>
                     </div>
                 </div>
             </aside>
@@ -631,7 +674,6 @@
                 </header>
 
                 <div class="settings-list-flow">
-                    <!-- Baris di bawah baru tampilan (belum fungsional). Anggota yang kebagian: pasang aksi lewat atribut data-fitur. -->
                     <!-- KARTU PROFIL UTAMA: Tata letak gaya WhatsApp (Banner + Foto di tengah) -->
                     <div class="profil-atas" id="profil-atas">
                         <div class="settings-profile-whatsapp-card profile-card-trigger" id="btn-buka-edit-profil"
@@ -685,11 +727,11 @@
                         </div>
                     </div>
                     <div class="settings-card">
-                        <div class="settings-row-item" data-fitur="akun" title="Segera hadir"><span
+                        <div class="settings-row-item" data-fitur="akun" role="button" tabindex="0"><span
                                 class="settings-item-icon"><svg class="ikon" aria-hidden="true">
                                     <use href="#i-user" />
                                 </svg></span>
-                            <div class="settings-item-text"><b>Akun</b><small>Notifikasi keamanan, ganti nomor</small>
+                            <div class="settings-item-text"><b>Akun</b><small>Keamanan dan perangkat</small>
                             </div><svg class="ikon settings-arrow" aria-hidden="true">
                                 <use href="#i-next" />
                             </svg>
@@ -1289,12 +1331,11 @@
                         ></span>
                     </button>
                     <form class="grup-inline-editor grup-photo-editor" id="form-foto-grup" hidden>
-                        <label class="grup-label" for="edit-foto-grup">Foto grup</label>
+                        <label class="grup-label" for="edit-foto-grup">URL foto grup</label>
                         <input
                             class="grup-input"
                             id="edit-foto-grup"
-                            type="file"
-                            accept="image/png,image/jpeg,image/webp"
+                            type="url" maxlength="2048" placeholder="https://…"
                         />
                         <div class="detail-avatar" id="preview-foto-grup"></div>
                         <div class="grup-form-aksi">
@@ -1435,8 +1476,8 @@
     </template>
     <dialog class="dashboard-detail-panel" id="dialog-info-kontak" aria-labelledby="judul-info-kontak">
         <header class="detail-panel-header">
-            <h2 id="judul-info-kontak">Info Kontak</h2>
-            <button class="detail-close" type="button" data-tutup-dialog aria-label="Tutup informasi kontak">
+            <h2 id="judul-info-kontak">Profil pengguna</h2>
+            <button class="detail-close" type="button" data-tutup-dialog aria-label="Tutup profil pengguna">
                 <svg class="ikon" aria-hidden="true"><use href="#i-close" /></svg>
             </button>
         </header>
@@ -1445,10 +1486,6 @@
                 <div class="detail-avatar" id="foto-info-kontak"></div>
                 <h3 id="nama-info-kontak"></h3>
             </div>
-            <section class="detail-section">
-                <h3>Nomor telepon</h3>
-                <p id="nomor-info-kontak"></p>
-            </section>
             <section class="detail-section">
                 <h3>Tentang</h3>
                 <p class="detail-description" id="bio-info-kontak"></p>
@@ -1537,7 +1574,7 @@
         </footer>
     </div>
 
-    <!-- Urutan penting: data kontak dan chat dimuat sebelum modul yang menggunakannya. -->
+    <!-- Urutan penting: data teman dan chat dimuat sebelum modul yang menggunakannya. -->
     <!-- Menu klik kanan dan formulir edit pesan milik sendiri -->
     <div id="menu-edit-pesan" class="message-context-menu" role="menu" aria-label="Aksi pesan" hidden>
         <button type="button" id="btn-edit-pesan" role="menuitem">
@@ -1568,11 +1605,11 @@
                     aria-label="Tutup dialog penerusan">&times;</button>
             </header>
             <p class="forward-message-instruction" id="instruksi-teruskan-pesan">
-                Pilih satu atau beberapa kontak tujuan.
+                Pilih satu atau beberapa teman tujuan.
             </p>
             <label class="forward-message-search">
-                <span class="sr-only">Cari kontak</span>
-                <input id="input-cari-tujuan-teruskan" type="search" placeholder="Cari kontak..."
+                <span class="sr-only">Cari teman</span>
+                <input id="input-cari-tujuan-teruskan" type="search" placeholder="Cari teman…"
                     autocomplete="off">
             </label>
             <p class="forward-list-status" id="status-daftar-tujuan" role="status" aria-live="polite"></p>
@@ -1587,29 +1624,45 @@
         </form>
     </dialog>
 
-    <script src="../../assets/js/kompat.js"></script>
-    <script src="../../assets/js/storage.js"></script>
-    <script src="../../assets/js/negara-data.js"></script>
-    <script src="../../assets/js/data-emoji.js"></script>
-    <script src="../../assets/js/data-emoji-pencarian.js"></script>
-    <script src="js/kontak-data.js"></script>
-    <script src="js/chat-data.js"></script>
-    <script src="js/chat-tampil.js"></script>
-    <script src="js/chat-footer.js"></script>
-    <script src="js/chat-gambar.js"></script>
-    <script src="js/lightbox.js"></script>
-    <script src="js/chat-edit.js"></script>
-    <script src="js/chat-aksi.js"></script>
-    <script src="js/chat-teruskan.js"></script>
-    <script src="js/setelan.js"></script>
-    <script src="js/kontak.js"></script>
-    <script src="js/info-kontak.js"></script>
-    <script src="js/grup-dasar.js"></script>
-    <script src="js/grup-data.js"></script>
-    <script src="js/grup-media.js"></script>
-    <script src="js/grup-panggilan.js"></script>
-    <script src="js/grup.js"></script>
-    <script src="../../assets/js/notifikasi.js"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/kompat.js"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/storage.js"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/data-emoji.js"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/data-emoji-pencarian.js"></script>
+    <script type="text/plain" data-setelah-login="js/profil-avatar.js?v=3"></script>
+    <script type="text/plain" data-setelah-login="js/teman-data.js?v=3"></script>
+    <script type="text/plain" data-setelah-login="js/dm-data.js"></script>
+    <script type="text/plain" data-setelah-login="js/chat-data.js?v=3"></script>
+    <script type="text/plain" data-setelah-login="js/dm-ui.js"></script>
+    <script type="text/plain" data-setelah-login="js/chat-tampil.js"></script>
+    <script type="text/plain" data-setelah-login="js/chat-footer.js"></script>
+    <script type="text/plain" data-setelah-login="js/chat-gambar.js"></script>
+    <script type="text/plain" data-setelah-login="js/lightbox.js"></script>
+    <script type="text/plain" data-setelah-login="js/chat-edit.js"></script>
+    <script type="text/plain" data-setelah-login="js/chat-aksi.js?v=3"></script>
+    <script type="text/plain" data-setelah-login="js/chat-teruskan.js"></script>
+    <script type="text/plain" data-setelah-login="js/setelan.js"></script>
+    <script type="text/plain" data-setelah-login="js/teman.js?v=3"></script>
+    <script type="text/plain" data-setelah-login="js/info-kontak.js?v=3"></script>
+    <script type="text/plain" data-setelah-login="js/grup-data.js"></script>
+    <script type="text/plain" data-setelah-login="js/grup-dasar.js?v=3"></script>
+    <script type="text/plain" data-setelah-login="js/grup-media.js"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/livekit.js?v=2"></script>
+    <script type="text/plain" data-setelah-login="js/grup-panggilan.js?v=2"></script>
+    <script type="text/plain" data-setelah-login="js/grup.js?v=3"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/notifikasi.js"></script>
+    <script type="text/plain" data-setelah-login="js/setelan-api.js?v=3"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/tema-efek.js"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/format-teks.js"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/aksi-pesan.js"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/emoji-ui.js"></script>
+    <script type="text/plain" data-setelah-login="../../assets/js/balas-pesan.js"></script>
+    <script type="text/plain" data-setelah-login="js/dm-call.js?v=2"></script>
+    <div id="status-sesi">
+        <p role="status">Memeriksa sesi…</p>
+        <button type="button" hidden>Coba lagi</button>
+    </div>
+    <script src="../../assets/js/auth.js?v=2"></script>
+    <script src="../../assets/js/auth-page.js?v=2"></script>
 </body>
 
 </html>

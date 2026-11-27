@@ -1,24 +1,24 @@
-const KUNCI_DRAFT = 'draft_profil_edit';
 // KUNCI_MEDIA, KUNCI_SOSMED, bacaMedia ada di assets/js/storage.js
 
 function tulisMedia(idUser, data) {
     try { localStorage.setItem(KUNCI_MEDIA + idUser, JSON.stringify(data)); return true; }
     catch (e) { return false; } // penyimpanan penuh / diblokir
 }
-function adaGambar(v) { return typeof v === 'string' && v.startsWith('data:image/'); }
+function adaGambar(v) { return typeof v === 'string' && /^(https?:\/\/|data:image\/jpeg;base64,)/i.test(v); }
 
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
     // harus login; profil dibaca dan ditulis per akun
     const user = getUserAktif();
-    if (!user) { location.replace('../auth/login.html'); return; }
+    const KUNCI_DRAFT = 'draft_profil_edit:' + user.id;
     const profil = getProfil(user.id);
 
     const inputNama = document.getElementById('input-nama-user');
     const valEl = {
         username: document.getElementById('val-username'),
-        bio: document.getElementById('val-bio'),
-        phone: document.getElementById('val-phone')
+        bio: document.getElementById('val-bio')
     };
+    const usernameKosong = valEl.username.textContent;
+    const bioKosong = valEl.bio.textContent;
 
     // ===== Draft: simpan sementara & pulihkan =====
     function simpanDraft() {
@@ -26,8 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.setItem(KUNCI_DRAFT, JSON.stringify({
                 nama: inputNama.value,
                 username: valEl.username.textContent,
-                bio: valEl.bio.textContent,
-                phone: valEl.phone.textContent
+                bio: valEl.bio.textContent
             }));
         } catch (e) {}
     }
@@ -47,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const namaAwal = ambil('nama');
     if (namaAwal && inputNama) inputNama.value = namaAwal;
 
-    ['username', 'bio', 'phone'].forEach(field => {
+    ['username', 'bio'].forEach(field => {
         const nilai = ambil(field);
         if (nilai && valEl[field]) valEl[field].textContent = nilai;
     });
@@ -88,12 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function tampilkanBanner(dataUrl) {
         if (!adaGambar(dataUrl) || !bannerContainer) return;
-        bannerContainer.style.backgroundImage = 'url("' + dataUrl + '")';
+        bannerContainer.style.backgroundImage = 'url(' + JSON.stringify(dataUrl) + ')';
     }
 
     // muat gambar yang pernah tersimpan
     const mediaTersimpan = bacaMedia(user.id);
-    tampilkanAvatar(mediaTersimpan.avatar);
+    tampilkanAvatar(mediaTersimpan.avatar || user.avatar);
     tampilkanBanner(mediaTersimpan.banner);
 
     // --- Cropper (vanilla JS, tanpa library) ---
@@ -229,8 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
         c.pointers.clear();
     }
 
-    function terapkanCrop() {
-        if (!c.img) return;
+    async function terapkanCrop() {
+        if (!c.img || btnTerapkanCrop.disabled) return;
         const [ow, oh] = c.mode.keluar;
         const out = document.createElement('canvas');
         out.width = ow; out.height = oh;
@@ -240,16 +239,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const s = skala();
         const sx = (c.fx - c.ox) / s, sy = (c.fy - c.oy) / s; // area gambar asli di dalam frame
         octx.drawImage(c.img, sx, sy, c.fw / s, c.fh / s, 0, 0, ow, oh);
-        const hasil = out.toDataURL('image/jpeg', 0.88);
+        const type = c.mode.kunci;
+        let data = out.toDataURL('image/jpeg', 0.86);
+        if (data.length > 700000) data = out.toDataURL('image/jpeg', 0.65);
+        btnTerapkanCrop.disabled = btnBatalCrop.disabled = true;
+        try {
+            const { url } = await NgumpulAuth.api('profile/media', { method: 'POST', body: { type, data } });
+            tulisMedia(user.id, { ...bacaMedia(user.id), [type]: url });
+            if (type === 'avatar') tampilkanAvatar(url);
+            else tampilkanBanner(url);
+            tutupCrop();
+            tampilkanToast('Foto disimpan', 'Foto profil diperbarui.');
+        } catch (error) {
+            tampilkanToast('Foto gagal disimpan', error.status === 404 ? 'Unggahan foto belum tersedia di server.' : error.message);
+        } finally { btnTerapkanCrop.disabled = btnBatalCrop.disabled = false; }
 
-        const media = bacaMedia(user.id);
-        media[c.mode.kunci] = hasil;
-        if (!tulisMedia(user.id, media)) {
-            alert('Gambar gagal disimpan karena penyimpanan browser penuh. Hapus data situs lain atau pakai gambar yang lebih kecil.');
-            return;
-        }
-        if (c.mode.kunci === 'avatar') tampilkanAvatar(hasil); else tampilkanBanner(hasil);
-        tutupCrop();
     }
 
     // interaksi: geser (1 jari / mouse), pinch (2 jari), roda mouse, slider
@@ -293,8 +297,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnBatalCrop.addEventListener('click', tutupCrop);
     btnTerapkanCrop.addEventListener('click', terapkanCrop);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) tutupCrop(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !overlay.hidden) tutupCrop(); });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay && !btnTerapkanCrop.disabled) tutupCrop(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !overlay.hidden && !btnTerapkanCrop.disabled) tutupCrop(); });
 
     if (inputAvatar) inputAvatar.addEventListener('change', (e) => bukaCrop(e.target.files[0], 'avatar', inputAvatar));
     if (inputBanner) inputBanner.addEventListener('change', (e) => bukaCrop(e.target.files[0], 'banner', inputBanner));
@@ -310,8 +314,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'social-input-field';
-            input.value = span.textContent;
-            if (field === 'phone') input.inputMode = 'tel';
+            input.value = field === 'username' && span.textContent === usernameKosong ? '' : span.textContent;
+            if (field === 'username') {
+                input.maxLength = 25;
+                input.autocapitalize = 'none';
+                input.spellcheck = false;
+            }
+            if (field === 'bio') {
+                input.maxLength = 500;
+                if (span.textContent === bioKosong) input.value = '';
+            }
 
             span.style.display = 'none';
             span.after(input);
@@ -323,9 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (selesai) return;
                 selesai = true;
                 let baru = input.value.trim();
-                if (terima && baru) {
+                if (terima && (baru || field === 'bio')) {
                     if (field === 'username' && !baru.startsWith('@')) baru = '@' + baru;
-                    span.textContent = baru;
+                    span.textContent = baru || bioKosong;
                     simpanDraft();
                 }
                 input.remove();
@@ -352,9 +364,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ===== Notifikasi toast =====
     let timerToast;
-    function tampilkanToast() {
+    function tampilkanToast(judul = 'Profil tersimpan', pesan = 'Perubahan kamu berhasil disimpan.') {
         const toast = document.getElementById('toast-simpan');
         if (!toast) return;
+        toast.querySelector('.toast-judul').textContent = judul;
+        toast.querySelector('.toast-pesan').textContent = pesan;
         clearTimeout(timerToast);
         toast.classList.remove('tampil');
         void toast.offsetWidth;
@@ -362,22 +376,59 @@ document.addEventListener('DOMContentLoaded', () => {
         timerToast = setTimeout(() => toast.classList.remove('tampil'), 3000);
     }
 
-    // ===== Simpan semua data profil =====
     const btnSave = document.getElementById('btn-save-profile');
-    if (btnSave) {
-        btnSave.addEventListener('click', () => {
-            // tutup kolom ketik yang masih aktif supaya nilainya ikut terambil
-            if (document.activeElement) document.activeElement.blur();
+    let touched = Boolean(draft);
+    document.addEventListener('input', event => {
+        if (event.target === inputNama || event.target.closest('.info-row-item')) touched = true;
+    });
 
-            simpanProfil(user.id, {
-                nama: inputNama.value.trim() || user.nama,
-                username: valEl.username.textContent,
-                bio: valEl.bio.textContent,
-                phone: valEl.phone.textContent
+    let mediaEdit = false;
+    for (const input of [inputAvatar, inputBanner]) input?.addEventListener('change', () => { mediaEdit = true; });
+    NgumpulAuth.api('profile').then(({ profile }) => {
+        if (!mediaEdit) {
+            const media = { avatar: profile.avatar || mediaTersimpan.avatar || user.avatar, banner: profile.banner || mediaTersimpan.banner };
+            tulisMedia(user.id, media);
+            tampilkanAvatar(media.avatar);
+            tampilkanBanner(media.banner);
+        }
+        if (Array.isArray(profile.socialLinks) && ringkasanSosmed) {
+            const names = profile.socialLinks.map(link => link.nama);
+            if (names.length) ringkasanSosmed.textContent = names.join(', ');
+        }
+
+        const saved = { nama: profile.displayName || user.nama,
+            username: profile.username ? '@' + profile.username : '', bio: profile.bio || '' };
+        simpanProfil(user.id, saved);
+        if (touched) return;
+        inputNama.value = saved.nama;
+        valEl.username.textContent = saved.username || usernameKosong;
+        valEl.bio.textContent = saved.bio || bioKosong;
+    }).catch(error => tampilkanToast('Profil gagal dimuat', error.message));
+
+    btnSave.addEventListener('click', async () => {
+        document.activeElement?.blur();
+        const nilai = valEl.username.textContent;
+        const username = nilai === usernameKosong ? '' : nilai.replace(/^@/, '').toLowerCase();
+        if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+            tampilkanToast('Isi username', 'Gunakan 3–24 huruf, angka, atau garis bawah.');
+            return;
+        }
+        btnSave.disabled = true;
+        try {
+            const profile = await NgumpulAuth.simpanProfil({
+                username, displayName: inputNama.value.trim() || null,
+                bio: valEl.bio.textContent === bioKosong ? null : valEl.bio.textContent
             });
-
-            hapusDraft(); // sudah resmi tersimpan, draft tidak diperlukan lagi
+            valEl.username.textContent = '@' + profile.username;
+            simpanProfil(user.id, { nama: profile.displayName || user.nama,
+                username: valEl.username.textContent, bio: profile.bio || '' });
+            hapusDraft();
             tampilkanToast();
-        });
-    }
-});
+        } catch (error) {
+            tampilkanToast('Profil gagal disimpan', error.status === 409
+                ? 'Username sudah dipakai. Pilih username lain.' : error.message);
+        } finally {
+            btnSave.disabled = false;
+        }
+    });
+})();

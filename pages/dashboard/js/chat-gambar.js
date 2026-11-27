@@ -186,10 +186,10 @@ function tambahFileKeAntrean(fileList) {
 
     if (!adaYangMasuk) return;
 
-    // Jika sebelumnya sudah ada teks di input utama, pindahkan ke caption gambar pertama
+    // Gunakan draf sebagai keterangan awal tanpa membuangnya jika pratinjau dibatalkan.
     if (sebelumnyaKosong && inputTeksKirim && inputTeksKirim.value.trim()) {
+        antreanGambar[0].draftText = inputTeksKirim.value;
         antreanGambar[0].caption = inputTeksKirim.value.trim();
-        inputTeksKirim.value = '';
     }
 
     if (sebelumnyaKosong) {
@@ -210,55 +210,38 @@ async function kirimSemuaGambarAntrean() {
     sedangMengirimGambar = true;
     if (btnKirimGambar) btnKirimGambar.disabled = true;
 
-    const targetChatId = chatAktifId;
-    const targetBalasanId = idBalasanAktif;
-    const daftarPesan = ambilPesanChat(targetChatId);
-    const salinanAntrean = antreanGambar.slice();
-
-    for (let i = 0; i < salinanAntrean.length; i++) {
-        const item = salinanAntrean[i];
-        const idPesan = buatIdPesan();
-        const imageId = 'img_' + idPesan;
-
-        // Simpan file asli ukuran penuh ke IndexedDB (tidak ada batas ukuran)
-        await simpanGambarIdb(imageId, item.file);
-        // Siapkan URL lokal di memori tab ini agar langsung tampil tajam
-        cacheUrlGambar.set(imageId, URL.createObjectURL(item.file));
-
-        // Buat pratinjau ringan agar juga tersinkron instan lewat localStorage
-        const previewDataUrl = await buatPreviewRinganDataUrl(item.file);
-
-        daftarPesan.push({
-            id: idPesan,
-            sender: userAktif.id,
-            text: (item.caption || '').trim(),
-            ...(i === 0 && targetBalasanId ? { replyTo: targetBalasanId } : {}),
-            imageId: imageId,
-            image: previewDataUrl || '',
-            hasImage: true,
-            imageName: item.name || 'foto.jpg',
-            imageSize: item.size || 0,
-            time: new Date().toISOString(),
-            status: 'terkirim'
-        });
-    }
-
-    if (!simpanPesanChat(targetChatId, daftarPesan)) {
+    const peer = chatAktifId;
+    const reply = idBalasanAktif;
+    let first = true;
+    setStatusDM(peer, 'Mengunggah gambar…');
+    try {
+        for (const item of antreanGambar.slice()) {
+            if (peer !== chatAktifId) return;
+            item.upload ||= {};
+            const attachmentId = await NgumpulDM.upload(peer, item.file, item.upload);
+            await NgumpulDM.send(peer, {
+                attachmentId, text: (item.caption || '').trim(),
+                ...(first && reply ? { replyToMessageId: reply } : {})
+            });
+            if (peer !== chatAktifId) return;
+            const index = antreanGambar.indexOf(item);
+            if (index >= 0) hapusSatuGambarAntrean(index);
+            if (first && idBalasanAktif === reply) {
+                if (inputTeksKirim.value === item.draftText && item.caption.trim() === item.draftText.trim()) {
+                    inputTeksKirim.value = '';
+                    perbaruiTombolKirim();
+                }
+                batalkanBalasanPesan();
+            }
+            first = false;
+        }
+        setStatusDM(peer, '');
+    } catch (error) {
+        setStatusDM(peer, NgumpulDM.label(error, 'Gambar gagal dikirim. Tekan Kirim untuk mencoba lagi.'));
+    } finally {
         sedangMengirimGambar = false;
-        if (btnKirimGambar) btnKirimGambar.disabled = false;
-        return;
+        btnKirimGambar.disabled = false;
     }
-    if (!inputTeksKirim?.value) simpanDrafChat(targetChatId, '');
-    sedangMengirimGambar = false;
-    if (btnKirimGambar) btnKirimGambar.disabled = false;
-
-    tutupPreviewGambar();
-    if (chatAktifId === targetChatId && idBalasanAktif === targetBalasanId) {
-        batalkanBalasanPesan();
-    }
-    renderPesanAktif();
-    renderChatList();
-    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
 }
 
 // Menu lampiran "Foto & video" memicu pemilih galeri (menggantikan tombol plus kedua)
@@ -280,9 +263,12 @@ if (btnTambahGambarLagi && inputFileGambar) {
 
 if (inputFileGambar) {
     inputFileGambar.addEventListener('change', e => {
-        if (e.target.files && e.target.files.length) {
-            tambahFileKeAntrean(e.target.files);
-        }
+        const files = [...(e.target.files || [])];
+        const images = files.filter(adalahFileGambar);
+        const other = files.find(file => !adalahFileGambar(file));
+        if (images.length) tambahFileKeAntrean(images);
+        if (other) lampirkanFileDM(other);
+        if (files.length - images.length > 1) setStatusDM(chatAktifId, 'Pilih satu video setiap kali mengirim.');
         inputFileGambar.value = '';
     });
 }
