@@ -206,6 +206,7 @@ async function kirimSemuaGambarAntrean() {
     if (btnKirimGambar) btnKirimGambar.disabled = true;
 
     const targetChatId = chatAktifId;
+    const targetBalasanId = idBalasanAktif;
     const daftarPesan = ambilPesanChat(targetChatId);
     const salinanAntrean = antreanGambar.slice();
 
@@ -226,6 +227,7 @@ async function kirimSemuaGambarAntrean() {
             id: idPesan,
             sender: userAktif.id,
             text: (item.caption || '').trim(),
+            ...(i === 0 && targetBalasanId ? { replyTo: targetBalasanId } : {}),
             imageId: imageId,
             image: previewDataUrl || '',
             hasImage: true,
@@ -241,6 +243,9 @@ async function kirimSemuaGambarAntrean() {
     if (btnKirimGambar) btnKirimGambar.disabled = false;
 
     tutupPreviewGambar();
+    if (chatAktifId === targetChatId && idBalasanAktif === targetBalasanId) {
+        batalkanBalasanPesan();
+    }
     renderPesanAktif();
     renderChatList();
     if (pencarianPesanTerbuka()) renderHasilPencarianPesan();

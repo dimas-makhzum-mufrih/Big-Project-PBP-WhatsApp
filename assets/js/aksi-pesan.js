@@ -29,6 +29,7 @@
         salin: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
         pin: '<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
         lepas: '<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/><line x1="3" y1="3" x2="21" y2="21"/>',
+        balas: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v2"/>',
         teruskan: '<polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/>',
         edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
         tutup: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'
@@ -351,6 +352,9 @@
         if (!p) return [];
         var daftar = [];
         var teks = String(p.text || "").trim();
+        if (p.id && typeof mulaiBalasPesan === "function" && !(typeof chatTerblokir === "function" && chatTerblokir(chatAktifId))) {
+            daftar.push(item("balas", "Balas", function () { mulaiBalasPesan(p.id); }));
+        }
         if (teks) daftar.push(item("salin", "Salin", function () { salinTeks(teks); }));
         var btnPin = baris.querySelector(".btn-pin-message");
         if (btnPin && p.id) {
@@ -452,6 +456,10 @@
         var bubble = baris.querySelector(".chat-bubble");
         if (!bubble) return [];
         var daftar = [], teks = teksGrup(baris);
+        var komposer = document.getElementById("ruang-composer");
+        if (window.NgumpulBalas && komposer && !komposer.hidden) {
+            daftar.push(item("balas", "Balas", function () { window.NgumpulBalas.mulaiGrup(baris); }));
+        }
         if (teks) daftar.push(item("salin", "Salin", function () { salinTeks(teks); }));
         if (teks) {
             var idG = baris.dataset.message;

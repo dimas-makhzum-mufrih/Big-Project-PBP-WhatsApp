@@ -89,7 +89,7 @@
         .filter((p) => !channelId || p.channelId === channelId)
         .sort((a, b) => a.dibuat - b.dibuat || a.id.localeCompare(b.id));
     },
-    async send(gid, channelId, isi, lampiran = [], id = uid()) {
+    async send(gid, channelId, isi, lampiran = [], id = uid(), balas = null) {
       const g = await this.get(gid);
       if (g.keluar) throw new Error("Kamu sudah keluar dari grup ini.");
       if (
@@ -102,6 +102,7 @@
         grupId: gid,
         isi: isi.trim(),
         lampiran,
+        ...(balas ? { balas } : {}),
         pengirimId: akun,
         dibuat: Date.now(),
       });

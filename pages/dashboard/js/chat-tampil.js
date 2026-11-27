@@ -188,6 +188,37 @@ function renderPesanAktif() {
             bubble.dataset.tingkat = String(tingkatPesan(item));
         }
 
+        if (item.replyTo) {
+            const pesanDikutip = pesan.find(pesanAsal => String(pesanAsal.id) === String(item.replyTo));
+            const kutipan = document.createElement('button');
+            kutipan.type = 'button';
+            kutipan.className = 'message-quoted-message' + (pesanDikutip ? '' : ' hilang');
+            const pengirimKutipan = document.createElement('strong');
+            const teksKutipan = document.createElement('span');
+            if (pesanDikutip) {
+                pengirimKutipan.textContent = namaPengirimPesan(pesanDikutip);
+                teksKutipan.textContent = ringkasanPesan(pesanDikutip);
+                kutipan.setAttribute('aria-label', 'Lompat ke pesan dari ' + pengirimKutipan.textContent);
+            } else {
+                pengirimKutipan.textContent = 'Pesan asli';
+                teksKutipan.textContent = 'Pesan tidak tersedia';
+            }
+            kutipan.append(pengirimKutipan, teksKutipan);
+            kutipan.addEventListener('click', event => {
+                event.stopPropagation();
+                if (!pesanDikutip) return;
+                const barisAsal = [...boxListPesan.children]
+                    .find(barisPesan => String(barisPesan.dataset.messageId) === String(pesanDikutip.id));
+                if (!barisAsal) return;
+                barisAsal.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                barisAsal.classList.remove('ba-sorot');
+                void barisAsal.offsetWidth;
+                barisAsal.classList.add('ba-sorot');
+                window.setTimeout(() => barisAsal.classList.remove('ba-sorot'), 1400);
+            });
+            bubble.appendChild(kutipan);
+        }
+
         if (punyaGambar) {
             const bungkusGambar = document.createElement('div');
             bungkusGambar.className = 'chat-image-wrapper';
@@ -352,6 +383,7 @@ function renderPesanAktif() {
     });
 
     boxListPesan.scrollTop = boxListPesan.scrollHeight;
+    renderPratinjauBalasan();
 }
 
 // ===== Cari pesan di dalam chat =====
@@ -466,6 +498,7 @@ function bukaChat(idLawan) {
     if (chatAktifId && chatAktifId !== idLawan) {
         tutupEditPesan();
         tutupPreviewGambar();
+        batalkanBalasanPesan();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
         aturPencarianPesanTerbuka(false, true, false);
     }

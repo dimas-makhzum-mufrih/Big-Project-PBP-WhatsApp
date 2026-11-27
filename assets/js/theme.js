@@ -202,7 +202,7 @@
     // CSS tema dasar milik dashboard: dipasang otomatis kalau belum ada di HTML (kalau terhapus waktu merge, tampilan tidak polos)
     function pastikanCssDashboard() {
         if (!BASE || !/\/dashboard\//.test(location.pathname)) return;
-        ["themes", "tema-premium", "format-teks", "aksi-pesan", "emoji-ui"].forEach(function (n) {
+        ["themes", "tema-premium", "format-teks", "aksi-pesan", "emoji-ui", "balas-pesan"].forEach(function (n) {
             if (document.querySelector('link[href$="/' + n + '.css"], link[href$="' + n + '.css"]')) return;
             muatCss(n);
         });
@@ -404,7 +404,7 @@
     apply();
 
     document.addEventListener("DOMContentLoaded", function () {
-        if (document.getElementById("panel-chat-aktif")) { muatEfek(); muatSkrip("format-teks", "__ngumpulFormat"); muatSkrip("aksi-pesan", "__ngumpulAksiPesanMuat"); muatSkrip("emoji-ui", "__ngumpulEmojiMuat"); }
+        if (document.getElementById("panel-chat-aktif")) { muatEfek(); muatSkrip("format-teks", "__ngumpulFormat"); muatSkrip("aksi-pesan", "__ngumpulAksiPesanMuat"); muatSkrip("emoji-ui", "__ngumpulEmojiMuat"); muatSkrip("balas-pesan", "__ngumpulBalasMuat"); }
         document.querySelectorAll("[data-theme-toggle]").forEach(function (button) {
             button.addEventListener("click", toggleTheme);
         });

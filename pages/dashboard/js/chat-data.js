@@ -42,6 +42,10 @@ const inputCariChat = document.getElementById('input-cari-chat');
 const inputCariPesan = document.getElementById('input-cari-pesan');
 const panelCariPesan = document.getElementById('panel-cari-pesan');
 const hasilCariPesan = document.getElementById('hasil-cari-pesan');
+const panelPratinjauBalasan = document.getElementById('reply-composer-preview');
+const namaPengirimBalasan = document.getElementById('reply-composer-sender');
+const teksPratinjauBalasan = document.getElementById('reply-composer-text');
+const btnBatalBalasan = document.getElementById('btn-cancel-reply');
 const btnToggleCariPesan = document.getElementById('btn-toggle-cari-pesan');
 const btnTutupCariPesan = document.getElementById('btn-tutup-cari-pesan');
 const chatScrollArea = document.querySelector('.chat-scroll-area');
@@ -53,6 +57,47 @@ const btnInfoPengguna = document.getElementById('btn-info-pengguna');
 const panelInfoPengguna = document.getElementById('panel-info-pengguna');
 let chatAktifId = null;
 let timerSorotPesanCari = null;
+let idBalasanAktif = null;
+
+// ===== Balas pesan (chat pribadi) =====
+function ringkasanPesan(item) {
+    const teks = String(item && item.text || '').trim();
+    return teks || (isPesanBergambar(item) ? 'Foto' : '');
+}
+
+function namaPengirimPesan(item) {
+    return String(item.sender) === String(userAktif.id) ? 'Anda' : getProfilChat(chatAktifId).nama;
+}
+
+function renderPratinjauBalasan() {
+    if (!panelPratinjauBalasan) return;
+    const pesanBalasan = chatAktifId && idBalasanAktif
+        ? ambilPesanChat(chatAktifId).find(item => String(item.id) === String(idBalasanAktif))
+        : null;
+    if (!pesanBalasan) {
+        idBalasanAktif = null;
+        panelPratinjauBalasan.hidden = true;
+        return;
+    }
+    namaPengirimBalasan.textContent = namaPengirimPesan(pesanBalasan);
+    teksPratinjauBalasan.textContent = ringkasanPesan(pesanBalasan);
+    panelPratinjauBalasan.hidden = false;
+}
+
+function mulaiBalasPesan(idPesan) {
+    const pesan = ambilPesanChat(chatAktifId).find(item => String(item.id) === String(idPesan));
+    if (!pesan) return;
+    idBalasanAktif = pesan.id;
+    renderPratinjauBalasan();
+    if (inputTeksKirim) inputTeksKirim.focus();
+}
+
+function batalkanBalasanPesan() {
+    idBalasanAktif = null;
+    renderPratinjauBalasan();
+}
+
+if (btnBatalBalasan) btnBatalBalasan.addEventListener('click', batalkanBalasanPesan);
 
 if (btnUnpinMessage) {
     btnUnpinMessage.addEventListener('click', () => {

@@ -340,11 +340,13 @@ function kirimPesanAktif() {
         id: buatIdPesan(),
         sender: userAktif.id,
         text: teks,
+        ...(idBalasanAktif ? { replyTo: idBalasanAktif } : {}),
         time: new Date().toISOString(),
         status: 'terkirim'
     });
 
     simpanPesanChat(chatAktifId, daftarPesan);
+    batalkanBalasanPesan();
 
     if (inputTeksKirim) {
         inputTeksKirim.value = '';

@@ -85,6 +85,7 @@
     renderedHeader = "",
     renderedSidebar = "";
   const key = () => gid + "/" + cid;
+  window.NgumpulGrupKunci = () => key();
   const isAdmin = (g) => !g.keluar && g.adminIds.includes(akun);
   function toast(text) {
     $("ruang-toast").textContent = text;
@@ -817,6 +818,29 @@
             own ? "Kamu" : B.nama(p.pengirimId),
           ),
         );
+      if (p.balas && typeof p.balas === "object") {
+        const kutip = el("button", "message-quoted-message");
+        kutip.type = "button";
+        kutip.setAttribute("aria-label", "Lompat ke pesan asli");
+        kutip.append(
+          el("strong", "", String(p.balas.nama || "Pesan asli")),
+          el("span", "", String(p.balas.teks || "Lampiran")),
+        );
+        kutip.onclick = (ev) => {
+          ev.stopPropagation();
+          const asal = [...box.children].find((n) => n.dataset.message === p.balas.id);
+          if (!asal) {
+            toast("Pesan asli tidak ditemukan.");
+            return;
+          }
+          asal.scrollIntoView({ block: "center", behavior: "smooth" });
+          asal.classList.remove("ba-sorot");
+          void asal.offsetWidth;
+          asal.classList.add("ba-sorot");
+          setTimeout(() => asal.classList.remove("ba-sorot"), 1400);
+        };
+        bubble.append(kutip);
+      }
       const content = el("span", "grup-pesan-isi");
       content.dataset.text = p.isi;
       appendText(content, p.isi);
@@ -1147,7 +1171,9 @@
     try {
       if (selection?.files.length && !selection.saved)
         selection.saved = await M.simpan(selection.files);
-      await D.send(id, channel, draft, selection?.saved || [], attempt.id);
+      const balas = window.NgumpulBalas?.ambilGrup() || null;
+      await D.send(id, channel, draft, selection?.saved || [], attempt.id, balas);
+      window.NgumpulBalas?.batalGrup();
       attempts.delete(chatKey);
       attachments.delete(chatKey);
       D.draft(id, channel, "");
@@ -2615,12 +2641,7 @@
     }
     callStarted = current?.started || null;
     if (current) {
-      const lawanPribadi = String(current.gid).startsWith("pribadi_")
-        ? state.participants.find((p) => p.akun && p.akun !== akun)
-        : null;
-      $("ruang-call-name").textContent = lawanPribadi
-        ? B.nama(lawanPribadi.akun)
-        : current.nama;
+      $("ruang-call-name").textContent = current.nama;
       call.querySelector("header span").textContent = current.grup;
       $("ruang-call-time").dataset.mode = state.participants.some(
         (p) => p.video,
@@ -2673,14 +2694,9 @@
     const message = e.detail;
     pendingInvite = message;
     clearTimeout(incomingTimer);
-    const pribadi = String(message.gid).startsWith("pribadi_");
     incoming.replaceChildren(
       el("h2", "", B.nama(message.akun)),
-      el(
-        "p",
-        "",
-        "Panggilan " + (message.video ? "video" : "suara") + (pribadi ? "" : " grup"),
-      ),
+      el("p", "", "Panggilan " + (message.video ? "video" : "suara") + " grup"),
     );
     const actions = el("div", "grup-form-aksi");
     actions.append(
@@ -2696,7 +2712,7 @@
         "Terima",
         async () => {
           incoming.close();
-          if (!pribadi) await open(message.gid, message.cid);
+          await open(message.gid, message.cid);
           await P.join(message.gid, message.cid, message.video);
           showCall(true);
         },
@@ -2984,18 +3000,6 @@
     if (location.hash.includes("undangan-grup=")) invite().catch(error);
   });
   const api = {
-    // Panggilan 1-lawan-1 dari daftar kontak / info profil, lewat ruang tersembunyi
-    async panggilPribadi(idLawan, video) {
-      try {
-        const g = await D.get((await B.layanan.grupPribadi(idLawan)).id);
-        const teks = g.ruang.channels.find((c) => c.jenis === "teks");
-        await startCall(!!video, true, g.id, teks.id);
-        return true;
-      } catch (e) {
-        toast(e.message || "Panggilan gagal dimulai.");
-        return false;
-      }
-    },
     prepareInfo() {
       closeDrawer(false);
       return rightPanelVersion;
