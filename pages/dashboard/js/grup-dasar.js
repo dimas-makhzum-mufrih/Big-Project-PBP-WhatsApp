@@ -364,6 +364,7 @@
         },
         async daftarGrup() {
             return bacaGrup()
+                .filter((g) => !g.pribadi) // ruang panggilan 1-lawan-1 tidak ditampilkan sebagai grup
                 .map(terlihat)
                 .filter(Boolean)
                 .map((g) => {
@@ -421,6 +422,50 @@
                             oleh: userAktif.id
                         }
                     ])
+                );
+                simpanGrup([...semua, g]);
+                return g;
+            });
+        },
+        // Ruang tersembunyi untuk panggilan pribadi (kontak -> telepon/video). Memakai mesin panggilan grup yang sama.
+        async grupPribadi(lawanId) {
+            const a = userAktif.id,
+                b = String(lawanId);
+            if (a === b || !kontakTerdaftar().some((k) => k.id === b))
+                throw new Error('Kontak belum terdaftar di Ngumpul.');
+            const id = 'pribadi_' + [a, b].sort().join('_');
+            return transaksiGrup(() => {
+                const semua = bacaGrup();
+                const ada = semua.find((g) => g.id === id);
+                if (ada) return ada;
+                const dibuat = Date.now();
+                const g = {
+                    id,
+                    pribadi: true,
+                    nama: 'Panggilan pribadi',
+                    foto: '',
+                    deskripsi: '',
+                    pembuatId: a,
+                    adminIds: [a, b],
+                    anggotaIds: [a, b],
+                    dibuat,
+                    anggotaBolehUndang: false,
+                    kodeUndangan: kode(),
+                    aktivitas: [],
+                    arsipAkun: {},
+                    dihapusUntuk: {},
+                    batasPesan: {},
+                    ruang: {
+                        versi: 2,
+                        categories: [{ id: id + ':teks', nama: 'Teks' }],
+                        channels: [
+                            { id: id + ':umum', nama: 'panggilan', kategoriId: id + ':teks', jenis: 'teks', bawaan: true }
+                        ]
+                    }
+                };
+                g.warnaAnggota = warnaUntuk(g.anggotaIds, {}, id);
+                g.keanggotaan = Object.fromEntries(
+                    g.anggotaIds.map((x) => [x, { cara: x === a ? 'buat' : 'tambah', waktu: dibuat, oleh: a }])
                 );
                 simpanGrup([...semua, g]);
                 return g;
@@ -538,6 +583,33 @@
                     );
                 } catch (_) {
                     throw new Error('Pesan gagal dikirim. Coba lagi.');
+                }
+                return baru;
+            });
+        },
+        async editPesan(id, channelId, idPesan, isi) {
+            return transaksiGrup(() => {
+                if (getUserAktif()?.id !== userAktif.id)
+                    throw new Error('Sesi berakhir. Silakan masuk kembali.');
+                const g = grupLokal(id);
+                const pesan = pesanUntuk(g).find((p) => p.id === idPesan);
+                if (!pesan || pesan.jenis === 'aktivitas' || pesan.pengirimId !== userAktif.id)
+                    throw new Error('Pesan tidak ditemukan atau bukan milik kamu.');
+                const channelPesan = pesan.channelId || g.ruang?.channels.find((c) => c.bawaan)?.id;
+                if (channelPesan !== channelId || !g.ruang?.channels.some((c) => c.id === channelId && c.jenis === 'teks'))
+                    throw new Error('Pesan atau channel sudah tidak tersedia.');
+                const umur = Date.now() - pesan.dibuat;
+                if (!Number.isFinite(pesan.dibuat) || umur < 0 || umur > BATAS_WAKTU_EDIT_PESAN)
+                    throw new Error('Batas waktu edit 5 menit sejak pesan dikirim sudah habis.');
+                const teks = String(isi || '').trim();
+                if (!teks || teks.length > 4000)
+                    throw new Error('Isi pesan wajib diisi, maksimal 4000 karakter.');
+                if (teks === pesan.isi) return pesan;
+                const baru = { ...pesan, isi: teks, editedAt: new Date().toISOString() };
+                try {
+                    localStorage.setItem(awalPesan(id) + encodeURIComponent(pesan.id), JSON.stringify(baru));
+                } catch (_) {
+                    throw new Error('Perubahan gagal disimpan. Silakan coba lagi.');
                 }
                 return baru;
             });
@@ -1678,6 +1750,7 @@
         if (aktif) renderPesan();
     }
     $('menu-grup-baru').addEventListener('click', () => bukaAlur('baru'));
+    $('btn-buat-grup').addEventListener('click', () => bukaAlur('baru'));
     $('btn-tambah-anggota-grup').addEventListener('click', () => bukaAlur('tambah', infoId));
     $('input-cari-anggota-grup').addEventListener('input', renderPilihan);
     $('btn-kembali-alur-grup').addEventListener('click', () => {

@@ -127,6 +127,17 @@ function renderChatList() {
     });
 }
 
+// Tingkat panjang pesan (1 sampai 4). Dipakai tema (Maple Amber, Pastel Party)
+// untuk mewarnai bubble milik pengirim. Pesan lawan bicara tidak diberi warna.
+function tingkatPesan(item) {
+    const panjang = String(item && item.text ? item.text : '').trim().length;
+
+    if (panjang <= 30) return 1;
+    if (panjang <= 80) return 2;
+    if (panjang <= 160) return 3;
+    return 4;
+}
+
 function renderPesanAktif() {
     if (!boxListPesan || !chatAktifId) return;
 
@@ -147,7 +158,7 @@ function renderPesanAktif() {
         baris.className = 'message-row';
         baris.classList.add(item.sender === userAktif.id ? 'kirim' : 'terima');
         baris.dataset.messageIndex = String(index);
-        baris.dataset.messageId = item.id;
+        baris.dataset.messageId = String(item.id || '');
 
         const punyaGambar = isPesanBergambar(item);
         const teksIsi = String(item.text || '').trim();
@@ -159,6 +170,23 @@ function renderPesanAktif() {
             (item.sender === userAktif.id ? 'kirim' : 'terima') +
             (punyaGambar ? ' ada-gambar' : '') +
             (punyaGambar && !adaTeks ? ' hanya-gambar' : '');
+
+        if (item.sender === userAktif.id) {
+            bubble.tabIndex = 0;
+            bubble.setAttribute('aria-haspopup', 'menu');
+            bubble.setAttribute('aria-controls', 'menu-edit-pesan');
+        }
+        if (item.forwarded) {
+            const labelTeruskan = document.createElement('span');
+            labelTeruskan.className = 'message-forwarded-label';
+            labelTeruskan.textContent = 'Diteruskan';
+            bubble.appendChild(labelTeruskan);
+        }
+
+        // Atribut untuk tema: hanya pesan keluar yang berwarna
+        if (item.sender === userAktif.id) {
+            bubble.dataset.tingkat = String(tingkatPesan(item));
+        }
 
         if (punyaGambar) {
             const bungkusGambar = document.createElement('div');
@@ -234,17 +262,36 @@ function renderPesanAktif() {
             }
         });
 
+        const btnTeruskan = document.createElement('button');
+        btnTeruskan.type = 'button';
+        btnTeruskan.className = 'btn-forward-message';
+        btnTeruskan.dataset.teruskanPesan = String(item.id || '');
+        btnTeruskan.title = item.id ? 'Teruskan pesan' : 'Pesan ini tidak dapat diteruskan';
+        btnTeruskan.setAttribute('aria-label', btnTeruskan.title);
+        btnTeruskan.disabled = !item.id;
+        const ikonTeruskan = document.createElement('img');
+        ikonTeruskan.className = 'forward-message-icon';
+        ikonTeruskan.src = '../../assets/img/forward-message.png';
+        ikonTeruskan.alt = '';
+        ikonTeruskan.setAttribute('aria-hidden', 'true');
+        btnTeruskan.appendChild(ikonTeruskan);
+
+        const footer = document.createElement('div');
+        footer.className = 'message-footer';
+        if (item.editedAt) {
+            const diedit = document.createElement('span');
+            diedit.className = 'message-edited';
+            diedit.textContent = 'Diedit';
+            footer.appendChild(diedit);
+        }
         const waktu = document.createElement('span');
         waktu.className = 'timestamp';
         waktu.textContent = formatJamPesan(item.time);
-
-        bubble.appendChild(btnPin);
-        const footer = document.createElement('div');
-        footer.className = 'message-footer';
         footer.appendChild(waktu);
         if (item.sender === userAktif.id) {
             footer.appendChild(buatIndikatorStatusPesan(item.status));
         }
+        bubble.appendChild(btnPin);
         bubble.appendChild(footer);
 
         // Membungkus bubble dengan tombol pemicu dan badge reaksi pesan.
@@ -300,6 +347,7 @@ function renderPesanAktif() {
         if (barReaksi) kontenPesan.appendChild(barReaksi);
 
         baris.appendChild(kontenPesan);
+        baris.appendChild(btnTeruskan);
         boxListPesan.appendChild(baris);
     });
 
@@ -416,6 +464,7 @@ function bukaChat(idLawan) {
     if (!getUserById(idLawan) || String(idLawan) === String(userAktif.id)) return;
 
     if (chatAktifId && chatAktifId !== idLawan) {
+        tutupEditPesan();
         tutupPreviewGambar();
         // pindah chat: tutup & kosongkan pencarian pesan chat sebelumnya
         aturPencarianPesanTerbuka(false, true, false);

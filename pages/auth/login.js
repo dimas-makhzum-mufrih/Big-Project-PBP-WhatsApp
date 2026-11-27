@@ -62,14 +62,14 @@ document.addEventListener("DOMContentLoaded", () => {
     error.textContent = "";
 
     if (!kontakReset) {
-      error.textContent = "Nomor HP atau Gmail tidak boleh kosong.";
+      error.textContent = "Nomor HP atau email tidak boleh kosong.";
       inputNomorReset.focus();
       return;
     }
-    const gmailValid = /^[^\s@]+@gmail\.com$/i.test(kontakReset);
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(kontakReset);
     const nomorValid = /^[+\d][\d\s()-]{7,18}$/.test(kontakReset);
-    if (!gmailValid && !nomorValid) {
-      error.textContent = "Masukkan nomor HP yang valid atau alamat Gmail @gmail.com.";
+    if (!emailValid && !nomorValid) {
+      error.textContent = "Masukkan nomor HP yang valid atau alamat email yang benar.";
       inputNomorReset.focus();
       return;
     }
@@ -81,8 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const kontakTersamar = gmailValid
-      ? kontakReset[0] + "•••@gmail.com"
+    const [namaEmail, domainEmail] = kontakReset.split("@");
+    const kontakTersamar = emailValid
+      ? namaEmail[0] + "•••@" + domainEmail
       : "••••••" + kontakReset.replace(/\D/g, "").slice(-3);
     document.getElementById("reset-nomor-tersamar").textContent = kontakTersamar;
     kodeOtpReset = String(Math.floor(Math.random() * 1000000)).padStart(6, "0");
