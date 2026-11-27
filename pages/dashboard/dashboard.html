@@ -7,13 +7,15 @@
     <meta name="color-scheme" content="light dark">
     <title>Ngumpul - Ruang Chat</title>
     <link rel="stylesheet" href="css/kontak.css">
-    <link rel="stylesheet" href="../../assets/css/variables.css">
-    <script src="../../assets/js/theme.js"></script>
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/chat.css">
     <link rel="stylesheet" href="css/setelan.css">
     <link rel="stylesheet" href="css/grup.css">
     <link rel="stylesheet" href="css/media.css">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/themes.css">
+    <link rel="stylesheet" href="../../assets/css/tema-premium.css">
+    <script src="../../assets/js/theme.js"></script>
 </head>
 
 <body>
@@ -23,6 +25,10 @@
             <path d="M8 14s1.5 2 4 2 4-2 4-2" />
             <line x1="9" y1="9" x2="9.01" y2="9" />
             <line x1="15" y1="9" x2="15.01" y2="9" />
+        </symbol>
+        <symbol id="i-keyboard" viewBox="0 0 24 24">
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 15h8" />
         </symbol>
         <symbol id="i-mic" viewBox="0 0 24 24">
             <rect x="9" y="2" width="6" height="12" rx="3" />
@@ -227,10 +233,10 @@
             <section class="dashboard-tab-panel grup-panel" id="panel-tab-grup" aria-labelledby="judul-grup" hidden>
                 <h2 class="sr-only" id="judul-grup">Grup</h2>
                 <div class="grup-content">
+                    <button class="grup-buat-baru" id="btn-buat-grup" type="button" hidden style="display:none" tabindex="-1" aria-hidden="true">+ Buat grup baru</button>
                     <p class="grup-status" id="status-grup" role="status" aria-live="polite"></p>
                     <label class="sr-only" for="input-cari-grup">Cari grup</label>
-                    <input class="grup-input" id="input-cari-grup" type="search" placeholder="Cari grup..."
-                        autocomplete="off">
+                    <input class="grup-input" id="input-cari-grup" type="search" placeholder="Cari grup..." autocomplete="off">
                     <div class="grup-list" id="daftar-grup"></div>
                 </div>
             </section>
@@ -516,28 +522,60 @@
                                 </svg></span>Lokasi</button>
                     </div>
                 </div>
-                <footer class="active-chat-footer">
-                    <div class="toast-hapus-pesan" id="toast-hapus-pesan" role="status" aria-live="polite" hidden>
-                        <span>1 pesan dihapus untuk saya</span>
-                        <button type="button" id="btn-urungkan-hapus">Urungkan</button>
+                <div class="reply-composer-preview" id="reply-composer-preview" hidden>
+                    <div class="reply-composer-quote">
+                        <strong id="reply-composer-sender"></strong>
+                        <span id="reply-composer-text"></span>
                     </div>
+                    <button class="reply-composer-close" id="btn-cancel-reply" type="button"
+                        aria-label="Batalkan balasan">&times;</button>
+                </div>
+                <footer class="active-chat-footer">
                     <!-- input file tersembunyi: dipicu menu lampiran "Foto & video" -->
                     <input type="file" id="input-file-gambar" accept="image/*" multiple hidden>
-                    <!-- Tombol lampiran dan emoji; fitur mikrofon belum didukung. -->
+                    <!-- Plus, emoji, dan mic baru tampilan (belum fungsional). Pasang aksi lewat data-fitur. -->
                     <button class="btn-lampir" id="btn-lampir" type="button" data-fitur="lampirkan"
                         aria-label="Lampirkan" aria-expanded="false" aria-controls="panel-lampiran"><svg class="ikon"
                             aria-hidden="true">
                             <use href="#i-plus" />
                         </svg></button>
                     <button class="btn-lampir" id="btn-emoji" type="button" data-fitur="emoji"
-                        aria-label="Pilih emoji" title="Pilih emoji" aria-expanded="false"
-                        aria-controls="chat-emoji-picker"><svg class="ikon" aria-hidden="true">
+                        aria-label="pilih emoji" title="Emoji"><svg class="ikon"
+                            aria-hidden="true">
                             <use href="#i-smile" />
-                        </svg></button>
-                    <div class="chat-emoji-picker" id="chat-emoji-picker" role="group" aria-label="Pilih emoji"
-                        hidden></div>
+                        </svg>
+                    </button>
+
+                    <!-- Panel emoji picker -->
+                    <div class="emoji-picker-popup" id="panel-emoji-popup" style="display:none">
+                        <div class="emoji-picker-header">
+                            <div class="pembungkus-pencarian-emoji">
+                                <svg class="search-field-icon" aria-hidden="true">
+                                    <use href="#i-search" />
+                                </svg>
+                                <input type="search" class="emoji-cari-input" id="input-cari-emoji"
+                                    placeholder="Cari emoji..." autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="emoji-tabs" id="emoji-tabs">
+                            <button class="emoji-tab aktif" data-kategori="smileys" title="Wajah & Emosi">😀</button>
+                                <button class="emoji-tab" data-kategori="gestures" title="Tangan & Isyarat">👋</button>
+                                <button class="emoji-tab" data-kategori="people" title="Orang">👤</button>
+                                <button class="emoji-tab" data-kategori="animals" title="Hewan & Alam">🐾</button>
+                                <button class="emoji-tab" data-kategori="food" title="Makanan & Minuman">🍕</button>
+                                <button class="emoji-tab" data-kategori="travel" title="Perjalanan & Tempat">✈️</button>
+                                <button class="emoji-tab" data-kategori="activities" title="Aktivitas">⚽</button>
+                                <button class="emoji-tab" data-kategori="objects" title="Objek">💡</button>
+                                <button class="emoji-tab" data-kategori="symbols" title="Simbol">❤️</button>
+                                <button class="emoji-tab" data-kategori="flags" title="Bendera">🏁</button>
+                        </div>
+                        <div class="emoji-kategori-label" id="emoji-kategori-label"> Wajah & Emosi </div>
+                        <div class="emoji-grid" id="emoji-grid"></div>
+                    </div>
+                    
                     <input class="chat-input-field" id="input-teks-kirim" type="text" placeholder="Ketik pesan..."
                         autocomplete="off">
+                        
                     <button class="btn-mic" id="btn-mic" type="button" data-fitur="mic"
                         aria-label="Pesan suara (segera hadir)" title="Pesan suara (segera hadir)"><svg class="ikon"
                             aria-hidden="true">
@@ -545,6 +583,26 @@
                         </svg></button>
                     <button class="send-action-btn" id="btn-kirim-pesan" hidden>Kirim</button>
                 </footer>
+            
+                <!-- Popup reaksi dan hover pesan -->
+                <div class="reaksi-popup-picker" id="reaksi-popup-picker" role="group"
+                    aria-label="Pilih reaksi pesan" style="display:none">
+                    <button class="reaksi-cepat" type="button" data-emoji="👍" aria-label="Reaksi jempol"
+                        title="Jempol">👍</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="❤️" aria-label="Reaksi hati"
+                        title="Hati">❤️</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="😂" aria-label="Reaksi tertawa"
+                        title="Tertawa">😂</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="😮" aria-label="Reaksi terkejut"
+                        title="Terkejut">😮</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="😢" aria-label="Reaksi sedih"
+                        title="Sedih">😢</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="🙏" aria-label="Reaksi terima kasih"
+                        title="Terima kasih">🙏</button>
+                    <button class="reaksi-cepat reaksi-lainnya" id="btn-reaksi-lainnya" type="button"
+                        aria-label="Pilih emoji lainnya" title="Emoji lainnya">➕</button>
+                </div>
+
             </section>
             <aside class="contact-info-panel" id="panel-info-pengguna" aria-label="Informasi kontak" aria-hidden="true">
                 <header class="contact-info-header">
@@ -758,36 +816,442 @@
                     </div>
 
                     <div class="theme-options">
-
-                        <button type="button" class="theme-option" data-set-theme="light">
-                            <span class="theme-preview light-preview">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </span>
-
-                            <span class="theme-option-info">
-                                <b>Terang</b>
-                                <small>Tampilan cerah dan bersih</small>
-                            </span>
-
-                            <span class="theme-check">✓</span>
-                        </button>
-
-                        <button type="button" class="theme-option" data-set-theme="dark">
-                            <span class="theme-preview dark-preview">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </span>
-
-                            <span class="theme-option-info">
-                                <b>Gelap</b>
-                                <small>Tampilan gelap dan nyaman</small>
-                            </span>
-
-                            <span class="theme-check">✓</span>
-                        </button>
+                        <section class="tema-dasar" aria-label="Tema dasar">
+                            <div class="tema-grid">
+                                <button type="button" class="theme-option kompak" data-set-theme="light" aria-pressed="false">
+                                    <span class="theme-preview light-preview"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Terang</b>
+                                        <small>Cerah dan bersih</small>
+                                    </span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option kompak" data-set-theme="dark" aria-pressed="false">
+                                    <span class="theme-preview dark-preview"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Gelap</b>
+                                        <small>Gelap dan nyaman</small>
+                                    </span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                            </div>
+                        </section>
+                        <details class="tema-pack" data-pack="celeste">
+                            <summary class="tema-pack-kepala">
+                                <span class="tema-pack-judul">
+                                    <b>Celeste</b>
+                                    <small>Langit biru, ada Sky Cycle &middot; 2 tema</small>
+                                </span>
+                                <span class="badge-plus">Plus</span>
+                                <span class="tema-pack-chevron" aria-hidden="true"><svg class="ikon"><use href="#i-chevron-down" /></svg></span>
+                            </summary>
+                            <div class="tema-pack-isi">
+                                <div class="tema-grid">
+                                <button type="button" class="theme-option premium kompak" data-set-theme="skyscape" aria-pressed="false">
+                                    <span class="theme-preview pv pv-skyscape"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Skyscape</b>
+                                        <small>Langit biru, kartu seputih awan</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="cumulus" aria-pressed="false">
+                                    <span class="theme-preview pv pv-cumulus"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Cumulus</b>
+                                        <small>Putih bersih, aksen biru langit</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                </div>
+                                <div class="sky-cycle" id="panel-sky-cycle" hidden>
+                                    <div class="sky-cycle-kepala">
+                                        <b>Sky Cycle</b>
+                                        <small id="sky-status">Sekarang tampil siang</small>
+                                    </div>
+                                    <div class="sky-segmen" role="group" aria-label="Mode Sky Cycle">
+                                        <button type="button" data-sky-mode="auto">Ikuti waktu</button>
+                                        <button type="button" data-sky-mode="day">Siang</button>
+                                        <button type="button" data-sky-mode="night">Malam</button>
+                                        <button type="button" data-sky-mode="reverse">Terbalik</button>
+                                    </div>
+                                    <p class="sky-ket">Siang berlaku 06.00 sampai 17.59. Terbalik menampilkan malam saat siang, dan sebaliknya.</p>
+                                </div>
+                            </div>
+                        </details>
+                        <details class="tema-pack" data-pack="mint">
+                            <summary class="tema-pack-kepala">
+                                <span class="tema-pack-judul">
+                                    <b>Mint</b>
+                                    <small>Empat nuansa mint &middot; 4 tema</small>
+                                </span>
+                                <span class="badge-plus">Plus</span>
+                                <span class="tema-pack-chevron" aria-hidden="true"><svg class="ikon"><use href="#i-chevron-down" /></svg></span>
+                            </summary>
+                            <div class="tema-pack-isi">
+                                <div class="tema-grid">
+                                <button type="button" class="theme-option premium kompak" data-set-theme="coolmint" aria-pressed="false">
+                                    <span class="theme-preview pv pv-coolmint"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Cool Mint</b>
+                                        <small>Putih kebiruan, mint cerah</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="chocomint" aria-pressed="false">
+                                    <span class="theme-preview pv pv-chocomint"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Choco Mint</b>
+                                        <small>Coklat gelap, aksen mint</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="windmint" aria-pressed="false">
+                                    <span class="theme-preview pv pv-windmint"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Wind Mint</b>
+                                        <small>Mint pastel nuansa alam</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="coldmint" aria-pressed="false">
+                                    <span class="theme-preview pv pv-coldmint"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Cold Mint</b>
+                                        <small>Mint kebiruan yang sejuk</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                </div>
+                            </div>
+                        </details>
+                        <details class="tema-pack" data-pack="citrus">
+                            <summary class="tema-pack-kepala">
+                                <span class="tema-pack-judul">
+                                    <b>Citrus</b>
+                                    <small>Lemon dan lime yang segar &middot; 5 tema</small>
+                                </span>
+                                <span class="badge-plus">Plus</span>
+                                <span class="tema-pack-chevron" aria-hidden="true"><svg class="ikon"><use href="#i-chevron-down" /></svg></span>
+                            </summary>
+                            <div class="tema-pack-isi">
+                                <div class="tema-grid">
+                                <button type="button" class="theme-option premium kompak" data-set-theme="lemonzest" aria-pressed="false">
+                                    <span class="theme-preview pv pv-lemonzest"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Lemon Zest</b>
+                                        <small>Kuning lemon di atas putih pastel</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="coollemon" aria-pressed="false">
+                                    <span class="theme-preview pv pv-coollemon"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Cool Lemon</b>
+                                        <small>Biru es dengan lemon muda</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="lime" aria-pressed="false">
+                                    <span class="theme-preview pv pv-lime"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Lime</b>
+                                        <small>Hijau lime yang segar</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="coldlime" aria-pressed="false">
+                                    <span class="theme-preview pv pv-coldlime"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Cold Lime</b>
+                                        <small>Nuansa es dengan lime muda</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="lemonlime" aria-pressed="false">
+                                    <span class="theme-preview pv pv-lemonlime"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Lemon Lime</b>
+                                        <small>Kuning dan hijau lime</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                </div>
+                            </div>
+                        </details>
+                        <details class="tema-pack" data-pack="aurora">
+                            <summary class="tema-pack-kepala">
+                                <span class="tema-pack-judul">
+                                    <b>Aurora</b>
+                                    <small>Latar bergerak, bisa diatur &middot; 3 tema</small>
+                                </span>
+                                <span class="badge-plus">Plus</span>
+                                <span class="tema-pack-chevron" aria-hidden="true"><svg class="ikon"><use href="#i-chevron-down" /></svg></span>
+                            </summary>
+                            <div class="tema-pack-isi">
+                                <div class="tema-grid">
+                                <button type="button" class="theme-option premium kompak" data-set-theme="aurora" aria-pressed="false">
+                                    <span class="theme-preview pv pv-aurora"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Aurora Borealis</b>
+                                        <small>Pita hijau dan ungu di langit malam</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="glacier" aria-pressed="false">
+                                    <span class="theme-preview pv pv-glacier"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Glacier</b>
+                                        <small>Biru es gelap dengan kilau putih</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="polardusk" aria-pressed="false">
+                                    <span class="theme-preview pv pv-polardusk"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Polar Dusk</b>
+                                        <small>Ungu senja dengan pita pink</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                </div>
+                                <div class="sky-cycle" id="panel-aurora-gerak" hidden>
+                                    <div class="sky-cycle-kepala">
+                                        <b>Gerak latar</b>
+                                        <small id="aurora-status">Bergerak</small>
+                                    </div>
+                                    <div class="sky-segmen tiga" role="group" aria-label="Gerak latar Aurora">
+                                        <button type="button" data-aurora-mode="jalan">Bergerak</button>
+                                        <button type="button" data-aurora-mode="pelan">Pelan</button>
+                                        <button type="button" data-aurora-mode="diam">Diam</button>
+                                    </div>
+                                    <p class="sky-ket">Pita cahaya bergeser di latar chat. Otomatis diam jika perangkat meminta kurangi gerakan.</p>
+                                </div>
+                            </div>
+                        </details>
+                        <details class="tema-pack" data-pack="dessert">
+                            <summary class="tema-pack-kepala">
+                                <span class="tema-pack-judul">
+                                    <b>Dessert</b>
+                                    <small>Manis, dari matcha sampai red velvet &middot; 6 tema</small>
+                                </span>
+                                <span class="badge-plus">Plus</span>
+                                <span class="tema-pack-chevron" aria-hidden="true"><svg class="ikon"><use href="#i-chevron-down" /></svg></span>
+                            </summary>
+                            <div class="tema-pack-isi">
+                                <div class="tema-grid">
+                                <button type="button" class="theme-option premium kompak" data-set-theme="matchalatte" aria-pressed="false">
+                                    <span class="theme-preview pv pv-matchalatte"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Matcha Latte</b>
+                                        <small>Hijau matcha lembut dan krem</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="taromilk" aria-pressed="false">
+                                    <span class="theme-preview pv pv-taromilk"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Taro Milk</b>
+                                        <small>Lavender susu yang manis</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="strawberrymilk" aria-pressed="false">
+                                    <span class="theme-preview pv pv-strawberrymilk"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Strawberry Milk</b>
+                                        <small>Pink susu stroberi</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="cremebrulee" aria-pressed="false">
+                                    <span class="theme-preview pv pv-cremebrulee"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Creme Brulee</b>
+                                        <small>Krem hangat dengan karamel</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="brownsugar" aria-pressed="false">
+                                    <span class="theme-preview pv pv-brownsugar"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Brown Sugar Boba</b>
+                                        <small>Gula aren pekat dan krim</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="redvelvet" aria-pressed="false">
+                                    <span class="theme-preview pv pv-redvelvet"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Red Velvet</b>
+                                        <small>Merah beludru dengan krim keju</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                </div>
+                            </div>
+                        </details>
+                        <details class="tema-pack" data-pack="noirgold">
+                            <summary class="tema-pack-kepala">
+                                <span class="tema-pack-judul">
+                                    <b>Noir Gold</b>
+                                    <small>Hitam dan krem beraksen emas &middot; 2 tema</small>
+                                </span>
+                                <span class="badge-plus">Plus</span>
+                                <span class="tema-pack-chevron" aria-hidden="true"><svg class="ikon"><use href="#i-chevron-down" /></svg></span>
+                            </summary>
+                            <div class="tema-pack-isi">
+                                <div class="tema-grid">
+                                <button type="button" class="theme-option premium kompak" data-set-theme="noir" aria-pressed="false">
+                                    <span class="theme-preview pv pv-noir"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Noir</b>
+                                        <small>Hitam grafit dengan garis emas</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="ivory" aria-pressed="false">
+                                    <span class="theme-preview pv pv-ivory"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Ivory</b>
+                                        <small>Krem kertas dengan tinta emas</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                </div>
+                            </div>
+                        </details>
+                        <details class="tema-pack" data-pack="musim">
+                            <summary class="tema-pack-kepala">
+                                <span class="tema-pack-judul">
+                                    <b>Musim</b>
+                                    <small>Empat musim dalam satu pack &middot; 4 tema</small>
+                                </span>
+                                <span class="badge-plus">Plus</span>
+                                <span class="tema-pack-chevron" aria-hidden="true"><svg class="ikon"><use href="#i-chevron-down" /></svg></span>
+                            </summary>
+                            <div class="tema-pack-isi">
+                                <div class="tema-grid">
+                                <button type="button" class="theme-option premium kompak" data-set-theme="springmeadow" aria-pressed="false">
+                                    <span class="theme-preview pv pv-springmeadow"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Spring Meadow</b>
+                                        <small>Hijau padang dengan semburat pink</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="summersolstice" aria-pressed="false">
+                                    <span class="theme-preview pv pv-summersolstice"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Summer Solstice</b>
+                                        <small>Kuning matahari di langit biru</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="autumnmist" aria-pressed="false">
+                                    <span class="theme-preview pv pv-autumnmist"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Autumn Mist</b>
+                                        <small>Karat dan oker dalam kabut hangat</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium kompak" data-set-theme="winterfrost" aria-pressed="false">
+                                    <span class="theme-preview pv pv-winterfrost"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Winter Frost</b>
+                                        <small>Putih salju dengan biru es</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                </div>
+                            </div>
+                        </details>
+                        <details class="tema-pack" data-pack="single">
+                            <summary class="tema-pack-kepala">
+                                <span class="tema-pack-judul">
+                                    <b>Single</b>
+                                    <small>Tema mandiri &middot; 5 tema</small>
+                                </span>
+                                <span class="badge-plus">Plus</span>
+                                <span class="tema-pack-chevron" aria-hidden="true"><svg class="ikon"><use href="#i-chevron-down" /></svg></span>
+                            </summary>
+                            <div class="tema-pack-isi">
+                                <div class="tema-daftar-satu">
+                                <button type="button" class="theme-option premium" data-set-theme="moonriver" aria-pressed="false">
+                                    <span class="theme-preview pv pv-moonriver"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Moon River</b>
+                                        <small>Malam berbulan sabit, air berkilau</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium" data-set-theme="reignaissance" aria-pressed="false">
+                                    <span class="theme-preview pv pv-reignaissance"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Reignaissance</b>
+                                        <small>Indigo, biru listrik, lavender</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium" data-set-theme="sakurabloom" aria-pressed="false">
+                                    <span class="theme-preview pv pv-sakurabloom"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Sakura Bloom</b>
+                                        <small>Pink sakura di atas rose gelap</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium" data-set-theme="mapleamber" aria-pressed="false">
+                                    <span class="theme-preview pv pv-mapleamber"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Maple Amber</b>
+                                        <small>Kayu maple dan sirup orange; bubble berubah sesuai panjang pesan</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                <button type="button" class="theme-option premium" data-set-theme="pastelparty" aria-pressed="false">
+                                    <span class="theme-preview pv pv-pastelparty"><span></span><span></span><span></span></span>
+                                    <span class="theme-option-info">
+                                        <b>Pastel Party</b>
+                                        <small>Grid pastel; bubble berganti pink, biru, lavender, mint</small>
+                                    </span>
+                                    <span class="theme-lock" aria-hidden="true"><svg class="ikon"><use href="#i-lock" /></svg></span>
+                                    <span class="theme-check">✓</span>
+                                </button>
+                                </div>
+                            </div>
+                        </details>
 
                     </div>
 
@@ -1011,16 +1475,21 @@
             </div>
         </form>
     </dialog>
-    <dialog class="grup-dialog" id="dialog-hapus-pesan" aria-labelledby="judul-hapus-pesan">
+    <dialog class="grup-dialog dialog-hapus-pesan" id="dialog-hapus-pesan" aria-labelledby="judul-hapus-pesan">
         <div class="detail-panel-content">
             <h2 id="judul-hapus-pesan">Hapus pesan?</h2>
+            <p class="hapus-pesan-cuplikan" id="cuplikan-hapus-pesan" hidden></p>
             <div class="grup-form-aksi">
-                <button class="grup-tombol-utama" type="button" id="btn-hapus-semua">Hapus untuk semua orang</button>
-                <button class="grup-tombol-utama" type="button" id="btn-hapus-saya">Hapus untuk saya</button>
-                <button class="grup-tombol-sekunder" type="button" id="btn-batal-hapus">Batal</button>
+                <button class="grup-tombol-utama hapus-pesan-bahaya" type="button" id="btn-hapus-semua">Hapus untuk semua orang</button>
+                <button class="grup-tombol-sekunder" type="button" id="btn-hapus-saya">Hapus untuk saya</button>
+                <button class="grup-tombol-sekunder hapus-pesan-batal" type="button" id="btn-batal-hapus">Batal</button>
             </div>
         </div>
     </dialog>
+    <div class="toast-hapus-pesan" id="toast-hapus-pesan" role="status" aria-live="polite" hidden>
+        <span id="teks-toast-hapus">Pesan dihapus</span>
+        <button type="button" id="btn-urungkan-hapus" hidden>Urungkan</button>
+    </div>
     <!-- Peninjau Gambar Layar Penuh (Lightbox ala WhatsApp) -->
     <div class="chat-lightbox" id="lightbox-gambar" role="dialog" aria-modal="true" aria-label="Peninjau gambar obrolan"
         hidden>
@@ -1068,16 +1537,70 @@
         </footer>
     </div>
 
+    <!-- Urutan penting: data kontak dan chat dimuat sebelum modul yang menggunakannya. -->
+    <!-- Menu klik kanan dan formulir edit pesan milik sendiri -->
+    <div id="menu-edit-pesan" class="message-context-menu" role="menu" aria-label="Aksi pesan" hidden>
+        <button type="button" id="btn-edit-pesan" role="menuitem">
+            <img src="../../assets/img/edit-pesan.png" width="22" height="22" alt="">
+            <span>Edit pesan</span>
+        </button>
+    </div>
+
+    <dialog id="dialog-edit-pesan" class="message-edit-dialog" aria-labelledby="judul-edit-pesan">
+        <form id="form-edit-pesan">
+            <h2 id="judul-edit-pesan">Edit pesan</h2>
+            <label for="input-edit-pesan">Pesan</label>
+            <textarea id="input-edit-pesan" rows="4" required aria-describedby="error-edit-pesan"></textarea>
+            <p id="error-edit-pesan" class="message-edit-error" role="alert"></p>
+            <div class="message-edit-actions">
+                <button type="button" id="btn-batal-edit-pesan">Batal</button>
+                <button type="submit" class="message-edit-save">Simpan</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog class="forward-message-dialog" id="dialog-teruskan-pesan" aria-labelledby="judul-teruskan-pesan"
+        aria-describedby="instruksi-teruskan-pesan status-daftar-tujuan">
+        <form class="forward-message-form" id="form-teruskan-pesan">
+            <header class="forward-message-header">
+                <h2 id="judul-teruskan-pesan">Teruskan pesan</h2>
+                <button class="forward-message-close" id="btn-tutup-teruskan-pesan" type="button"
+                    aria-label="Tutup dialog penerusan">&times;</button>
+            </header>
+            <p class="forward-message-instruction" id="instruksi-teruskan-pesan">
+                Pilih satu atau beberapa kontak tujuan.
+            </p>
+            <label class="forward-message-search">
+                <span class="sr-only">Cari kontak</span>
+                <input id="input-cari-tujuan-teruskan" type="search" placeholder="Cari kontak..."
+                    autocomplete="off">
+            </label>
+            <p class="forward-list-status" id="status-daftar-tujuan" role="status" aria-live="polite"></p>
+            <div class="forward-contact-list" id="daftar-tujuan-teruskan"></div>
+            <p class="forward-group-note">Grup belum dapat dipilih karena fitur chat grup belum tersedia.</p>
+            <footer class="forward-message-footer">
+                <button class="forward-message-cancel" id="btn-batal-teruskan-pesan" type="button">Batal</button>
+                <button class="forward-message-submit" id="btn-konfirmasi-teruskan-pesan" type="submit" disabled>
+                    Teruskan
+                </button>
+            </footer>
+        </form>
+    </dialog>
+
     <script src="../../assets/js/kompat.js"></script>
     <script src="../../assets/js/storage.js"></script>
     <script src="../../assets/js/negara-data.js"></script>
+    <script src="../../assets/js/data-emoji.js"></script>
+    <script src="../../assets/js/data-emoji-pencarian.js"></script>
     <script src="js/kontak-data.js"></script>
     <script src="js/chat-data.js"></script>
     <script src="js/chat-tampil.js"></script>
     <script src="js/chat-footer.js"></script>
     <script src="js/chat-gambar.js"></script>
     <script src="js/lightbox.js"></script>
+    <script src="js/chat-edit.js"></script>
     <script src="js/chat-aksi.js"></script>
+    <script src="js/chat-teruskan.js"></script>
     <script src="js/setelan.js"></script>
     <script src="js/kontak.js"></script>
     <script src="js/info-kontak.js"></script>

@@ -167,7 +167,8 @@
       for (const user of getUsers()) {
         if (user.id === akunId || !isKontakPengguna(user.id)) continue;
         jumlah += ambilPesanChat(user.id).filter(
-          (p) => p.sender !== akunId && p.status !== "dibaca",
+          (p) => p.sender !== akunId && p.status !== "dibaca" && !p.dihapusSemua &&
+            !(Array.isArray(p.hiddenFor) && p.hiddenFor.includes(String(akunId))),
         ).length;
       }
       const tab = document.getElementById("tab-chat");
@@ -255,6 +256,12 @@
           (item) => item.target === idLawan,
         );
         if (ruang?.muted) return;
+        if (!ruang) {
+          try {
+            const bisu = JSON.parse(localStorage.getItem("ngumpul_bisu_" + getUserAktif().id)) || {};
+            if (bisu[idLawan]) return; // chat pribadi dibisukan dari info kontak
+          } catch (_) {}
+        }
         const nama = ruang ? ruang.title : getProfilChat(idLawan).nama;
         const cuplikan = terakhir.text.replace(/\s+/g, " ").trim();
         const body =

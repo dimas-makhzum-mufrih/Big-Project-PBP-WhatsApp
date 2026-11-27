@@ -4,7 +4,8 @@
     const $ = (id) => document.getElementById(id);
     const KUNCI_GRUP = 'ngumpul_grup',
         PESAN = 'ngumpul_pesan_grup_',
-        STATUS = 'ngumpul_status_grup_';
+        STATUS = 'ngumpul_status_grup_',
+        SEMBUNYI = 'ngumpul_grup_sembunyi_';
     const daftar = $('daftar-grup'),
         panel = $('panel-chat-grup'),
         info = $('panel-info-grup'),
@@ -266,9 +267,28 @@
                 };
             });
     }
+    // "hapus untuk saya": daftar id pesan yang disembunyikan per akun
+    function bacaSembunyi(akunId = userAktif.id) {
+        try {
+            const a = JSON.parse(localStorage.getItem(SEMBUNYI + akunId) || '[]');
+            return Array.isArray(a) ? a : [];
+        } catch (_) {
+            return [];
+        }
+    }
+    function tulisSembunyi(daftar, akunId = userAktif.id) {
+        try {
+            localStorage.setItem(SEMBUNYI + akunId, JSON.stringify(daftar));
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+    const kunciSembunyi = (gid, pid) => gid + ':' + pid;
     function riwayatUntuk(g, akunId = userAktif.id) {
+        const sembunyi = new Set(bacaSembunyi(akunId));
         return [
-            ...pesanUntuk(g, akunId),
+            ...pesanUntuk(g, akunId).filter((p) => !sembunyi.has(kunciSembunyi(g.id, p.id))),
             ...g.aktivitas.filter((a) => a.dibuat >= (g.batasPesan[akunId] || 0))
         ].sort((a, b) => a.dibuat - b.dibuat || a.id.localeCompare(b.id));
     }
@@ -542,6 +562,60 @@
                 return baru;
             });
         },
+        async editPesan(id, channelId, idPesan, isi) {
+            return transaksiGrup(() => {
+                if (getUserAktif()?.id !== userAktif.id)
+                    throw new Error('Sesi berakhir. Silakan masuk kembali.');
+                const g = grupLokal(id);
+                const pesan = pesanUntuk(g).find((p) => p.id === idPesan);
+                if (!pesan || pesan.jenis === 'aktivitas' || pesan.pengirimId !== userAktif.id)
+                    throw new Error('Pesan tidak ditemukan atau bukan milik kamu.');
+                const channelPesan = pesan.channelId || g.ruang?.channels.find((c) => c.bawaan)?.id;
+                if (channelPesan !== channelId || !g.ruang?.channels.some((c) => c.id === channelId && c.jenis === 'teks'))
+                    throw new Error('Pesan atau channel sudah tidak tersedia.');
+                const umur = Date.now() - pesan.dibuat;
+                if (!Number.isFinite(pesan.dibuat) || umur < 0 || umur > BATAS_WAKTU_EDIT_PESAN)
+                    throw new Error('Batas waktu edit 5 menit sejak pesan dikirim sudah habis.');
+                const teks = String(isi || '').trim();
+                if (!teks || teks.length > 4000)
+                    throw new Error('Isi pesan wajib diisi, maksimal 4000 karakter.');
+                if (teks === pesan.isi) return pesan;
+                const baru = { ...pesan, isi: teks, editedAt: new Date().toISOString() };
+                try {
+                    localStorage.setItem(awalPesan(id) + encodeURIComponent(pesan.id), JSON.stringify(baru));
+                } catch (_) {
+                    throw new Error('Perubahan gagal disimpan. Silakan coba lagi.');
+                }
+                return baru;
+            });
+        },
+        // hapus untuk semua: hanya pesan sendiri; kerangka (id, waktu, pengirim) disisakan
+        async hapusPesan(id, idPesan) {
+            return transaksiGrup(() => {
+                if (getUserAktif()?.id !== userAktif.id)
+                    throw new Error('Sesi berakhir. Silakan masuk kembali.');
+                const g = grupLokal(id);
+                const pesan = pesanUntuk(g).find((p) => p.id === idPesan);
+                if (!pesan || pesan.jenis === 'aktivitas' || pesan.pengirimId !== userAktif.id)
+                    throw new Error('Pesan tidak ditemukan atau bukan milik kamu.');
+                if (pesan.dihapus) return pesan;
+                const { balas, editedAt, status, ...sisa } = pesan;
+                const baru = { ...sisa, isi: '', lampiran: [], dihapus: Date.now() };
+                try {
+                    localStorage.setItem(awalPesan(id) + encodeURIComponent(pesan.id), JSON.stringify(baru));
+                } catch (_) {
+                    throw new Error('Pesan gagal dihapus. Silakan coba lagi.');
+                }
+                return baru;
+            });
+        },
+        async sembunyikanPesan(id, idPesan, sembunyi = true) {
+            const kunci = kunciSembunyi(id, idPesan);
+            const daftar = bacaSembunyi().filter((x) => x !== kunci);
+            if (sembunyi) daftar.push(kunci);
+            if (!tulisSembunyi(daftar.slice(-2000))) throw new Error('Pesan gagal disembunyikan.');
+            return true;
+        },
         async tandaiStatus(id, dibaca, channelId = null) {
             const g = grupLokal(id);
             pesanUntuk(g)
@@ -564,7 +638,7 @@
         },
         langganan(callback) {
             const listener = (e) => {
-                if (e.key === null || e.key === KUNCI_GRUP) callback({ jenis: 'grup' });
+                if (e.key === null || e.key === KUNCI_GRUP || e.key?.startsWith(SEMBUNYI)) callback({ jenis: 'grup' });
                 else if (e.key.startsWith(PESAN) || e.key.startsWith(STATUS)) {
                     const jenis = e.key.startsWith(PESAN) ? 'pesan' : 'status',
                         prefix = jenis === 'pesan' ? PESAN : STATUS;
@@ -629,7 +703,7 @@
                               ? 'you'
                               : namaAkun(g.terakhir.pengirimId)) +
                           ': ' +
-                          g.terakhir.isi.replace(/\s+/g, ' ')
+                          (g.terakhir.dihapus ? 'Pesan ini telah dihapus' : g.terakhir.isi.replace(/\s+/g, ' '))
                     : 'Mulai chat grup';
                 meta.append(top, el('p', 'card-preview', cuplikan));
                 buka.append(av, meta);

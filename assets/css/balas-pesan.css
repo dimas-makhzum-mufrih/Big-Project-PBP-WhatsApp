@@ -1,0 +1,136 @@
+/* Balas pesan: kutipan di bubble, bar pratinjau, dan geser-untuk-membalas. Mengikuti variabel tema. */
+
+/* ---------- kutipan di dalam bubble ---------- */
+.message-quoted-message {
+    --ba-warna: var(--warna-utama);
+    --ba-teks-nama: color-mix(in srgb, var(--warna-utama) 55%, var(--teks-gelap));
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+    margin: 0 0 6px;
+    padding: 6px 10px 6px 11px;
+    border: 0;
+    border-left: 4px solid var(--ba-warna);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--ba-warna) 13%, transparent);
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+    min-width: 0;
+    transition: background .15s;
+    white-space: normal;
+}
+.message-quoted-message:hover { background: color-mix(in srgb, var(--ba-warna) 22%, transparent); }
+.message-quoted-message:focus-visible { outline: 2px solid var(--ba-warna); outline-offset: 1px; }
+.message-quoted-message strong {
+    color: var(--ba-teks-nama);
+    font-size: .76rem;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.message-quoted-message span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: .82rem;
+    line-height: 1.3;
+    opacity: .85;
+    overflow-wrap: anywhere;
+}
+.message-quoted-message.hilang { cursor: default; opacity: .7; }
+.message-quoted-message.hilang span { font-style: italic; }
+
+/* ---------- bar pratinjau di atas kolom ketik ---------- */
+.reply-composer-preview {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-top: 1px solid var(--border-warna);
+    background: var(--bg-putih);
+    animation: ba-masuk .18s ease-out;
+}
+.reply-composer-preview[hidden] { display: none; }
+.reply-composer-quote {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    padding: 6px 12px;
+    border-left: 4px solid var(--warna-utama);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--warna-utama) 12%, var(--bg-abu-input));
+    color: var(--teks-gelap);
+}
+.reply-composer-quote strong { color: color-mix(in srgb, var(--warna-utama) 55%, var(--teks-gelap)); font-size: .78rem; font-weight: 700; }
+.reply-composer-quote span {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: .84rem; color: var(--teks-redup);
+}
+.reply-composer-close {
+    display: grid; place-items: center;
+    width: 34px; height: 34px; flex: none; padding: 0;
+    border: 0; border-radius: 50%;
+    background: transparent; color: var(--teks-redup);
+    font-size: 1.4rem; line-height: 1; cursor: pointer;
+}
+.reply-composer-close:hover { background: var(--bg-abu-input); color: var(--teks-gelap); }
+.reply-composer-close:focus-visible { outline: 2px solid var(--warna-utama); outline-offset: 1px; }
+.reply-composer-close svg { display: block; }
+@keyframes ba-masuk { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---------- sorot pesan asli setelah kutipan diklik ---------- */
+.ba-sorot { animation: ba-sorot 1.4s ease-out; border-radius: 10px; }
+@keyframes ba-sorot {
+    0%, 55% { background: color-mix(in srgb, var(--warna-utama) 22%, transparent); box-shadow: inset 4px 0 var(--warna-utama); }
+    100% { background: transparent; box-shadow: inset 0 0 transparent; }
+}
+
+/* ---------- geser untuk membalas ---------- */
+.message-row, .grup-pesan-baris[data-message] { position: relative; }
+.message-row .chat-bubble, .message-row .message-content,
+.grup-pesan-baris .chat-bubble { touch-action: pan-y; }
+.ba-menggeser { user-select: none; -webkit-user-select: none; cursor: grabbing; }
+.ba-geser { will-change: transform; }
+.ba-pita {
+    position: absolute;
+    left: 10px; top: 50%;
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--bg-abu-input);
+    color: var(--teks-redup);
+    opacity: 0;
+    transform: translateY(-50%) scale(.6);
+    pointer-events: none;
+    transition: background .15s, color .15s;
+}
+.ba-pita.tampil { opacity: 1; }
+.ba-pita.siap { background: var(--warna-utama); color: var(--teks-kontras, #fff); }
+.grup-pesan-baris .ba-pita { left: 52px; }
+.grup-pesan-baris.sendiri .ba-pita { left: 10px; }
+
+/* ---------- sentuhan per tema ---------- */
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .message-quoted-message { border-left-width: 5px; border-radius: 10px; }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .reply-composer-quote {
+    border: 2px solid var(--tinta, #4a3a63); border-left-width: 6px; border-radius: 12px;
+}
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .ba-pita { border: 2px solid var(--tinta, #4a3a63); box-shadow: 2px 2px 0 var(--tinta, #4a3a63); }
+html[data-theme="gameboy"] .message-quoted-message, html[data-theme="terminal"] .message-quoted-message,
+html[data-theme="gameboy"] .reply-composer-quote, html[data-theme="terminal"] .reply-composer-quote { border-radius: 0; }
+html[data-theme="gameboy"] .ba-pita, html[data-theme="terminal"] .ba-pita { border-radius: 0; }
+html[data-theme="synthwave"] .ba-pita.siap { box-shadow: 0 0 14px color-mix(in srgb, var(--warna-utama) 70%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+    .reply-composer-preview, .ba-sorot { animation: none; }
+}
+
+/* bubble pendek + kutipan: beri lebar minimum supaya kutipan tidak terpotong */
+html .chat-bubble:has(> .message-quoted-message) { min-width: 220px; max-width: 100%; }

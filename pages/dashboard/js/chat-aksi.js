@@ -44,6 +44,7 @@ function tampilkanInfoPengguna() {
     banner.style.backgroundImage = urlBanner ? 'url("' + urlBanner + '")' : '';
     perbaruiKontrolBlokir();
     perbaruiKontrolKontak();
+    if (typeof perkayaPanelInfoPengguna === 'function') perkayaPanelInfoPengguna(chatAktifId);
 }
 
 if (btnInfoPengguna) btnInfoPengguna.addEventListener('click', () => {
@@ -180,25 +181,69 @@ if (userAktif && idChatTertunda) {
 }
 
 // ===== Hapus pesan: dialog pilihan + toast Urungkan =====
+// Dipakai chat pribadi (di bawah) dan chat grup (grup.js lewat window.NgumpulHapus).
 const dialogHapusPesan = document.getElementById('dialog-hapus-pesan');
 const btnHapusSemua = document.getElementById('btn-hapus-semua');
 const btnHapusSaya = document.getElementById('btn-hapus-saya');
 const btnBatalHapus = document.getElementById('btn-batal-hapus');
+const cuplikanHapusPesan = document.getElementById('cuplikan-hapus-pesan');
 const toastHapusPesan = document.getElementById('toast-hapus-pesan');
+const teksToastHapus = document.getElementById('teks-toast-hapus');
 const btnUrungkanHapus = document.getElementById('btn-urungkan-hapus');
-let idPesanDihapus = null;
-let dataUrungkanHapus = null;
+let opsiHapusAktif = null;
+let aksiUrungkanHapus = null;
 let timerToastHapus = null;
 
-function mintaHapusPesan(idPesan) {
-    if (!chatAktifId || !dialogHapusPesan) return;
-    const pesan = ambilPesanChat(chatAktifId).find(item => item.id === idPesan);
-    if (!pesan) return;
-    idPesanDihapus = idPesan;
-    // "Hapus untuk semua" hanya untuk pesan sendiri yang belum dihapus
-    btnHapusSemua.hidden = pesan.sender !== userAktif.id || Boolean(pesan.dihapusSemua);
-    dialogHapusPesan.showModal();
+function sembunyikanToastHapus() {
+    if (timerToastHapus) window.clearTimeout(timerToastHapus);
+    timerToastHapus = null;
+    aksiUrungkanHapus = null;
+    if (toastHapusPesan) toastHapusPesan.hidden = true;
 }
+
+function tampilkanToastHapus(teks, urungkan) {
+    if (!toastHapusPesan) return;
+    aksiUrungkanHapus = typeof urungkan === 'function' ? urungkan : null;
+    teksToastHapus.textContent = teks;
+    btnUrungkanHapus.hidden = !aksiUrungkanHapus;
+    toastHapusPesan.hidden = false;
+    if (timerToastHapus) window.clearTimeout(timerToastHapus);
+    timerToastHapus = window.setTimeout(sembunyikanToastHapus, 6000);
+}
+
+// opsi: { bisaSemua, cuplikan, hapusSaya(), hapusSemua(), urungkan() }
+async function jalankanHapusPesan(opsi, untukSemua) {
+    try {
+        const berhasil = untukSemua ? await opsi.hapusSemua() : await opsi.hapusSaya();
+        if (berhasil === false) {
+            tampilkanToastHapus('Pesan tidak bisa dihapus', null);
+            return;
+        }
+        tampilkanToastHapus(
+            untukSemua ? 'Pesan dihapus untuk semua orang' : 'Pesan dihapus untuk saya',
+            untukSemua ? null : opsi.urungkan
+        );
+    } catch (error) {
+        tampilkanToastHapus(error && error.message ? error.message : 'Pesan gagal dihapus', null);
+    }
+}
+
+function bukaDialogHapusPesan(opsi) {
+    if (!dialogHapusPesan || !opsi) return;
+    // sisa pesan "dihapus untuk semua": langsung hilang dari tampilan sendiri, tanpa konfirmasi
+    if (opsi.langsung) {
+        jalankanHapusPesan(opsi, false);
+        return;
+    }
+    opsiHapusAktif = opsi;
+    btnHapusSemua.hidden = !opsi.bisaSemua;
+    const ringkas = String(opsi.cuplikan || '').trim();
+    cuplikanHapusPesan.textContent = ringkas.length > 120 ? ringkas.slice(0, 120) + '…' : ringkas;
+    cuplikanHapusPesan.hidden = !ringkas;
+    dialogHapusPesan.showModal();
+    btnBatalHapus.focus();
+}
+window.NgumpulHapus = { dialog: bukaDialogHapusPesan, toast: tampilkanToastHapus };
 
 function segarkanSetelahHapus() {
     const posisi = boxListPesan.scrollTop; // jangan lompat ke bawah
@@ -209,51 +254,58 @@ function segarkanSetelahHapus() {
     if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
 }
 
-function sembunyikanToastHapus() {
-    if (timerToastHapus) window.clearTimeout(timerToastHapus);
-    timerToastHapus = null;
-    dataUrungkanHapus = null;
-    if (toastHapusPesan) toastHapusPesan.hidden = true;
-}
-
-function tampilkanToastHapus(idLawan, idPesan) {
-    if (!toastHapusPesan) return;
-    dataUrungkanHapus = { idLawan: idLawan, idPesan: idPesan };
-    toastHapusPesan.hidden = false;
-    if (timerToastHapus) window.clearTimeout(timerToastHapus);
-    timerToastHapus = window.setTimeout(sembunyikanToastHapus, 6000);
+function mintaHapusPesan(idPesan) {
+    if (!chatAktifId || !dialogHapusPesan) return;
+    const idLawan = chatAktifId;
+    const pesan = ambilPesanChat(idLawan).find(item => String(item.id) === String(idPesan));
+    if (!pesan) return;
+    const segarkan = () => (chatAktifId === idLawan ? segarkanSetelahHapus() : renderChatList());
+    bukaDialogHapusPesan({
+        langsung: Boolean(pesan.dihapusSemua),
+        bisaSemua: String(pesan.sender) === String(userAktif.id) && !pesan.dihapusSemua,
+        cuplikan: pesan.dihapusSemua ? '' : ringkasanPesan(pesan),
+        hapusSaya: () => {
+            const ok = hapusPesanUntukSaya(idLawan, pesan.id);
+            if (ok) segarkan();
+            return ok;
+        },
+        hapusSemua: () => {
+            const ok = hapusPesanUntukSemua(idLawan, pesan.id);
+            if (ok) segarkan();
+            return ok;
+        },
+        urungkan: () => {
+            urungkanHapusUntukSaya(idLawan, pesan.id);
+            segarkan();
+        }
+    });
 }
 
 if (dialogHapusPesan) {
-    btnBatalHapus.addEventListener('click', () => dialogHapusPesan.close());
+    const tutupDialogHapus = () => dialogHapusPesan.close();
+    btnBatalHapus.addEventListener('click', tutupDialogHapus);
+    // klik di luar kartu dialog = batal
+    dialogHapusPesan.addEventListener('click', event => {
+        if (event.target === dialogHapusPesan) tutupDialogHapus();
+    });
+    dialogHapusPesan.addEventListener('close', () => { opsiHapusAktif = null; });
 
     btnHapusSemua.addEventListener('click', () => {
-        if (chatAktifId && idPesanDihapus) hapusPesanUntukSemua(chatAktifId, idPesanDihapus);
-        dialogHapusPesan.close();
-        idPesanDihapus = null;
-        segarkanSetelahHapus(); // langsung berubah, tanpa popup
+        const opsi = opsiHapusAktif;
+        tutupDialogHapus();
+        if (opsi) jalankanHapusPesan(opsi, true);
     });
-
     btnHapusSaya.addEventListener('click', () => {
-        const idLawan = chatAktifId;
-        const idPesan = idPesanDihapus;
-        dialogHapusPesan.close();
-        idPesanDihapus = null;
-        if (!idLawan || !idPesan) return;
-        if (hapusPesanUntukSaya(idLawan, idPesan)) {
-            segarkanSetelahHapus();
-            tampilkanToastHapus(idLawan, idPesan);
-        }
+        const opsi = opsiHapusAktif;
+        tutupDialogHapus();
+        if (opsi) jalankanHapusPesan(opsi, false);
     });
 }
 
 if (btnUrungkanHapus) {
     btnUrungkanHapus.addEventListener('click', () => {
-        if (!dataUrungkanHapus) return;
-        const { idLawan, idPesan } = dataUrungkanHapus;
-        urungkanHapusUntukSaya(idLawan, idPesan);
+        const aksi = aksiUrungkanHapus;
         sembunyikanToastHapus();
-        if (chatAktifId === idLawan) segarkanSetelahHapus();
-        else renderChatList();
+        if (aksi) Promise.resolve().then(aksi).catch(() => {});
     });
 }
