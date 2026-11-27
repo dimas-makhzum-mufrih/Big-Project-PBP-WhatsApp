@@ -27,6 +27,10 @@
             <line x1="9" y1="9" x2="9.01" y2="9" />
             <line x1="15" y1="9" x2="15.01" y2="9" />
         </symbol>
+        <symbol id="i-keyboard" viewBox="0 0 24 24">
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 15h8" />
+        </symbol>
         <symbol id="i-mic" viewBox="0 0 24 24">
             <rect x="9" y="2" width="6" height="12" rx="3" />
             <path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8" />
@@ -529,12 +533,42 @@
                             <use href="#i-plus" />
                         </svg></button>
                     <button class="btn-lampir" id="btn-emoji" type="button" data-fitur="emoji"
-                        aria-label="Emoji (segera hadir)" title="Emoji (segera hadir)"><svg class="ikon"
+                        aria-label="pilih emoji" title="Emoji"><svg class="ikon"
                             aria-hidden="true">
                             <use href="#i-smile" />
-                        </svg></button>
+                        </svg>
+                    </button>
+
+                    <!-- Panel emoji picker -->
+                    <div class="emoji-picker-popup" id="panel-emoji-popup" style="display:none">
+                        <div class="emoji-picker-header">
+                            <div class="pembungkus-pencarian-emoji">
+                                <svg class="search-field-icon" aria-hidden="true">
+                                    <use href="#i-search" />
+                                </svg>
+                                <input type="search" class="emoji-cari-input" id="input-cari-emoji"
+                                    placeholder="Cari emoji..." autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="emoji-tabs" id="emoji-tabs">
+                            <button class="emoji-tab aktif" data-kategori="smileys" title="Wajah & Emosi">😀</button>
+                                <button class="emoji-tab" data-kategori="gestures" title="Tangan & Isyarat">👋</button>
+                                <button class="emoji-tab" data-kategori="people" title="Orang">👤</button>
+                                <button class="emoji-tab" data-kategori="animals" title="Hewan & Alam">🐾</button>
+                                <button class="emoji-tab" data-kategori="food" title="Makanan & Minuman">🍕</button>
+                                <button class="emoji-tab" data-kategori="travel" title="Perjalanan & Tempat">✈️</button>
+                                <button class="emoji-tab" data-kategori="activities" title="Aktivitas">⚽</button>
+                                <button class="emoji-tab" data-kategori="objects" title="Objek">💡</button>
+                                <button class="emoji-tab" data-kategori="symbols" title="Simbol">❤️</button>
+                                <button class="emoji-tab" data-kategori="flags" title="Bendera">🏁</button>
+                        </div>
+                        <div class="emoji-kategori-label" id="emoji-kategori-label"> Wajah & Emosi </div>
+                        <div class="emoji-grid" id="emoji-grid"></div>
+                    </div>
+                    
                     <input class="chat-input-field" id="input-teks-kirim" type="text" placeholder="Ketik pesan..."
                         autocomplete="off">
+                        
                     <button class="btn-mic" id="btn-mic" type="button" data-fitur="mic"
                         aria-label="Pesan suara (segera hadir)" title="Pesan suara (segera hadir)"><svg class="ikon"
                             aria-hidden="true">
@@ -542,6 +576,26 @@
                         </svg></button>
                     <button class="send-action-btn" id="btn-kirim-pesan" hidden>Kirim</button>
                 </footer>
+            
+                <!-- Popup reaksi dan hover pesan -->
+                <div class="reaksi-popup-picker" id="reaksi-popup-picker" role="group"
+                    aria-label="Pilih reaksi pesan" style="display:none">
+                    <button class="reaksi-cepat" type="button" data-emoji="👍" aria-label="Reaksi jempol"
+                        title="Jempol">👍</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="❤️" aria-label="Reaksi hati"
+                        title="Hati">❤️</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="😂" aria-label="Reaksi tertawa"
+                        title="Tertawa">😂</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="😮" aria-label="Reaksi terkejut"
+                        title="Terkejut">😮</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="😢" aria-label="Reaksi sedih"
+                        title="Sedih">😢</button>
+                    <button class="reaksi-cepat" type="button" data-emoji="🙏" aria-label="Reaksi terima kasih"
+                        title="Terima kasih">🙏</button>
+                    <button class="reaksi-cepat reaksi-lainnya" id="btn-reaksi-lainnya" type="button"
+                        aria-label="Pilih emoji lainnya" title="Emoji lainnya">➕</button>
+                </div>
+
             </section>
             <aside class="contact-info-panel" id="panel-info-pengguna" aria-label="Informasi kontak" aria-hidden="true">
                 <header class="contact-info-header">
@@ -1461,6 +1515,7 @@
         </footer>
     </div>
 
+    <!-- Urutan penting: data kontak dan chat dimuat sebelum modul yang menggunakannya. -->
     <!-- Menu klik kanan dan formulir edit pesan milik sendiri -->
     <div id="menu-edit-pesan" class="message-context-menu" role="menu" aria-label="Aksi pesan" hidden>
         <button type="button" id="btn-edit-pesan" role="menuitem">
@@ -1479,6 +1534,9 @@
                 <button type="button" id="btn-batal-edit-pesan">Batal</button>
                 <button type="submit" class="message-edit-save">Simpan</button>
             </div>
+        </form>
+    </dialog>
+
     <dialog class="forward-message-dialog" id="dialog-teruskan-pesan" aria-labelledby="judul-teruskan-pesan"
         aria-describedby="instruksi-teruskan-pesan status-daftar-tujuan">
         <form class="forward-message-form" id="form-teruskan-pesan">
@@ -1510,6 +1568,8 @@
     <script src="../../assets/js/kompat.js"></script>
     <script src="../../assets/js/storage.js"></script>
     <script src="../../assets/js/negara-data.js"></script>
+    <script src="../../assets/js/data-emoji.js"></script>
+    <script src="../../assets/js/data-emoji-pencarian.js"></script>
     <script src="js/kontak-data.js"></script>
     <script src="js/chat-data.js"></script>
     <script src="js/chat-tampil.js"></script>

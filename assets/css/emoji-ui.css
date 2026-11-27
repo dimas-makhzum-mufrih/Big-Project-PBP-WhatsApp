@@ -1,0 +1,185 @@
+/* Picker emoji Ngumpul: ikut variabel warna tema aktif. */
+.emoji-picker-popup.eu-picker,
+.ruang-emoji.eu-grup {
+    --eu-radius: 18px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: var(--eu-radius);
+    box-shadow: var(--bayangan-dropdown, 0 12px 36px rgba(0, 0, 0, .22));
+    color: var(--teks-gelap);
+}
+.emoji-picker-popup.eu-picker {
+    width: 372px;
+    height: 420px;
+    max-height: min(420px, calc(100vh - 120px));
+}
+.emoji-picker-popup.eu-picker.pemilih-reaksi-aktif {
+    width: min(372px, calc(100vw - 24px));
+}
+
+/* pencarian */
+.eu-picker .emoji-picker-header { padding: 12px 12px 8px; }
+.eu-picker .emoji-cari-input,
+.eu-grup .eu-cari {
+    width: 100%;
+    height: 38px;
+    border: 1px solid transparent;
+    border-radius: 19px;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: .9rem;
+}
+.eu-grup .eu-cari { padding: 8px 14px; margin: 0 0 8px; box-sizing: border-box; }
+.eu-picker .emoji-cari-input:focus,
+.eu-grup .eu-cari:focus { outline: none; border-color: var(--warna-utama); background: var(--bg-putih); }
+.eu-grup .eu-cari::placeholder { color: var(--teks-redup); opacity: 1; }
+.eu-picker .pembungkus-pencarian-emoji:focus-within { outline: none; }
+
+/* tab kategori */
+.eu-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 2px 8px 6px;
+    border-bottom: 1px solid var(--border-warna);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.eu-tabs::-webkit-scrollbar { display: none; }
+.eu-tabs .emoji-tab {
+    flex: 1 0 32px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--teks-redup);
+    cursor: pointer;
+    position: relative;
+    transition: background .15s, color .15s;
+}
+.eu-tabs .emoji-tab svg { width: 20px; height: 20px; display: block; pointer-events: none; }
+.eu-tabs .emoji-tab:hover { background: var(--bg-abu-terang); color: var(--teks-gelap); }
+.eu-tabs .emoji-tab.aktif { background: var(--warna-tipis); color: var(--warna-utama); }
+.eu-tabs .emoji-tab.aktif::after {
+    content: "";
+    position: absolute;
+    left: 28%; right: 28%; bottom: -7px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--warna-utama);
+}
+.eu-tabs .emoji-tab:focus-visible { outline: 2px solid var(--warna-utama); outline-offset: -2px; }
+
+/* label + grid */
+.eu-picker .emoji-kategori-label,
+.eu-grup .emoji-kategori-label {
+    padding: 10px 16px 2px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: var(--teks-redup);
+}
+.eu-picker .emoji-grid {
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    grid-auto-rows: 40px;
+    gap: 2px;
+    padding: 6px 10px 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-warna) transparent;
+}
+.eu-picker .emoji-grid button,
+.eu-grup .eu-grid button {
+    font-size: 1.5rem;
+    line-height: 1;
+    border-radius: 10px;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    transition: background .12s, transform .12s;
+}
+.eu-picker .emoji-grid button:hover,
+.eu-grup .eu-grid button:hover { background: var(--warna-tipis); transform: scale(1.14); }
+.eu-picker .emoji-grid button:active,
+.eu-grup .eu-grid button:active { transform: scale(.94); }
+.eu-picker .emoji-grid:empty::after,
+.eu-grup .eu-grid:empty::after {
+    content: "Belum ada emoji di sini";
+    grid-column: 1 / -1;
+    padding: 28px 8px;
+    text-align: center;
+    font-size: .85rem;
+    color: var(--teks-redup);
+}
+
+/* panel emoji di ruang grup */
+.ruang-emoji.eu-grup {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    z-index: 80;
+    left: 12px;
+    bottom: 80px;
+    width: min(372px, calc(100vw - 24px));
+    max-width: none;
+    height: min(420px, calc(100vh - 140px));
+    border-radius: 18px;
+    margin: 0;
+    padding: 10px 0 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.ruang-emoji.eu-grup[hidden] { display: none; }
+.eu-grup .eu-cari { width: calc(100% - 20px); margin: 0 10px 8px; }
+.eu-grup .eu-grid {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    grid-auto-rows: 40px;
+    align-content: start;
+    gap: 2px;
+    padding: 6px 10px 12px;
+    scrollbar-width: thin;
+}
+.eu-grup .eu-grid .ruang-emoji-item { display: grid; place-items: center; padding: 0; background: none; border: 0; cursor: pointer; }
+
+@media (max-width: 520px) {
+    .emoji-picker-popup.eu-picker { left: 8px; right: 8px; width: auto; }
+    .emoji-picker-popup.eu-picker.pemilih-reaksi-aktif { left: 50%; right: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .eu-picker .emoji-grid button, .eu-tabs .emoji-tab { transition: none; }
+}
+
+/* ---------- sentuhan per tema (picker emoji + menu pesan) ---------- */
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .eu-picker,
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .eu-grup,
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .ap-menu {
+    border: 2.5px solid var(--tinta, #4a3a63);
+    box-shadow: 4px 4px 0 var(--tinta, #4a3a63);
+    border-radius: 20px;
+}
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .eu-picker .emoji-cari-input,
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .eu-grup .eu-cari { border: 2px solid var(--tinta, #4a3a63); background: #fff; }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .eu-tabs .emoji-tab.aktif { background: #ffc4da; color: var(--tinta, #4a3a63); }
+html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .eu-tabs .emoji-tab.aktif::after { background: var(--tinta, #4a3a63); }
+
+html[data-theme="gameboy"] .eu-picker, html[data-theme="gameboy"] .eu-grup, html[data-theme="gameboy"] .ap-menu,
+html[data-theme="terminal"] .eu-picker, html[data-theme="terminal"] .eu-grup, html[data-theme="terminal"] .ap-menu {
+    border: 2px solid var(--warna-utama);
+    border-radius: 0;
+    box-shadow: 4px 4px 0 var(--warna-utama);
+}
+html[data-theme="gameboy"] .eu-picker *, html[data-theme="gameboy"] .eu-grup *,
+html[data-theme="terminal"] .eu-picker *, html[data-theme="terminal"] .eu-grup * { border-radius: 0 !important; }
+html[data-theme="terminal"] .eu-picker, html[data-theme="terminal"] .eu-grup { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+
+html[data-theme="synthwave"] .eu-picker, html[data-theme="synthwave"] .eu-grup, html[data-theme="synthwave"] .ap-menu {
+    border-color: var(--warna-utama);
+    box-shadow: 0 0 0 1px var(--warna-utama), 0 0 22px color-mix(in srgb, var(--warna-utama) 55%, transparent);
+}
+html[data-theme="synthwave"] .eu-tabs .emoji-tab.aktif { box-shadow: 0 0 12px color-mix(in srgb, var(--warna-utama) 60%, transparent); }
+

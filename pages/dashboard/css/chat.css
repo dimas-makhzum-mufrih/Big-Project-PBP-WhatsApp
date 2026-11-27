@@ -881,3 +881,348 @@ html[data-theme="dark"] .forward-message-search input::placeholder {
 .send-action-btn:hover {
     background: var(--warna-utama-hover)
 }
+
+/*=============================================================================
+    FITUR: EMOJI PICKER & REAKSI PESAN 
+  =============================================================================*/
+
+/* Tata letak picker emoji, pencarian, kategori, dan grid emoji. */
+.active-chat-footer {
+    position: relative;
+}
+.emoji-picker-popup {
+    position: absolute;
+    bottom: calc(100% + 28px);
+    left: 3.5rem;
+    width: 340px;
+    height: 380px;
+    max-height: 380px;
+    background: var(--bg-putih);
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: emojiSlideUp .18s ease-out;
+}
+
+@keyframes emojiSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.emoji-picker-header {
+    padding: 10px 12px 6px;
+    flex-shrink: 0;
+}
+
+.pembungkus-pencarian-emoji {
+    position: relative;
+}
+
+.pembungkus-pencarian-emoji .search-field-icon {
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+}
+
+.emoji-cari-input {
+    width: 100%;
+    height: 36px;
+    padding: 8px 12px 8px 38px;
+    border: 0;
+    border-radius: 18px;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: .9rem;
+}
+
+.emoji-cari-input::placeholder {
+    color: var(--teks-redup);
+    opacity: 1;
+}
+
+.emoji-cari-input:focus {
+    outline: none;
+    background: var(--bg-abu-input);
+    color: var(--teks-gelap);
+}
+
+.pembungkus-pencarian-emoji:focus-within {
+    outline: 2px solid var(--warna-utama);
+    border-radius: 18px;
+}
+
+.pembungkus-pencarian-emoji:focus-within .search-field-icon {
+    color: var(--teks-redup);
+}
+
+.emoji-tabs {
+    display: flex;
+    flex: none;
+    gap: 2px;
+    padding: 4px 10px;
+    border-bottom: 1px solid var(--border-warna);
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+}
+
+.emoji-tab {
+    flex: 0 0 34px;
+    padding: 5px 0;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 6px 6px 0 0;
+    transition: background .15s;
+}
+
+.emoji-tab:hover {
+    background: var(--bg-abu-terang);
+}
+
+.emoji-tab.aktif {
+    border-bottom-color: var(--warna-utama);
+    background: var(--warna-tipis);
+}
+
+.emoji-kategori-label {
+    padding: 6px 14px 2px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--teks-redup);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    flex-shrink: 0;
+}
+
+.emoji-grid {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-auto-rows: 38px;
+    align-content: start;
+    gap: 2px;
+    padding: 6px 10px 10px;
+}
+
+.emoji-grid button {
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    font-size: 1.35rem;
+    cursor: pointer;
+    transition: background .12s;
+    aspect-ratio: 1;
+}
+
+.emoji-grid button:hover {
+    background: var(--bg-abu-terang);
+}
+
+.emoji-picker-popup.pemilih-reaksi-aktif {
+    position: fixed;
+    top: 50%;
+    bottom: auto;
+    left: 50%;
+    z-index: 1000;
+    width: min(340px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    transform: translate(-50%, -50%);
+}
+
+/* Tombol pemicu dan badge reaksi yang melekat pada setiap pesan. */
+.message-content {
+    position: relative;
+    width: fit-content;
+    max-width: min(78%, 620px);
+    min-width: 0;
+}
+
+.message-content .chat-bubble {
+    width: fit-content;
+    max-width: 100%;
+}
+
+.message-content .chat-bubble.kirim {
+    margin-left: auto;
+}
+
+.message-content .chat-bubble.terima {
+    margin-right: auto;
+}
+
+.btn-react-trigger {
+    position: absolute;
+    top: calc(50% + 12px);
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity .15s ease,
+        visibility .15s ease,
+        transform .15s ease,
+        background-color .15s ease;
+}
+
+.message-row.terima .btn-react-trigger {
+    right: -36px;
+}
+
+.message-row.kirim .btn-react-trigger {
+    left: -36px;
+}
+
+.message-content:hover .btn-react-trigger,
+.message-content:focus-within .btn-react-trigger {
+    opacity: 1;
+    visibility: visible;
+}
+
+.btn-react-trigger:hover {
+    background: var(--bg-abu-input);
+    transform: scale(1.08);
+}
+
+.btn-react-trigger .ikon-reaksi-pesan {
+    display: block;
+    width: 22px;
+    height: 22px;
+}
+
+.ikon-reaksi-pesan .ikon-reaksi-latar {
+    fill: #7b858c;
+    transition: fill .15s ease;
+}
+
+.ikon-reaksi-pesan .ikon-reaksi-wajah {
+    fill: #101820;
+}
+
+.btn-react-trigger:hover .ikon-reaksi-pesan .ikon-reaksi-latar {
+    fill: #53bdeb;
+}
+
+.btn-react-trigger:focus-visible,
+.reaksi-cepat:focus-visible,
+.reaction-badge:focus-visible {
+    outline: 2px solid var(--warna-utama);
+    outline-offset: 2px;
+}
+
+.reaction-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    width: fit-content;
+    max-width: 100%;
+    gap: 2px;
+    margin-top: -3px;
+    padding: 2px;
+    border: 1px solid var(--border-warna);
+    border-radius: 16px;
+    background: var(--bg-putih);
+}
+
+.message-row.kirim .reaction-bar {
+    justify-content: flex-end;
+}
+
+.reaction-badge {
+    min-width: 42px;
+    padding: 3px 8px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: .82rem;
+    cursor: pointer;
+}
+
+.reaction-badge.mine {
+    background: var(--warna-tipis);
+}
+
+/* Popup pilihan reaksi cepat di sekitar pesan yang dipilih. */
+.reaksi-popup-picker {
+    position: fixed;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px;
+    border: 1px solid var(--border-warna);
+    border-radius: 24px;
+    background: var(--bg-putih);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .18);
+}
+
+.reaksi-cepat {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 21px;
+    cursor: pointer;
+    transition: background .12s ease, transform .12s ease;
+}
+
+.reaksi-cepat:hover {
+    background: var(--bg-abu-terang);
+    transform: scale(1.12);
+}
+
+@media (hover: none) {
+    .btn-react-trigger {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (max-width: 520px) {
+    .message-content {
+        max-width: calc(100% - 38px);
+    }
+
+    .reaksi-popup-picker {
+        gap: 1px;
+        padding: 4px;
+    }
+
+    .reaksi-cepat {
+        width: 32px;
+        height: 32px;
+        font-size: 19px;
+    }
+}

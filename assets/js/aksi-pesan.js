@@ -10,6 +10,16 @@
     if (window.__ngumpulAksiPesan) return;
     window.__ngumpulAksiPesan = true;
 
+    // pastikan CSS-nya terpasang walau dashboard.html / theme.js versi lama (tampilan tidak boleh polos)
+    (function () {
+        var src = document.currentScript && document.currentScript.src;
+        if (!src || document.querySelector('link[href*="aksi-pesan.css"]')) return;
+        var l = document.createElement("link");
+        l.rel = "stylesheet"; l.id = "aksi-pesan-css";
+        l.href = src.replace(/js\/aksi-pesan\.js(\?.*)?$/, "css/aksi-pesan.css");
+        document.head.appendChild(l);
+    })();
+
     var BATAS = 5 * 60 * 1000;
     try { if (typeof BATAS_WAKTU_EDIT_PESAN === "number") BATAS = BATAS_WAKTU_EDIT_PESAN; else window.BATAS_WAKTU_EDIT_PESAN = BATAS; } catch (e) {}
 
@@ -92,7 +102,7 @@
         b.addEventListener("click", function () {
             var kembali = pemicuAktif;
             tutupMenu(false);
-            try { aksi(); } catch (e) { console.error(e); }
+            try { aksi(); } catch (e) { console.error(e); kabar("Gagal: " + (e && e.message ? e.message : "terjadi kesalahan")); }
             if (kembali && kembali.focus && document.contains(kembali) && !document.querySelector("dialog[open]")) {
                 try { kembali.focus({ preventScroll: true }); } catch (e) {}
             }
@@ -245,7 +255,7 @@
             '<label class="forward-message-search"><span class="sr-only">Cari kontak</span><input type="search" placeholder="Cari kontak..." autocomplete="off"></label>' +
             '<p class="forward-list-status" role="status" aria-live="polite"></p>' +
             '<div class="forward-contact-list"></div>' +
-            '<footer class="ap-kaki"><button type="button" class="ap-batal">Batal</button><button type="submit" class="ap-simpan ap-fw-kirim" disabled>Teruskan</button></footer></form>';
+            '<footer class="ap-kaki"><button type="button" class="ap-batal">Batal</button><button type="submit" class="ap-simpan ap-fw-kirim">Teruskan</button></footer></form>';
         document.body.appendChild(d);
         var o = { d: d, pesan: null, cari: d.querySelector("input"), daftar: d.querySelector(".forward-contact-list"),
                   status: d.querySelector(".forward-list-status"), kirim: d.querySelector(".ap-fw-kirim") };
@@ -254,7 +264,7 @@
         d.querySelector(".ap-batal").addEventListener("click", function () { d.close(); });
         d.addEventListener("click", function (e) { if (e.target === d) d.close(); });
         o.kirim.insertAdjacentHTML("afterbegin", "");
-        function segar() { o.kirim.disabled = !o.daftar.querySelector("input:checked"); }
+        function segar() { o.kirim.classList.toggle("belum", !o.daftar.querySelector("input:checked")); if (o.daftar.querySelector("input:checked")) o.status.textContent = ""; }
         o.daftar.addEventListener("change", segar);
         o.cari.addEventListener("input", function () {
             var q = o.cari.value.trim().toLocaleLowerCase("id"), cocok = 0;
@@ -267,7 +277,8 @@
             e.preventDefault();
             var tujuan = Array.prototype.map.call(o.daftar.querySelectorAll("input:checked"), function (i) { return i.value; })
                 .filter(function (id) { return id !== String(userAktif.id) && getUserById(id) && !chatTerblokir(id); });
-            if (!tujuan.length) { o.status.textContent = "Pilih setidaknya satu kontak."; return; }
+            if (!tujuan.length) { o.status.textContent = "Pilih dulu kontak tujuannya (centang di kanan nama)."; return; }
+            try {
             var semua = bacaSemuaChat(), waktu = new Date().toISOString();
             tujuan.forEach(function (id) {
                 var kunci = kunciKonversasi(userAktif.id, id);
@@ -280,6 +291,7 @@
             if (typeof chatAktifId !== "undefined" && tujuan.some(function (id) { return String(id) === String(chatAktifId); }) && typeof renderPesanAktif === "function") renderPesanAktif();
             d.close();
             kabar("Pesan diteruskan ke " + tujuan.length + " kontak");
+            } catch (err) { console.error(err); o.status.textContent = "Gagal meneruskan: " + (err && err.message ? err.message : "terjadi kesalahan"); }
         });
         return o;
     }
@@ -291,7 +303,7 @@
         if (adaTeruskanBawaan()) { window.bukaDialogTeruskanPesan(pesan, pemicu); return; }
         if (!fw) fw = bangunFw();
         fw.pesan = Object.assign({}, pesan);
-        fw.cari.value = ""; fw.kirim.disabled = true; fw.status.textContent = "";
+        fw.cari.value = ""; fw.kirim.classList.add("belum"); fw.status.textContent = "";
         fw.daftar.replaceChildren();
         var teks = String((pesan && pesan.text) || "").trim();
         var lama = fw.d.querySelector(".ap-cuplikan"); if (lama) lama.remove();
@@ -465,10 +477,12 @@
             var baris = bubble.closest(jenis === "grup" ? "[data-message]" : ".message-row");
             if (!baris) return;
             var daftar = jenis === "grup" ? daftarGrup(baris) : daftarPribadi(baris);
+            box.__apGulir = box.scrollTop;
             var pemicu = titik ? null : bubble.querySelector(".ap-pemicu");
             bukaMenu(daftar, bubble, pemicu, e && e.clientX, e && e.clientY);
         }
 
+        // fase capture: klik gelembung punya fitur lain (mis. popup reaksi emoji) yang tidak boleh ikut terpicu
         box.addEventListener("click", function (e) {
             var p = e.target.closest(".ap-pemicu");
             if (!p) return;
@@ -476,7 +490,7 @@
             var bubble = p.closest(".chat-bubble");
             if (p.getAttribute("aria-expanded") === "true") { tutupMenu(true); return; }
             bukaDari(e, bubble, false);
-        });
+        }, true);
         box.addEventListener("keydown", function (e) {
             if (e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) {
                 var bubble = e.target.closest && e.target.closest(".chat-bubble");
@@ -498,7 +512,7 @@
             if (timer && awal && Math.hypot(e.clientX - awal.x, e.clientY - awal.y) > 10) { clearTimeout(timer); timer = null; }
         });
         ["pointerup", "pointercancel"].forEach(function (n) { box.addEventListener(n, function () { clearTimeout(timer); timer = null; }); });
-        box.addEventListener("scroll", function () { tutupMenu(false); }, { passive: true });
+        box.addEventListener("scroll", function () { if (!menu.hidden && Math.abs(box.scrollTop - (box.__apGulir || 0)) > 3) tutupMenu(false); }, { passive: true });
 
         // klik kanan: ganti menu bawaan browser / menu lama dengan menu ini
         document.addEventListener("contextmenu", function (e) {
@@ -583,6 +597,11 @@
                 });
             }).observe(daftar, { childList: true });
         }
+        var kakiTeman = dialog.querySelector(".forward-message-footer");
+        if (kakiTeman) kakiTeman.addEventListener("click", function (e) {
+            var k = document.getElementById("btn-konfirmasi-teruskan-pesan"), st = document.getElementById("status-daftar-tujuan");
+            if (k && k.disabled && !k.hidden && (e.target === kakiTeman || e.target === k) && st) st.textContent = "Pilih dulu kontak tujuannya (centang di kanan nama).";
+        });
         var asli = window.bukaDialogTeruskanPesan;
         if (typeof asli === "function" && !asli.__ap) {
             var bungkus = function (pesan, pemicu) {
@@ -604,7 +623,21 @@
         }
     }
 
-    function init() { mulai(); hiasTeruskan(); }
+    /* reaksi emoji (chat-footer.js) merender ulang semua pesan dan melompat ke bawah: jaga posisi gulir */
+    function jagaGulirReaksi() {
+        var asli = window.toggleReaksiPesan;
+        if (typeof asli !== "function" || asli.__ap) return;
+        var bungkus = function () {
+            var kotak = document.getElementById("box-list-pesan"), pos = kotak ? kotak.scrollTop : 0;
+            var r = asli.apply(this, arguments);
+            if (kotak) kotak.scrollTop = pos;
+            return r;
+        };
+        bungkus.__ap = true;
+        window.toggleReaksiPesan = bungkus;
+    }
+
+    function init() { mulai(); hiasTeruskan(); jagaGulirReaksi(); }
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
     else init();
 })();
