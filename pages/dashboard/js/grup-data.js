@@ -124,7 +124,7 @@ window.NgumpulGrupData = (() => {
   function state(cid) {
     if (!history.has(cid)) history.set(cid, {
       records: new Map(), files: new Map(), hidden: new Set(), cursor: null, loaded: false,
-      stale: true, invalidation: 0, opened: 0, acknowledged: null,
+      stale: true, invalidation: 0, opened: 0,
     });
     return history.get(cid);
   }
@@ -244,13 +244,12 @@ window.NgumpulGrupData = (() => {
     if (!cid || !visible) return false;
     const room = state(cid);
     const latest = (await messages(g, cid)).at(-1);
-    if (!latest || room.acknowledged === latest.id || room.acknowledging === latest.id) return false;
+    if (!latest) return false;
     const count = (await unreadCounts(g))[cid]?.unreadCount;
-    if (!count) return false;
+    if (!count || room.acknowledging === latest.id) return false;
     room.acknowledging = latest.id;
     try {
       await api("channels/" + enc(cid) + "/read-state", { method: "PUT", body: { messageId: latest.id } });
-      room.acknowledged = latest.id;
       cached.delete("unread:" + g.id);
       document.dispatchEvent(new Event("ngumpul:notifikasi-berubah"));
       return true;
