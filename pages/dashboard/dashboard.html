@@ -7,6 +7,8 @@
     <meta name="color-scheme" content="light dark">
     <title>Ngumpul - Ruang Chat</title>
     <link rel="stylesheet" href="css/kontak.css">
+    <link rel="stylesheet" href="css/riwayat-panggilan.css">
+    <link rel="stylesheet" href="css/lampiran-fitur.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/chat.css">
     <link rel="stylesheet" href="css/setelan.css">
@@ -241,7 +243,6 @@
                 </div>
             </section>
             <section class="dashboard-tab-panel" id="panel-tab-telepon" aria-label="Telepon" hidden>
-                <p class="contact-empty">Mulai panggilan dari channel grup.</p>
             </section>
             <section class="contact-page dashboard-tab-panel" id="panel-tab-kontak" aria-labelledby="judul-kontak"
                 hidden>
@@ -387,6 +388,12 @@
                         <h3 id="nama-header-kanan">Nama Kontak</h3>
                         <p id="nomor-header-kanan">Nomor kontak</p>
                     </button>
+                    <button class="message-search-toggle" id="btn-video-chat" type="button" aria-label="Panggilan video" title="Panggilan video">
+                        <svg class="search-field-icon" aria-hidden="true"><use href="#i-video" /></svg>
+                    </button>
+                    <button class="message-search-toggle" id="btn-telp-chat" type="button" aria-label="Panggilan suara" title="Panggilan suara">
+                        <svg class="search-field-icon" aria-hidden="true"><use href="#i-phone" /></svg>
+                    </button>
                     <button class="message-search-toggle" id="btn-toggle-cari-pesan" type="button"
                         aria-label="Cari pesan" aria-expanded="false" aria-controls="panel-cari-pesan">
                         <svg class="search-field-icon" aria-hidden="true">
@@ -516,10 +523,6 @@
                                 class="lampiran-ikon" style="background:#ef4444"><svg class="ikon">
                                     <use href="#i-calendar" />
                                 </svg></span>Acara</button>
-                        <button type="button" class="lampiran-item" data-fitur="lampir-lokasi"><span
-                                class="lampiran-ikon" style="background:#16a34a"><svg class="ikon">
-                                    <use href="#i-pin" />
-                                </svg></span>Lokasi</button>
                     </div>
                 </div>
                 <div class="reply-composer-preview" id="reply-composer-preview" hidden>
@@ -532,7 +535,7 @@
                 </div>
                 <footer class="active-chat-footer">
                     <!-- input file tersembunyi: dipicu menu lampiran "Foto & video" -->
-                    <input type="file" id="input-file-gambar" accept="image/*" multiple hidden>
+                    <input type="file" id="input-file-gambar" accept="image/*,video/*" multiple hidden>
                     <!-- Plus, emoji, dan mic baru tampilan (belum fungsional). Pasang aksi lewat data-fitur. -->
                     <button class="btn-lampir" id="btn-lampir" type="button" data-fitur="lampirkan"
                         aria-label="Lampirkan" aria-expanded="false" aria-controls="panel-lampiran"><svg class="ikon"
@@ -685,6 +688,19 @@
                         </div>
                     </div>
                     <div class="settings-card">
+                        <!-- PREMIUM -->
+                        <div class="settings-row-item premium-row" id="baris-premium" data-fitur="premium" role="button" tabindex="0">
+                            <span class="settings-item-icon premium-ikon">
+                                <svg class="ikon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg>
+                            </span>
+                            <div class="settings-item-text">
+                                <b>Premium</b>
+                                <small id="premium-ringkas">Tema eksklusif dan lebih banyak sematan</small>
+                            </div>
+                            <svg class="ikon settings-arrow" aria-hidden="true">
+                                <use href="#i-next" />
+                            </svg>
+                        </div>
                         <div class="settings-row-item" data-fitur="akun" title="Segera hadir"><span
                                 class="settings-item-icon"><svg class="ikon" aria-hidden="true">
                                     <use href="#i-user" />
@@ -806,6 +822,25 @@
                                 Nonaktif</p>
                         </div>
                     </div>
+                </section>
+                <!-- Halaman Premium -->
+                <section class="settings-premium-page" id="panel-setelan-premium" aria-labelledby="premium-judul" hidden>
+                    <div class="premium-hero">
+                        <span class="premium-mahkota" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg></span>
+                        <h3 id="premium-judul">Ngumpul Premium</h3>
+                        <p id="premium-status-teks">Buka semua tema dan fitur ekstra.</p>
+                        <span class="premium-lencana" id="premium-lencana" hidden>Aktif</span>
+                    </div>
+                    <table class="premium-tabel">
+                        <thead><tr><th scope="col">Fitur</th><th scope="col">Gratis</th><th scope="col" class="premium-kolom">Premium</th></tr></thead>
+                        <tbody>
+                            <tr><th scope="row">Tema dasar (Terang, Gelap)</th><td>✓</td><td class="premium-kolom">✓</td></tr>
+                            <tr><th scope="row">Semua tema premium dan efeknya</th><td>–</td><td class="premium-kolom">✓</td></tr>
+                            <tr><th scope="row">Sematan pesan per chat</th><td>3</td><td class="premium-kolom">5</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="premium-catatan">Ini versi demo: belum ada pembayaran sungguhan. Premium aktif hanya untuk akun ini di perangkat ini.</p>
+                    <button type="button" class="premium-tombol" id="btn-premium-aksi">Aktifkan Premium</button>
                 </section>
                 <!-- Halaman Pengaturan Tema -->
                 <div class="settings-theme-page" id="panel-setelan-tema" hidden>
@@ -1602,6 +1637,7 @@
     <script src="js/chat-aksi.js"></script>
     <script src="js/chat-teruskan.js"></script>
     <script src="js/setelan.js"></script>
+    <script src="js/premium.js"></script>
     <script src="js/kontak.js"></script>
     <script src="js/info-kontak.js"></script>
     <script src="js/grup-dasar.js"></script>
@@ -1609,6 +1645,8 @@
     <script src="js/grup-media.js"></script>
     <script src="js/grup-panggilan.js"></script>
     <script src="js/grup.js"></script>
+    <script src="js/riwayat-panggilan.js"></script>
+    <script src="js/lampiran-fitur.js"></script>
     <script src="../../assets/js/notifikasi.js"></script>
 </body>
 

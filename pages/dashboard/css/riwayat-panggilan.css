@@ -1,0 +1,23 @@
+/* Riwayat panggilan: ikut token tema */
+#panel-tab-telepon { padding: 6px 10px 16px; overflow-y: auto; }
+.rp-kosong { display: grid; justify-items: center; gap: 4px; padding: 56px 24px; text-align: center; color: var(--teks-redup); }
+.rp-kosong svg { color: var(--warna-utama); margin-bottom: 8px; }
+.rp-kosong p { margin: 0; font-size: .86rem; } .rp-kosong b { color: var(--teks-gelap); font-size: .95rem; }
+.rp-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 6px; font-size: .78rem; color: var(--teks-redup); text-transform: uppercase; letter-spacing: .04em; }
+.rp-hapus { border: 0; background: none; color: var(--warna-utama); font: inherit; text-transform: none; letter-spacing: 0; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.rp-hapus:hover { background: var(--warna-tipis); }
+.rp-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.rp-item { display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-radius: 12px; color: var(--teks-gelap); }
+.rp-item:hover { background: var(--warna-tipis); }
+.rp-arah { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--warna-tipis); color: var(--warna-utama); }
+.rp-masuk .rp-arah { color: #16a34a; } .rp-tak .rp-arah { color: #dc2626; }
+.rp-teks { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.rp-teks b { font-size: .93rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.rp-tak .rp-teks b { color: #dc2626; }
+.rp-teks small { font-size: .76rem; color: var(--teks-redup); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.rp-balik { flex: none; width: 38px; height: 38px; border-radius: 50%; border: 0; background: transparent; color: var(--warna-utama); display: grid; place-items: center; cursor: pointer; }
+.rp-balik:hover, .rp-balik:focus-visible { background: var(--warna-tipis); outline: 0; }
+html[data-theme="pastelparty"] .rp-arah, html[data-theme="pastelparty"] .rp-item { border: 2px solid var(--tinta, #3b2d4f); }
+html[data-theme="pastelparty"] .rp-item { box-shadow: 3px 3px 0 var(--tinta, #3b2d4f); margin: 0 4px 8px 0; background: var(--bg-putih); }
+html[data-theme="gameboy"] .rp-item, html[data-theme="gameboy"] .rp-arah, html[data-theme="gameboy"] .rp-balik { border-radius: 0; }
+html[data-theme="terminal"] .rp-item, html[data-theme="terminal"] .rp-arah, html[data-theme="terminal"] .rp-balik { border-radius: 2px; font-family: "Courier New", monospace; }

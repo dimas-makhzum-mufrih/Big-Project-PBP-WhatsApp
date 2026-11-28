@@ -2777,7 +2777,13 @@
     clearTimeout(incomingTimer);
     incoming.replaceChildren(
       el("h2", "", B.nama(message.akun)),
-      el("p", "", "Panggilan " + (message.video ? "video" : "suara") + " grup"),
+      el(
+        "p",
+        "",
+        "Panggilan " +
+          (message.video ? "video" : "suara") +
+          (String(message.gid).startsWith("dm:") ? "" : " grup"),
+      ),
     );
     const actions = el("div", "grup-form-aksi");
     actions.append(
@@ -2793,7 +2799,8 @@
         "Terima",
         async () => {
           incoming.close();
-          await open(message.gid, message.cid);
+          if (!String(message.gid).startsWith("dm:"))
+            await open(message.gid, message.cid);
           await P.join(message.gid, message.cid, message.video);
           showCall(true);
         },
@@ -3094,6 +3101,16 @@
     if (location.hash.includes("undangan-grup=")) invite().catch(error);
   });
   const api = {
+    async panggilPribadi(idLawan, video) {
+      try {
+        if (!idLawan || String(idLawan) === String(akun)) return;
+        if (P.state().current)
+          return toast("Akhiri panggilan yang sedang berjalan dulu.");
+        await startCall(!!video, true, P.dmId(akun, idLawan), "panggilan");
+      } catch (e) {
+        toast(e.message || "Panggilan gagal dimulai.");
+      }
+    },
     prepareInfo() {
       closeDrawer(false);
       return rightPanelVersion;

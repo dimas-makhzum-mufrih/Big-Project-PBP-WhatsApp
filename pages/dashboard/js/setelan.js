@@ -551,44 +551,9 @@ tombolPilihanTema.forEach(button => {
     });
 });
 
-// ===== Buka kunci Ngumpul Plus (rahasia) =====
-// Syarat: foto profil + banner sudah dipasang.
-// Lalu di dashboard klik tab Chat, tab Kontak, kembali ke tab Chat.
+// ===== Ngumpul Plus (Premium) =====
+// Tidak lagi memakai kode rahasia. Aktivasi lewat Pengaturan > Premium (premium.js).
 const KUNCI_PREMIUM = 'ngumpul_premium_';
-let urutanTab = [];
-
-function syaratPlusTerpenuhi() {
-    if (!userAktif) return false;
-
-    const media = bacaMedia(userAktif.id);
-    const adaGambar = v => typeof v === 'string' && v.startsWith('data:image/');
-
-    return adaGambar(media.avatar) && adaGambar(media.banner);
-}
-
-function catatLangkahTab(langkah) {
-    if (!userAktif || !window.NgumpulTheme || NgumpulTheme.isPremium()) return;
-
-    urutanTab.push(langkah);
-    urutanTab = urutanTab.slice(-3);
-
-    if (urutanTab.join(',') === 'chat,kontak,chat' && syaratPlusTerpenuhi()) {
-        urutanTab = [];
-        bukaNgumpulPlus();
-    }
-}
-
-// ===== Pemantau urutan tab untuk buka kunci Ngumpul Plus =====
-// Listener tambahan: tidak mengganggu handler tab di file lain, dan memakai
-// getElementById langsung agar tidak bentrok nama variabel (tabChat, tabKontak).
-[
-    ['tab-chat', 'chat'],
-    ['tab-kontak', 'kontak'],
-    ['btn-kembali-dari-kontak', 'chat']
-].forEach(([idElemen, langkah]) => {
-    const el = document.getElementById(idElemen);
-    if (el) el.addEventListener('click', () => catatLangkahTab(langkah));
-});
 
 function bukaNgumpulPlus() {
     try {

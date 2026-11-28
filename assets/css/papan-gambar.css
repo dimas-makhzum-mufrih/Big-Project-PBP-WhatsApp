@@ -105,9 +105,9 @@ html.pgm-terbuka { overflow: hidden; }
 .pgm-kartu { display: flex; flex-direction: column; width: min(300px, 100%); margin: 2px 0 4px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-warna, #e2e5ea); background: var(--bg-putih, #fff); color: var(--teks-gelap, #1b1f24); cursor: pointer; text-align: left; transition: transform .15s, box-shadow .15s; }
 .pgm-kartu:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.14); }
 .pgm-kartu:focus-visible { outline: 2px solid var(--warna-utama, #0891b2); outline-offset: 2px; }
-.pgm-kartu-thumb { aspect-ratio: 8 / 5; background: #fff; display: grid; place-items: center; overflow: hidden; }
+.pgm-kartu-thumb { position: relative; contain: inline-size; aspect-ratio: 8 / 5; background: #fff; display: grid; place-items: center; overflow: hidden; }
 .pgm-kartu-thumb.gelap { background: #1f242c; }
-.pgm-kartu-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pgm-kartu-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .pgm-kartu-kosong { display: grid; place-items: center; width: 100%; height: 100%; color: var(--warna-utama, #0891b2); background: linear-gradient(135deg, var(--warna-tipis, #e0f2f5), transparent), conic-gradient(rgba(127,127,127,.08) 25%, transparent 0 50%, rgba(127,127,127,.08) 0 75%, transparent 0) 0 0 / 20px 20px; }
 .pgm-kartu-info { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px 4px; }
 .pgm-kartu-judul { font-size: .9rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -115,7 +115,7 @@ html.pgm-terbuka { overflow: hidden; }
 .pgm-kartu-buka { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 4px 10px 10px; padding: 8px; border-radius: 999px; background: var(--warna-utama, #0891b2); color: #fff; font-size: .8rem; font-weight: 700; }
 .pgm-kartu-mati { opacity: .7; cursor: not-allowed; }
 .pgm-kartu-mati .pgm-kartu-buka { background: var(--teks-redup, #6b7280); }
-.chat-bubble:has(.pgm-kartu) { width: fit-content; max-width: min(330px, 84%); padding-bottom: 20px; }
+.chat-bubble:has(.pgm-kartu) { width: 100%; max-width: 100%; padding-bottom: 20px; }
 .grup-pesan .pgm-kartu { margin-top: 4px; }
 
 /* ---- dialog ---- */
@@ -185,3 +185,8 @@ html[data-theme="synthwave"] .pgm { --p-bg: #0f0724; --p-bar: #1a0b3a; --p-teks:
 html[data-theme="synthwave"] .pgm-alat-tbl.aktif, html[data-theme="synthwave"] .pgm-chip.aktif { background: linear-gradient(90deg, #ff4fd8, #7a5cff); box-shadow: 0 0 14px rgba(255,79,216,.5); border-color: transparent; }
 html[data-theme="synthwave"] .pgm-kartu-buka { background: linear-gradient(90deg, #ff4fd8, #7a5cff); }
 html[data-theme="synthwave"] .pgm-kartu { box-shadow: 0 0 14px rgba(255,79,216,.25); }
+
+/* lebar pesan mengikuti kartu (bukan ukuran asli gambar), supaya badge reaksi tetap menempel di bubble */
+.message-content:has(.pgm-kartu) { width: min(330px, 84%); }
+.message-row.kirim .message-content:has(.pgm-kartu) { margin-left: auto; }
+.message-content:has(.pgm-kartu) .reaction-bar { max-width: calc(100% - 12px); }

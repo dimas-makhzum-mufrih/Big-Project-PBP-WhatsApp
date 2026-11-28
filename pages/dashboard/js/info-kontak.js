@@ -177,9 +177,10 @@ function bangunInfoWa(isi, id, opsi) {
 
         // Pesan disematkan
         const pin = typeof ambilPinPesan === 'function' ? ambilPinPesan(id) : null;
+        const jumlahPin = typeof ambilDaftarPin === 'function' ? ambilDaftarPin(id).length : 1;
         const pesanPin = pin && dataPercakapan(id).pesan.find(p => p.id === pin);
         if (pesanPin) {
-            const ket = pesanPin.imageId ? 'Foto' : String(pesanPin.text || '').slice(0, 60);
+            const ket = (jumlahPin > 1 ? jumlahPin + ' pesan disematkan · ' : '') + (pesanPin.imageId ? 'Foto' : String(pesanPin.text || '').slice(0, 60));
             isi.appendChild(bagianInfo('Pesan disematkan', barisKartu('i-sematkan', 'Lihat pesan sematan', ket, () => {
                 opsi.tutup(); bukaChat(id); setTimeout(() => window.lompatKePesanSemat && lompatKePesanSemat(), 120);
             }), 'info-tanpa-judul'));
@@ -355,6 +356,8 @@ function tampilkanInfoKontak(id) {
     }
 }
 (function () {
+    document.getElementById('btn-telp-chat').addEventListener('click', () => { if (chatAktifId) panggil(chatAktifId, false); });
+    document.getElementById('btn-video-chat').addEventListener('click', () => { if (chatAktifId) panggil(chatAktifId, true); });
     document.getElementById('btn-info-kontak-chat').addEventListener('click', () => {
         if (chatAktifId) tampilkanInfoKontak(chatAktifId);
     });

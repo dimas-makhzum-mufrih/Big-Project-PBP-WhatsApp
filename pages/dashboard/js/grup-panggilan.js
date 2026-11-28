@@ -695,7 +695,45 @@
   window.addEventListener("pageshow", (e) => {
     if (e.persisted) location.reload();
   });
+  // ---------- Panggilan pribadi (1:1) ----------
+  // Dipetakan ke "grup bayangan" berisi dua akun agar memakai mesin panggilan yang sama.
+  // id: dm:<idA>+<idB> (terurut), satu channel "panggilan". Tidak disimpan; dibuat per pemanggil.
+  const DM = "dm:";
+  const dmId = (a, b) => DM + [String(a), String(b)].sort().join("+");
+  const namaAkunDm = (id) => {
+    try {
+      return (getProfil(id) || {}).nama || getUserById(id)?.nama || "Kontak";
+    } catch (_) {
+      return "Kontak";
+    }
+  };
+  const dmGrup = (gid) => {
+    const ids = gid.slice(DM.length).split("+");
+    const lawan = ids.find((i) => i !== String(akun));
+    const anggota = ids.length === 2 && ids.includes(String(akun)) && lawan;
+    return {
+      id: gid,
+      nama: "Panggilan",
+      keluar: !anggota,
+      anggotaIds: ids,
+      warnaAnggota: {},
+      pribadi: true,
+      ruang: {
+        categories: [],
+        channels: [{ id: "panggilan", nama: namaAkunDm(lawan || ""), jenis: "teks" }],
+      },
+    };
+  };
+  const dataGrup = window.NgumpulGrupData;
+  if (dataGrup && !dataGrup.__dm) {
+    const asli = dataGrup.get.bind(dataGrup);
+    dataGrup.get = (id) =>
+      String(id).startsWith(DM) ? Promise.resolve(dmGrup(String(id))) : asli(id);
+    dataGrup.__dm = true;
+  }
+
   window.NgumpulGrupPanggilan = {
+    dmId,
     events,
     join,
     leave,

@@ -321,7 +321,11 @@ function renderPesanAktif() {
             bubble.appendChild(window.NgumpulPapan.kartu({ id: item.papanId, nama: item.papanNama }));
         }
 
-        if ((adaTeks || !punyaGambar) && !item.papanId) {
+        if (item.lampiran && window.NgumpulLampiran) {
+            bubble.appendChild(window.NgumpulLampiran.kartu(item));
+        }
+
+        if ((adaTeks || !punyaGambar) && !item.papanId && !item.lampiran) {
             const text = document.createElement('span');
             if (punyaGambar) text.className = 'chat-caption-text';
             text.textContent = item.text || '';
@@ -345,9 +349,9 @@ function renderPesanAktif() {
 
         btnPin.addEventListener('click', () => {
             // klik lagi pada pesan yang sedang disematkan = lepas sematan
-            const sudahTersemat = ambilPinPesan(chatAktifId) === item.id;
+            const sudahTersemat = apakahPinTersemat(chatAktifId, item.id);
             const berhasil = sudahTersemat
-                ? hapusPinPesan(chatAktifId)
+                ? hapusPinPesan(chatAktifId, item.id)
                 : simpanPinPesan(chatAktifId, item.id);
             if (berhasil) {
                 renderPinPesanAktif();

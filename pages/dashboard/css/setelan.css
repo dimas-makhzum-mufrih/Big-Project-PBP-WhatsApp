@@ -68,7 +68,7 @@
     flex: none;
     border-radius: 12px;
     background: var(--warna-tipis);
-    color: var(--aksen-teks)
+    color: var(--warna-utama)
 }
 
 .settings-item-text {
@@ -440,7 +440,7 @@
 
 .theme-check {
     display: none;
-    color: var(--aksen-teks);
+    color: var(--warna-utama);
     font-size: 1.3rem;
     font-weight: bold;
 }
@@ -533,7 +533,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--aksen-teks);
+    color: var(--warna-utama);
     box-shadow: var(--bayangan-profil);
 }
 
@@ -581,7 +581,7 @@
 
 .btn-ganti-akun:hover {
     background: var(--bg-abu-input);
-    color: var(--aksen-teks);
+    color: var(--warna-utama);
 }
 
 .btn-ganti-akun .ikon {
@@ -595,7 +595,7 @@
 }
 
 .profil-username {
-    color: var(--aksen-teks);
+    color: var(--warna-utama);
     font-weight: 500;
     font-size: 0.9rem;
 }
@@ -646,7 +646,7 @@
 }
 
 .akun-menu-aktif small {
-    color: var(--aksen-teks);
+    color: var(--warna-utama);
     font-size: .8rem;
 }
 
@@ -674,5 +674,26 @@
 .akun-menu-aksi .ikon {
     width: 18px;
     height: 18px;
-    color: var(--aksen-teks);
+    color: var(--warna-utama);
 }
+
+/* ===== Halaman Premium ===== */
+.premium-ikon { background: linear-gradient(135deg, #f5b800, #ff8a3c) !important; color: #fff !important; }
+.premium-row.aktif .settings-item-text small { color: var(--warna-utama); }
+.settings-premium-page { padding: 18px 16px 28px; display: grid; gap: 16px; }
+.settings-premium-page[hidden] { display: none; }
+.premium-hero { display: grid; justify-items: center; gap: 6px; text-align: center; padding: 22px 16px; border-radius: 18px; background: linear-gradient(145deg, var(--warna-tipis), transparent), var(--bg-putih); border: 1px solid var(--border-warna); }
+.premium-hero h3 { margin: 4px 0 0; font-size: 1.2rem; } .premium-hero p { margin: 0; color: var(--teks-redup); font-size: .9rem; }
+.premium-mahkota { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #f5b800, #ff8a3c); color: #fff; box-shadow: 0 6px 18px rgba(245, 160, 0, .35); }
+.premium-mahkota svg { width: 28px; height: 28px; }
+.premium-lencana { padding: 3px 12px; border-radius: 999px; background: var(--warna-utama); color: var(--teks-kontras, #fff); font-size: .76rem; font-weight: 600; }
+.premium-tabel { width: 100%; border-collapse: collapse; font-size: .88rem; background: var(--bg-putih); border: 1px solid var(--border-warna); border-radius: 14px; overflow: hidden; }
+.premium-tabel th, .premium-tabel td { padding: 11px 12px; text-align: center; border-bottom: 1px solid var(--border-warna); }
+.premium-tabel tbody th { text-align: left; font-weight: 500; } .premium-tabel thead th { font-size: .76rem; color: var(--teks-redup); text-transform: uppercase; letter-spacing: .04em; }
+.premium-tabel tr:last-child > * { border-bottom: 0; } .premium-kolom { background: var(--warna-tipis); font-weight: 600; color: var(--warna-utama); }
+.premium-catatan { margin: 0; font-size: .78rem; color: var(--teks-redup); text-align: center; }
+.premium-tombol { padding: 13px; border: 0; border-radius: 14px; background: var(--warna-utama); color: var(--teks-kontras, #fff); font: inherit; font-weight: 600; cursor: pointer; }
+.premium-tombol:hover { filter: brightness(1.07); }
+.premium-tombol-sekunder { background: transparent; color: var(--teks-gelap); border: 1px solid var(--border-warna); }
+html[data-theme="pastelparty"] .premium-hero, html[data-theme="pastelparty"] .premium-tabel, html[data-theme="pastelparty"] .premium-tombol { border: 3px solid var(--tinta, #3b2d4f); box-shadow: 4px 4px 0 var(--tinta, #3b2d4f); }
+html[data-theme="gameboy"] .premium-hero, html[data-theme="gameboy"] .premium-tabel, html[data-theme="gameboy"] .premium-tombol, html[data-theme="gameboy"] .premium-mahkota { border-radius: 0; }

@@ -1,0 +1,56 @@
+/* Fitur panel "+": kartu dokumen/video/kontak/polling/acara + dialog. Memakai token tema. */
+.lmp-kartu { display: grid; gap: 8px; width: min(290px, 100%); min-width: 230px; padding: 4px 2px 2px; color: inherit; text-align: left; }
+.lmp-teks { min-width: 0; display: grid; gap: 1px; }
+.lmp-teks b { font-weight: 600; font-size: .92rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.lmp-teks small, .lmp-sub, .lmp-vinfo { font-size: .74rem; opacity: .72; }
+.lmp-dokumen { grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
+.lmp-ikon-doc { position: relative; display: grid; place-items: center; width: 42px; height: 46px; border-radius: 10px; background: var(--warna-tipis); color: var(--warna-utama); }
+.lmp-ikon-doc i { position: absolute; bottom: 3px; font: 700 .52rem/1 system-ui; font-style: normal; letter-spacing: .02em; }
+.lmp-ikon-doc svg { margin-top: -8px; }
+.lmp-ikonbtn { width: 36px; height: 36px; border-radius: 50%; border: 0; display: grid; place-items: center; background: var(--warna-utama); color: var(--teks-kontras, #fff); cursor: pointer; }
+.lmp-ikonbtn:hover { filter: brightness(1.08); }
+.lmp-video video { width: 100%; max-height: 260px; border-radius: 10px; background: #000; display: block; }
+.lmp-kontak { grid-template-columns: auto 1fr; align-items: center; column-gap: 10px; }
+.lmp-kontak .lmp-aksi-kartu { grid-column: 1 / -1; }
+.lmp-av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--warna-tipis); color: var(--warna-utama); flex: none; }
+.lmp-aksi-kartu { display: flex; flex-wrap: wrap; gap: 6px; }
+.lmp-btn { border: 1px solid var(--border-warna); background: var(--bg-putih); color: var(--teks-gelap); font: inherit; font-size: .8rem; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+.lmp-btn:hover { background: var(--warna-tipis); }
+.lmp-btn:disabled { opacity: .6; cursor: default; }
+.lmp-btn.lmp-utama { background: var(--warna-utama); border-color: var(--warna-utama); color: var(--teks-kontras, #fff); }
+.lmp-tanya { font-size: .96rem; line-height: 1.3; }
+.lmp-opsi-btn { position: relative; display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; border: 1px solid var(--border-warna); border-radius: 10px; background: var(--bg-putih); color: var(--teks-gelap); font: inherit; font-size: .86rem; text-align: left; cursor: pointer; overflow: hidden; }
+.lmp-opsi-btn.dipilih { border-color: var(--warna-utama); }
+.lmp-bar { position: absolute; inset: 0 auto 0 0; background: var(--warna-tipis); transition: width .25s; z-index: 0; }
+.lmp-opsi-btn > :not(.lmp-bar) { position: relative; z-index: 1; }
+.lmp-cekbul { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border-warna); display: grid; place-items: center; font-size: .7rem; flex: none; }
+.dipilih .lmp-cekbul { background: var(--warna-utama); border-color: var(--warna-utama); color: var(--teks-kontras, #fff); }
+.lmp-o { flex: 1; min-width: 0; overflow-wrap: anywhere; } .lmp-n { font-weight: 600; opacity: .8; }
+.lmp-acara-kepala { display: flex; gap: 10px; align-items: center; }
+.lmp-tglbox { width: 46px; height: 50px; flex: none; border-radius: 10px; background: var(--warna-utama); color: var(--teks-kontras, #fff); display: grid; place-items: center; align-content: center; line-height: 1.05; }
+.lmp-tglbox b { font-size: 1.15rem; } .lmp-tglbox i { font-style: normal; font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; }
+.lmp-baris-info { margin: 0; display: flex; gap: 6px; align-items: center; font-size: .82rem; } .lmp-ket { margin: 0; font-size: .82rem; opacity: .85; overflow-wrap: anywhere; }
+/* dialog */
+.lmp-dlg { border: 1px solid var(--border-warna); border-radius: 16px; padding: 0; width: min(420px, calc(100vw - 24px)); background: var(--bg-putih); color: var(--teks-gelap); box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.lmp-dlg::backdrop { background: rgba(0,0,0,.45); }
+.lmp-form { display: grid; gap: 14px; padding: 18px; }
+.lmp-judul { margin: 0; font-size: 1.05rem; }
+.lmp-isi, .lmp-pilih { display: grid; gap: 10px; }
+.lmp-medan { display: grid; gap: 4px; font-size: .78rem; color: var(--teks-redup); }
+.lmp-input { width: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid var(--border-warna); border-radius: 10px; background: var(--bg-abu-input); color: var(--teks-gelap); font: inherit; font-size: .92rem; resize: vertical; }
+.lmp-input:focus { outline: 2px solid var(--warna-utama); outline-offset: 1px; }
+.lmp-label { font-size: .78rem; color: var(--teks-redup); } .lmp-opsi { display: grid; gap: 6px; }
+.lmp-tambah { justify-self: start; } .lmp-cek { display: flex; gap: 8px; align-items: center; font-size: .86rem; }
+.lmp-dua { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lmp-aksi { display: flex; justify-content: flex-end; gap: 8px; }
+.lmp-aksi .lmp-btn { padding: 8px 18px; font-size: .88rem; }
+.lmp-daftar { list-style: none; margin: 0; padding: 0; max-height: 280px; overflow: auto; display: grid; gap: 2px; }
+.lmp-baris { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border: 2px solid transparent; border-radius: 12px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.lmp-baris small { display: block; opacity: .7; font-size: .76rem; } .lmp-baris:hover { background: var(--warna-tipis); } .lmp-baris.dipilih { border-color: var(--warna-utama); background: var(--warna-tipis); }
+.lmp-kosong { padding: 22px; text-align: center; color: var(--teks-redup); font-size: .88rem; }
+.lmp-kamera video { width: 100%; max-height: 52vh; border-radius: 12px; background: #000; transform: scaleX(-1); display: block; }
+.chat-bubble:has(.lmp-kartu) { max-width: min(330px, 86%); }
+html[data-theme="pastelparty"] .lmp-dlg { border: 3px solid var(--tinta, #3b2d4f); box-shadow: 6px 6px 0 var(--tinta, #3b2d4f); }
+html[data-theme="pastelparty"] .lmp-btn, html[data-theme="pastelparty"] .lmp-input, html[data-theme="pastelparty"] .lmp-opsi-btn { border: 2px solid var(--tinta, #3b2d4f); }
+html[data-theme="gameboy"] .lmp-dlg, html[data-theme="gameboy"] .lmp-btn, html[data-theme="gameboy"] .lmp-input, html[data-theme="gameboy"] .lmp-opsi-btn, html[data-theme="gameboy"] .lmp-tglbox, html[data-theme="gameboy"] .lmp-av, html[data-theme="gameboy"] .lmp-ikonbtn { border-radius: 0; }
+html[data-theme="terminal"] .lmp-dlg, html[data-theme="terminal"] .lmp-btn, html[data-theme="terminal"] .lmp-input, html[data-theme="terminal"] .lmp-opsi-btn { border-radius: 2px; font-family: "Courier New", monospace; }

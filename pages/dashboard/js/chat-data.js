@@ -92,6 +92,7 @@ function ringkasanPesan(item) {
     if (item && item.dihapusSemua) return 'Pesan ini telah dihapus';
     const teks = String(item && item.text || '').trim();
     if (item && item.papanId) return 'Papan gambar: ' + (item.papanNama || '');
+    if (item && item.lampiran && window.NgumpulLampiran) return window.NgumpulLampiran.ringkas(item);
     return teks || (isPesanBergambar(item) ? 'Foto' : '');
 }
 
@@ -152,6 +153,13 @@ function lompatKePesanSemat() {
     void baris.offsetWidth;
     baris.classList.add('pesan-cari-terpilih');
     baris.addEventListener('animationend', () => baris.classList.remove('pesan-cari-terpilih'), { once: true });
+    // ada beberapa sematan: klik berikutnya menuju sematan sebelumnya (berputar)
+    const daftar = ambilDaftarPin(chatAktifId);
+    if (daftar.length > 1) {
+        const i = daftar.indexOf(idPin);
+        pinTampil[chatAktifId] = daftar[(i - 1 + daftar.length) % daftar.length];
+        renderBarSematan();
+    }
 }
 if (barSematan) {
     barSematan.addEventListener('click', event => {
@@ -401,6 +409,7 @@ function formatPreviewPesan(terakhir) {
     }
     const teks = (terakhir.text || '').trim();
     if (terakhir.papanId) return 'Papan gambar: ' + (terakhir.papanNama || '');
+    if (terakhir.lampiran && window.NgumpulLampiran) return window.NgumpulLampiran.ringkas(terakhir);
     if (isPesanBergambar(terakhir)) {
         return teks || 'Foto';
     }
@@ -537,41 +546,76 @@ function simpanSemuaPinPesan(data) {
     }
 }
 
-function ambilPinPesan(idLawan) {
-    if (!userAktif || !idLawan) return null;
+// ===== Sematan pesan: banyak per chat (gratis 3, Premium 5) =====
+// Penyimpanan: { kunciKonversasi: [idPesan, ...] } (format lama berupa satu id string tetap terbaca).
+const pinTampil = {}; // chat -> id sematan yang sedang tampil di bilah
+
+function batasPinPesan() {
+    try {
+        if (window.NgumpulPremium) return window.NgumpulPremium.batasPin();
+        return window.NgumpulTheme && NgumpulTheme.isPremium() ? 5 : 3;
+    } catch (e) { return 3; }
+}
+
+function ambilDaftarPin(idLawan) {
+    if (!userAktif || !idLawan) return [];
+    const nilai = bacaSemuaPinPesan()[kunciKonversasi(userAktif.id, idLawan)];
+    return (Array.isArray(nilai) ? nilai : nilai ? [nilai] : []).filter(Boolean);
+}
+
+function tulisDaftarPin(idLawan, daftar) {
     const semuaPin = bacaSemuaPinPesan();
     const kunci = kunciKonversasi(userAktif.id, idLawan);
-    return semuaPin[kunci] || null;
+    if (daftar.length) semuaPin[kunci] = daftar; else delete semuaPin[kunci];
+    return simpanSemuaPinPesan(semuaPin);
+}
+
+// id sematan yang sedang tampil (default: yang terbaru)
+function ambilPinPesan(idLawan) {
+    const daftar = ambilDaftarPin(idLawan);
+    if (!daftar.length) return null;
+    return daftar.includes(pinTampil[idLawan]) ? pinTampil[idLawan] : daftar[daftar.length - 1];
+}
+
+function apakahPinTersemat(idLawan, idPesan) {
+    return ambilDaftarPin(idLawan).includes(idPesan);
 }
 
 function simpanPinPesan(idLawan, idPesan) {
     if (!userAktif || !idLawan || !idPesan) return false;
-    const daftarPesan = ambilPesanChat(idLawan);
-    const pesanAda = daftarPesan.some(pesan => pesan.id === idPesan);
-
-    if (!pesanAda) return false;
-    const semuaPin = bacaSemuaPinPesan();
-    const kunci = kunciKonversasi(userAktif.id, idLawan);
-    semuaPin[kunci] = idPesan;
-    return simpanSemuaPinPesan(semuaPin);
+    if (!ambilPesanChat(idLawan).some(pesan => pesan.id === idPesan)) return false;
+    const daftar = ambilDaftarPin(idLawan);
+    if (daftar.includes(idPesan)) return true;
+    const batas = batasPinPesan();
+    if (daftar.length >= batas) {
+        const premium = batas > 3;
+        if (typeof tampilToastTema === 'function') {
+            tampilToastTema(premium
+                ? 'Maksimal ' + batas + ' pesan disematkan. Lepas salah satu dulu.'
+                : 'Maksimal ' + batas + ' pesan disematkan. Premium bisa ' + 5 + ': buka Pengaturan > Premium.');
+        }
+        return false;
+    }
+    daftar.push(idPesan);
+    pinTampil[idLawan] = idPesan;
+    return tulisDaftarPin(idLawan, daftar);
 }
 
-function hapusPinPesan(idLawan) {
+// Tanpa idPesan: lepas sematan yang sedang tampil
+function hapusPinPesan(idLawan, idPesan) {
     if (!userAktif || !idLawan) return false;
-    const semuaPin = bacaSemuaPinPesan();
-    const kunci = kunciKonversasi(userAktif.id, idLawan);
-
-    if (!semuaPin[kunci]) return false;
-    delete semuaPin[kunci];
-    return simpanSemuaPinPesan(semuaPin);
+    const target = idPesan || ambilPinPesan(idLawan);
+    const daftar = ambilDaftarPin(idLawan);
+    if (!target || !daftar.includes(target)) return false;
+    delete pinTampil[idLawan];
+    return tulisDaftarPin(idLawan, daftar.filter(id => id !== target));
 }
 
 function perbaruiTombolPin() {
-    const pin = chatAktifId ? ambilPinPesan(chatAktifId) : null;
     boxListPesan.querySelectorAll('.message-row').forEach(baris => {
         const tombol = baris.querySelector('.btn-pin-message');
         if (!tombol) return;
-        const aktif = Boolean(pin) && baris.dataset.messageId === pin;
+        const aktif = Boolean(chatAktifId) && apakahPinTersemat(chatAktifId, baris.dataset.messageId);
         tombol.classList.toggle('tersemat', aktif);
         tombol.setAttribute('aria-pressed', String(aktif));
         const label = aktif ? 'Lepas sematan' : 'Sematkan pesan';
@@ -588,22 +632,25 @@ function renderPinPesanAktif() {
 function renderBarSematan() {
     const container = document.getElementById('pinned-message-container');
     const teksPesan = document.getElementById('pinned-message-text');
+    const judulBar = container && container.querySelector('.pinned-message-title');
     if (!container || !teksPesan || !chatAktifId) return;
+    // buang sematan yang pesannya sudah tidak ada
+    const ada = new Set(ambilPesanChat(chatAktifId).filter(p => !p.dihapusSemua).map(p => p.id));
+    const semua = ambilDaftarPin(chatAktifId);
+    const sisa = semua.filter(id => ada.has(id));
+    if (sisa.length !== semua.length) tulisDaftarPin(chatAktifId, sisa);
     const idPesanPin = ambilPinPesan(chatAktifId);
     if (!idPesanPin) {
         container.style.display = 'none';
         teksPesan.textContent = '';
         return;
     }
-    const pesan = ambilPesanChat(chatAktifId)
-        .find(item => item.id === idPesanPin);
-    if (!pesan) {
-        hapusPinPesan(chatAktifId);
-        container.style.display = 'none';
-        teksPesan.textContent = '';
-        return;
+    const pesan = ambilPesanChat(chatAktifId).find(item => item.id === idPesanPin);
+    teksPesan.textContent = String(pesan.text || '').trim() || (isPesanBergambar(pesan) ? 'Foto' : ringkasanPesan(pesan));
+    if (judulBar) {
+        const n = sisa.length;
+        judulBar.textContent = n > 1 ? 'Pesan Disematkan · ' + (sisa.indexOf(idPesanPin) + 1) + ' dari ' + n : 'Pesan Disematkan';
     }
-    teksPesan.textContent = String(pesan.text || '').trim() || (isPesanBergambar(pesan) ? 'Foto' : '');
     container.style.display = 'flex';
 }
 
@@ -697,7 +744,7 @@ function hapusPesanUntukSaya(idLawan, idPesan) {
     const tersembunyi = Array.isArray(pesan.hiddenFor) ? pesan.hiddenFor : [];
     if (!tersembunyi.includes(String(userAktif.id))) tersembunyi.push(String(userAktif.id));
     pesan.hiddenFor = tersembunyi;
-    if (ambilPinPesan(idLawan) === pesan.id) hapusPinPesan(idLawan);
+    hapusPinPesan(idLawan, pesan.id);
     return simpanPesanChat(idLawan, daftar);
 }
 
@@ -737,12 +784,12 @@ function hapusPesanUntukSemua(idLawan, idPesan) {
     if (!pesan || String(pesan.sender) !== String(userAktif.id) || pesan.dihapusSemua) return false;
     const imageId = pesan.imageId;
     // sisakan hanya kerangka pesan supaya urutan, jam, dan status tetap utuh
-    ['text', 'papanId', 'papanNama', 'image', 'imageId', 'hasImage', 'replyTo', 'forwarded', 'editedAt']
+    ['text', 'lampiran', 'papanId', 'papanNama', 'image', 'imageId', 'hasImage', 'replyTo', 'forwarded', 'editedAt']
         .forEach(kunci => { delete pesan[kunci]; });
     pesan.text = '';
     pesan.dihapusSemua = true;
     pesan.dihapusPada = new Date().toISOString();
-    if (ambilPinPesan(idLawan) === pesan.id) hapusPinPesan(idLawan);
+    hapusPinPesan(idLawan, pesan.id);
     if (typeof bacaSemuaReaksiPesan === 'function') {
         const reaksi = bacaSemuaReaksiPesan();
         const kunci = kunciKonversasi(userAktif.id, idLawan);

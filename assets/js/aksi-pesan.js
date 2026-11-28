@@ -362,10 +362,10 @@
         }
         if (teks) daftar.push(item("salin", "Salin", function () { salinTeks(teks); }));
         // kartu papan gambar: cukup Balas dan Hapus (tidak ada teks untuk disalin/diedit/diteruskan)
-        if (p.papanId) { if (hapusItem) daftar.push(hapusItem); return daftar; }
+        if (p.papanId || p.lampiran) { if (hapusItem) daftar.push(hapusItem); return daftar; }
         var btnPin = baris.querySelector(".btn-pin-message");
         if (btnPin && p.id) {
-            var tersemat = typeof ambilPinPesan === "function" && ambilPinPesan(chatAktifId) === p.id;
+            var tersemat = typeof apakahPinTersemat === "function" && apakahPinTersemat(chatAktifId, p.id);
             daftar.push(item(tersemat ? "lepas" : "pin", tersemat ? "Lepas sematan" : "Sematkan", function () { btnPin.click(); }));
         }
         if (bisaTeruskan() && p.id) {
@@ -415,11 +415,20 @@
     function bacaG() { try { var a = JSON.parse(localStorage.getItem(kunciG()) || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
     function tulisG(a) { try { localStorage.setItem(kunciG(), JSON.stringify(a.slice(-300))); } catch (e) {} }
     var barG = null;
+    var tampilG = null; // sematan yang sedang tampil di bilah (berputar bila lebih dari satu)
+    function batasG() { try { return window.NgumpulPremium ? window.NgumpulPremium.batasPin() : 3; } catch (e) { return 3; } }
     function sematG(id, pasang) {
         var tampil = {};
         if (boxGrup) boxGrup.querySelectorAll("[data-message]").forEach(function (b) { tampil[b.dataset.message] = 1; });
-        var a = bacaG().filter(function (x) { return x !== id && !tampil[x]; });
-        if (pasang) a.push(id);
+        var a = bacaG().filter(function (x) { return x !== id; });
+        if (pasang) {
+            var batas = batasG();
+            if (a.filter(function (x) { return tampil[x]; }).length >= batas) {
+                kabar(batas > 3 ? "Maksimal " + batas + " pesan disematkan. Lepas salah satu dulu." : "Maksimal " + batas + " pesan disematkan. Premium bisa 5: buka Pengaturan > Premium.");
+                return;
+            }
+            a.push(id); tampilG = id;
+        }
         tulisG(a);
         segarG();
         kabar(pasang ? "Pesan disematkan" : "Sematan dilepas");
@@ -428,8 +437,8 @@
         if (!boxGrup) return;
         var rows = {};
         boxGrup.querySelectorAll("[data-message]").forEach(function (b) { rows[b.dataset.message] = b; });
-        var a = bacaG(), aktif = null;
-        for (var i = a.length - 1; i >= 0; i--) if (rows[a[i]]) { aktif = a[i]; break; }
+        var terlihat = bacaG().filter(function (x) { return rows[x]; });
+        var aktif = terlihat.indexOf(tampilG) >= 0 ? tampilG : (terlihat.length ? terlihat[terlihat.length - 1] : null);
         boxGrup.querySelectorAll(".ap-tersemat").forEach(function (b) { b.classList.remove("ap-tersemat"); });
         if (!barG) {
             barG = el("div", "pinned-message-container ap-bar-grup");
@@ -446,6 +455,8 @@
                 r.scrollIntoView({ behavior: "smooth", block: "center" });
                 r.classList.remove("pesan-cari-terpilih"); void r.offsetWidth; r.classList.add("pesan-cari-terpilih");
                 setTimeout(function () { r.classList.remove("pesan-cari-terpilih"); }, 1100);
+                var vis = bacaG().filter(function (y) { return boxGrup.querySelector('[data-message="' + y + '"]'); });
+                if (vis.length > 1) { tampilG = vis[(vis.indexOf(id) - 1 + vis.length) % vis.length]; segarG(); }
             }
             barG.addEventListener("click", function (e) {
                 if (e.target.closest(".ap-unpin")) { sematG(barG.dataset.id, false); return; }
@@ -456,7 +467,8 @@
         }
         if (!aktif) { barG.hidden = true; barG.dataset.id = ""; return; }
         barG.hidden = false; barG.dataset.id = aktif;
-        rows[aktif].querySelector(".chat-bubble") && rows[aktif].querySelector(".chat-bubble").classList.add("ap-tersemat");
+        terlihat.forEach(function (y) { var bb = rows[y].querySelector(".chat-bubble"); if (bb) bb.classList.add("ap-tersemat"); });
+        barG.querySelector(".pinned-message-title").textContent = terlihat.length > 1 ? "Pesan Disematkan · " + (terlihat.indexOf(aktif) + 1) + " dari " + terlihat.length : "Pesan Disematkan";
         barG.querySelector("p").textContent = teksGrup(rows[aktif]) || "Lampiran";
     }
 
