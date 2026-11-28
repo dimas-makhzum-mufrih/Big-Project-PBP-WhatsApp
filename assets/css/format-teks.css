@@ -78,3 +78,13 @@ html:not([data-tone="dark"]) .fx-w[data-lum="terang"] { text-shadow: 0 0 1px rgb
 }
 .fx-warna:hover, .fx-warna:focus-visible { outline: 2px solid var(--warna-utama); outline-offset: 1px; transform: scale(1.25); position: relative; z-index: 1; }
 .fx-papan-bantu { margin: 8px 2px 0; font-size: .72rem; line-height: 1.4; color: var(--teks-redup); }
+
+/* tombol format bersifat toggle: tampak menyala saat format aktif */
+.fx-btn[aria-pressed="true"], .fx-btn.aktif { background: var(--warna-utama); border-color: var(--warna-utama); color: var(--teks-kontras, #fff); box-shadow: 0 0 0 2px color-mix(in srgb, var(--warna-utama) 30%, transparent); }
+.fx-btn-p.aktif, .fx-btn-sp.aktif { box-shadow: 0 0 0 2px var(--warna-utama), 0 0 0 4px color-mix(in srgb, var(--warna-utama) 30%, transparent); color: inherit; }
+.fx-btn-p.aktif { color: #1b1b1b; border-color: var(--warna-utama); }
+.fx-btn-sp.aktif { color: #fff; border-color: var(--warna-utama); background: #2b2b36; }
+.fx-btn-g { font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: .03em; text-shadow: -1px 0 #ff2d95, 1px 0 #19d3ff; }
+.fx-btn-g.aktif { text-shadow: -1px 0 #ff2d95, 1px 0 #19d3ff; }
+.fx-warna[aria-pressed="true"], .fx-warna.aktif { outline: 2px solid var(--teks-gelap); outline-offset: 2px; transform: scale(1.12); position: relative; z-index: 1; }
+.fx-btn:focus-visible, .fx-warna:focus-visible { outline: 2px solid var(--warna-utama); outline-offset: 2px; }

@@ -261,3 +261,136 @@ html .message-row .chat-bubble.pesan-dihapus { padding-right: 36px !important; m
 /* label "Draf:" di daftar chat */
 .card-draf { color: var(--warna-utama); font-weight: 700; }
 html[data-theme="pastelparty"]:not([data-hiasan="polos"]) .card-draf { color: #d6457f; }
+
+
+/* =====================================================================
+   PEMICU PANAH, DROPDOWN, REAKSI: gaya WhatsApp, warna mengikuti tema
+   ===================================================================== */
+/* panah tanpa kotak: hanya panah di atas pudaran warna gelembung */
+html .chat-bubble .ap-pemicu {
+    top: 0; right: 0; width: 44px; height: 30px; padding: 4px 6px 0 0; justify-content: end; align-items: start;
+    border-radius: 0 inherit 0 0; background: linear-gradient(to left, var(--ap-bg, var(--bg-putih)) 52%, transparent);
+    -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; transform: translateX(4px);
+}
+html .chat-bubble:hover .ap-pemicu, html .chat-bubble .ap-pemicu:focus-visible,
+html .chat-bubble .ap-pemicu[aria-expanded="true"], html .chat-bubble.ap-bubble-aktif .ap-pemicu { transform: none; }
+html .chat-bubble .ap-pemicu .ap-ikon { width: 18px; height: 18px; color: var(--teks-redup); transition: color .12s; }
+html .chat-bubble .ap-pemicu:hover .ap-ikon, html .chat-bubble .ap-pemicu[aria-expanded="true"] .ap-ikon { color: var(--teks-gelap); }
+html .chat-bubble .ap-pemicu:focus-visible { outline: 2px solid var(--warna-utama); outline-offset: -2px; border-radius: 8px; }
+html .chat-bubble.ap-bubble-aktif { filter: none; }
+
+/* dropdown: daftar rata penuh, tanpa kotak per item */
+html .ap-menu, html .message-context-menu {
+    min-width: 210px; padding: 6px 0; border-radius: 14px; overflow: hidden; transform-origin: top right;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .26), 0 1px 3px rgba(0, 0, 0, .14);
+    animation: ap-muncul .16s cubic-bezier(.2, .8, .3, 1);
+}
+html .ap-item, html .message-context-menu button {
+    min-height: 44px; padding: 8px 22px 8px 18px; border-radius: 0; gap: 16px; font-size: .94rem;
+    transition: background-color .1s;
+}
+html .ap-item .ap-ikon { width: 19px; height: 19px; }
+html .ap-item:hover, html .ap-item:focus-visible, html .message-context-menu button:hover, html .message-context-menu button:focus-visible {
+    background: color-mix(in srgb, var(--warna-utama) 12%, transparent);
+}
+html .ap-item.bahaya { margin-top: 0; }
+html .ap-item.bahaya::before { content: ""; position: absolute; }
+html .ap-item + .ap-item.bahaya { position: relative; box-shadow: inset 0 1px 0 var(--border-warna); }
+
+/* popup pilih reaksi: pil melayang, emoji muncul bergantian */
+html .reaksi-popup-picker {
+    gap: 2px; padding: 6px 8px; border: 1px solid var(--border-warna); border-radius: 999px; background: var(--bg-putih);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .24), 0 1px 3px rgba(0, 0, 0, .12);
+}
+html .reaksi-popup-picker.rx-buka { animation: rx-popup .18s cubic-bezier(.2, .9, .3, 1.15); transform-origin: bottom center; }
+html .reaksi-popup-picker.rx-buka .reaksi-cepat { animation: rx-emoji .26s cubic-bezier(.2, .9, .3, 1.4) backwards; }
+html .reaksi-popup-picker.rx-buka .reaksi-cepat:nth-child(2) { animation-delay: .025s; }
+html .reaksi-popup-picker.rx-buka .reaksi-cepat:nth-child(3) { animation-delay: .05s; }
+html .reaksi-popup-picker.rx-buka .reaksi-cepat:nth-child(4) { animation-delay: .075s; }
+html .reaksi-popup-picker.rx-buka .reaksi-cepat:nth-child(5) { animation-delay: .1s; }
+html .reaksi-popup-picker.rx-buka .reaksi-cepat:nth-child(6) { animation-delay: .125s; }
+html .reaksi-popup-picker.rx-buka .reaksi-cepat:nth-child(7) { animation-delay: .15s; }
+@keyframes rx-popup { from { opacity: 0; transform: translateY(8px) scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes rx-emoji { from { opacity: 0; transform: translateY(10px) scale(.4); } to { opacity: 1; transform: none; } }
+html .reaksi-popup-picker .reaksi-cepat { width: 40px; height: 40px; font-size: 24px; transition: transform .14s cubic-bezier(.2, .9, .3, 1.4), background-color .12s; }
+html .reaksi-popup-picker .reaksi-cepat:hover { background: transparent; transform: scale(1.3) translateY(-3px); }
+html .reaksi-popup-picker .reaksi-cepat.dipilih { background: color-mix(in srgb, var(--warna-utama) 20%, transparent); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--warna-utama) 55%, transparent); }
+html .reaksi-popup-picker .reaksi-lainnya { background: var(--bg-abu-input); color: var(--teks-redup); margin-left: 4px; }
+html .reaksi-popup-picker .reaksi-lainnya:hover { background: var(--warna-tipis); color: var(--warna-utama); transform: scale(1.08); }
+.rx-plus { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+/* tombol senyum di samping gelembung: warna dari tema */
+html .btn-react-trigger { width: 30px; height: 30px; }
+html .btn-react-trigger:hover { background: var(--warna-tipis); }
+html .ikon-reaksi-pesan .ikon-reaksi-latar { fill: var(--teks-redup); opacity: .85; }
+html .ikon-reaksi-pesan .ikon-reaksi-wajah { fill: var(--bg-putih); }
+html .btn-react-trigger:hover .ikon-reaksi-pesan .ikon-reaksi-latar { fill: var(--warna-utama); opacity: 1; }
+
+/* badge reaksi: pil kecil menempel di sudut bawah gelembung */
+html .message-content:has(.reaction-bar) { margin-bottom: 8px; }
+html .reaction-bar {
+    gap: 0; margin-top: -9px; padding: 0 3px; border: 1px solid var(--border-warna); border-radius: 999px;
+    background: var(--bg-putih); box-shadow: 0 1px 4px rgba(0, 0, 0, .16); z-index: 2; position: relative;
+    margin-left: 10px; margin-right: 10px;
+}
+html .message-row.kirim .reaction-bar { margin-left: auto; }
+html .reaction-badge {
+    display: inline-flex; align-items: center; gap: 3px; min-width: 0; height: 22px; padding: 0 5px; border-radius: 999px;
+    font-size: .74rem; line-height: 1; color: var(--teks-redup); transition: background-color .12s, transform .12s;
+}
+html .reaction-badge .reaction-emoji { font-size: 15px; line-height: 1; }
+html .reaction-badge .reaction-count { font-weight: 700; font-variant-numeric: tabular-nums; }
+html .reaction-badge:hover { background: var(--bg-abu-input); }
+html .reaction-badge.mine { background: color-mix(in srgb, var(--warna-utama) 18%, transparent); color: var(--warna-utama); }
+html .reaction-badge:active { transform: scale(.92); }
+
+/* rincian reaksi */
+.rx-detail {
+    position: fixed; z-index: 5100; width: min(300px, calc(100vw - 16px)); max-height: 56vh; display: flex; flex-direction: column;
+    background: var(--bg-putih); color: var(--teks-gelap); border: 1px solid var(--border-warna); border-radius: 16px; overflow: hidden;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, .3); animation: ap-muncul .15s ease-out;
+}
+.rx-detail-judul { padding: 12px 16px 8px; font-weight: 700; font-size: .92rem; border-bottom: 1px solid var(--border-warna); }
+.rx-detail-daftar { overflow-y: auto; padding: 4px 0; }
+.rx-detail-baris {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 16px; border: 0; background: transparent;
+    color: inherit; font: inherit; text-align: left;
+}
+button.rx-detail-baris { cursor: pointer; }
+button.rx-detail-baris:hover, button.rx-detail-baris:focus-visible { background: color-mix(in srgb, var(--warna-utama) 12%, transparent); outline: none; }
+.rx-detail-avatar { width: 36px; height: 36px; flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 50%; font-weight: 700; font-size: .9rem; }
+.rx-detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.rx-detail-teks { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rx-detail-teks strong { font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rx-detail-teks small { color: var(--teks-redup); font-size: .74rem; }
+.rx-detail-emoji { font-size: 22px; line-height: 1; }
+
+/* ---- per tema ---- */
+html[data-theme="pastelparty"] .reaksi-popup-picker, html[data-theme="pastelparty"] .rx-detail { border: 2px solid var(--tinta, #3b2d4f); box-shadow: 3px 3px 0 var(--tinta, #3b2d4f); }
+html[data-theme="pastelparty"] .reaction-bar { border: 2px solid var(--tinta, #3b2d4f); box-shadow: 2px 2px 0 var(--tinta, #3b2d4f); }
+html[data-theme="pastelparty"] .reaksi-popup-picker .reaksi-cepat.dipilih { background: #ffd1e6; box-shadow: inset 0 0 0 2px #d6457f; }
+html[data-theme="pastelparty"] .reaction-badge.mine { background: #ffd1e6; color: #b3326a; }
+html[data-theme="pastelparty"] .ap-menu, html[data-theme="pastelparty"] .message-context-menu { border-width: 2px; }
+
+html[data-theme="gameboy"] .reaksi-popup-picker, html[data-theme="gameboy"] .reaction-bar, html[data-theme="gameboy"] .rx-detail, html[data-theme="gameboy"] .reaksi-popup-picker *, html[data-theme="gameboy"] .reaction-badge, html[data-theme="gameboy"] .rx-detail * { border-radius: 0 !important; }
+html[data-theme="gameboy"] .reaksi-popup-picker, html[data-theme="gameboy"] .reaction-bar, html[data-theme="gameboy"] .rx-detail { border: 3px solid #0f380f; box-shadow: 3px 3px 0 #0f380f; background: #9bbc0f; color: #0f380f; }
+html[data-theme="gameboy"] .reaction-badge { color: #0f380f; }
+html[data-theme="gameboy"] .reaction-badge.mine, html[data-theme="gameboy"] .reaksi-popup-picker .reaksi-cepat.dipilih { background: #0f380f; color: #9bbc0f; box-shadow: none; }
+html[data-theme="gameboy"] .reaksi-popup-picker .reaksi-lainnya { background: #8bac0f; color: #0f380f; }
+
+html[data-theme="terminal"] .reaksi-popup-picker, html[data-theme="terminal"] .reaction-bar, html[data-theme="terminal"] .rx-detail, html[data-theme="terminal"] .reaksi-popup-picker *, html[data-theme="terminal"] .reaction-badge, html[data-theme="terminal"] .rx-detail * { border-radius: 2px !important; }
+html[data-theme="terminal"] .reaksi-popup-picker, html[data-theme="terminal"] .reaction-bar, html[data-theme="terminal"] .rx-detail { background: #0a120a; border: 1px solid #1f9d3f; box-shadow: 0 0 10px rgba(51, 255, 102, .25); color: #33ff66; font-family: "Courier New", monospace; }
+html[data-theme="terminal"] .reaction-badge { color: #33ff66; }
+html[data-theme="terminal"] .reaction-badge.mine, html[data-theme="terminal"] .reaksi-popup-picker .reaksi-cepat.dipilih { background: rgba(51, 255, 102, .18); box-shadow: inset 0 0 0 1px #33ff66; color: #33ff66; }
+
+html[data-theme="synthwave"] .reaksi-popup-picker, html[data-theme="synthwave"] .reaction-bar, html[data-theme="synthwave"] .rx-detail { border-color: rgba(255, 79, 216, .55); box-shadow: 0 0 16px rgba(255, 79, 216, .3), 0 6px 20px rgba(0, 0, 0, .4); }
+html[data-theme="synthwave"] .reaction-badge.mine, html[data-theme="synthwave"] .reaksi-popup-picker .reaksi-cepat.dipilih { background: rgba(255, 79, 216, .22); box-shadow: inset 0 0 0 1px #ff4fd8; color: #ff9ae9; }
+
+@media (prefers-reduced-motion: reduce) {
+    html .reaksi-popup-picker.rx-buka, html .reaksi-popup-picker.rx-buka .reaksi-cepat, .rx-detail, html .ap-menu { animation: none; }
+}
+
+/* penyempurnaan lanjutan */
+.rx-detail-avatar { background: var(--warna-utama); color: var(--teks-kontras, #fff); }
+html[data-theme="gameboy"] .reaction-badge.mine { background: #8bac0f; color: #0f380f; box-shadow: inset 0 0 0 2px #0f380f; }
+html[data-theme="gameboy"] .rx-detail-avatar { background: #0f380f; color: #9bbc0f; }

@@ -89,6 +89,12 @@
                 var u = tm[0].replace(/[.,;:!?)\]]+$/, "");
                 dorong(); out.push({ t: "tautan", v: u }); i += u.length; continue;
             }
+            if (teks.substr(i, 3) === "___" && teks[i + 3] !== "_" && teks[i - 1] !== "_") {
+                // "___x___" = miring + garis bawah bertumpuk: "_" lalu "__" saat membuka, "__" lalu "_" saat menutup
+                var pv = teks[i - 1], nx = teks[i + 3];
+                if (!spasi(nx) && !huruf(pv)) { dorong(); out.push({ t: "tanda", v: "_", buka: true, tutup: false }, { t: "tanda", v: "__", buka: true, tutup: false }); i += 3; continue; }
+                if (!spasi(pv) && !huruf(nx)) { dorong(); out.push({ t: "tanda", v: "__", buka: false, tutup: true }, { t: "tanda", v: "_", buka: false, tutup: true }); i += 3; continue; }
+            }
             var tanda = null;
             for (var k = 0; k < TANDA.length; k++) if (teks.substr(i, TANDA[k].length) === TANDA[k]) { tanda = TANDA[k]; break; }
             if (tanda) {
@@ -344,20 +350,193 @@
     }
     setInterval(mulaiAcak, 1500);
 
-    // ---------- papan format di kotak ketik ----------
-    function sisipkan(input, awal, akhir) {
-        var a = input.selectionStart, b = input.selectionEnd, v = input.value;
-        var pilih = v.slice(a, b);
-        if (akhir == null) {
-            input.value = v.slice(0, a) + awal + v.slice(b);
-            input.selectionStart = input.selectionEnd = a + awal.length;
-        } else {
-            input.value = v.slice(0, a) + awal + pilih + akhir + v.slice(b);
-            if (pilih) { input.selectionStart = a; input.selectionEnd = b + awal.length + akhir.length; }
-            else input.selectionStart = input.selectionEnd = a + awal.length;
-        }
+    // ---------- papan format di kotak ketik (tombol toggle) ----------
+    // Tiap tombol menyalakan / mematikan format pada teks terpilih (atau kata di kursor).
+    // Format bisa ditumpuk: tebal + miring + warna, dan dimatikan satu per satu.
+    var GAYA = {
+        b: { m: ["**", "*"], buka: "*" }, i: { m: ["_"], buka: "_" }, u: { m: ["__"], buka: "__" },
+        s: { m: ["~~", "~"], buka: "~" }, sp: { m: ["||"], buka: "||" }, k: { m: ["`"], buka: "`" }
+    };
+    var RE_WARNA_TOKEN = /^(\d{1,2}|#[0-9a-fA-F]{3}|#[0-9a-fA-F]{6})$/;
+    var RE_KATA = /[\p{L}\p{N}]/u;
+
+    function setTeks(input, v, a, b) {
+        input.value = v;
+        input.selectionStart = a; input.selectionEnd = b;
         input.focus();
         input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    // rentang kerja: pilihan tanpa spasi di tepi; kalau kosong, kata di kursor (jika ada)
+    function rentang(input) {
+        var v = input.value, a = input.selectionStart, b = input.selectionEnd;
+        if (a !== b) {
+            while (a < b && /\s/.test(v[a])) a++;
+            while (b > a && /\s/.test(v[b - 1])) b--;
+            return [a, b];
+        }
+        var x = a, y = a;
+        while (x > 0 && RE_KATA.test(v[x - 1])) x--;
+        while (y < v.length && RE_KATA.test(v[y])) y++;
+        return [x, y];
+    }
+    // apakah rentang [a,b] dibungkus penanda m? -> "dalam" | "luar" | null
+    function cocokTanda(v, a, b, m) {
+        var L = m.length, sel = v.slice(a, b), tunggal = L === 1;
+        if (b - a >= 2 * L && sel.slice(0, L) === m && sel.slice(-L) === m &&
+            !(tunggal && (sel.charAt(L) === m || sel.charAt(sel.length - L - 1) === m))) return "dalam";
+        if (a >= L && v.slice(a - L, a) === m && v.slice(b, b + L) === m &&
+            !(tunggal && (v.charAt(a - L - 1) === m || v.charAt(b + L) === m))) return "luar";
+        return null;
+    }
+    var SEMUA_TANDA = ["**", "__", "~~", "||", "*", "_", "~", "`"];
+    // cari lapisan penanda m, boleh terhalang lapisan format lain (mis. *_x_* saat mencari "*" dari "x")
+    // -> {kiri, kanan, L, dalam} (indeks penanda kiri & kanan) atau null
+    function cariLapis(v, a, b, m) {
+        var L = m.length, l = a, r = b, n, x, ketemu;
+        for (n = 0; n < 6; n++) {
+            var c = cocokTanda(v, l, r, m);
+            if (c === "luar") return { kiri: l - L, kanan: r, L: L };
+            if (c === "dalam") return { kiri: l, kanan: r - L, L: L };
+            ketemu = false;
+            for (x = 0; x < SEMUA_TANDA.length && !ketemu; x++) {
+                var t = SEMUA_TANDA[x], lt = t.length;
+                if (l >= lt && v.slice(l - lt, l) === t && v.slice(r, r + lt) === t) { l -= lt; r += lt; ketemu = true; }
+            }
+            if (!ketemu) {
+                for (x = 0; x < SEMUA_TANDA.length && !ketemu; x++) {
+                    var t2 = SEMUA_TANDA[x], l2 = t2.length;
+                    if (r - l >= 2 * l2 && v.slice(l, l + l2) === t2 && v.slice(r - l2, r) === t2) { l += l2; r -= l2; ketemu = true; }
+                }
+            }
+            if (!ketemu) return null;
+        }
+        return null;
+    }
+    function alihGaya(input, kunci) {
+        var g = GAYA[kunci], v = input.value, r = rentang(input), a = r[0], b = r[1], k;
+        if (a === b) {
+            var L = g.buka.length;
+            if (v.slice(a - L, a) === g.buka && v.slice(a, a + L) === g.buka) return setTeks(input, v.slice(0, a - L) + v.slice(a + L), a - L, a - L);
+            return setTeks(input, v.slice(0, a) + g.buka + g.buka + v.slice(a), a + L, a + L);
+        }
+        for (k = 0; k < g.m.length; k++) {
+            var m = g.m[k], p = cariLapis(v, a, b, m);
+            if (!p) continue;
+            var baru = v.slice(0, p.kiri) + v.slice(p.kiri + p.L, p.kanan) + v.slice(p.kanan + p.L);
+            // penanda kiri di luar pilihan menggeser a & b; di dalam pilihan hanya menggeser b
+            var na = p.kiri < a ? a - p.L : a;
+            var nb = b - (p.kiri < a ? p.L : p.L) - (p.kanan >= b ? 0 : p.L);
+            if (p.kiri >= a && p.kanan >= b) nb = b - p.L;
+            if (p.kiri < a && p.kanan < b) nb = b - 2 * p.L;
+            if (p.kiri < a && p.kanan >= b) nb = b - p.L;
+            return setTeks(input, baru, na, nb);
+        }
+        var L3 = g.buka.length;
+        setTeks(input, v.slice(0, a) + g.buka + v.slice(a, b) + g.buka + v.slice(b), a + L3, b + L3);
+    }
+    // cari pembungkus {spek: ...} di sekitar rentang. -> {hs, hl, spek, as, ae} atau null
+    function cariKurung(v, a, b) {
+        var sel = v.slice(a, b), m = /^\{([^{}:\n]{1,40}):[ \t]?/.exec(sel);
+        if (m && urai(m[1]) && sel.charAt(sel.length - 1) === "}" && sel.length > m[0].length) {
+            return { hs: a, hl: m[0].length, spek: m[1], as: a + m[0].length, ae: b - 1, tutupDalam: true };
+        }
+        var sebelum = v.slice(0, a), mm = /\{([^{}:\n]{1,40}):[ \t]?$/.exec(sebelum);
+        if (mm && urai(mm[1]) && v.charAt(b) === "}") {
+            return { hs: a - mm[0].length, hl: mm[0].length, spek: mm[1], as: a, ae: b, tutupDalam: false };
+        }
+        return null;
+    }
+    function alihKurung(input, fn) {
+        var v = input.value, r = rentang(input), a = r[0], b = r[1];
+        if (a === b) {
+            var t0 = fn([]);
+            var kode = "{" + t0.join(" ") + ": ";
+            return setTeks(input, v.slice(0, a) + kode + "}" + v.slice(a), a + kode.length, a + kode.length);
+        }
+        var f = cariKurung(v, a, b);
+        if (f) {
+            var token = f.spek.trim().split(/\s+/), nt = fn(token.slice());
+            var isi = v.slice(f.as, f.ae), awal = v.slice(0, f.hs), akhir = v.slice(f.ae + 1);
+            if (!nt.length) return setTeks(input, awal + isi + akhir, awal.length, awal.length + isi.length);
+            var hdr = "{" + nt.join(" ") + ": ";
+            return setTeks(input, awal + hdr + isi + "}" + akhir, awal.length + hdr.length, awal.length + hdr.length + isi.length);
+        }
+        var nt2 = fn([]), h = "{" + nt2.join(" ") + ": ";
+        setTeks(input, v.slice(0, a) + h + v.slice(a, b) + "}" + v.slice(b), a + h.length, b + h.length);
+    }
+    function alihWarna(input, nomor, hex) {
+        var nilai = hex || String(nomor);
+        alihKurung(input, function (t) {
+            var idx = -1;
+            t.forEach(function (x, n) { if (idx < 0 && RE_WARNA_TOKEN.test(x)) idx = n; });
+            if (idx >= 0) { if (t[idx].toLowerCase() === nilai.toLowerCase()) t.splice(idx, 1); else t[idx] = nilai; }
+            else t.unshift(nilai);
+            return t;
+        });
+    }
+    function alihSimbol(input, sim) {
+        alihKurung(input, function (t) {
+            var idx = t.indexOf(sim);
+            if (idx >= 0) t.splice(idx, 1); else t.push(sim);
+            return t;
+        });
+    }
+    function alihBaris(input) {
+        var v = input.value, a = input.selectionStart, b = input.selectionEnd;
+        var mulai = v.lastIndexOf("\n", a - 1) + 1, akhir = v.indexOf("\n", b);
+        if (akhir < 0) akhir = v.length;
+        var baris = v.slice(mulai, akhir).split("\n");
+        var semua = baris.every(function (x) { return /^>\s/.test(x); });
+        var hasil = baris.map(function (x) { return semua ? x.replace(/^>\s/, "") : (/^>\s/.test(x) ? x : "> " + x); }).join("\n");
+        setTeks(input, v.slice(0, mulai) + hasil + v.slice(akhir), mulai, mulai + hasil.length);
+    }
+    function sisipkan(input, awal, akhir) {   // dipertahankan untuk kompatibilitas
+        var a = input.selectionStart, b = input.selectionEnd, v = input.value, pilih = v.slice(a, b);
+        if (akhir == null) setTeks(input, v.slice(0, a) + awal + v.slice(b), a + awal.length, a + awal.length);
+        else setTeks(input, v.slice(0, a) + awal + pilih + akhir + v.slice(b), pilih ? a : a + awal.length, pilih ? b + awal.length + akhir.length : a + awal.length);
+    }
+
+    // status: format apa yang sedang aktif di rentang kerja
+    function statusAktif(input) {
+        var v = input.value, r = rentang(input), a = r[0], b = r[1], st = { gaya: {}, warna: null, simbol: {} };
+        if (a === b) return st;
+        Object.keys(GAYA).forEach(function (k) {
+            GAYA[k].m.forEach(function (m) { if (cocokTanda(v, a, b, m)) st.gaya[k] = true; });
+        });
+        // format bersarang di luar pilihan (mis. *_x_* saat x terpilih): periksa lapis luar berulang
+        var kiri = a, kanan = b, aman = 0, f;
+        while (aman++ < 6) {
+            f = cariKurung(v, kiri, kanan);
+            if (f) {
+                f.spek.trim().split(/\s+/).forEach(function (t) {
+                    if (RE_WARNA_TOKEN.test(t)) { if (!st.warna) st.warna = t.toLowerCase(); }
+                    else st.simbol[t] = true;
+                });
+                if (f.tutupDalam) break;
+                kiri = f.hs; kanan = f.ae + 1;
+                continue;
+            }
+            var maju = false;
+            Object.keys(GAYA).forEach(function (k) {
+                GAYA[k].m.forEach(function (m) {
+                    if (!maju && cocokTanda(v, kiri, kanan, m) === "luar") { st.gaya[k] = true; kiri -= m.length; kanan += m.length; maju = true; }
+                });
+            });
+            if (!maju) break;
+        }
+        return st;
+    }
+    function segarkanStatus() {
+        if (!papan || papan.hidden || !inputAktif) return;
+        var st = statusAktif(inputAktif);
+        papan.querySelectorAll("[data-gaya]").forEach(function (b) {
+            var k = b.dataset.gaya, on = k.charAt(0) === "#" ? !!st.simbol[k.slice(1)] : !!st.gaya[k];
+            b.classList.toggle("aktif", on); b.setAttribute("aria-pressed", String(on));
+        });
+        papan.querySelectorAll("[data-nomor]").forEach(function (b) {
+            var on = !!st.warna && st.warna === b.dataset.nomor;
+            b.classList.toggle("aktif", on); b.setAttribute("aria-pressed", String(on));
+        });
     }
 
     var papan = null, inputAktif = null;
@@ -367,15 +546,22 @@
         papan.setAttribute("role", "dialog");
         papan.setAttribute("aria-label", "Format teks");
         var gaya = el("div", "fx-papan-gaya");
-        [["B", "Tebal  *teks*", "*", "*", "fx-btn-b"], ["I", "Miring  _teks_", "_", "_", "fx-btn-i"], ["U", "Garis bawah  __teks__", "__", "__", "fx-btn-u"],
-         ["S", "Coret  ~teks~", "~", "~", "fx-btn-s"], ["Spoiler", "Sembunyikan  ||teks||", "||", "||", "fx-btn-sp"],
-         ["</>", "Kode  `teks`", "`", "`", "fx-btn-k"], ["Blok", "Baris kode  > teks", "> ", null, ""], ["?", "Teks acak  {?: teks}", "{?: ", "}", ""],
-         ["%", "Teks pelangi  {%: teks}", "{%: ", "}", "fx-btn-p"]
+        [["B", "Tebal (Ctrl+B)", "b", "fx-btn-b"], ["I", "Miring (Ctrl+I)", "i", "fx-btn-i"], ["U", "Garis bawah (Ctrl+U)", "u", "fx-btn-u"],
+         ["S", "Coret (Ctrl+Shift+X)", "s", "fx-btn-s"], ["Spoiler", "Sembunyikan teks", "sp", "fx-btn-sp"],
+         ["</>", "Kode", "k", "fx-btn-k"], ["Blok", "Baris kode (awali dengan >)", "blok", ""],
+         ["Glitch", "Teks glitch: huruf berganti-ganti acak", "#?", "fx-btn-g"], ["Pelangi", "Teks pelangi bergerak", "#%", "fx-btn-p"]
         ].forEach(function (d) {
-            var b = el("button", "fx-btn " + d[4], d[0]);
-            b.type = "button"; b.title = d[1]; b.setAttribute("aria-label", d[1]);
+            var b = el("button", "fx-btn " + d[3], d[0]);
+            b.type = "button"; b.title = d[1]; b.setAttribute("aria-label", d[1]); b.setAttribute("aria-pressed", "false");
+            if (d[2] !== "blok") b.dataset.gaya = d[2];
             b.addEventListener("mousedown", function (e) { e.preventDefault(); });
-            b.addEventListener("click", function () { if (inputAktif) sisipkan(inputAktif, d[2], d[3]); });
+            b.addEventListener("click", function () {
+                if (!inputAktif) return;
+                if (d[2] === "blok") alihBaris(inputAktif);
+                else if (d[2].charAt(0) === "#") alihSimbol(inputAktif, d[2].slice(1));
+                else alihGaya(inputAktif, d[2]);
+                segarkanStatus();
+            });
             gaya.appendChild(b);
         });
         papan.appendChild(gaya);
@@ -384,24 +570,26 @@
         var grid = el("div", "fx-grid");
         TINGKAT.forEach(function (t) {
             DASAR.forEach(function (d) {
-                var nomor = TINGKAT.indexOf(t) * 16 + parseInt(d[0], 10), kode = "{" + nomor + ": ", hex = warna(d[0], t[0]);
+                var nomor = TINGKAT.indexOf(t) * 16 + parseInt(d[0], 10), hex = warna(d[0], t[0]);
                 var b = el("button", "fx-warna");
                 b.type = "button";
                 b.style.background = hex;
-                b.title = nomor + "  " + d[1] + (t[0] ? " (" + t[1].toLowerCase() + ")" : "") + "  " + kode + "teks}";
-                b.setAttribute("aria-label", b.title);
+                b.dataset.nomor = String(nomor);
+                b.title = nomor + "  " + d[1] + (t[0] ? " (" + t[1].toLowerCase() + ")" : "");
+                b.setAttribute("aria-label", b.title); b.setAttribute("aria-pressed", "false");
                 b.addEventListener("mousedown", function (e) { e.preventDefault(); });
-                b.addEventListener("click", function () { if (inputAktif) sisipkan(inputAktif, kode, "}"); });
+                b.addEventListener("click", function () { if (inputAktif) { alihWarna(inputAktif, nomor); segarkanStatus(); } });
                 grid.appendChild(b);
             });
         });
         papan.appendChild(grid);
-        papan.appendChild(el("p", "fx-papan-bantu", "Nomor = urutan kotak (1-64). Baris: normal, terang, lembut, gelap. Contoh: {12: Halo}. Warna bebas: {#ff8800: Halo}. Gaya: {?: acak} {%: pelangi}"));
+        papan.appendChild(el("p", "fx-papan-bantu", "Pilih teks lalu ketuk tombol untuk menyalakan; ketuk lagi untuk mematikan. Format bisa ditumpuk (tebal + miring + warna + glitch). Tanpa pilihan, format dipasang pada kata di kursor."));
         document.body.appendChild(papan);
         document.addEventListener("mousedown", function (e) {
             if (!papan.hidden && !papan.contains(e.target) && !e.target.closest(".fx-tombol")) papan.hidden = true;
         });
         document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !papan.hidden) papan.hidden = true; });
+        document.addEventListener("selectionchange", function () { if (!papan.hidden && document.activeElement === inputAktif) segarkanStatus(); });
     }
 
     function bukaPapan(tombol, input) {
@@ -409,6 +597,7 @@
         if (!papan.hidden && inputAktif === input) { papan.hidden = true; return; }
         inputAktif = input;
         papan.hidden = false;
+        segarkanStatus();
         var r = tombol.getBoundingClientRect(), w = papan.offsetWidth, h = papan.offsetHeight;
         papan.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left)) + "px";
         papan.style.top = Math.max(8, r.top - h - 10) + "px";
@@ -428,13 +617,16 @@
         pasangTombol("ruang-btn-emoji", "ruang-input");
     }
 
-    // pintasan: Ctrl+B / Ctrl+I / Ctrl+U di kotak ketik
+    // pintasan di kotak ketik: Ctrl+B / I / U (toggle), Ctrl+Shift+X (coret), Ctrl+E (kode)
     document.addEventListener("keydown", function (e) {
-        if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey) return;
+        if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
         var t = e.target;
         if (!t || (t.id !== "input-teks-kirim" && t.id !== "ruang-input")) return;
-        var peta = { b: ["*", "*"], i: ["_", "_"], u: ["__", "__"] }[e.key.toLowerCase()];
-        if (peta) { e.preventDefault(); sisipkan(t, peta[0], peta[1]); }
+        var k = e.key.toLowerCase(), pilih = null;
+        if (!e.shiftKey && (k === "b" || k === "i" || k === "u")) pilih = k;
+        else if (!e.shiftKey && k === "e") pilih = "k";
+        else if (e.shiftKey && k === "x") pilih = "s";
+        if (pilih) { e.preventDefault(); alihGaya(t, pilih); segarkanStatus(); }
     });
 
     function mulai() {
@@ -449,6 +641,7 @@
 
     window.NgumpulFormat = {
         render: render, polos: polos, warna: warna,
+        alihGaya: alihGaya, alihWarna: alihWarna, alihSimbol: alihSimbol,
         daftarWarna: function () {
             var o = [];
             TINGKAT.forEach(function (t) { DASAR.forEach(function (d) { o.push({ kode: "{" + (TINGKAT.indexOf(t) * 16 + parseInt(d[0], 10)) + ": teks}", nama: d[1] + (t[0] ? " " + t[1].toLowerCase() : ""), hex: warna(d[0], t[0]) }); }); });

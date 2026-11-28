@@ -143,7 +143,7 @@ if (cariEmoji) {
     cariEmoji.addEventListener('input', () => renderPilihanEmoji(cariEmoji.value));
 }
 
-// Membuat badge reaksi dan jumlah pengguna untuk satu pesan.
+// Membuat badge reaksi (gaya WhatsApp: pil kecil di sudut bawah gelembung).
 function buatBarReaksiPesan(reaksi, idLawan, pesanId) {
     const emojiTerpakai = Object.entries(reaksi)
         .filter(([, pengguna]) => Array.isArray(pengguna) && pengguna.length > 0);
@@ -152,24 +152,108 @@ function buatBarReaksiPesan(reaksi, idLawan, pesanId) {
     const bar = document.createElement('div');
     bar.className = 'reaction-bar';
     const idPengguna = String(userAktif.id);
+    const total = emojiTerpakai.reduce((n, [, pengguna]) => n + pengguna.length, 0);
 
     emojiTerpakai.forEach(([emoji, pengguna]) => {
         const tombol = document.createElement('button');
         const sudahDipilih = pengguna.map(String).includes(idPengguna);
         tombol.type = 'button';
         tombol.className = 'reaction-badge' + (sudahDipilih ? ' mine' : '');
-        tombol.textContent = emoji + ' ' + pengguna.length;
-        tombol.title = sudahDipilih ? 'Klik untuk menghapus reaksi' : 'Klik untuk memberi reaksi';
-        tombol.setAttribute('aria-label', `${emoji}, ${pengguna.length} reaksi`);
+        const lambang = document.createElement('span');
+        lambang.className = 'reaction-emoji';
+        lambang.textContent = emoji;
+        tombol.appendChild(lambang);
+        if (pengguna.length > 1 || emojiTerpakai.length > 1) {
+            const jumlah = document.createElement('span');
+            jumlah.className = 'reaction-count';
+            jumlah.textContent = String(pengguna.length);
+            tombol.appendChild(jumlah);
+        }
+        tombol.title = 'Lihat siapa yang bereaksi';
+        tombol.setAttribute('aria-label', `${emoji}, ${pengguna.length} reaksi. Lihat detail`);
+        tombol.setAttribute('aria-haspopup', 'dialog');
         tombol.addEventListener('click', event => {
             event.stopPropagation();
-            toggleReaksiPesan(idLawan, pesanId, emoji);
+            tampilkanDetailReaksi(bar, reaksi, idLawan, pesanId);
         });
         bar.appendChild(tombol);
     });
-
+    if (total > 1 && emojiTerpakai.length > 1) bar.dataset.total = String(total);
     return bar;
 }
+
+// Rincian siapa yang bereaksi apa. Baris milik sendiri bisa diketuk untuk menghapus reaksi.
+let detailReaksiEl = null;
+function tutupDetailReaksi() {
+    if (detailReaksiEl) { detailReaksiEl.remove(); detailReaksiEl = null; }
+}
+function tampilkanDetailReaksi(jangkar, reaksi, idLawan, pesanId) {
+    tutupDetailReaksi();
+    const idSaya = String(userAktif.id);
+    const kotak = document.createElement('div');
+    kotak.className = 'rx-detail';
+    kotak.setAttribute('role', 'dialog');
+    kotak.setAttribute('aria-label', 'Reaksi pada pesan');
+    const judul = document.createElement('div');
+    judul.className = 'rx-detail-judul';
+    const daftar = [];
+    Object.entries(reaksi).forEach(([emoji, pengguna]) => {
+        if (Array.isArray(pengguna)) pengguna.forEach(id => daftar.push({ emoji, id: String(id) }));
+    });
+    daftar.sort((a, b) => (a.id === idSaya ? -1 : 0) - (b.id === idSaya ? -1 : 0));
+    judul.textContent = daftar.length + ' reaksi';
+    kotak.appendChild(judul);
+    const isi = document.createElement('div');
+    isi.className = 'rx-detail-daftar';
+    daftar.forEach(({ emoji, id }) => {
+        const milikku = id === idSaya;
+        const baris = document.createElement(milikku ? 'button' : 'div');
+        baris.className = 'rx-detail-baris' + (milikku ? ' milikku' : '');
+        if (milikku) baris.type = 'button';
+        const avatar = document.createElement('span');
+        avatar.className = 'rx-detail-avatar circle-avatar';
+        const nama = milikku ? 'Anda' : (getProfilChat(id).nama || 'Pengguna');
+        tampilkanAvatarChat(avatar, id, nama);
+        const teks = document.createElement('span');
+        teks.className = 'rx-detail-teks';
+        const n = document.createElement('strong');
+        n.textContent = nama;
+        teks.appendChild(n);
+        if (milikku) {
+            const ket = document.createElement('small');
+            ket.textContent = 'Ketuk untuk menghapus';
+            teks.appendChild(ket);
+        }
+        const e = document.createElement('span');
+        e.className = 'rx-detail-emoji';
+        e.textContent = emoji;
+        baris.append(avatar, teks, e);
+        if (milikku) baris.addEventListener('click', ev => {
+            ev.stopPropagation();
+            tutupDetailReaksi();
+            toggleReaksiPesan(idLawan, pesanId, emoji);
+        });
+        isi.appendChild(baris);
+    });
+    kotak.appendChild(isi);
+    document.body.appendChild(kotak);
+    detailReaksiEl = kotak;
+    const r = jangkar.getBoundingClientRect();
+    const m = 8, w = kotak.offsetWidth, h = kotak.offsetHeight;
+    let top = r.bottom + 6;
+    if (top + h > window.innerHeight - m) top = Math.max(m, r.top - h - 6);
+    const kiri = Math.max(m, Math.min(r.left, window.innerWidth - w - m));
+    kotak.style.left = kiri + 'px';
+    kotak.style.top = top + 'px';
+    const pertama = kotak.querySelector('button');
+    if (pertama) pertama.focus({ preventScroll: true });
+}
+document.addEventListener('pointerdown', event => {
+    if (detailReaksiEl && !detailReaksiEl.contains(event.target) && !event.target.closest('.reaction-badge')) tutupDetailReaksi();
+}, true);
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && detailReaksiEl) { event.stopPropagation(); tutupDetailReaksi(); }
+}, true);
 
 // Mengganti reaksi pengguna pada pesan, atau menghapusnya jika emoji sama dipilih lagi.
 function toggleReaksiPesan(idLawan, pesanId, emoji) {
@@ -215,6 +299,19 @@ function tampilkanReaksiPesanPicker(pesanId, pembungkusPesan) {
     const rect = gelembung.getBoundingClientRect();
     const margin = 8;
     reaksiPesanEmojiPopup.style.display = 'flex';
+    // tandai reaksi milik sendiri (seperti WhatsApp) dan putar ulang animasi muncul
+    const reaksiSaya = (() => {
+        const semua = ambilReaksiPesan(chatAktifId, pesanId);
+        return Object.keys(semua).find(e => Array.isArray(semua[e]) && semua[e].map(String).includes(String(userAktif.id))) || '';
+    })();
+    reaksiPesanEmojiPopup.querySelectorAll('.reaksi-cepat[data-emoji]').forEach(b => {
+        const aktif = !!reaksiSaya && b.dataset.emoji === reaksiSaya;
+        b.classList.toggle('dipilih', aktif);
+        b.setAttribute('aria-pressed', String(aktif));
+    });
+    reaksiPesanEmojiPopup.classList.remove('rx-buka');
+    void reaksiPesanEmojiPopup.offsetWidth;
+    reaksiPesanEmojiPopup.classList.add('rx-buka');
     const popupW = reaksiPesanEmojiPopup.offsetWidth;
     const popupH = reaksiPesanEmojiPopup.offsetHeight;
     const left = Math.max(margin, Math.min(

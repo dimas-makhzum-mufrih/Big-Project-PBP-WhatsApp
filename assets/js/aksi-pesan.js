@@ -565,6 +565,12 @@
             pemicu.setAttribute("aria-expanded", "false");
             pemicu.appendChild(svg("chevron"));
             bubble.appendChild(pemicu);
+            // warna pudar di belakang panah mengikuti warna gelembung (tanpa kotak), seperti WhatsApp
+            bubble.addEventListener("pointerenter", function () {
+                var c = getComputedStyle(bubble).backgroundColor;
+                if (c && c !== "transparent" && !/,\s*0\)$/.test(c)) bubble.style.setProperty("--ap-bg", c);
+                else bubble.style.removeProperty("--ap-bg");
+            });
             if (jenis === "pribadi" && pesanById) {
                 var p = pesanById[b.dataset.messageId];
                 var footer = bubble.querySelector(".message-footer");
