@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ngumpul - Chat, grup, dan telepon</title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/auth.css">
   <meta name="color-scheme" content="light dark">
   <link rel="stylesheet" href="assets/css/variables.css">
   <link rel="stylesheet" href="assets/css/themes.css">
@@ -76,6 +77,9 @@
         <p class="sub">Daftar dulu biar bisa mulai ngumpul bareng teman-temanmu.</p>
         <button class="tombol" id="btn-buat">Buat akun baru</button>
         <a class="tombol kosong" href="pages/auth/login.html">Saya sudah punya akun</a>
+        <a class="tombol google" data-google-login="pages/auth/login.html" href="pages/auth/login.html">
+          <img src="assets/img/google.svg" alt="" width="18" height="18"> Lanjutkan dengan Google
+        </a>
         <p class="kecil">Dengan lanjut, kamu menyetujui syarat dan kebijakan privasi.</p>
       </section>
 
@@ -89,73 +93,44 @@
         <h2>Buat akun Ngumpul</h2>
         <p class="sub">Isi data di bawah ini</p>
 
-        <label for="nama">Nama lengkap</label>
-        <input type="text" id="nama" placeholder="Masukkan Nama Anda" autocomplete="name">
-        <div class="error" id="error-nama"></div>
+        <form id="daftar-email" method="post">
+          <label for="nama">Nama lengkap</label>
+          <input type="text" id="nama" name="name" autocomplete="name" required>
 
-        <label for="hp">Nomor HP</label>
-        <div class="kolom-hp">
-          <button type="button" class="pilih-negara" id="btn-negara" aria-haspopup="listbox" aria-expanded="false"
-            aria-label="Pilih kode negara">
-            <img class="bendera" id="bendera-terpilih" src="assets/img/flags/id.svg" alt="">
-            <span id="kode-terpilih">+62</span>
-            <svg class="ikon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </button>
-          <input type="tel" id="hp" placeholder="Masukkan Nomor Telepon Anda" autocomplete="tel-national"
-            inputmode="tel">
-          <div class="daftar-negara" id="daftar-negara" hidden>
-            <input type="search" id="cari-negara" placeholder="Cari negara atau kode" autocomplete="off">
-            <ul id="isi-negara" role="listbox"></ul>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" required>
+
+          <label for="sandi">Sandi</label>
+          <div class="kolom-sandi">
+            <input type="password" id="sandi" name="password" placeholder="Minimal 8 karakter"
+              autocomplete="new-password" minlength="8" maxlength="128" required>
+            <button type="button" class="lihat" data-target="sandi">Lihat</button>
           </div>
-        </div>
-        <div class="error" id="error-hp"></div>
 
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="Masukkan Email Anda" autocomplete="email">
-        <div class="error" id="error-email"></div>
+          <label for="ulang">Ulangi sandi</label>
+          <div class="kolom-sandi">
+            <input type="password" id="ulang" autocomplete="new-password" aria-describedby="error-ulang" required>
+            <button type="button" class="lihat" data-target="ulang">Lihat</button>
+          </div>
+          <div class="error auth-error" id="error-ulang" role="alert"></div>
+          <div class="error auth-error" id="error-daftar" role="alert"></div>
 
-        <label for="sandi">Sandi</label>
-        <div class="kolom-sandi">
-          <input type="password" id="sandi" placeholder="Minimal 8 karakter, huruf + angka" autocomplete="new-password">
-          <button type="button" class="lihat" data-target="sandi">Lihat</button>
-        </div>
-        <div class="error" id="error-sandi"></div>
-
-        <label for="ulang">Ulangi sandi</label>
-        <div class="kolom-sandi">
-          <input type="password" id="ulang" placeholder="Ketik sandi sekali lagi" autocomplete="new-password">
-          <button type="button" class="lihat" data-target="ulang">Lihat</button>
-        </div>
-        <div class="error" id="error-ulang"></div>
-
-        <button id="btn-daftar" class="tombol">Daftar</button>
+          <button id="btn-daftar" class="tombol" type="submit">Daftar</button>
+        </form>
+        <a class="tombol google" data-google-login="pages/auth/login.html" href="pages/auth/login.html">
+          <img src="assets/img/google.svg" alt="" width="18" height="18"> Lanjutkan dengan Google
+        </a>
         <p class="bawah">Sudah punya akun? <a href="pages/auth/login.html">Masuk</a></p>
-      </section>
-
-      <section class="halaman tengah" id="halaman-sukses">
-        <svg class="centang" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M8 12.5l3 3 5-6" />
-        </svg>
-        <h2>Akun berhasil dibuat</h2>
-        <p class="sub" id="pesan-sukses"></p>
-        <button id="btn-mulai" class="tombol">Mulai chat</button>
       </section>
 
     </main>
   </div>
 
-  <div id="toast"></div>
-
   <script src="assets/js/splash.js"></script>
-  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/auth-form.js"></script>
   <script src="assets/js/awal.js"></script>
-  <script src="assets/js/negara-data.js"></script>
-  <script src="assets/js/negara.js"></script>
   <script src="assets/js/register.js"></script>
-  <script src="assets/js/hubung-otp.js"></script>
 </body>
 
 </html>

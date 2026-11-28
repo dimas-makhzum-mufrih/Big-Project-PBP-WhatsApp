@@ -1,64 +1,25 @@
 (() => {
   "use strict";
-  const urls = new Map();
-  let database;
-  function db() {
-    if (!database)
-      database = new Promise((resolve, reject) => {
-        const request = indexedDB.open("ngumpul_media_grup", 1);
-        request.onupgradeneeded = () =>
-          request.result.createObjectStore("berkas", { keyPath: "id" });
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => {
-          database = null;
-          reject(new Error("Penyimpanan berkas tidak dapat dibuka."));
-        };
-      });
-    return database;
-  }
   async function simpan(files) {
     const records = files.map((file) => ({
-      id: crypto.randomUUID(),
-      blob: file,
-      nama: file.name || "Pesan suara.webm",
-      mime: file.type || "application/octet-stream",
+      file, nama: file.name || "Pesan suara.webm",
+      mime: (file.type || "application/octet-stream").split(";")[0],
       ukuran: file.size,
     }));
     if (records.some((f) => f.ukuran > 25 * 1024 * 1024))
       throw new Error("Ukuran setiap berkas maksimal 25 MB.");
-    const storage = await db();
-    await new Promise((resolve, reject) => {
-      const tx = storage.transaction("berkas", "readwrite");
-      records.forEach((r) => tx.objectStore("berkas").put(r));
-      tx.oncomplete = resolve;
-      tx.onerror = tx.onabort = () =>
-        reject(new Error("Berkas gagal disimpan. Coba lagi."));
-    });
-    return records.map(({ blob, ...r }) => r);
+    return records;
   }
   async function url(file) {
-    if (urls.has(file.id)) return urls.get(file.id);
-    if (!file.id && /^(https?:|data:image\/)/.test(file.url || ""))
-      return file.url;
-    const storage = await db();
-    const record = await new Promise((resolve, reject) => {
-      const request = storage
-        .transaction("berkas")
-        .objectStore("berkas")
-        .get(file.id);
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(new Error("Berkas gagal dibaca."));
-    });
-    if (!record) return null;
-    const result = URL.createObjectURL(record.blob);
-    urls.set(file.id, result);
-    return result;
+    if (/^https?:\/\//i.test(file.url || "")) return file.url;
+    if (file.id) return (await NgumpulAuth.api("attachments/" + encodeURIComponent(file.id) + "/download-url")).url;
+    return null;
   }
   async function tampilkan(file, preview = false) {
     const link = document.createElement("a");
     link.className = "ruang-attachment";
     link.textContent = file.nama || "Berkas";
-    const source = await url(file);
+    const source = await url(file).catch(() => null);
     if (!source) {
       link.removeAttribute("href");
       link.textContent += " · Tidak tersedia";
@@ -66,6 +27,17 @@
     }
     link.href = source;
     link.download = file.nama || "Berkas";
+    link.addEventListener("click", async (event) => {
+      if (!file.id) return;
+      event.preventDefault();
+      try {
+        const { url } = await NgumpulAuth.api("attachments/" + encodeURIComponent(file.id) + "/download-url");
+        const download = document.createElement("a");
+        download.href = url;
+        download.download = link.download;
+        download.click();
+      } catch (error) { window.NgumpulRuang?.toast(error.message); }
+    });
     const type = file.mime || "";
     if (type.startsWith("image/")) {
       const image = document.createElement("img");
@@ -133,9 +105,5 @@
       },
     };
   }
-  window.addEventListener("pagehide", () => {
-    urls.forEach((value) => URL.revokeObjectURL(value));
-    urls.clear();
-  });
   window.NgumpulGrupMedia = { simpan, url, tampilkan, record };
 })();

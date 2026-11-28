@@ -1,0 +1,108 @@
+.dm-button {
+    padding: 8px 12px;
+    min-height: 44px;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+.dm-button:hover:not(:disabled),
+.dm-button[aria-pressed="true"] { background: var(--warna-tipis); }
+.dm-button:disabled { opacity: .65; cursor: default; }
+.dm-button.dm-primary {
+    background: color-mix(in srgb, var(--warna-utama) 78%, var(--teks-gelap));
+    color: var(--teks-di-utama, var(--teks-kontras));
+}
+.dm-button.dm-hangup { background: var(--merah); color: #fff; }
+.dm-feedback,
+.dm-inbox-actions { display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+.dm-feedback { background: var(--bg-putih); }
+.dm-feedback:has(p:empty):not(:has(button:not([hidden]))) { display: none; }
+.dm-feedback p,
+.dm-typing { font-size: .84rem; color: var(--teks-redup); margin: 6px 0; }
+.dm-typing { padding: 0 12px; }
+.dm-inbox-actions { flex-wrap: wrap; margin-bottom: 6px; }
+.dm-older { display: block; margin: 8px auto; }
+.dm-content { display: block; max-width: 100%; margin: 6px 0; overflow-wrap: anywhere; }
+.dm-content audio,
+.dm-content video { display: block; max-width: min(300px, 100%); }
+.dm-content a { color: inherit; }
+a.dm-content { color: inherit; font-weight: 600; text-decoration: underline; }
+.dm-poll { display: grid; gap: 6px; min-width: min(200px, 100%); }
+.dm-poll .dm-button { text-align: left; white-space: normal; overflow-wrap: anywhere; }
+.dm-dialog {
+    width: min(100% - 24px, 440px);
+    max-height: 90dvh;
+    padding: 18px;
+    border: 1px solid var(--border-warna);
+    border-radius: 14px;
+    background: var(--bg-putih);
+    color: var(--teks-gelap);
+}
+.dm-dialog::backdrop { background: rgba(12, 20, 25, .65); }
+.dm-dialog form { display: grid; gap: 10px; }
+.dm-dialog h2 { margin: 0 0 6px; font-size: 1.15rem; }
+.dm-dialog label:not(.dm-checkbox) { display: grid; gap: 4px; }
+.dm-dialog :is(input:not([type="checkbox"]), textarea, select) {
+    margin: 0;
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--border-warna);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--teks-gelap);
+    background: var(--bg-abu-input);
+    font: inherit;
+}
+.dm-dialog p[role="status"]:empty,
+.dm-dialog p[role="alert"]:empty { margin: 0; }
+.dm-dialog p[role="alert"] { color: color-mix(in srgb, var(--merah) 65%, var(--teks-gelap)); }
+.dm-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.dm-dialog img,
+.dm-dialog audio { max-width: 100%; }
+.dm-dialog video { width: 100%; border-radius: 8px; background: #111; }
+.dm-call-media { display: grid; gap: 8px; }
+.dm-call-row { border-bottom: 1px solid var(--border-warna); padding: 8px 0; }
+.dm-call-row p { color: var(--teks-redup); margin: 4px 0 8px; font-size: .85rem; }
+
+#panel-chat-aktif .active-header-info p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+    #panel-chat-aktif .active-chat-header { gap: 4px; padding-inline: 8px; }
+    #panel-chat-aktif .message-search-toggle { width: 44px; height: 44px; }
+    #btn-kembali-chat-pribadi { min-width: 44px; min-height: 44px; }
+    #panel-chat-aktif #avatar-header-kanan { width: 36px; height: 36px; }
+}
+
+@media (max-width: 350px) {
+    #panel-chat-aktif #btn-info-kontak-chat { display: none; }
+}
+
+.settings-notification-item {
+    border-bottom: 1px solid var(--border, #8885);
+    padding-block: .75rem;
+}
+.settings-notification-item p { margin-block: .35rem; }
+.settings-notification-item small { display: block; margin-bottom: .4rem; }
+.settings-notification-item button { margin: .2rem .25rem .2rem 0; }
+[data-chat-text-size="small"] :is(#box-list-pesan, #ruang-messages) .chat-bubble { font-size: .85rem; }
+[data-chat-text-size="large"] :is(#box-list-pesan, #ruang-messages) .chat-bubble { font-size: 1.125rem; }
+.friend-qr-image {
+    display: block;
+    width: min(100%, 18rem);
+    height: auto;
+    margin-inline: auto;
+    image-rendering: pixelated;
+}
+.ruang-call-tile .ruang-tile-moderate {
+    position: absolute;
+    inset: .4rem auto auto .4rem;
+    z-index: 2;
+}

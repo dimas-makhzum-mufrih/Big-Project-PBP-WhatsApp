@@ -175,7 +175,7 @@ input {
     cursor: pointer
 }
 
-.tab#tab-kontak {
+.tab#tab-teman {
     text-decoration: none;
     cursor: pointer
 }
@@ -199,50 +199,41 @@ input {
     display: none
 }
 
-#panel-tab-kontak {
+#panel-tab-teman {
     max-width: none;
     margin: 0;
     border: 0
 }
 
-#panel-tab-kontak .contact-header {
+#panel-tab-teman .contact-header {
     flex-shrink: 0;
     gap: 8px;
     padding: 10px
 }
 
-#panel-tab-kontak .contact-header h2 {
+#panel-tab-teman .contact-header h2 {
     flex: 1;
     margin: 0;
     font-size: 1.2rem
 }
 
-#panel-tab-kontak .contact-back {
+#panel-tab-teman .contact-back {
     border: 0;
     padding: 0;
     background: transparent;
     cursor: pointer
 }
 
-#panel-tab-kontak .contact-back:hover {
+#panel-tab-teman .contact-back:hover {
     background: var(--bg-abu-input)
 }
 
-#panel-tab-kontak .contact-add-button {
+#panel-tab-teman .contact-add-button {
     padding: 9px 10px;
     font-size: .85rem
 }
 
-#panel-tab-kontak .contact-form-row {
-    flex-wrap: wrap
-}
-
-#panel-tab-kontak .contact-form-row select {
-    width: 100%;
-    max-width: none
-}
-
-#panel-tab-kontak .contact-card-actions {
+#panel-tab-teman .contact-card-actions {
     flex-wrap: wrap;
     padding-left: 0
 }
@@ -363,6 +354,35 @@ input {
     flex: none;
     color: var(--teks-redup);
     font-size: .74rem
+}
+
+.chat-card-trailing {
+    display: flex;
+    align-items: center;
+    flex: none;
+    gap: 8px
+}
+
+.chat-unread-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--warna-utama);
+    color: var(--teks-kontras);
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1
+}
+
+.chat-unread-badge.manual {
+    min-width: 9px;
+    width: 9px;
+    height: 9px;
+    padding: 0
 }
 
 .card-preview {

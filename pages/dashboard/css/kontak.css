@@ -51,8 +51,7 @@
 }
 
 .contact-add-button,
-.contact-form button,
-.contact-chat-button {
+.contact-form button[type="submit"] {
     border: 0;
     border-radius: 8px;
     background: var(--warna-utama);
@@ -63,8 +62,7 @@
 }
 
 .contact-add-button:hover,
-.contact-form button:hover,
-.contact-chat-button:hover {
+.contact-form button[type="submit"]:hover {
     background: var(--warna-utama-hover)
 }
 
@@ -126,18 +124,6 @@
     font-size: .9rem
 }
 
-.contact-form select {
-    flex: none;
-    max-width: 175px;
-    padding: 10px 8px;
-    border: 1px solid var(--border-warna);
-    border-radius: 8px;
-    background: var(--bg-putih);
-    color: var(--teks-gelap);
-    font: inherit;
-    font-size: .85rem
-}
-
 .contact-form-row {
     display: flex;
     gap: 8px
@@ -159,14 +145,13 @@
 }
 
 .contact-status {
-    min-height: 1.2em;
     margin: 8px 0 0;
     color: var(--teks-redup);
     font-size: .84rem
 }
 
 .contact-status[data-error="true"] {
-    color: var(--merah)
+    color: color-mix(in srgb, var(--merah) 65%, var(--teks-gelap))
 }
 
 .contact-list {
@@ -177,11 +162,10 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    padding: 12px 4px;
+    padding: 12px;
+    margin-top: 8px;
     border-bottom: 1px solid var(--border-warna)
 }
-/* Dashboard Ngumpul - satu tema TERANG tetap (tidak ikut mode gelap/terang perangkat).
-   Warna disamakan dengan halaman registrasi/login (cyan). */
 
 .contact-avatar {
     display: grid;
@@ -191,7 +175,11 @@
     flex: 0 0 44px;
     margin-right: 12px;
     border-radius: 50%;
-    color: #fff;
+    border: 0;
+    overflow: hidden;
+    background: var(--warna-tipis);
+    color: var(--teks-gelap);
+    padding: 0;
     font-size: 1rem;
     font-weight: 700
 }
@@ -202,7 +190,7 @@
 }
 
 .contact-name,
-.contact-phone {
+.friend-username {
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -213,10 +201,26 @@
     font-weight: 600
 }
 
-.contact-phone {
+.friend-username {
     margin-top: 3px;
     color: var(--teks-redup);
     font-size: .84rem
+}
+
+.friend-unread-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    margin-left: 8px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--warna-utama);
+    color: var(--teks-kontras, #fff);
+    font-size: .75rem;
+    font-weight: 700;
+    line-height: 1;
+    flex: none;
 }
 
 .contact-card-actions {
@@ -227,40 +231,88 @@
     padding: 10px 0 0 56px
 }
 
-.contact-chat-button,
-.contact-call-button,
-.contact-remove-button {
-    padding: 7px 9px;
-    border-radius: 7px;
-    font-size: .82rem;
-    cursor: pointer
+.friend-section {
+    margin-top: 16px;
 }
 
-.contact-call-button {
+.friend-section h3 {
+    margin: 0 0 8px;
+    color: var(--teks-gelap);
+    font-size: .95rem;
+}
+
+.friend-action {
+    min-height: 44px;
+    padding: 8px 10px;
     border: 1px solid var(--border-warna);
+    border-radius: 8px;
     background: var(--bg-putih);
-    color: var(--teks-gelap)
+    color: var(--teks-gelap);
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
 }
 
-.contact-call-button:hover {
-    background: var(--bg-abu-terang)
+.friend-action:hover:not(:disabled) {
+    background: var(--bg-abu-input);
 }
 
-.contact-call-button:disabled {
-    color: var(--teks-redup);
-    cursor: not-allowed;
-    opacity: .8
+.friend-primary,
+.contact-add-button,
+.contact-form button[type="submit"] {
+    min-height: 44px;
+    background: color-mix(in srgb, var(--warna-utama) 78%, var(--teks-gelap));
+    color: var(--teks-di-utama, var(--teks-kontras));
+    border-color: transparent;
 }
 
-.contact-remove-button {
-    margin-left: auto;
-    border: 0;
-    background: transparent;
-    color: var(--merah)
+.friend-primary:hover:not(:disabled),
+.contact-add-button:hover,
+.contact-form button[type="submit"]:hover {
+    background: color-mix(in srgb, var(--warna-utama) 70%, var(--teks-gelap));
 }
 
-.contact-remove-button:hover {
-    background: var(--bg-hover-merah)
+.friend-remove {
+    color: color-mix(in srgb, var(--merah) 65%, var(--teks-gelap));
+}
+
+.friend-action:disabled,
+.contact-form button:disabled {
+    opacity: .65;
+    cursor: default;
+}
+
+.contact-avatar:is(button) {
+    cursor: pointer;
+}
+
+.contact-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.contact-back,
+.contact-search,
+.contact-form input {
+    min-height: 44px;
+}
+
+.contact-status:empty {
+    margin: 0;
+}
+
+.friend-load {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+#hasil-cari-teman > .friend-action {
+    margin-top: 8px;
 }
 
 .contact-empty {

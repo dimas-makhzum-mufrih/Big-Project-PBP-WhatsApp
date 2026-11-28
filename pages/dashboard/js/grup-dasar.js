@@ -1,11 +1,7 @@
-// ===== Grup: tampilan, izin, percakapan, dan adapter lokal =====
+// ===== Grup: daftar, informasi, dan pengelolaan anggota =====
 (function () {
     if (!userAktif) return;
     const $ = (id) => document.getElementById(id);
-    const KUNCI_GRUP = 'ngumpul_grup',
-        PESAN = 'ngumpul_pesan_grup_',
-        STATUS = 'ngumpul_status_grup_',
-        SEMBUNYI = 'ngumpul_grup_sembunyi_';
     const daftar = $('daftar-grup'),
         panel = $('panel-chat-grup'),
         info = $('panel-info-grup'),
@@ -15,10 +11,7 @@
         statusBerubah = new Set();
     let aktif = null,
         infoId = null,
-        grupAktif = null,
-        fotoDraft = '',
-        fotoDiproses = false,
-        versiFoto = 0;
+        grupAktif = null;
     let sesiEditor = 0,
         editAktif = null,
         sedangSimpan = false,
@@ -48,13 +41,11 @@
         delete $(id).dataset.sumber;
     };
     const kosong = (teks) => el('p', 'grup-kosong', teks);
-    const namaAkun = (id) => getProfil(id).nama || getUserById(id)?.nama || 'Anggota';
-    const fotoAkun = (id) => ambilFotoProfilChat(id);
-    const unik = (data) => [...new Set(data)];
+    const dataAnggota = (id) => window.NgumpulGrupData.member(id);
+    const namaAkun = (id) => dataAnggota(id)?.displayName || getProfil(id).nama ||
+        dataAnggota(id)?.username || getUserById(id)?.nama || 'Anggota';
     const admin = (g) => !g.keluar && g.adminIds.includes(userAktif.id);
     const kode = () => (window.crypto?.randomUUID ? crypto.randomUUID() : buatId() + buatId());
-    const awalPesan = (id) => PESAN + encodeURIComponent(id) + ':';
-    const awalStatus = (g, p, u) => STATUS + [g, p, u].map(encodeURIComponent).join(':') + ':';
     function ikon(id) {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.classList.add('ikon');
@@ -64,43 +55,11 @@
         svg.append(use);
         return svg;
     }
-    function avatar(node, nama, foto) {
-        node.replaceChildren();
-        if (foto && /^data:image\/(png|jpeg|webp);base64,/.test(foto)) {
-            const img = el('img');
-            img.src = foto;
-            img.alt = '';
-            node.append(img);
-        } else node.textContent = (nama || '?').trim().charAt(0).toUpperCase() || '?';
-    }
-    function warnaUntuk(ids, lama, grupId) {
-        const warna = Object.fromEntries(
-            Object.entries(lama || {}).filter(([, v]) => Number.isFinite(v) && v >= 0 && v < 360)
-        );
-        let seed = 0;
-        for (const c of grupId) seed = (seed * 31 + c.charCodeAt(0)) % 360;
-        ids.forEach((id) => {
-            if (Object.hasOwn(warna, id)) return;
-            const used = unik(Object.values(warna)).sort((a, b) => a - b);
-            let hue = seed;
-            if (used.length) {
-                let gap = -1;
-                for (let i = 0; i < used.length; i++) {
-                    const next = i === used.length - 1 ? used[0] + 360 : used[i + 1];
-                    if (next - used[i] > gap) {
-                        gap = next - used[i];
-                        hue = (used[i] + gap / 2) % 360;
-                    }
-                }
-            }
-            warna[id] = hue;
-        });
-        return warna;
-    }
+    const avatar = NgumpulAvatar.render;
     function avatarAnggota(node, g, id) {
         node.classList.add('grup-avatar-anggota');
         node.style.setProperty('--anggota-hue', String(g.warnaAnggota[id] ?? 0));
-        avatar(node, namaAkun(id), fotoAkun(id));
+        tampilkanAvatarChat(node, id, namaAkun(id));
     }
     function bacaKeanggotaan(g) {
         const hasil = Object.fromEntries(
@@ -125,537 +84,14 @@
             hasil[g.pembuatId] = { cara: 'buat', waktu: g.dibuat, oleh: g.pembuatId };
         return hasil;
     }
-    function bacaGrup() {
-        let data;
-        try {
-            data = JSON.parse(localStorage.getItem(KUNCI_GRUP) || '[]');
-        } catch (_) {
-            throw new Error('Data grup tidak bisa dibaca.');
-        }
-        if (!Array.isArray(data)) throw new Error('Data grup tidak valid.');
-        const ids = new Set();
-        return data.map((g) => {
-            if (
-                !g ||
-                typeof g.id !== 'string' ||
-                !g.id ||
-                ids.has(g.id) ||
-                typeof g.nama !== 'string' ||
-                !g.nama.trim() ||
-                typeof g.pembuatId !== 'string' ||
-                !Array.isArray(g.anggotaIds) ||
-                !g.anggotaIds.every((id) => typeof id === 'string' && id) ||
-                !Number.isFinite(g.dibuat)
-            )
-                throw new Error('Data grup tidak valid.');
-            ids.add(g.id);
-            const anggotaIds = unik(g.anggotaIds);
-            let adminIds = unik(Array.isArray(g.adminIds) ? g.adminIds : [g.pembuatId]).filter(
-                (id) => anggotaIds.includes(id)
-            );
-            if (!adminIds.length && anggotaIds.length) adminIds = [anggotaIds[0]];
-            const aktivitas = Array.isArray(g.aktivitas) ? g.aktivitas : [];
-            if (
-                !aktivitas.every(
-                    (a) =>
-                        a &&
-                        typeof a.id === 'string' &&
-                        a.grupId === g.id &&
-                        typeof a.aksi === 'string' &&
-                        typeof a.aktorId === 'string' &&
-                        typeof a.anggotaId === 'string' &&
-                        Number.isFinite(a.dibuat)
-                )
-            )
-                throw new Error('Riwayat aktivitas tidak valid.');
-            return {
-                ...g,
-                anggotaIds,
-                adminIds,
-                deskripsi: g.deskripsi || '',
-                foto: g.foto || '',
-                aktivitas,
-                keanggotaan: bacaKeanggotaan({ ...g, aktivitas }),
-                warnaAnggota: warnaUntuk(anggotaIds, g.warnaAnggota, g.id),
-                arsipAkun: g.arsipAkun && typeof g.arsipAkun === 'object' ? g.arsipAkun : {},
-                dihapusUntuk:
-                    g.dihapusUntuk && typeof g.dihapusUntuk === 'object' ? g.dihapusUntuk : {},
-                batasPesan: g.batasPesan && typeof g.batasPesan === 'object' ? g.batasPesan : {},
-                anggotaBolehUndang: g.anggotaBolehUndang !== false
-            };
-        });
+    function temanTerdaftar() {
+        return NgumpulTeman.list().map(teman => ({
+            id: teman.userId,
+            nama: NgumpulTeman.nama(teman),
+            username: NgumpulTeman.username(teman)
+        })).sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
     }
-    function grupLokal(id) {
-        const g = bacaGrup().find((g) => g.id === id);
-        if (!g || !g.anggotaIds.includes(userAktif.id))
-            throw new Error('Kamu bukan anggota grup ini.');
-        return g;
-    }
-    function simpanGrup(data) {
-        try {
-            localStorage.setItem(KUNCI_GRUP, JSON.stringify(data));
-        } catch (_) {
-            throw new Error('Grup gagal disimpan. Coba lagi.');
-        }
-    }
-    function transaksiGrup(aksi) {
-        return navigator.locks?.request
-            ? navigator.locks.request('ngumpul:grup', aksi)
-            : Promise.resolve().then(aksi);
-    }
-    function bacaRiwayatLokal(id) {
-        let data;
-        try {
-            data = JSON.parse(localStorage.getItem(PESAN + id) || '[]');
-            if (!Array.isArray(data)) throw new Error();
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key?.startsWith(awalPesan(id)))
-                    data.push(JSON.parse(localStorage.getItem(key)));
-            }
-        } catch (_) {
-            throw new Error('Riwayat pesan tidak bisa dibaca.');
-        }
-        if (
-            !data.every(
-                (p) =>
-                    p &&
-                    typeof p.id === 'string' &&
-                    p.grupId === id &&
-                    typeof p.pengirimId === 'string' &&
-                    typeof p.isi === 'string' &&
-                    Number.isFinite(p.dibuat)
-            )
-        )
-            throw new Error('Riwayat pesan tidak valid.');
-        return [...new Map(data.map((p) => [p.id, p])).values()];
-    }
-    function tetapkanPenerimaLama(g) {
-        bacaRiwayatLokal(g.id)
-            .filter((p) => !Array.isArray(p.penerimaIds))
-            .forEach((p) => {
-                const item = {
-                    ...p,
-                    penerimaIds: g.anggotaIds.filter((id) => id !== p.pengirimId)
-                };
-                try {
-                    localStorage.setItem(
-                        awalPesan(g.id) + encodeURIComponent(p.id),
-                        JSON.stringify(item)
-                    );
-                } catch (_) {
-                    throw new Error('Perubahan anggota gagal disimpan.');
-                }
-            });
-    }
-    function pesanUntuk(g, akunId = userAktif.id) {
-        return bacaRiwayatLokal(g.id)
-            .filter((p) => p.dibuat >= (g.batasPesan[akunId] || 0))
-            .map((p) => {
-                const penerimaIds = Array.isArray(p.penerimaIds)
-                    ? p.penerimaIds
-                    : g.anggotaIds.filter((id) => id !== p.pengirimId);
-                const semua = (t) =>
-                    penerimaIds.length > 0 &&
-                    penerimaIds.every(
-                        (id) => localStorage.getItem(awalStatus(g.id, p.id, id) + t) !== null
-                    );
-                return {
-                    ...p,
-                    penerimaIds,
-                    status: semua('dibaca') ? 'dibaca' : semua('diterima') ? 'diterima' : 'terkirim'
-                };
-            });
-    }
-    // "hapus untuk saya": daftar id pesan yang disembunyikan per akun
-    function bacaSembunyi(akunId = userAktif.id) {
-        try {
-            const a = JSON.parse(localStorage.getItem(SEMBUNYI + akunId) || '[]');
-            return Array.isArray(a) ? a : [];
-        } catch (_) {
-            return [];
-        }
-    }
-    function tulisSembunyi(daftar, akunId = userAktif.id) {
-        try {
-            localStorage.setItem(SEMBUNYI + akunId, JSON.stringify(daftar));
-            return true;
-        } catch (_) {
-            return false;
-        }
-    }
-    const kunciSembunyi = (gid, pid) => gid + ':' + pid;
-    function riwayatUntuk(g, akunId = userAktif.id) {
-        const sembunyi = new Set(bacaSembunyi(akunId));
-        return [
-            ...pesanUntuk(g, akunId).filter((p) => !sembunyi.has(kunciSembunyi(g.id, p.id))),
-            ...g.aktivitas.filter((a) => a.dibuat >= (g.batasPesan[akunId] || 0))
-        ].sort((a, b) => a.dibuat - b.dibuat || a.id.localeCompare(b.id));
-    }
-    function salinIdentitas(g) {
-        const { arsipAkun, dihapusUntuk, batasPesan, ...identitas } = g;
-        return identitas;
-    }
-    function arsipkan(g, id, alasan) {
-        g.arsipAkun[id] = {
-            grup: salinIdentitas(g),
-            riwayat: riwayatUntuk(g, id),
-            alasan,
-            dibuat: Date.now()
-        };
-    }
-    function terlihat(g) {
-        if (g.anggotaIds.includes(userAktif.id)) return { ...g, keluar: false };
-        const arsip = g.arsipAkun[userAktif.id];
-        return arsip
-            ? { ...arsip.grup, keluar: true, alasan: arsip.alasan, riwayat: arsip.riwayat }
-            : null;
-    }
-    function catat(g, aksi, anggotaId) {
-        const dibuat = Date.now();
-        g.aktivitas.push({
-            id: 'aktivitas_' + kode(),
-            grupId: g.id,
-            jenis: 'aktivitas',
-            aksi,
-            aktorId: userAktif.id,
-            anggotaId,
-            dibuat
-        });
-    }
-    function ubahLokal(id, ubah, perluAdmin = true) {
-        return transaksiGrup(() => {
-            const semua = bacaGrup(),
-                g = semua.find((g) => g.id === id);
-            if (!g || !g.anggotaIds.includes(userAktif.id))
-                throw new Error('Kamu bukan anggota grup ini.');
-            if (perluAdmin && !admin(g))
-                throw new Error('Hanya admin yang dapat melakukan tindakan ini.');
-            const sebelum = { ...g, anggotaIds: [...g.anggotaIds] };
-            ubah(g);
-            if (sebelum.anggotaIds.join('\0') !== g.anggotaIds.join('\0'))
-                tetapkanPenerimaLama(sebelum);
-            simpanGrup(semua);
-            return g;
-        });
-    }
-    function kontakTerdaftar() {
-        const hasil = new Map(),
-            users = getUsers();
-        NgumpulKontakData.list(userAktif.id).forEach((k) => {
-            const akun = users.find((u) => samakanHp(u.hp, k.phone));
-            if (akun && akun.id !== userAktif.id)
-                hasil.set(akun.id, { id: akun.id, nama: k.name || namaAkun(akun.id), hp: akun.hp });
-        });
-        return [...hasil.values()].sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
-    }
-    function masuk(g, ids, lewatTautan = false) {
-        const baru = unik(ids).filter((id) => !g.anggotaIds.includes(id));
-        baru.forEach((id) => {
-            const waktu = Date.now();
-            g.anggotaIds.push(id);
-            if (g.dihapusUntuk[id]) g.batasPesan[id] = waktu;
-            g.keanggotaan[id] = {
-                cara: lewatTautan ? 'tautan' : 'tambah',
-                waktu,
-                oleh: userAktif.id
-            };
-            delete g.arsipAkun[id];
-            delete g.dihapusUntuk[id];
-            catat(g, lewatTautan ? 'gabung' : 'tambah', id);
-        });
-        g.warnaAnggota = warnaUntuk(g.anggotaIds, g.warnaAnggota, g.id);
-    }
-    const backendGrup = null;
-    const adapterLokal = {
-        async inisialisasi() {
-            return transaksiGrup(() => {
-                const raw = JSON.parse(localStorage.getItem(KUNCI_GRUP) || '[]');
-                const semua = bacaGrup();
-                if (
-                    raw.some(
-                        (g, i) =>
-                            !g.warnaAnggota ||
-                            semua[i].anggotaIds.some((id) => !Object.hasOwn(g.warnaAnggota, id))
-                    )
-                )
-                    simpanGrup(semua);
-            });
-        },
-        async daftarGrup() {
-            return bacaGrup()
-                .map(terlihat)
-                .filter(Boolean)
-                .map((g) => {
-                    const riwayat = g.keluar ? g.riwayat : riwayatUntuk(g);
-                    return { ...g, terakhir: riwayat.at(-1) || null };
-                });
-        },
-        async ambilGrup(id) {
-            const g = bacaGrup().find((g) => g.id === id),
-                hasil = g && terlihat(g);
-            if (!hasil) throw new Error('Grup tidak tersedia.');
-            return hasil;
-        },
-        async buatGrup({ nama, anggotaIds, foto = '' }) {
-            const valid = new Set(kontakTerdaftar().map((k) => k.id)),
-                ids = unik(anggotaIds);
-            if (
-                !nama.trim() ||
-                nama.trim().length > 60 ||
-                !ids.length ||
-                ids.some((id) => !valid.has(id))
-            )
-                throw new Error('Periksa nama dan anggota grup.');
-            if (foto && !/^data:image\/(png|jpeg|webp);base64,/.test(foto))
-                throw new Error('Foto tidak valid.');
-            return transaksiGrup(() => {
-                const semua = bacaGrup();
-                let id;
-                do {
-                    id = 'grup_' + kode();
-                } while (semua.some((g) => g.id === id));
-                const g = {
-                    id,
-                    nama: nama.trim(),
-                    foto,
-                    deskripsi: '',
-                    pembuatId: userAktif.id,
-                    adminIds: [userAktif.id],
-                    anggotaIds: [userAktif.id, ...ids],
-                    dibuat: Date.now(),
-                    anggotaBolehUndang: true,
-                    kodeUndangan: kode(),
-                    aktivitas: [],
-                    arsipAkun: {},
-                    dihapusUntuk: {},
-                    batasPesan: {}
-                };
-                g.warnaAnggota = warnaUntuk(g.anggotaIds, {}, id);
-                g.keanggotaan = Object.fromEntries(
-                    g.anggotaIds.map((akunId) => [
-                        akunId,
-                        {
-                            cara: akunId === userAktif.id ? 'buat' : 'tambah',
-                            waktu: g.dibuat,
-                            oleh: userAktif.id
-                        }
-                    ])
-                );
-                simpanGrup([...semua, g]);
-                return g;
-            });
-        },
-        async ubahInfo(id, data) {
-            if (!data.nama.trim() || data.nama.trim().length > 60 || data.deskripsi.length > 512)
-                throw new Error('Nama maksimal 60 karakter. Deskripsi maksimal 512 karakter.');
-            if (data.foto && !/^data:image\/(png|jpeg|webp);base64,/.test(data.foto))
-                throw new Error('Foto tidak valid.');
-            return ubahLokal(id, (g) =>
-                Object.assign(g, {
-                    nama: data.nama.trim(),
-                    deskripsi: data.deskripsi.trim(),
-                    foto: data.foto
-                })
-            );
-        },
-        async tambahAnggota(id, ids) {
-            const valid = new Set(kontakTerdaftar().map((k) => k.id));
-            if (!ids.length || ids.some((id) => !valid.has(id)))
-                throw new Error('Pilih kontak yang sudah terdaftar.');
-            return ubahLokal(id, (g) => masuk(g, ids));
-        },
-        async tindakanAnggota(id, target, aksi) {
-            return ubahLokal(id, (g) => {
-                if (!g.anggotaIds.includes(target))
-                    throw new Error('Anggota sudah tidak tersedia.');
-                if (aksi === 'admin') g.adminIds = unik([...g.adminIds, target]);
-                else if (aksi === 'nonadmin') {
-                    if (g.adminIds.length === 1 && g.adminIds.includes(target))
-                        throw new Error('Tambahkan admin lain terlebih dahulu.');
-                    g.adminIds = g.adminIds.filter((x) => x !== target);
-                } else if (aksi === 'hapus') {
-                    if (target === userAktif.id)
-                        throw new Error('Gunakan Keluar grup untuk akun sendiri.');
-                    tetapkanPenerimaLama(g);
-                    catat(g, 'hapus', target);
-                    arsipkan(g, target, 'dikeluarkan');
-                    g.anggotaIds = g.anggotaIds.filter((x) => x !== target);
-                    g.adminIds = g.adminIds.filter((x) => x !== target);
-                } else throw new Error('Tindakan tidak tersedia.');
-            });
-        },
-        async keluar(id, hapus = false) {
-            return ubahLokal(
-                id,
-                (g) => {
-                    if (g.anggotaIds.length > 1 && g.adminIds.includes(userAktif.id) && g.adminIds.length === 1)
-                        throw new Error('Jadikan anggota lain sebagai admin sebelum keluar.');
-                    tetapkanPenerimaLama(g);
-                    catat(g, 'keluar', userAktif.id);
-                    if (hapus) {
-                        delete g.arsipAkun[userAktif.id];
-                        g.dihapusUntuk[userAktif.id] = Date.now();
-                    } else arsipkan(g, userAktif.id, 'keluar');
-                    g.anggotaIds = g.anggotaIds.filter((x) => x !== userAktif.id);
-                    g.adminIds = g.adminIds.filter((x) => x !== userAktif.id);
-                },
-                false
-            );
-        },
-        async hapusGrup(id) {
-            return transaksiGrup(() => {
-                const semua = bacaGrup(),
-                    g = semua.find((g) => g.id === id);
-                if (!g || g.anggotaIds.includes(userAktif.id))
-                    throw new Error('Keluar dari grup terlebih dahulu.');
-                delete g.arsipAkun[userAktif.id];
-                g.dihapusUntuk[userAktif.id] = Date.now();
-                simpanGrup(semua);
-            });
-        },
-        async gabung(id, token) {
-            return transaksiGrup(() => {
-                const semua = bacaGrup(),
-                    g = semua.find((g) => g.id === id && g.anggotaIds.length);
-                if (!g || !token || g.kodeUndangan !== token)
-                    throw new Error('Undangan tidak tersedia.');
-                if (!g.anggotaIds.includes(userAktif.id)) {
-                    tetapkanPenerimaLama(g);
-                    masuk(g, [userAktif.id], true);
-                    simpanGrup(semua);
-                }
-                return g;
-            });
-        },
-        async ambilPesan(id) {
-            const g = await this.ambilGrup(id);
-            return g.keluar ? g.riwayat : riwayatUntuk(g);
-        },
-        async kirimPesan(id, pesan) {
-            return transaksiGrup(() => {
-                const g = grupLokal(id),
-                    riwayat = pesanUntuk(g);
-                if (
-                    pesan.pengirimId !== userAktif.id ||
-                    (!pesan.isi.trim() && !pesan.lampiran?.length) ||
-                    pesan.isi.length > 4000
-                )
-                    throw new Error('Pesan tidak valid.');
-                if (pesan.channelId && !g.ruang?.channels.some(c => c.id === pesan.channelId && c.jenis === 'teks'))
-                    throw new Error('Channel sudah tidak tersedia.');
-                const lama = riwayat.find((p) => p.id === pesan.id);
-                if (lama) return lama;
-                const baru = {
-                    ...pesan,
-                    grupId: id,
-                    penerimaIds: g.anggotaIds.filter((x) => x !== userAktif.id)
-                };
-                try {
-                    localStorage.setItem(
-                        awalPesan(id) + encodeURIComponent(baru.id),
-                        JSON.stringify(baru)
-                    );
-                } catch (_) {
-                    throw new Error('Pesan gagal dikirim. Coba lagi.');
-                }
-                return baru;
-            });
-        },
-        async editPesan(id, channelId, idPesan, isi) {
-            return transaksiGrup(() => {
-                if (getUserAktif()?.id !== userAktif.id)
-                    throw new Error('Sesi berakhir. Silakan masuk kembali.');
-                const g = grupLokal(id);
-                const pesan = pesanUntuk(g).find((p) => p.id === idPesan);
-                if (!pesan || pesan.jenis === 'aktivitas' || pesan.pengirimId !== userAktif.id)
-                    throw new Error('Pesan tidak ditemukan atau bukan milik kamu.');
-                const channelPesan = pesan.channelId || g.ruang?.channels.find((c) => c.bawaan)?.id;
-                if (channelPesan !== channelId || !g.ruang?.channels.some((c) => c.id === channelId && c.jenis === 'teks'))
-                    throw new Error('Pesan atau channel sudah tidak tersedia.');
-                const umur = Date.now() - pesan.dibuat;
-                if (!Number.isFinite(pesan.dibuat) || umur < 0 || umur > BATAS_WAKTU_EDIT_PESAN)
-                    throw new Error('Batas waktu edit 5 menit sejak pesan dikirim sudah habis.');
-                const teks = String(isi || '').trim();
-                if (!teks || teks.length > 4000)
-                    throw new Error('Isi pesan wajib diisi, maksimal 4000 karakter.');
-                if (teks === pesan.isi) return pesan;
-                const baru = { ...pesan, isi: teks, editedAt: new Date().toISOString() };
-                try {
-                    localStorage.setItem(awalPesan(id) + encodeURIComponent(pesan.id), JSON.stringify(baru));
-                } catch (_) {
-                    throw new Error('Perubahan gagal disimpan. Silakan coba lagi.');
-                }
-                return baru;
-            });
-        },
-        // hapus untuk semua: hanya pesan sendiri; kerangka (id, waktu, pengirim) disisakan
-        async hapusPesan(id, idPesan) {
-            return transaksiGrup(() => {
-                if (getUserAktif()?.id !== userAktif.id)
-                    throw new Error('Sesi berakhir. Silakan masuk kembali.');
-                const g = grupLokal(id);
-                const pesan = pesanUntuk(g).find((p) => p.id === idPesan);
-                if (!pesan || pesan.jenis === 'aktivitas' || pesan.pengirimId !== userAktif.id)
-                    throw new Error('Pesan tidak ditemukan atau bukan milik kamu.');
-                if (pesan.dihapus) return pesan;
-                const { balas, editedAt, status, ...sisa } = pesan;
-                const baru = { ...sisa, isi: '', lampiran: [], dihapus: Date.now() };
-                try {
-                    localStorage.setItem(awalPesan(id) + encodeURIComponent(pesan.id), JSON.stringify(baru));
-                } catch (_) {
-                    throw new Error('Pesan gagal dihapus. Silakan coba lagi.');
-                }
-                return baru;
-            });
-        },
-        async sembunyikanPesan(id, idPesan, sembunyi = true) {
-            const kunci = kunciSembunyi(id, idPesan);
-            const daftar = bacaSembunyi().filter((x) => x !== kunci);
-            if (sembunyi) daftar.push(kunci);
-            if (!tulisSembunyi(daftar.slice(-2000))) throw new Error('Pesan gagal disembunyikan.');
-            return true;
-        },
-        async tandaiStatus(id, dibaca, channelId = null) {
-            const g = grupLokal(id);
-            pesanUntuk(g)
-                .filter(
-                    (p) => p.pengirimId !== userAktif.id && p.penerimaIds.includes(userAktif.id) &&
-                        (!channelId || (p.channelId || g.ruang?.channels.find(c => c.bawaan)?.id) === channelId)
-                )
-                .forEach((p) => {
-                    const prefix = awalStatus(id, p.id, userAktif.id);
-                    ['diterima', ...(dibaca ? ['dibaca'] : [])].forEach((t) => {
-                        if (localStorage.getItem(prefix + t) === null)
-                            localStorage.setItem(prefix + t, String(Date.now()));
-                    });
-                });
-        },
-        async ambilBerkas(id) {
-            return (await this.ambilPesan(id))
-                .flatMap((p) => (Array.isArray(p.lampiran) ? p.lampiran : []))
-                .filter((b) => b && typeof b === 'object');
-        },
-        langganan(callback) {
-            const listener = (e) => {
-                if (e.key === null || e.key === KUNCI_GRUP || e.key?.startsWith(SEMBUNYI)) callback({ jenis: 'grup' });
-                else if (e.key.startsWith(PESAN) || e.key.startsWith(STATUS)) {
-                    const jenis = e.key.startsWith(PESAN) ? 'pesan' : 'status',
-                        prefix = jenis === 'pesan' ? PESAN : STATUS;
-                    let id = e.key.slice(prefix.length).split(':')[0];
-                    try {
-                        id = decodeURIComponent(id);
-                    } catch (_) {
-                        return;
-                    }
-                    callback({ jenis, grupId: id });
-                }
-            };
-            window.addEventListener('storage', listener);
-            return () => window.removeEventListener('storage', listener);
-        }
-    };
-    const layananGrup = backendGrup || adapterLokal;
+    const layananGrup = window.NgumpulGrupData.layanan;
 
     function teksAktivitas(a) {
         const nama = (id) => (id === userAktif.id ? 'Kamu' : namaAkun(id));
@@ -1038,7 +474,7 @@
         await renderGrup();
         if (aktif) await renderPesan();
     }
-    function jadwalkanPembaruan(change) {
+    function jadwalkanPembaruan(change = {}) {
         if (change.jenis === 'status') statusBerubah.add(change.grupId || '*');
         else dataBerubah = true;
         if (jadwalSegar !== null) return;
@@ -1166,10 +602,9 @@
             menuPemicu = pemicu;
             const aksi = g.keluar
                 ? [['hapus', 'Hapus grup', 'i-trash-grup']]
-                : [
-                      ['keluar', 'Keluar grup', 'i-out'],
-                      ['keluarHapus', 'Keluar dan hapus grup', 'i-trash-grup']
-                  ];
+                : g.pembuatId === userAktif.id
+                  ? [['hapus', 'Hapus grup', 'i-trash-grup']]
+                  : [['keluar', 'Keluar grup', 'i-out']];
             aksi.forEach(([key, nama, ico]) => {
                 const b = el('button', key === 'keluar' ? '' : 'grup-danger');
                 b.type = 'button';
@@ -1201,7 +636,7 @@
                       ? 'Keluar dan hapus grup?'
                       : 'Keluar grup?';
             const teks = hapus
-                ? 'Hapus ' + g.nama + ' beserta riwayatnya dari akunmu?'
+                ? 'Hapus ' + g.nama + ' beserta riwayatnya untuk semua anggota?'
                 : 'Keluar dari ' + g.nama + '?';
             if (!(await konfirmasi(judul, teks, hapus ? 'Hapus' : 'Keluar', hapus))) return;
             if (aksi === 'hapus') await layananGrup.hapusGrup(id);
@@ -1214,36 +649,6 @@
             status('status-grup', e.message, true);
             if (window.NgumpulRuang) window.NgumpulRuang.toast(e.message);
         }
-    }
-    async function olahFoto(file) {
-        if (
-            !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
-            file.size > 5 * 1024 * 1024
-        )
-            throw new Error('Gunakan foto JPG, PNG, atau WebP maksimal 5 MB.');
-        return new Promise((resolve, reject) => {
-            const url = URL.createObjectURL(file),
-                img = new Image();
-            img.onload = () => {
-                try {
-                    const scale = Math.min(1, 512 / Math.max(img.width, img.height)),
-                        c = document.createElement('canvas');
-                    c.width = Math.max(1, Math.round(img.width * scale));
-                    c.height = Math.max(1, Math.round(img.height * scale));
-                    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-                    resolve(c.toDataURL('image/jpeg', 0.85));
-                } catch (e) {
-                    reject(e);
-                } finally {
-                    URL.revokeObjectURL(url);
-                }
-            };
-            img.onerror = () => {
-                URL.revokeObjectURL(url);
-                reject(new Error('Foto tidak dapat dibuka.'));
-            };
-            img.src = url;
-        });
     }
 
     async function renderInfo(g) {
@@ -1259,12 +664,13 @@
         if (!admin(g) && editAktif) batalEditor();
         $('btn-undang-grup').hidden = !!g.keluar || (!admin(g) && !g.anggotaBolehUndang);
         $('btn-tambah-anggota-grup').hidden = !admin(g);
-        $('btn-keluar-grup').querySelector('span').textContent = g.keluar
+        const bolehHapus = g.keluar || g.pembuatId === userAktif.id;
+        $('btn-keluar-grup').querySelector('span').textContent = bolehHapus
             ? 'Hapus grup'
             : 'Keluar grup';
         $('btn-keluar-grup')
             .querySelector('use')
-            .setAttribute('href', g.keluar ? '#i-trash-grup' : '#i-out');
+            .setAttribute('href', bolehHapus ? '#i-trash-grup' : '#i-out');
         $('judul-anggota-info').textContent = g.anggotaIds.length + ' anggota';
         const query = $('cari-anggota-info').value.toLowerCase().trim(),
             list = $('daftar-anggota-info');
@@ -1272,7 +678,7 @@
         list.replaceChildren();
         g.anggotaIds
             .filter((id) =>
-                (namaAkun(id) + ' ' + (getUserById(id)?.hp || '')).toLowerCase().includes(query)
+                (namaAkun(id) + ' ' + (dataAnggota(id)?.username || getUserById(id)?.username || '')).toLowerCase().includes(query)
             )
             .forEach((id) => {
                 const row = el('div', 'grup-member'),
@@ -1289,7 +695,8 @@
                 row.append(profile);
                 if (g.adminIds.includes(id))
                     row.append(el('small', 'grup-admin-badge', 'Admin grup'));
-                if (admin(g)) {
+                const pemilik = g.pembuatId === userAktif.id;
+                if (admin(g) && id !== g.pembuatId && (pemilik || !g.adminIds.includes(id))) {
                     const actions = el('details', 'grup-member-actions'),
                         summary = el('summary');
                     summary.append(ikon('i-more'));
@@ -1324,7 +731,7 @@
                         )
                             await lakukan(() => layananGrup.tindakanAnggota(g.id, id, aksi));
                     });
-                    menu.append(role);
+                    if (pemilik) menu.append(role);
                     if (id !== userAktif.id) {
                         const remove = el('button', 'grup-danger', 'Keluarkan');
                         remove.type = 'button';
@@ -1425,8 +832,6 @@
 
     function batalEditor() {
         sesiEditor++;
-        versiFoto++;
-        fotoDiproses = false;
         sedangSimpan = false;
         editAktif = null;
         ['nama', 'deskripsi', 'foto'].forEach((bagian) => {
@@ -1499,9 +904,8 @@
             status('status-info-grup', '');
             $('form-' + bagian + '-grup').hidden = false;
             if (bagian === 'foto') {
-                fotoDraft = g.foto;
-                $('edit-foto-grup').value = '';
-                avatar($('preview-foto-grup'), g.nama, fotoDraft);
+                $('edit-foto-grup').value = g.foto || '';
+                avatar($('preview-foto-grup'), g.nama, g.foto);
             } else $('edit-' + bagian + '-grup').value = bagian === 'nama' ? g.nama : g.deskripsi;
             $('edit-' + bagian + '-grup').focus();
         } catch (e) {
@@ -1512,7 +916,7 @@
         $('btn-edit-' + bagian + '-grup').addEventListener('click', () => bukaEditor(bagian));
         $('form-' + bagian + '-grup').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (editAktif !== bagian || sedangSimpan || (bagian === 'foto' && fotoDiproses)) return;
+            if (editAktif !== bagian || sedangSimpan) return;
             const id = infoId,
                 sesi = sesiEditor;
             sedangSimpan = true;
@@ -1522,12 +926,8 @@
                 if (!g || !admin(g))
                     throw new Error('Hanya admin yang dapat mengubah informasi grup.');
                 if (sesi !== sesiEditor || infoId !== id) return;
-                await layananGrup.ubahInfo(id, {
-                    nama: bagian === 'nama' ? $('edit-nama-grup').value : g.nama,
-                    deskripsi:
-                        bagian === 'deskripsi' ? $('edit-deskripsi-grup').value : g.deskripsi,
-                    foto: bagian === 'foto' ? fotoDraft : g.foto
-                });
+                const input = $('edit-' + bagian + '-grup');
+                await layananGrup.ubahInfo(id, { [bagian]: input.value.trim() });
                 if (sesi === sesiEditor && infoId === id) {
                     batalEditor();
                     status('status-info-grup', 'Informasi grup disimpan.');
@@ -1550,29 +950,8 @@
             if (bagian) $('btn-edit-' + bagian + '-grup').focus();
         })
     );
-    $('edit-foto-grup').addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file || editAktif !== 'foto') return;
-        const proses = ++versiFoto,
-            id = infoId;
-        fotoDiproses = true;
-        $('simpan-foto-grup').disabled = true;
-        const terbaru = () =>
-            proses === versiFoto && id === infoId && editAktif === 'foto' && !info.hidden;
-        try {
-            const hasil = await olahFoto(file);
-            if (!terbaru()) return;
-            fotoDraft = hasil;
-            avatar($('preview-foto-grup'), 'Grup', fotoDraft);
-            status('status-info-grup', '');
-        } catch (error) {
-            if (terbaru()) status('status-info-grup', error.message, true);
-        } finally {
-            if (terbaru()) {
-                fotoDiproses = false;
-                $('simpan-foto-grup').disabled = false;
-            }
-        }
+    $('edit-foto-grup').addEventListener('input', (e) => {
+        avatar($('preview-foto-grup'), grupAktif?.nama, e.target.value);
     });
 
     function perbaruiPilihan() {
@@ -1609,7 +988,7 @@
             .querySelectorAll('input')
             .forEach((cek) => (cek.disabled = a.sibuk));
         $('btn-kembali-alur-grup').disabled = a.sibuk;
-        $('btn-lanjut-grup').disabled = !a.pilihan.size || a.sibuk;
+        $('btn-lanjut-grup').disabled = (a.mode !== 'baru' && !a.pilihan.size) || a.sibuk;
     }
     async function renderPilihan() {
         if (!alur) return;
@@ -1625,14 +1004,14 @@
                 }
                 exclude = g.anggotaIds;
             }
-            a.kontak = kontakTerdaftar().filter((k) => !exclude.includes(k.id));
+            a.kontak = temanTerdaftar().filter((k) => !exclude.includes(k.id));
             const valid = new Set(a.kontak.map((k) => k.id));
             a.pilihan.forEach((id) => {
                 if (!valid.has(id)) a.pilihan.delete(id);
             });
             const query = $('input-cari-anggota-grup').value.trim().toLowerCase();
             const hasil = a.kontak.filter((k) =>
-                (k.nama + ' ' + k.hp).toLowerCase().includes(query)
+                (k.nama + ' ' + k.username).toLowerCase().includes(query)
             );
             const target = $('pilihan-anggota-grup');
             const fokus = document.activeElement
@@ -1652,7 +1031,7 @@
                 const detail = el('span', 'grup-picker-label');
                 detail.append(el('strong', '', k.nama));
                 const bio = bacaSemuaProfil()[k.id]?.bio;
-                detail.append(el('small', '', typeof bio === 'string' && bio.trim() ? bio : k.hp));
+                detail.append(el('small', '', typeof bio === 'string' && bio.trim() ? bio : k.username));
                 const cek = el('input');
                 cek.type = 'checkbox';
                 cek.name = 'anggota-grup';
@@ -1673,8 +1052,8 @@
                 target.append(
                     kosong(
                         query
-                            ? 'Kontak tidak ditemukan.'
-                            : 'Tidak ada kontak yang bisa ditambahkan.'
+                            ? 'Teman tidak ditemukan.'
+                            : 'Tidak ada teman yang bisa ditambahkan.'
                     )
                 );
             perbaruiPilihan();
@@ -1717,9 +1096,6 @@
                 tahap: 1,
                 pilihan: new Set(),
                 kontak: [],
-                foto: '',
-                fotoProses: false,
-                versiFoto: 0,
                 sibuk: false,
                 versi: ++versiAlur
             };
@@ -1762,7 +1138,7 @@
     $('form-pilih-anggota').addEventListener('submit', async (e) => {
         e.preventDefault();
         const a = alur;
-        if (!a || a.sibuk || !a.pilihan.size) return;
+        if (!a || a.sibuk || (a.mode !== 'baru' && !a.pilihan.size)) return;
         if (a.mode === 'baru') {
             tampilTahap(2);
             return;
@@ -1788,34 +1164,13 @@
     $('btn-foto-grup-baru').addEventListener('click', () => {
         if (!alur?.sibuk) $('input-foto-grup-baru').click();
     });
-    $('input-foto-grup-baru').addEventListener('change', async (e) => {
-        const a = alur,
-            file = e.target.files[0];
-        if (!a || !file || a.sibuk) return;
-        const proses = ++a.versiFoto;
-        a.fotoProses = true;
-        $('btn-simpan-grup').disabled = true;
-        try {
-            const foto = await olahFoto(file);
-            if (alur === a && proses === a.versiFoto) {
-                a.foto = foto;
-                avatar($('foto-grup-baru'), 'Grup', foto);
-                status('status-buat-grup', '');
-            }
-        } catch (error) {
-            if (alur === a && proses === a.versiFoto)
-                status('status-buat-grup', error.message, true);
-        } finally {
-            if (alur === a && proses === a.versiFoto) {
-                a.fotoProses = false;
-                $('btn-simpan-grup').disabled = a.sibuk;
-            }
-        }
+    $('input-foto-grup-baru').addEventListener('input', (e) => {
+        avatar($('foto-grup-baru'), 'Grup', e.target.value);
     });
     $('form-buat-grup').addEventListener('submit', async (e) => {
         e.preventDefault();
         const a = alur;
-        if (!a || a.mode !== 'baru' || a.sibuk || a.fotoProses) return;
+        if (!a || a.mode !== 'baru' || a.sibuk) return;
         const nama = $('input-nama-grup').value.trim();
         if (!nama) {
             status('status-buat-grup', 'Isi nama grup.', true);
@@ -1828,20 +1183,21 @@
             const g = await layananGrup.buatGrup({
                 nama,
                 anggotaIds: [...a.pilihan],
-                foto: a.foto
+                foto: $('input-foto-grup-baru').value.trim()
             });
             if (alur === a) {
                 tutupAlur(false, true);
                 $('input-cari-grup').value = '';
                 await segarkan();
                 await bukaChat(g.id);
+                if (g.warning) window.NgumpulRuang?.toast(g.warning);
             }
         } catch (error) {
             if (alur === a) status('status-buat-grup', error.message, true);
         } finally {
             if (alur === a) {
                 a.sibuk = false;
-                $('btn-simpan-grup').disabled = a.fotoProses;
+                $('btn-simpan-grup').disabled = false;
             }
         }
     });
@@ -1964,7 +1320,7 @@
         })
     );
     $('btn-keluar-grup').addEventListener('click', () => {
-        if (infoId) keluarAtauHapus(infoId, grupAktif?.keluar ? 'hapus' : 'keluar');
+        if (infoId) keluarAtauHapus(infoId, (grupAktif?.keluar || grupAktif?.pembuatId === userAktif.id) ? 'hapus' : 'keluar');
     });
     $('input-cari-grup').addEventListener('input', renderGrup);
     document.addEventListener('pointerdown', (e) => {
@@ -2113,16 +1469,19 @@
     });
     window.addEventListener('storage', (e) => {
         if (
-            ['ngumpul_users', 'ngumpul_profil', 'ngumpul_kontak_' + userAktif.id].includes(e.key) ||
+            ['ngumpul_users', 'ngumpul_profil'].includes(e.key) ||
             e.key?.startsWith('ngumpul_media_')
         ) {
             segarkan();
             if (alur) renderPilihan();
         }
     });
+    document.addEventListener('ngumpul:teman-berubah', () => {
+        if (alur) renderPilihan();
+    });
     window.NgumpulGrupDasar = {
-        layanan: layananGrup, ubah: ubahLokal, nama: namaAkun, avatar, avatarAnggota,
-        kontak: kontakTerdaftar, aktivitas: teksAktivitas, kartu: kartuAwal, konfirmasi,
+        layanan: layananGrup, nama: namaAkun, avatar, avatarAnggota,
+        kontak: temanTerdaftar, aktivitas: teksAktivitas, kartu: kartuAwal, konfirmasi,
         menu: bukaMenu, tambah: id => bukaAlur('tambah', id), tutupInfo,
         async info(id) {
             const version = window.NgumpulRuang?.prepareInfo();
@@ -2133,8 +1492,7 @@
             await bukaInfo(version);
         },
         async refreshInfo() { if (!info.hidden && infoId) await renderInfo(await layananGrup.ambilGrup(infoId)); },
-        seleksi(id, g) { aktif = id; grupAktif = g; },
-        migrasi(id) { return ubahLokal(id, g => tetapkanPenerimaLama(g), false); }
+        seleksi(id, g) { aktif = id; grupAktif = g; }
     };
     jadwalkanTanggal();
     window.addEventListener('hashchange', () => {

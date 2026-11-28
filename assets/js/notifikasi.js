@@ -53,7 +53,6 @@
     const deskripsi = document.getElementById("deskripsi-notifikasi");
     const diketahui = new Set();
     const grupItems = new Map();
-    let grupSiap = false;
     const terbuka = new Map();
     let aktif = false;
     let berhenti = false;
@@ -112,30 +111,14 @@
       teksStatus.dataset.error = String(!!pesanError);
     }
     function pesanMasuk() {
-      const data = JSON.parse(localStorage.getItem(KEY_CHAT) || "{}");
-      if (!data || typeof data !== "object" || Array.isArray(data))
-        throw new Error();
       const hasil = new Map();
-      getUsers().forEach((user) => {
-        if (!user || user.id === akunId || !isKontakPengguna(user.id)) return;
-        const percakapan = kunciKonversasi(akunId, user.id);
-        const daftar = data[percakapan];
-        if (daftar === undefined) return;
-        if (!Array.isArray(daftar)) throw new Error();
-        daftar.forEach((pesan) => {
-          if (
-            !pesan ||
-            pesan.sender !== user.id ||
-            typeof pesan.id !== "string" ||
-            !pesan.id ||
-            typeof pesan.text !== "string" ||
-            !pesan.text.trim()
-          )
-            return;
-          const key = JSON.stringify([percakapan, pesan.id]);
-          hasil.set(key, { key, idLawan: user.id, pesan });
-        });
-      });
+      for (const friend of NgumpulTeman.list()) {
+        for (const pesan of NgumpulDM.list(friend.userId)) {
+          if (pesan.sender !== friend.userId || pesan.dihapusSemua) continue;
+          const key = JSON.stringify([friend.userId, pesan.id]);
+          hasil.set(key, { key, idLawan: friend.userId, pesan: { ...pesan, text: ringkasanPesan(pesan) } });
+        }
+      }
       grupItems.forEach((item) =>
         hasil.set(item.key, {
           key: item.key,
@@ -152,15 +135,6 @@
       } catch (_) {
         pesanError = "Riwayat pesan belum dapat diperiksa. Coba lagi.";
       }
-    }
-    async function perbaruiGrup(tandaiLama = false) {
-      if (!window.NgumpulRuang) return;
-      const items = await window.NgumpulRuang.notificationItems();
-      grupItems.clear();
-      items.forEach((item) => grupItems.set(item.key, item));
-      if (!grupSiap || tandaiLama)
-        items.forEach((item) => diketahui.add(item.key));
-      grupSiap = true;
     }
     function perbaruiBadgeChat() {
       let jumlah = 0;
@@ -256,12 +230,15 @@
           (item) => item.target === idLawan,
         );
         if (ruang?.muted) return;
-        if (!ruang) {
-          try {
-            const bisu = JSON.parse(localStorage.getItem("ngumpul_bisu_" + getUserAktif().id)) || {};
-            if (bisu[idLawan]) return; // chat pribadi dibisukan dari info kontak
-          } catch (_) {}
+        const preference = NgumpulDM.getPreference(idLawan);
+        const settings = window.NgumpulPreferensi?.get();
+        if (!ruang && settings) {
+          const mentioned = terakhir.mentions?.some(mention => mention.userId === akunId);
+          if (mentioned ? settings.notifyMentions === false : settings.notifyDirectMessages === false) return;
         }
+        if (!ruang && (Date.parse(preference.mutedUntil) > Date.now() ||
+            preference.notificationLevel === "none" ||
+            (preference.notificationLevel === "mentions" && !terakhir.mentions?.some(mention => mention.userId === akunId)))) return;
         const nama = ruang ? ruang.title : getProfilChat(idLawan).nama;
         const cuplikan = terakhir.text.replace(/\s+/g, " ").trim();
         const body =
@@ -339,7 +316,6 @@
         aktif = bacaPreferensi();
         perbaruiKehadiran();
         tutupYangDibaca();
-        await perbaruiGrup();
         perbaruiBadgeChat();
         const semua = pesanMasuk();
         const baru = [...semua.values()].filter(
@@ -362,7 +338,7 @@
           pesanError = "";
           if (belum.length) {
             belum.forEach((item) => ditangani.add(item.key));
-            localStorage.setItem(riwayatKey, JSON.stringify([...ditangani]));
+            localStorage.setItem(riwayatKey, JSON.stringify([...ditangani].slice(-1000)));
             const percakapan = new Map();
             belum.forEach((item) => {
               if (!percakapan.has(item.idLawan))
@@ -435,7 +411,6 @@
           izin = await Notification.requestPermission();
         if (!sesiSesuai()) return;
         if (nonaktifkan || izin === "granted") {
-          await perbaruiGrup(true);
           titikAwal();
           localStorage.setItem(preferensiKey, JSON.stringify(!nonaktifkan));
         }
@@ -448,18 +423,37 @@
     });
     window.addEventListener("storage", (event) => {
       if (!sesiSesuai()) return hentikan();
-      if (event.key === KEY_CHAT) perbaruiBadgeChat();
       if (event.key === preferensiKey || event.key === null) {
         titikAwal();
         pesanError = "";
         sesuaikanPemeriksaan();
       } else if (
-        event.key === KEY_CHAT ||
         event.key?.startsWith("ngumpul_pesan_grup_")
       )
         jadwalkanPemeriksaan();
-      else if (event.key === "ngumpul_kontak_" + akunId) titikAwal();
       else if (event.key?.startsWith(awalKehadiran)) tutupYangDibaca();
+    });
+    document.addEventListener("ngumpul:teman-berubah", () => {
+      titikAwal();
+      perbaruiBadgeChat();
+    });
+    NgumpulDM.events.addEventListener("change", () => {
+      perbaruiBadgeChat();
+      jadwalkanPemeriksaan();
+    });
+    NgumpulDM.events.addEventListener("user-event", ({ detail }) => {
+      const item = detail.notification;
+      if (detail.type !== "notification" || !item?.serverId || !item?.channelId ||
+          !["channel_message", "mention", "announcement"].includes(item.kind)) return;
+      const target = "grup:" + item.serverId + ":" + item.channelId;
+      const key = "notifikasi:" + item.id;
+      grupItems.set(key, {
+        key, target, title: item.title, text: item.body,
+        muted: window.NgumpulGrupData?.muted(item.serverId),
+        open: () => window.NgumpulRuang.open(item.serverId, item.channelId),
+      });
+      if (grupItems.size > 100) grupItems.delete(grupItems.keys().next().value);
+      jadwalkanPemeriksaan();
     });
     function perbaruiFokus() {
       if (!sesiSesuai()) return hentikan();

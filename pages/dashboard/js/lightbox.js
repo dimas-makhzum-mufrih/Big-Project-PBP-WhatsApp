@@ -49,12 +49,7 @@ async function tampilkanSlideLightbox() {
             : '';
     }
 
-    let urlTampil = item.image || '';
-    if (item.imageId) {
-        const urlIdb = await ambilGambarIdb(item.imageId);
-        if (urlIdb) urlTampil = urlIdb;
-    }
-
+    const urlTampil = item.image || '';
     if (imgLightboxUtama) {
         imgLightboxUtama.src = urlTampil;
         imgLightboxUtama.alt = item.text || item.imageName || 'Gambar obrolan';
@@ -145,18 +140,7 @@ if (btnLightboxUnduh) {
     btnLightboxUnduh.addEventListener('click', async () => {
         const item = daftarPesanGambarLightbox[indeksLightboxAktif];
         if (!item) return;
-        let urlUnduh = item.image || '';
-        if (item.imageId) {
-            const urlIdb = await ambilGambarIdb(item.imageId);
-            if (urlIdb) urlUnduh = urlIdb;
-        }
-        if (!urlUnduh) return;
-        const a = document.createElement('a');
-        a.href = urlUnduh;
-        a.download = item.imageName || ('ngumpul-foto-' + item.id + '.jpg');
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        await unduhLampiranDM(item.attachmentId, btnLightboxUnduh);
     });
 }
 

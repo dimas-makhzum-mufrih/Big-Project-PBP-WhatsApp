@@ -171,37 +171,9 @@ function buatBarReaksiPesan(reaksi, idLawan, pesanId) {
     return bar;
 }
 
-// Mengganti reaksi pengguna pada pesan, atau menghapusnya jika emoji sama dipilih lagi.
-function toggleReaksiPesan(idLawan, pesanId, emoji) {
-    if (!userAktif || !idLawan || !pesanId || !emoji) return;
-
-    const percakapanId = kunciKonversasi(userAktif.id, idLawan);
-    const semuaReaksi = bacaSemuaReaksiPesan();
-    const reaksiPercakapan = semuaReaksi[percakapanId] || (semuaReaksi[percakapanId] = {});
-    const reaksiPesan = reaksiPercakapan[pesanId] || (reaksiPercakapan[pesanId] = {});
-    const idPengguna = String(userAktif.id);
-    const reaksiSebelumnya = Object.keys(reaksiPesan).find(namaEmoji =>
-        Array.isArray(reaksiPesan[namaEmoji]) &&
-        reaksiPesan[namaEmoji].map(String).includes(idPengguna)
-    );
-
-    if (reaksiSebelumnya) {
-        reaksiPesan[reaksiSebelumnya] = reaksiPesan[reaksiSebelumnya]
-            .filter(id => String(id) !== idPengguna);
-        if (!reaksiPesan[reaksiSebelumnya].length) delete reaksiPesan[reaksiSebelumnya];
-    }
-    if (reaksiSebelumnya !== emoji) {
-        if (!Array.isArray(reaksiPesan[emoji])) reaksiPesan[emoji] = [];
-        if (!reaksiPesan[emoji].map(String).includes(idPengguna)) {
-            reaksiPesan[emoji].push(idPengguna);
-        }
-    }
-
-    if (!Object.keys(reaksiPesan).length) delete reaksiPercakapan[pesanId];
-    if (!Object.keys(reaksiPercakapan).length) delete semuaReaksi[percakapanId];
-    if (simpanSemuaReaksiPesan(semuaReaksi) && chatAktifId === idLawan) {
-        renderPesanAktif();
-    }
+async function toggleReaksiPesan(peer, id, emoji) {
+    try { await NgumpulDM.react(peer, id, emoji); }
+    catch (error) { setStatusDM(peer, NgumpulDM.label(error)); }
 }
 
 // Menempatkan popup pilihan reaksi di dekat pesan yang dipilih.
@@ -283,11 +255,6 @@ document.addEventListener('keydown', event => {
     }
 });
 
-// Memperbarui tampilan jika reaksi berubah di tab browser lain.
-window.addEventListener('storage', event => {
-    if (event.key === KEY_REAKSI_PESAN && chatAktifId) renderPesanAktif();
-});
-
 function tutupPanelLampiran() {
     if (!panelLampiran || panelLampiran.hidden) return;
     panelLampiran.hidden = true;
@@ -300,8 +267,9 @@ function tutupPanelLampiran() {
 // mic tampil kalau kolom kosong, tombol Kirim tampil kalau ada teks (seperti WhatsApp)
 function perbaruiTombolKirim() {
     const adaTeks = !!(inputTeksKirim && inputTeksKirim.value.trim());
-    if (btnKirimPesan) btnKirimPesan.hidden = !adaTeks;
-    if (btnMic) btnMic.hidden = adaTeks;
+    const rekam = sedangMerekamDM();
+    if (btnKirimPesan) btnKirimPesan.hidden = !adaTeks || rekam;
+    if (btnMic) btnMic.hidden = adaTeks && !rekam;
 }
 
 if (btnLampir && panelLampiran) {
@@ -326,44 +294,43 @@ if (inputTeksKirim) inputTeksKirim.addEventListener('input', () => {
     perbaruiTombolKirim();
     if (!chatAktifId) return;
     simpanDrafChat(chatAktifId, inputTeksKirim.value);
+    NgumpulDM.typing();
     window.clearTimeout(timerDrafDaftarChat);
     timerDrafDaftarChat = window.setTimeout(renderChatList, 250);
 });
 perbaruiTombolKirim();
 
-function kirimPesanAktif() {
-    if (!chatAktifId || !userAktif) return;
-    if (penggunaDiblokir(userAktif.id, chatAktifId) || penggunaDiblokir(chatAktifId, userAktif.id)) return;
+let mengirimTeksDM = false;
 
-    if (antreanGambar.length > 0) {
-        kirimSemuaGambarAntrean();
+async function kirimPesanAktif() {
+    const peer = chatAktifId;
+    if (!peer || chatTerblokir(peer) || mengirimTeksDM || sedangMerekamDM()) return;
+    if (antreanGambar.length) {
+        await kirimSemuaGambarAntrean();
         return;
     }
-
-    const teks = (inputTeksKirim ? inputTeksKirim.value : '').trim();
-    if (!teks) return;
-
-    const daftarPesan = ambilPesanChat(chatAktifId);
-    daftarPesan.push({
-        id: buatIdPesan(),
-        sender: userAktif.id,
-        text: teks,
-        ...(idBalasanAktif ? { replyTo: idBalasanAktif } : {}),
-        time: new Date().toISOString(),
-        status: 'terkirim'
-    });
-
-    if (!simpanPesanChat(chatAktifId, daftarPesan)) return;
-    window.clearTimeout(timerDrafDaftarChat);
-    simpanDrafChat(chatAktifId, '');
-    batalkanBalasanPesan();
-
-    if (inputTeksKirim) {
-        inputTeksKirim.value = '';
+    const teksAwal = inputTeksKirim.value;
+    const text = teksAwal.trim();
+    const replyToMessageId = idBalasanAktif;
+    if (!text) return;
+    mengirimTeksDM = true;
+    btnKirimPesan.disabled = true;
+    setStatusDM(peer, 'Mengirim pesan…');
+    try {
+        await NgumpulDM.send(peer, { text, ...(replyToMessageId ? { replyToMessageId } : {}) });
+        if (chatAktifId === peer && inputTeksKirim.value === teksAwal && idBalasanAktif === replyToMessageId) {
+            inputTeksKirim.value = '';
+            batalkanBalasanPesan(false);
+            simpanDrafChat(peer, '', null);
+        } else if (chatAktifId !== peer && bacaDrafChat(peer)?.teks === teksAwal &&
+            bacaDrafChat(peer)?.reply === replyToMessageId) simpanDrafChat(peer, '', null);
+        setStatusDM(peer, '');
+        perbaruiTombolKirim();
+        renderChatList();
+    } catch (error) {
+        setStatusDM(peer, NgumpulDM.label(error, 'Pesan gagal dikirim. Tekan Kirim untuk mencoba lagi.'));
+    } finally {
+        mengirimTeksDM = false;
+        perbaruiKontrolBlokir();
     }
-    perbaruiTombolKirim();
-
-    renderPesanAktif();
-    renderChatList();
-    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
 }

@@ -9,10 +9,11 @@
     <meta name="color-scheme" content="light dark">
     <link rel="stylesheet" href="../../assets/css/variables.css">
     <link rel="stylesheet" href="../../assets/css/themes.css">
+    <link rel="stylesheet" href="../../assets/css/auth.css">
     <script src="../../assets/js/theme.js"></script>
 </head>
 
-<body>
+<body class="cek-sesi">
     <!-- Koleksi Ikon SVG Inline (Selaras dengan Ikon Dashboard) -->
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
         <symbol id="i-key" viewBox="0 0 24 24">
@@ -68,106 +69,118 @@
             <div class="account-card">
 
                 <!-- 1. Keamanan Akun -->
-                <div class="account-row-item" data-action="keamanan">
+                <button type="button" class="account-row-item" data-action="keamanan">
                     <span class="account-item-icon">
                         <svg class="ikon" aria-hidden="true">
                             <use href="#i-key" />
                         </svg>
                     </span>
-                    <div class="account-item-text">
+                    <span class="account-item-text">
                         <b>Keamanan akun</b>
                         <small>Pengaturan keamanan dan perlindungan akun</small>
-                    </div>
+                    </span>
                     <svg class="ikon account-arrow" aria-hidden="true">
                         <use href="#i-next" />
                     </svg>
-                </div>
+                </button>
 
                 <!-- 2. Ubah Kata Sandi -->
-                <div class="account-row-item" data-action="ubah-sandi">
+                <button type="button" class="account-row-item" data-action="ubah-sandi">
                     <span class="account-item-icon">
                         <svg class="ikon" aria-hidden="true">
                             <use href="#i-lock" />
                         </svg>
                     </span>
-                    <div class="account-item-text">
+                    <span class="account-item-text">
                         <b>Ubah kata sandi</b>
                         <small>Mengganti kata sandi akun</small>
-                    </div>
+                    </span>
                     <svg class="ikon account-arrow" aria-hidden="true">
                         <use href="#i-next" />
                     </svg>
-                </div>
+                </button>
 
                 <!-- 3. Verifikasi Dua Langkah -->
-                <div class="account-row-item" data-action="2fa">
+                <button type="button" class="account-row-item" data-action="2fa" disabled>
                     <span class="account-item-icon">
                         <svg class="ikon" aria-hidden="true">
                             <use href="#i-shield" />
                         </svg>
                     </span>
-                    <div class="account-item-text">
+                    <span class="account-item-text">
                         <b>Verifikasi dua langkah</b>
-                        <small>Menambahkan lapisan keamanan saat login</small>
-                    </div>
+                        <small>Belum tersedia di server</small>
+                    </span>
                     <svg class="ikon account-arrow" aria-hidden="true">
                         <use href="#i-next" />
                     </svg>
-                </div>
+                </button>
 
                 <!-- 4. Perangkat Tertaut -->
-                <div class="account-row-item" data-action="perangkat">
+                <button type="button" class="account-row-item" data-action="perangkat">
                     <span class="account-item-icon">
                         <svg class="ikon" aria-hidden="true">
                             <use href="#i-device" />
                         </svg>
                     </span>
-                    <div class="account-item-text">
+                    <span class="account-item-text">
                         <b>Perangkat tertaut</b>
                         <small>Melihat perangkat yang terhubung dengan akun</small>
-                    </div>
+                    </span>
                     <svg class="ikon account-arrow" aria-hidden="true">
                         <use href="#i-next" />
                     </svg>
-                </div>
+                </button>
 
                 <!-- 5. Riwayat Aktivitas Login -->
-                <div class="account-row-item" data-action="riwayat">
+                <button type="button" class="account-row-item" data-action="riwayat">
                     <span class="account-item-icon">
                         <svg class="ikon" aria-hidden="true">
                             <use href="#i-history" />
                         </svg>
                     </span>
-                    <div class="account-item-text">
+                    <span class="account-item-text">
                         <b>Riwayat aktivitas login</b>
-                        <small>Melihat aktivitas masuk akun terakhir</small>
-                    </div>
+                        <small>Aktivitas masuk dari sesi aktif</small>
+                    </span>
                     <svg class="ikon account-arrow" aria-hidden="true">
                         <use href="#i-next" />
                     </svg>
-                </div>
+                </button>
 
                 <!-- 6. Hapus Akun -->
-                <div class="account-row-item danger-row" data-action="hapus-akun">
+                <button type="button" class="account-row-item danger-row" data-action="hapus-akun" disabled>
                     <span class="account-item-icon danger-icon">
                         <svg class="ikon" aria-hidden="true">
                             <use href="#i-user-delete" />
                         </svg>
                     </span>
-                    <div class="account-item-text">
+                    <span class="account-item-text">
                         <b>Hapus akun</b>
-                        <small>Menghapus akun secara permanen</small>
-                    </div>
+                        <small>Belum tersedia di server</small>
+                    </span>
                     <svg class="ikon account-arrow" aria-hidden="true">
                         <use href="#i-next" />
                     </svg>
-                </div>
+                </button>
 
             </div>
         </main>
     </div>
 
-    <script src="account.js"></script>
+    <dialog class="account-detail" id="account-detail" aria-labelledby="account-detail-title">
+        <h2 id="account-detail-title"></h2>
+        <div class="account-detail-body"></div>
+        <p role="status"></p>
+        <button type="button" class="account-detail-close">Tutup</button>
+    </dialog>
+    <script type="text/plain" data-setelah-login="account.js"></script>
+    <div id="status-sesi">
+        <p role="status">Memeriksa sesi…</p>
+        <button type="button" hidden>Coba lagi</button>
+    </div>
+    <script src="../../assets/js/auth.js"></script>
+    <script src="../../assets/js/auth-page.js"></script>
 </body>
 
 </html>

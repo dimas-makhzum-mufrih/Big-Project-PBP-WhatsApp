@@ -38,15 +38,17 @@ function tanggalPanjang(ms) {
 }
 
 // ----- Data bantu -----
-const KUNCI_BISU = 'ngumpul_bisu_';
-function bacaBisu() {
-    try { return JSON.parse(localStorage.getItem(KUNCI_BISU + (userAktif ? userAktif.id : ''))) || {}; } catch (e) { return {}; }
+function chatDibisukan(id) {
+    return Date.parse(NgumpulDM.getPreference(id).mutedUntil) > Date.now();
 }
-function chatDibisukan(id) { return !!bacaBisu()[id]; }
-function aturBisu(id, nyala) {
-    const d = bacaBisu();
-    if (nyala) d[id] = true; else delete d[id];
-    try { localStorage.setItem(KUNCI_BISU + userAktif.id, JSON.stringify(d)); } catch (e) { /* abaikan */ }
+async function aturBisu(id, input) {
+    input.disabled = true;
+    try {
+        await NgumpulDM.preference(id, input.checked ? { muteForSeconds: 86400 } : { mutedUntil: null });
+    } catch (error) {
+        input.checked = chatDibisukan(id);
+        tampilToastTema(NgumpulDM.label(error));
+    } finally { input.disabled = false; }
 }
 
 function dataPercakapan(id) {
@@ -60,16 +62,14 @@ function dataPercakapan(id) {
     return { pesan, foto, tautan };
 }
 
-function pasangGambar(sel, imageId) {
-    const pasang = (url) => {
-        if (!url || !/^(blob:|data:image\/)/.test(url)) return;
-        const img = document.createElement('img');
-        img.src = url; img.alt = 'Foto dari percakapan'; img.loading = 'lazy';
-        sel.appendChild(img);
-    };
-    const cache = typeof cacheUrlGambar !== 'undefined' ? cacheUrlGambar.get(imageId) : '';
-    if (cache) pasang(cache);
-    else if (typeof ambilGambarIdb === 'function') ambilGambarIdb(imageId).then(pasang).catch(() => {});
+function pasangGambar(sel, url) {
+    if (!url) return;
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Foto dari percakapan';
+    img.loading = 'lazy';
+    img.referrerPolicy = 'no-referrer';
+    sel.appendChild(img);
 }
 
 function barisTautan(daftar) {
@@ -108,7 +108,7 @@ function bukaGaleriInfo(induk, id, tutup, tabAwal) {
             foto.slice().reverse().forEach(p => {
                 const sel = elInfo('button', 'info-foto-item');
                 sel.type = 'button'; sel.setAttribute('aria-label', 'Buka foto');
-                pasangGambar(sel, p.imageId);
+                pasangGambar(sel, p.image);
                 sel.addEventListener('click', () => {
                     tutup();
                     bukaChat(id);
@@ -144,19 +144,54 @@ function barisKartu(ikon, judul, ket, aksi) {
     return b;
 }
 
+const permintaanProfilPengguna = new Map();
+
+function muatProfilPengguna(id) {
+    if (!permintaanProfilPengguna.has(id)) {
+        const request = NgumpulAuth.api('users/' + encodeURIComponent(id) + '/profile')
+            .then(({ profile }) => profile)
+            .finally(() => permintaanProfilPengguna.delete(id));
+        permintaanProfilPengguna.set(id, request);
+    }
+    return permintaanProfilPengguna.get(id);
+}
+
+function identitasPengguna(id, remote) {
+    const sender = getProfilChat(id);
+    const member = window.NgumpulGrupData?.member(id);
+    const sendiri = id === userAktif.id;
+    const username = remote ? remote.username :
+        NgumpulTeman.get(id)?.username || member?.username || (sendiri ? userAktif.username : '');
+    const bio = remote ? remote.bio : sendiri ? bacaSemuaProfil()[id]?.bio : '';
+    const displayName = remote ? remote.displayName : NgumpulTeman.get(id)?.displayName || member?.displayName;
+    return {
+        nama: displayName || (sendiri ? userAktif.nama : username ? '@' + username : sender.nama),
+        username: username ? '@' + username : '',
+        bio: bio?.trim() || 'Belum ada deskripsi',
+        foto: remote ? remote.avatar : ambilFotoProfilChat(id),
+        banner: NgumpulAvatar.url(remote?.banner || (sendiri && !remote ? bacaMedia(id).banner : '')),
+    };
+}
+
+function tampilkanBanner(node, url) {
+    node.hidden = !url;
+    node.style.backgroundImage = url ? 'url(' + JSON.stringify(url) + ')' : '';
+}
+
 // Isi bergaya info grup WhatsApp. Dipakai panel info chat dan dialog profil anggota grup.
 function bangunInfoWa(isi, id, opsi) {
     isi.querySelectorAll('.info-tambahan').forEach(n => n.remove());
     const diri = userAktif && userAktif.id === id;
-    const profil = getProfil(id);
-    const akun = (typeof getUserById === 'function' && getUserById(id)) || {};
+    const profil = identitasPengguna(id, opsi.remote);
+    const akun = getUserById(id) || {};
     const induk = opsi.induk;
     const { foto, tautan } = dataPercakapan(id);
 
     // Tentang
-    isi.appendChild(bagianInfo('Tentang', elInfo('p', 'info-teks', profil.bio || 'Halo, aku pakai Ngumpul')));
+    if (!isi.querySelector('#bio-info-kontak'))
+        isi.appendChild(bagianInfo('Tentang', elInfo('p', 'info-teks', profil.bio)));
 
-    if (!diri) {
+    if (!diri && NgumpulTeman.get(id)) {
         // Media, tautan, dokumen
         const media = elInfo('div', 'info-media-kartu');
         const kepala = barisKartu('i-media-grup', 'Media dan tautan',
@@ -167,7 +202,7 @@ function bangunInfoWa(isi, id, opsi) {
             foto.slice(-4).reverse().forEach(p => {
                 const sel = elInfo('button', 'info-foto-item');
                 sel.type = 'button'; sel.setAttribute('aria-label', 'Lihat media');
-                pasangGambar(sel, p.imageId);
+                pasangGambar(sel, p.image);
                 sel.addEventListener('click', () => bukaGaleriInfo(induk, id, opsi.tutup));
                 strip.appendChild(sel);
             });
@@ -190,7 +225,7 @@ function bangunInfoWa(isi, id, opsi) {
         const bisu = elInfo('label', 'info-toggle');
         const cek = document.createElement('input');
         cek.type = 'checkbox'; cek.checked = chatDibisukan(id);
-        cek.addEventListener('change', () => aturBisu(id, cek.checked));
+        cek.addEventListener('change', () => aturBisu(id, cek));
         bisu.append(ikonInfo('i-bell-off'), elInfo('span', '', 'Bisukan notifikasi'), cek);
         set.appendChild(bisu);
         set.appendChild(barisKartu('i-search-garis', 'Cari pesan', 'Cari di percakapan ini', () => {
@@ -204,17 +239,26 @@ function bangunInfoWa(isi, id, opsi) {
     const tambah = (k, v) => { if (v) { const r = elInfo('div', 'info-daftar-baris'); r.append(elInfo('span', '', k), elInfo('strong', '', v)); info.appendChild(r); } };
     tambah('Username', profil.username);
     if (akun.dibuat) tambah('Bergabung', tanggalPanjang(akun.dibuat));
-    if (info.children.length) isi.appendChild(bagianInfo('Info kontak', info));
+    if (info.children.length) isi.appendChild(bagianInfo('Profil pengguna', info));
+    if (!diri && opsi.remote) NgumpulAuth.api('presence/' + encodeURIComponent(id)).then(({ presence }) => {
+        if (!info.isConnected || opsi.masihAktif && !opsi.masihAktif()) return;
+        if (presence.status === 'online') tambah('Status', 'Online');
+        else if (presence.status === 'away') tambah('Status', 'Sedang tidak aktif');
+        else if (presence.lastSeenAt) tambah('Terakhir dilihat', new Date(presence.lastSeenAt).toLocaleString('id-ID'));
+    }).catch(() => {});
 
     // Tautan sosial
     let sosial = [];
-    try { sosial = JSON.parse(localStorage.getItem(KUNCI_SOSMED + id)) || []; } catch (e) { sosial = []; }
-    sosial = sosial.filter(t => t && typeof t.url === 'string' && /^https:\/\//i.test(t.url));
+    if (diri && !opsi.remote) {
+        try { sosial = JSON.parse(localStorage.getItem(KUNCI_SOSMED + id)) || []; } catch (_) {}
+    }
+    if (Array.isArray(opsi.remote?.socialLinks)) sosial = opsi.remote.socialLinks;
+    sosial = sosial.filter(t => t && NgumpulAvatar.url(t.url));
     if (sosial.length) {
         const chip = elInfo('div', 'info-sosial');
         sosial.forEach(t => {
             const a = elInfo('a', 'info-chip', t.nama || t.platform || 'Tautan');
-            a.href = t.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+            a.href = NgumpulAvatar.url(t.url); a.target = '_blank'; a.rel = 'noopener noreferrer';
             chip.appendChild(a);
         });
         isi.appendChild(bagianInfo('Media sosial', chip));
@@ -227,15 +271,18 @@ function bangunInfoWa(isi, id, opsi) {
     isi.appendChild(seksi);
     const dasar = window.NgumpulGrupDasar;
     if (!diri && dasar && dasar.layanan && dasar.layanan.daftarGrup) {
-        dasar.layanan.daftarGrup().then(semua => {
-            if (opsi.masihAktif && !opsi.masihAktif()) return;
+        dasar.layanan.daftarGrup().then(async daftar => {
+            const semua = (await Promise.allSettled(daftar.map(g => dasar.layanan.ambilGrup(g.id))))
+                .filter(item => item.status === 'fulfilled').map(item => item.value);
+            if (!seksi.isConnected || opsi.masihAktif && !opsi.masihAktif()) return;
             const sama = semua.filter(g => !g.keluar && g.anggotaIds.includes(id));
             seksi.querySelector('h3').textContent = 'Grup bersama (' + sama.length + ')';
             sama.forEach(g => {
                 const b = elInfo('button', 'info-grup-item');
                 b.type = 'button';
-                b.append(elInfo('span', 'info-grup-ikon', (g.nama || '?').trim().charAt(0).toUpperCase()),
-                    elInfo('span', 'info-grup-nama', g.nama),
+                const gambar = elInfo('span', 'info-grup-ikon');
+                NgumpulAvatar.render(gambar, g.nama, g.foto);
+                b.append(gambar, elInfo('span', 'info-grup-nama', g.nama),
                     elInfo('small', '', g.anggotaIds.length + ' anggota'));
                 b.addEventListener('click', () => {
                     opsi.tutup();
@@ -257,24 +304,45 @@ function barisAksiCepat(daftar) {
     return baris;
 }
 
-function panggil(id, video) { window.NgumpulRuang && window.NgumpulRuang.panggilPribadi(id, video); }
+function laporkanPengguna(id, nama) {
+    const reason = fieldDM('Alasan laporan', { tag: 'select', name: 'reason', required: true });
+    for (const [key, label] of Object.entries({ spam: 'Spam', harassment: 'Pelecehan',
+        impersonation: 'Penyamaran identitas', inappropriate_content: 'Konten tidak pantas', other: 'Lainnya' })) {
+        reason.lastElementChild.add(new Option(label, key));
+    }
+    dialogDM('Laporkan ' + nama, buatFormDM(reason,
+        fieldDM('Detail (opsional)', { tag: 'textarea', name: 'details', maxLength: 1000, rows: 4 })
+    ), 'Kirim laporan', async form => {
+        try {
+            await NgumpulAuth.api('users/' + encodeURIComponent(id) + '/reports', { method: 'POST', body: {
+                reason: form.elements.reason.value, details: form.elements.details.value.trim()
+            } });
+        } catch (error) {
+            if (error.status === 409) throw new Error('Kamu sudah pernah melaporkan akun ini.');
+            throw error;
+        }
+        tampilToastTema('Laporan dikirim.');
+    });
+}
+
+function panggil(id, video) { NgumpulPanggilanDM.start(id, video); }
 
 // ----- Dialog profil (anggota grup / pengguna lain) -----
-function perkayaInfoKontak(dialog, id, akun, profil, bio) {
+function perkayaInfoKontak(dialog, id, remote) {
+    const profil = identitasPengguna(id, remote);
     const isi = dialog.querySelector('.detail-panel-content');
     isi.querySelectorAll('.info-tambahan, .info-banner, .info-username, .info-aksi-baris').forEach(n => n.remove());
     const identitas = isi.querySelector('.detail-identity');
-    const media = typeof bacaMedia === 'function' ? bacaMedia(id) : {};
     const banner = elInfo('div', 'info-banner');
-    if (typeof media.banner === 'string' && media.banner.startsWith('data:image/')) {
-        banner.style.backgroundImage = 'url("' + media.banner + '")';
-        banner.classList.add('berfoto');
-    }
+    tampilkanBanner(banner, profil.banner);
     isi.insertBefore(banner, identitas);
-    identitas.appendChild(elInfo('p', 'info-username', profil.username || ''));
+    document.getElementById('nama-info-kontak').textContent = profil.nama;
+    document.getElementById('bio-info-kontak').textContent = profil.bio;
+    tampilkanAvatarChat(document.getElementById('foto-info-kontak'), id, profil.nama, profil.foto);
+    identitas.appendChild(elInfo('p', 'info-username', profil.username));
     const diri = userAktif && userAktif.id === id;
     const tutup = () => dialog.close();
-    if (!diri) {
+    if (!diri && NgumpulTeman.get(id)) {
         const aksi = [
             ['i-chat', 'Chat', () => { tutup(); document.dispatchEvent(new CustomEvent('ngumpul:buka-chat', { detail: { idLawan: id } })); }],
             ['i-phone', 'Suara', () => { tutup(); panggil(id, false); }],
@@ -283,24 +351,21 @@ function perkayaInfoKontak(dialog, id, akun, profil, bio) {
         const baris = barisAksiCepat(aksi);
         identitas.after(baris);
     }
-    const nomor = document.getElementById('nomor-info-kontak');
-    if (nomor && !nomor.nextElementSibling) {
-        const salin = elInfo('button', 'info-salin', 'Salin');
-        salin.type = 'button';
-        salin.addEventListener('click', () => {
-            const selesai = () => { salin.textContent = 'Tersalin'; setTimeout(() => (salin.textContent = 'Salin'), 1400); };
-            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(nomor.textContent).then(selesai, () => {});
-            else selesai();
-        });
-        nomor.after(salin);
-    }
-    bangunInfoWa(isi, id, { induk: dialog.querySelector('.detail-panel') || dialog, tutup, masihAktif: () => dialog.dataset.akunId === id });
+    bangunInfoWa(isi, id, { remote, induk: dialog, tutup, masihAktif: () => dialog.open && dialog.dataset.akunId === id });
     if (!diri && typeof penggunaDiblokir === 'function' && typeof ubahBlokir === 'function') {
         const blokir = penggunaDiblokir(userAktif.id, id);
         const b = elInfo('button', 'info-blokir info-tambahan', (blokir ? 'Buka blokir ' : 'Blokir ') + profil.nama);
         b.type = 'button';
-        b.addEventListener('click', () => { ubahBlokir(id, !penggunaDiblokir(userAktif.id, id)); perkayaInfoKontak(dialog, id, akun, profil, bio); });
-        isi.appendChild(b);
+        b.addEventListener('click', async () => {
+            b.disabled = true;
+            await ubahBlokir(id, !penggunaDiblokir(userAktif.id, id));
+            if (dialog.open && dialog.dataset.akunId === id) perkayaInfoKontak(dialog, id);
+        });
+        isi.append(b);
+        const report = elInfo('button', 'info-blokir info-tambahan', 'Laporkan ' + profil.nama);
+        report.type = 'button';
+        report.onclick = () => laporkanPengguna(id, profil.nama);
+        isi.append(report);
     }
 }
 
@@ -309,51 +374,47 @@ function perkayaPanelInfoPengguna(id) {
     const panel = document.getElementById('panel-info-pengguna');
     if (!panel || !id) return;
     const isi = panel.querySelector('.contact-info-content');
-    isi.querySelectorAll('.info-tambahan, .info-aksi-baris').forEach(n => n.remove());
     const tutup = () => panel.setAttribute('aria-hidden', 'true');
-    const profil = getProfil(id);
-    const akhir = isi.querySelector('.contact-info-actions');
-    akhir.before(barisAksiCepat([
-        ['i-phone', 'Suara', () => panggil(id, false)],
-        ['i-video', 'Video', () => panggil(id, true)],
-        ['i-search-garis', 'Cari', () => { tutup(); aturPencarianPesanTerbuka(true, true, true); }]
-    ]));
-    // salin nomor
-    const nomor = document.getElementById('nomor-info-pengguna');
-    if (nomor && !nomor.nextElementSibling?.classList.contains('info-salin')) {
-        const salin = elInfo('button', 'info-salin', 'Salin');
-        salin.type = 'button';
-        salin.addEventListener('click', () => {
-            const selesai = () => { salin.textContent = 'Tersalin'; setTimeout(() => (salin.textContent = 'Salin'), 1400); };
-            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(nomor.textContent).then(selesai, () => {});
-            else selesai();
-        });
-        nomor.after(salin);
+    const masihAktif = () => panel.getAttribute('aria-hidden') === 'false' && chatAktifId === id;
+
+    function render(remote) {
+        const profil = identitasPengguna(id, remote);
+        document.getElementById('nama-info-pengguna').textContent = profil.nama;
+        document.getElementById('username-info-pengguna').textContent = profil.username;
+        tampilkanAvatarChat(document.getElementById('avatar-info-pengguna'), id, profil.nama, profil.foto);
+        tampilkanBanner(document.getElementById('banner-info-pengguna'), profil.banner);
+
+        isi.querySelectorAll('.info-tambahan, .info-aksi-baris').forEach(n => n.remove());
+        const akhir = isi.querySelector('.contact-info-actions');
+        akhir.before(barisAksiCepat([
+            ['i-phone', 'Suara', () => panggil(id, false)],
+            ['i-video', 'Video', () => panggil(id, true)],
+            ['i-search-garis', 'Cari', () => { tutup(); aturPencarianPesanTerbuka(true, true, true); }]
+        ]));
+        bangunInfoWa(isi, id, { induk: panel, tutup, masihAktif, remote });
+        isi.appendChild(akhir);
     }
-    bangunInfoWa(isi, id, { induk: panel, tutup, masihAktif: () => window.chatAktifId === undefined || chatAktifId === id });
-    // blokir/simpan kontak asli tetap di bawah
-    isi.appendChild(akhir);
+
+    render();
+    muatProfilPengguna(id).then(profile => {
+        if (profile && masihAktif()) render(profile);
+    }).catch(() => {});
 }
 
 function tampilkanInfoKontak(id) {
-    const akun = getUserById(id);
-    if (!akun) return;
-    const profil = getProfil(id),
-        wadah = document.getElementById('foto-info-kontak');
-    tampilkanAvatarChat(wadah, id, profil.nama || akun.nama);
-    document.getElementById('nama-info-kontak').textContent = profil.nama || akun.nama;
-    document.getElementById('nomor-info-kontak').textContent =
-        profil.phone || akun.hp || 'Nomor tidak tersedia';
-    const bio = bacaSemuaProfil()[id]?.bio;
-    document.getElementById('bio-info-kontak').textContent = bio && bio.trim() ? bio : 'Belum ada deskripsi';
+    if (!id) return;
     const dialog = document.getElementById('dialog-info-kontak');
     dialog.dataset.akunId = id;
-    perkayaInfoKontak(dialog, id, akun, profil, bio);
+    perkayaInfoKontak(dialog, id);
     if (!dialog.open) {
         dialog.showModal();
         dialog.querySelector('.detail-panel-content').scrollTop = 0;
     }
+    muatProfilPengguna(id).then(profile => {
+        if (profile && dialog.open && dialog.dataset.akunId === id) perkayaInfoKontak(dialog, id, profile);
+    }).catch(() => {});
 }
+
 (function () {
     document.getElementById('btn-info-kontak-chat').addEventListener('click', () => {
         if (chatAktifId) tampilkanInfoKontak(chatAktifId);
@@ -389,6 +450,10 @@ function tampilkanInfoKontak(id) {
             document.getElementById('panel-sisi-kiri').classList.remove('room-open');
             document.getElementById('panel-sisi-kanan').classList.remove('room-open');
         }
+    });
+    document.addEventListener('ngumpul:teman-berubah', () => {
+        const dialog = document.getElementById('dialog-info-kontak');
+        if (dialog.open && !getUserById(dialog.dataset.akunId) && !window.NgumpulGrupData?.member(dialog.dataset.akunId)) dialog.close();
     });
     window.addEventListener('storage', (event) => {
         const dialog = document.getElementById('dialog-info-kontak');

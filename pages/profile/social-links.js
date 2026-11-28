@@ -1,4 +1,4 @@
-// Tautan media sosial: validasi format URL per platform, simpan di localStorage per akun.
+// Tautan media sosial: validasi format URL per platform dan simpan ke profil akun.
 // Catatan: validasi memeriksa FORMAT & pola alamat akun (mis. instagram.com/namaakun).
 // Keberadaan akun di platform tidak bisa dicek dari browser tanpa backend.
 
@@ -105,9 +105,8 @@ function periksaTautan(platform, nilai) {
     return { ok: true, url: aturan.kanon ? aturan.kanon(u, m) : aturan.bentuk(handle) };
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
     const user = getUserAktif();
-    if (!user) { location.replace('../auth/login.html'); return; }
 
     const container = document.getElementById('social-links-container');
     const btnAdd = document.getElementById('btn-add-social');
@@ -213,13 +212,31 @@ document.addEventListener('DOMContentLoaded', () => {
     let tersimpan = [];
     try { tersimpan = JSON.parse(localStorage.getItem(KUNCI_SOSMED + user.id)) || []; } catch (e) {}
 
-    tersimpan.forEach(t => {
-        if (!t || typeof t.url !== 'string') return;
-        let row = container.querySelector('.social-item[data-id="' + CSS.escape(String(t.id)) + '"]');
-        if (!row) row = buatBarisTambahan(String(t.id), String(t.nama || 'Tautan'), t.url);
-        else row.querySelector('.social-input-field').value = t.url;
-        perbaruiBaris(row);
-    });
+    function tampilkanTautan(links) {
+        links.forEach(t => {
+            if (!t || typeof t.url !== 'string') return;
+            let row = container.querySelector('.social-item[data-id="' + CSS.escape(String(t.id)) + '"]');
+            if (!row) row = buatBarisTambahan(String(t.id), String(t.nama || 'Tautan'), t.url);
+            else row.querySelector('.social-input-field').value = t.url;
+            perbaruiBaris(row);
+        });
+    }
+    tampilkanTautan(tersimpan);
+    let berubah = false;
+    container.addEventListener('input', () => { berubah = true; });
+    btnAdd?.addEventListener('click', () => { berubah = true; });
+    container.addEventListener('click', event => { if (event.target.closest('.social-hapus')) berubah = true; });
+    NgumpulAuth.api('profile').then(({ profile }) => {
+        if (berubah || !Array.isArray(profile.socialLinks)) return;
+        container.querySelectorAll('.social-item').forEach(row => {
+            if (row.dataset.tambahan) row.remove();
+            else {
+                row.querySelector('.social-input-field').value = '';
+                perbaruiBaris(row);
+            }
+        });
+        tampilkanTautan(profile.socialLinks);
+    }).catch(() => {});
 
     // ---------- validasi langsung saat mengetik; rapikan ke URL resmi saat selesai ----------
     container.addEventListener('input', (e) => {
@@ -261,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---------- simpan ----------
     if (btnSave) {
-        btnSave.addEventListener('click', () => {
+        btnSave.addEventListener('click', async () => {
             const hasilSimpan = [];
             let pertamaSalah = null;
 
@@ -285,13 +302,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 pertamaSalah.scrollIntoView({ block: 'center', behavior: 'smooth' });
                 return;
             }
-            try {
-                localStorage.setItem(KUNCI_SOSMED + user.id, JSON.stringify(hasilSimpan));
-            } catch (e) {
-                alert('Tautan gagal disimpan karena penyimpanan browser penuh atau diblokir.');
+            if (!user.username) {
+                alert('Atur username di profil sebelum menyimpan tautan.');
                 return;
             }
-            tampilkanToast();
+            btnSave.disabled = true;
+            try {
+                await NgumpulAuth.simpanProfil({ username: user.username, socialLinks: hasilSimpan });
+                try { localStorage.setItem(KUNCI_SOSMED + user.id, JSON.stringify(hasilSimpan)); } catch (_) {}
+                tampilkanToast();
+            } catch (error) {
+                alert(error.message || 'Tautan gagal disimpan. Coba lagi.');
+            } finally { btnSave.disabled = false; }
+
         });
     }
-});
+})();

@@ -170,3 +170,35 @@ body {
 .danger-row .account-item-text b {
     color: var(--merah);
 }
+button.account-row-item {
+    width: 100%;
+    text-align: start;
+    color: inherit;
+    font: inherit;
+}
+.account-row-item:disabled { opacity: .55; cursor: default; }
+.account-detail {
+    width: min(32rem, calc(100% - 2rem));
+    max-height: 85dvh;
+    border: 1px solid var(--border-color, #8885);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    color: inherit;
+    background: var(--bg-card, Canvas);
+}
+.account-detail::backdrop { background: #0008; }
+.account-detail h2 { margin: 0 0 1rem; }
+.account-detail form, .account-detail form label { display: grid; gap: .75rem; }
+.account-detail form label.account-checkbox { display: flex; align-items: center; }
+.account-detail input:not([type=checkbox]) {
+    width: 100%;
+    padding: .55rem;
+    font: inherit;
+}
+.account-detail button {
+    padding: .55rem .8rem;
+    margin: .25rem 0;
+    font: inherit;
+    cursor: pointer;
+}
+.account-detail li { margin-block: .75rem; overflow-wrap: anywhere; }

@@ -1,39 +1,19 @@
-const BATAS_WAKTU_EDIT_PESAN = 5 * 60 * 1000;
-
-// Batas selalu dihitung dari waktu kirim asli, bukan waktu edit terakhir.
-function dalamBatasWaktuEditPesan(pesan) {
-    const waktuKirim = Date.parse(pesan?.time);
-    const umur = Date.now() - waktuKirim;
-    return Number.isFinite(waktuKirim) && umur >= 0 && umur <= BATAS_WAKTU_EDIT_PESAN;
+function dapatEditPesan(pesan) {
+    return !!(pesan && pesan.sender === userAktif.id && !pesan.dihapusSemua && !pesan.encrypted);
 }
 
-// Baca ulang pesan saat menyimpan agar pesan baru/status dari tab lain tetap utuh.
-function editPesanChat(idLawan, idPesan, teksBaru) {
-    if (!userAktif || getUserAktif()?.id !== userAktif.id || !idLawan || !idPesan) {
-        return { berhasil: false, pesan: 'Sesi berakhir. Silakan masuk kembali.' };
+async function editPesanChat(peer, id, teksBaru) {
+    const text = String(teksBaru || '').trim();
+    if (!text) return { berhasil: false, pesan: 'Pesan tidak boleh kosong.' };
+    const pesan = ambilPesanChat(peer).find(item => item.id === id);
+    if (!dapatEditPesan(pesan)) return { berhasil: false, pesan: 'Pesan tidak tersedia untuk diedit.' };
+    if (text === pesan.text) return { berhasil: true, berubah: false };
+    try {
+        await NgumpulDM.edit(peer, id, text);
+        return { berhasil: true, berubah: true };
+    } catch (error) {
+        return { berhasil: false, pesan: NgumpulDM.label(error) };
     }
-    if (chatTerblokir(idLawan)) {
-        return { berhasil: false, pesan: 'Pesan tidak dapat diedit saat pengguna diblokir.' };
-    }
-    const teks = String(teksBaru || '').trim();
-    if (!teks) return { berhasil: false, pesan: 'Pesan tidak boleh kosong.' };
-
-    const daftar = ambilPesanChat(idLawan);
-    const pesan = daftar.find(item => item.id === idPesan);
-    if (!pesan || pesan.sender !== userAktif.id || pesan.dihapusSemua) {
-        return { berhasil: false, pesan: 'Pesan tidak ditemukan atau bukan milik kamu.' };
-    }
-    if (!dalamBatasWaktuEditPesan(pesan)) {
-        return { berhasil: false, pesan: 'Batas waktu edit 5 menit sejak pesan dikirim sudah habis.' };
-    }
-    if (teks === pesan.text) return { berhasil: true, berubah: false };
-
-    pesan.text = teks;
-    pesan.editedAt = new Date().toISOString();
-    if (!simpanPesanChat(idLawan, daftar)) {
-        return { berhasil: false, pesan: 'Perubahan gagal disimpan. Silakan coba lagi.' };
-    }
-    return { berhasil: true, berubah: true };
 }
 
 // Dipanggil juga ketika beralih percakapan, agar draf tidak masuk ke chat lain.
@@ -73,7 +53,7 @@ function tutupEditPesan() {
         const pesan = ambilPesanChat(chatAktifId).find(item => item.id === idPesan);
         tutupMenu(false);
         if (!pesan || pesan.sender !== userAktif?.id || chatTerblokir(chatAktifId)
-            || !dalamBatasWaktuEditPesan(pesan)) return;
+            || !dapatEditPesan(pesan)) return;
 
         event.preventDefault();
         pilihan = { idLawan: chatAktifId, idPesan };
@@ -98,7 +78,7 @@ function tutupEditPesan() {
         if (!pilihan || pilihan.idLawan !== chatAktifId) return;
         const pesan = ambilPesanChat(pilihan.idLawan).find(item => item.id === pilihan.idPesan);
         if (!pesan || pesan.sender !== userAktif.id || chatTerblokir(pilihan.idLawan)
-            || !dalamBatasWaktuEditPesan(pesan)) return;
+            || !dapatEditPesan(pesan)) return;
         input.value = pesan.text || '';
         error.textContent = '';
         input.removeAttribute('aria-invalid');
@@ -107,10 +87,16 @@ function tutupEditPesan() {
         input.setSelectionRange(input.value.length, input.value.length);
     });
 
-    form.addEventListener('submit', event => {
+    form.addEventListener('submit', async event => {
         event.preventDefault();
         if (!pilihan || pilihan.idLawan !== chatAktifId) return;
-        const hasil = editPesanChat(pilihan.idLawan, pilihan.idPesan, input.value);
+        const tombol = form.querySelector('[type="submit"]');
+        if (tombol.disabled) return;
+        tombol.disabled = true;
+        const target = pilihan;
+        const hasil = await editPesanChat(target.idLawan, target.idPesan, input.value);
+        tombol.disabled = false;
+        if (pilihan !== target) return;
         if (!hasil.berhasil) {
             error.textContent = hasil.pesan;
             input.setAttribute('aria-invalid', 'true');
@@ -168,13 +154,4 @@ function tutupEditPesan() {
     boxListPesan.addEventListener('scroll', () => tutupMenu(false), { passive: true });
     window.addEventListener('resize', () => tutupMenu(false));
     window.addEventListener('blur', () => tutupMenu(false));
-    window.addEventListener('storage', event => {
-        if (event.key !== KEY_CHAT && event.key !== null) return;
-        if (chatAktifId) renderPinPesanAktif();
-        tutupMenu(false);
-        if (dialog.open && pilihan) {
-            const pesan = ambilPesanChat(pilihan.idLawan).find(item => item.id === pilihan.idPesan);
-            if (!pesan || pesan.sender !== userAktif.id) dialog.close();
-        }
-    });
 })();

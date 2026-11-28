@@ -193,32 +193,27 @@ if (btnKembaliKeChat) {
 }
 
 // ===== Buka otomatis jika URL menggunakan #settings =====
-if (location.hash === '#settings') {
-    bukaSetelan();
+function bukaSetelanDariTautan() {
+    if (location.hash === '#settings') bukaSetelan();
+}
+bukaSetelanDariTautan();
+window.addEventListener('hashchange', bukaSetelanDariTautan);
+
+// ===== Akhiri sesi di server sebelum kembali ke halaman masuk =====
+async function keluarAkun(event) {
+    const tombol = event.currentTarget;
+    tombol.disabled = true;
+    try {
+        await NgumpulAuth.keluar();
+        sessionStorage.removeItem('draft_profil_edit:' + userAktif.id);
+        location.replace('../auth/login.html');
+    } catch (error) {
+        tampilToastTema(NgumpulAuth.pesanError(error, 'Gagal keluar. Coba lagi.'));
+        tombol.disabled = false;
+    }
 }
 
-// ===== Keluar akun: pertahankan tema, hapus sesi =====
-const btnKeluarAkun = document.getElementById('btn-keluar-akun');
-
-if (btnKeluarAkun) {
-    btnKeluarAkun.addEventListener('click', () => {
-        try {
-            // Pertahankan preferensi tema ketika keluar
-            const temaTersimpan = localStorage.getItem('ngumpul_tema');
-
-            hapusSesi();
-            sessionStorage.clear();
-
-            if (temaTersimpan) {
-                localStorage.setItem('ngumpul_tema', temaTersimpan);
-            }
-        } catch (error) {
-            console.warn('Gagal membersihkan penyimpanan:', error);
-        }
-
-        window.location.href = '../auth/login.html';
-    });
-}
+document.getElementById('btn-keluar-akun')?.addEventListener('click', keluarAkun);
 
 // ===== Membuka halaman Tema & Tampilan =====
 function bukaPengaturanTema() {
@@ -553,7 +548,7 @@ tombolPilihanTema.forEach(button => {
 
 // ===== Buka kunci Ngumpul Plus (rahasia) =====
 // Syarat: foto profil + banner sudah dipasang.
-// Lalu di dashboard klik tab Chat, tab Kontak, kembali ke tab Chat.
+// Lalu di dashboard klik tab Chat, tab Teman, kembali ke tab Chat.
 const KUNCI_PREMIUM = 'ngumpul_premium_';
 let urutanTab = [];
 
@@ -572,7 +567,7 @@ function catatLangkahTab(langkah) {
     urutanTab.push(langkah);
     urutanTab = urutanTab.slice(-3);
 
-    if (urutanTab.join(',') === 'chat,kontak,chat' && syaratPlusTerpenuhi()) {
+    if (urutanTab.join(',') === 'chat,teman,chat' && syaratPlusTerpenuhi()) {
         urutanTab = [];
         bukaNgumpulPlus();
     }
@@ -580,11 +575,11 @@ function catatLangkahTab(langkah) {
 
 // ===== Pemantau urutan tab untuk buka kunci Ngumpul Plus =====
 // Listener tambahan: tidak mengganggu handler tab di file lain, dan memakai
-// getElementById langsung agar tidak bentrok nama variabel (tabChat, tabKontak).
+// getElementById langsung agar tidak bentrok nama variabel (tabChat, tabTeman).
 [
     ['tab-chat', 'chat'],
-    ['tab-kontak', 'kontak'],
-    ['btn-kembali-dari-kontak', 'chat']
+    ['tab-teman', 'teman'],
+    ['btn-kembali-dari-teman', 'chat']
 ].forEach(([idElemen, langkah]) => {
     const el = document.getElementById(idElemen);
     if (el) el.addEventListener('click', () => catatLangkahTab(langkah));
@@ -714,6 +709,12 @@ if (btnMenuAkun) {
     btnMenuAkun.addEventListener('click', () => {
         window.location.href = '../account/account.html';
     });
+    btnMenuAkun.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            btnMenuAkun.click();
+        }
+    });
 }
 
 // ===== Kartu Edit Profil =====
@@ -752,7 +753,7 @@ if (userAktif) {
             kartu.querySelector('.profil-bio');
 
         if (elemNama) elemNama.textContent = profil.nama;
-        if (elemUsername) elemUsername.textContent = profil.username;
+        if (elemUsername) elemUsername.textContent = profil.username || 'Atur username';
 
         if (elemBio) {
             elemBio.textContent =
@@ -874,17 +875,7 @@ if (btnGantiAkun && menuGantiAkun) {
         }
     });
 
-    // Beralih akun: akhiri sesi tab ini lalu masuk dengan akun lain
-    const btnMasukAkunLain = document.getElementById(
-        'btn-masuk-akun-lain'
-    );
-
-    if (btnMasukAkunLain) {
-        btnMasukAkunLain.addEventListener('click', () => {
-            hapusSesi();
-            window.location.href = '../auth/login.html';
-        });
-    }
+    document.getElementById('btn-masuk-akun-lain')?.addEventListener('click', keluarAkun);
 }
 
 // ===== Efek scroll khusus kartu profil =====

@@ -3,29 +3,6 @@ if (btnBlokirPengguna) btnBlokirPengguna.addEventListener('click', () => {
     ubahBlokir(chatAktifId, !penggunaDiblokir(userAktif.id, chatAktifId));
 });
 
-if (btnSimpanKontakChat) btnSimpanKontakChat.addEventListener('click', () => {
-    if (!chatAktifId || !userAktif || namaKontakTersimpan(chatAktifId)) return;
-    const target = getProfilChat(chatAktifId);
-    const nama = (window.prompt('Nama untuk kontak ini:', String(getProfil(chatAktifId).nama || target.hp).trim()) || '').trim();
-    if (!nama) return;
-    try {
-        NgumpulKontakData.add(userAktif.id, target.hp, nama);
-        perbaruiKontrolKontak();
-        renderChatList();
-        // Perbarui judul dengan nama kontak yang baru disimpan.
-        if (namaHeaderKanan) namaHeaderKanan.textContent = nama;
-        const nomorHeaderBaru = document.getElementById('nomor-header-kanan');
-        if (nomorHeaderBaru) {
-            nomorHeaderBaru.textContent = target.hp || 'Nomor tidak tersedia';
-            nomorHeaderBaru.hidden = false;
-        }
-        tampilkanAvatarChat(avatarHeaderKanan, chatAktifId, nama);
-        if (panelInfoPengguna && panelInfoPengguna.getAttribute('aria-hidden') === 'false') tampilkanInfoPengguna();
-    } catch (error) {
-        window.alert(error.message || 'Kontak gagal disimpan.');
-    }
-});
-
 function tutupInfoPengguna() {
     if (!panelInfoPengguna) return;
     panelInfoPengguna.setAttribute('aria-hidden', 'true');
@@ -33,36 +10,18 @@ function tutupInfoPengguna() {
 
 function tampilkanInfoPengguna() {
     if (!chatAktifId || !panelInfoPengguna) return;
-    const target = getProfilChat(chatAktifId);
-    document.getElementById('nama-info-pengguna').textContent = target.nama;
-    document.getElementById('nomor-info-pengguna').textContent = target.hp || 'Nomor tidak tersedia';
-    document.getElementById('username-info-pengguna').textContent = target.username || '';
-    tampilkanAvatarChat(document.getElementById('avatar-info-pengguna'), chatAktifId, target.nama);
-    const banner = document.getElementById('banner-info-pengguna');
-    const urlBanner = ambilBannerProfilChat(chatAktifId);
-    banner.hidden = !urlBanner;
-    banner.style.backgroundImage = urlBanner ? 'url("' + urlBanner + '")' : '';
+    perkayaPanelInfoPengguna(chatAktifId);
     perbaruiKontrolBlokir();
-    perbaruiKontrolKontak();
-    if (typeof perkayaPanelInfoPengguna === 'function') perkayaPanelInfoPengguna(chatAktifId);
 }
 
 if (btnInfoPengguna) btnInfoPengguna.addEventListener('click', () => {
     if (!chatAktifId || !panelInfoPengguna) return;
-    tampilkanInfoPengguna();
     panelInfoPengguna.setAttribute('aria-hidden', 'false');
+    tampilkanInfoPengguna();
 });
 
 document.getElementById('btn-tutup-info-pengguna').addEventListener('click', tutupInfoPengguna);
 document.addEventListener('keydown', event => { if (event.key === 'Escape') tutupInfoPengguna(); });
-
-window.addEventListener('storage', event => {
-    if (event.key !== KEY_CHAT) return;
-    prosesPesanMasuk();
-    if (chatAktifId) renderPesanAktif();
-    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
-    renderChatList();
-});
 
 if (inputCariChat) {
     inputCariChat.addEventListener('input', renderChatList);
@@ -101,7 +60,7 @@ document.addEventListener('keydown', event => {
 if (btnKirimPesan && inputTeksKirim) {
     btnKirimPesan.addEventListener('click', kirimPesanAktif);
     inputTeksKirim.addEventListener('keydown', event => {
-        if (event.key === 'Enter' && !event.shiftKey) {
+        if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && !event.repeat) {
             event.preventDefault();
             kirimPesanAktif();
         }
@@ -111,13 +70,12 @@ if (btnKirimPesan && inputTeksKirim) {
 document.addEventListener('ngumpul:buka-chat', event => {
     const idLawan = event && event.detail ? event.detail.idLawan : null;
     if (idLawan) {
-        pilihTabDashboard(false);
+        pilihTabDashboard('chat');
         bukaChat(idLawan);
     }
 });
 
 if (userAktif) {
-    prosesPesanMasuk();
     renderChatList();
     if (panelChatKosong && panelChatAktif) {
         panelChatAktif.style.display = 'none';
@@ -125,24 +83,22 @@ if (userAktif) {
     }
 }
 
-// ===== Tab Chat / Grup / Kontak di dalam dashboard =====
+// ===== Tab Chat / Grup / Teman di dalam dashboard =====
 const tabChat = document.getElementById('tab-chat');
 const tabGrup = document.getElementById('tab-grup');
-const tabKontak = document.getElementById('tab-kontak');
+const tabTeman = document.getElementById('tab-teman');
 const tabTelepon = document.getElementById('tab-telepon');
 const panelTabChat = document.getElementById('panel-tab-chat');
 const panelTabGrup = document.getElementById('panel-tab-grup');
-const panelTabKontak = document.getElementById('panel-tab-kontak');
+const panelTabTeman = document.getElementById('panel-tab-teman');
 
-function pilihTabDashboard(tabTujuan) {
-    // Tetap mendukung pemanggilan boolean dari alur Chat dan Kontak yang sudah ada.
-    const tabAktif = typeof tabTujuan === 'boolean' ? (tabTujuan ? 'kontak' : 'chat') : tabTujuan;
+function pilihTabDashboard(tabAktif) {
     window.NgumpulRuang?.sinkronSidebarGrup(tabAktif);
     panelTabChat.hidden = tabAktif !== 'chat';
     panelTabGrup.hidden = tabAktif !== 'grup';
-    panelTabKontak.hidden = tabAktif !== 'kontak';
+    panelTabTeman.hidden = tabAktif !== 'teman';
     document.getElementById('panel-tab-telepon').hidden = tabAktif !== 'telepon';
-    [[tabChat, 'chat'], [tabGrup, 'grup'], [tabKontak, 'kontak'], [tabTelepon, 'telepon']].forEach(([tombol, nama]) => {
+    [[tabChat, 'chat'], [tabGrup, 'grup'], [tabTeman, 'teman'], [tabTelepon, 'telepon']].forEach(([tombol, nama]) => {
         tombol.classList.toggle('aktif', tabAktif === nama);
         tombol.setAttribute('aria-pressed', String(tabAktif === nama));
     });
@@ -151,34 +107,47 @@ function pilihTabDashboard(tabTujuan) {
     document.dispatchEvent(new CustomEvent('ngumpul:tab-dashboard', { detail: { tabAktif } }));
 }
 
-tabChat.addEventListener('click', () => pilihTabDashboard(false));
+tabChat.addEventListener('click', () => pilihTabDashboard('chat'));
 tabGrup.addEventListener('click', () => pilihTabDashboard('grup'));
-tabKontak.addEventListener('click', () => pilihTabDashboard(true));
+tabTeman.addEventListener('click', () => pilihTabDashboard('teman'));
 tabTelepon.addEventListener('click', () => pilihTabDashboard('telepon'));
-document.getElementById('btn-kembali-dari-kontak').addEventListener('click', () => {
-    pilihTabDashboard(false);
+document.getElementById('btn-kembali-dari-teman').addEventListener('click', () => {
+    pilihTabDashboard('chat');
     tabChat.focus();
 });
-document.addEventListener('ngumpul:buka-chat', () => pilihTabDashboard(false));
-
-// Continue a contact-originated chat request after the dashboard page loads.
+// Buka chat tertunda setelah daftar teman tersedia.
 const idChatTertunda = new URLSearchParams(location.hash.slice(1)).get('buka-chat');
-if (userAktif && idChatTertunda) {
-    window.setTimeout(() => {
-        document.dispatchEvent(
-            new CustomEvent('ngumpul:buka-chat', {
-                detail: { idLawan: idChatTertunda }
-            })
-        );
-
-        // Bersihkan hash setelah permintaan chat diteruskan
-        history.replaceState(
-            null,
-            '',
-            location.pathname + location.search
-        );
-    }, 0);
+function bukaChatTertunda() {
+    if (!idChatTertunda || !NgumpulTeman.get(idChatTertunda)) return;
+    document.removeEventListener('ngumpul:teman-berubah', bukaChatTertunda);
+    document.dispatchEvent(new CustomEvent('ngumpul:buka-chat', { detail: { idLawan: idChatTertunda } }));
+    history.replaceState(null, '', location.pathname + location.search);
 }
+if (idChatTertunda) {
+    document.addEventListener('ngumpul:teman-berubah', bukaChatTertunda);
+    if (NgumpulTeman.get(idChatTertunda)) setTimeout(bukaChatTertunda, 0);
+}
+
+document.addEventListener('ngumpul:teman-berubah', () => {
+    renderChatList();
+    if (!chatAktifId) return;
+    if (NgumpulTeman.get(chatAktifId)) {
+        const profil = getProfilChat(chatAktifId);
+        tampilkanAvatarChat(avatarHeaderKanan, chatAktifId, profil.nama);
+        return;
+    }
+    tutupEditPesan();
+    tutupPreviewGambar();
+    batalkanBalasanPesan(false);
+    NgumpulDM.open(null);
+    aturPencarianPesanTerbuka(false, true, false);
+    tutupInfoPengguna();
+    chatAktifId = null;
+    panelChatAktif.style.display = 'none';
+    panelChatKosong.style.display = 'flex';
+    document.getElementById('panel-sisi-kiri').classList.remove('room-open');
+    document.getElementById('panel-sisi-kanan').classList.remove('room-open');
+});
 
 // ===== Hapus pesan: dialog pilihan + toast Urungkan =====
 // Dipakai chat pribadi (di bawah) dan chat grup (grup.js lewat window.NgumpulHapus).
@@ -245,39 +214,17 @@ function bukaDialogHapusPesan(opsi) {
 }
 window.NgumpulHapus = { dialog: bukaDialogHapusPesan, toast: tampilkanToastHapus };
 
-function segarkanSetelahHapus() {
-    const posisi = boxListPesan.scrollTop; // jangan lompat ke bawah
-    renderPesanAktif();
-    boxListPesan.scrollTop = posisi;
-    renderPinPesanAktif();
-    renderChatList();
-    if (pencarianPesanTerbuka()) renderHasilPencarianPesan();
-}
-
 function mintaHapusPesan(idPesan) {
     if (!chatAktifId || !dialogHapusPesan) return;
     const idLawan = chatAktifId;
     const pesan = ambilPesanChat(idLawan).find(item => String(item.id) === String(idPesan));
     if (!pesan) return;
-    const segarkan = () => (chatAktifId === idLawan ? segarkanSetelahHapus() : renderChatList());
     bukaDialogHapusPesan({
         langsung: Boolean(pesan.dihapusSemua),
-        bisaSemua: String(pesan.sender) === String(userAktif.id) && !pesan.dihapusSemua,
+        bisaSemua: pesan.sender === userAktif.id && !pesan.dihapusSemua,
         cuplikan: pesan.dihapusSemua ? '' : ringkasanPesan(pesan),
-        hapusSaya: () => {
-            const ok = hapusPesanUntukSaya(idLawan, pesan.id);
-            if (ok) segarkan();
-            return ok;
-        },
-        hapusSemua: () => {
-            const ok = hapusPesanUntukSemua(idLawan, pesan.id);
-            if (ok) segarkan();
-            return ok;
-        },
-        urungkan: () => {
-            urungkanHapusUntukSaya(idLawan, pesan.id);
-            segarkan();
-        }
+        hapusSaya: () => NgumpulDM.remove(idLawan, pesan.id, 'me'),
+        hapusSemua: () => NgumpulDM.remove(idLawan, pesan.id, 'everyone')
     });
 }
 
