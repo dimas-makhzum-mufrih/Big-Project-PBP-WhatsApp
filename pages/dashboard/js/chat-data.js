@@ -91,6 +91,7 @@ let idBalasanAktif = null;
 function ringkasanPesan(item) {
     if (item && item.dihapusSemua) return 'Pesan ini telah dihapus';
     const teks = String(item && item.text || '').trim();
+    if (item && item.papanId) return 'Papan gambar: ' + (item.papanNama || '');
     return teks || (isPesanBergambar(item) ? 'Foto' : '');
 }
 
@@ -399,6 +400,7 @@ function formatPreviewPesan(terakhir) {
             : 'Pesan ini telah dihapus';
     }
     const teks = (terakhir.text || '').trim();
+    if (terakhir.papanId) return 'Papan gambar: ' + (terakhir.papanNama || '');
     if (isPesanBergambar(terakhir)) {
         return teks || 'Foto';
     }
@@ -735,7 +737,7 @@ function hapusPesanUntukSemua(idLawan, idPesan) {
     if (!pesan || String(pesan.sender) !== String(userAktif.id) || pesan.dihapusSemua) return false;
     const imageId = pesan.imageId;
     // sisakan hanya kerangka pesan supaya urutan, jam, dan status tetap utuh
-    ['text', 'image', 'imageId', 'hasImage', 'replyTo', 'forwarded', 'editedAt']
+    ['text', 'papanId', 'papanNama', 'image', 'imageId', 'hasImage', 'replyTo', 'forwarded', 'editedAt']
         .forEach(kunci => { delete pesan[kunci]; });
     pesan.text = '';
     pesan.dihapusSemua = true;

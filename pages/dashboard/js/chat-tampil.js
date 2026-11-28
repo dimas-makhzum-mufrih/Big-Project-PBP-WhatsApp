@@ -317,7 +317,11 @@ function renderPesanAktif() {
             bubble.appendChild(bungkusGambar);
         }
 
-        if (adaTeks || !punyaGambar) {
+        if (item.papanId && window.NgumpulPapan) {
+            bubble.appendChild(window.NgumpulPapan.kartu({ id: item.papanId, nama: item.papanNama }));
+        }
+
+        if ((adaTeks || !punyaGambar) && !item.papanId) {
             const text = document.createElement('span');
             if (punyaGambar) text.className = 'chat-caption-text';
             text.textContent = item.text || '';

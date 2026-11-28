@@ -404,7 +404,7 @@
     apply();
 
     document.addEventListener("DOMContentLoaded", function () {
-        if (document.getElementById("panel-chat-aktif")) { muatEfek(); muatSkrip("format-teks", "__ngumpulFormat"); muatSkrip("aksi-pesan", "__ngumpulAksiPesanMuat"); muatSkrip("emoji-ui", "__ngumpulEmojiMuat"); muatSkrip("balas-pesan", "__ngumpulBalasMuat"); }
+        if (document.getElementById("panel-chat-aktif")) { muatEfek(); muatSkrip("format-teks", "__ngumpulFormat"); muatSkrip("aksi-pesan", "__ngumpulAksiPesanMuat"); muatSkrip("emoji-ui", "__ngumpulEmojiMuat"); muatSkrip("balas-pesan", "__ngumpulBalasMuat"); muatSkrip("editor-gambar", "__ngumpulEditorMuat"); muatSkrip("papan-gambar", "__ngumpulPapanMuat"); }
         document.querySelectorAll("[data-theme-toggle]").forEach(function (button) {
             button.addEventListener("click", toggleTheme);
         });

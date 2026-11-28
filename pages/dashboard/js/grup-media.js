@@ -55,6 +55,8 @@
     return result;
   }
   async function tampilkan(file, preview = false) {
+    if (file && file.mime === 'application/x-ngumpul-papan' && window.NgumpulPapan)
+      return window.NgumpulPapan.kartu({ id: file.papanId, nama: file.papanNama });
     const link = document.createElement("a");
     link.className = "ruang-attachment";
     link.textContent = file.nama || "Berkas";

@@ -1,0 +1,237 @@
+/* NGUMPUL - Editor Gambar. Kerangka gelap seperti editor foto WhatsApp, aksen mengikuti tema. */
+.egm {
+    --egm-bg: #111418;
+    --egm-bar: #1b2026;
+    --egm-garis: rgba(255, 255, 255, .12);
+    --egm-teks: #f2f4f7;
+    --egm-redup: #98a2b3;
+    --egm-aksen: var(--warna-utama, #0891b2);
+    --egm-r: 12px;
+    position: fixed;
+    inset: 0;
+    z-index: 6000;
+    display: flex;
+    flex-direction: column;
+    background: var(--egm-bg);
+    color: var(--egm-teks);
+    font-family: inherit;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+}
+.egm[hidden] { display: none !important; }
+html.egm-terbuka { overflow: hidden; }
+
+.egm button { font: inherit; color: inherit; cursor: pointer; }
+.egm-ikon { display: block; flex: none; }
+
+.egm-atas {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--egm-bar);
+    border-bottom: 1px solid var(--egm-garis);
+}
+.egm-grup { flex: 1; display: flex; align-items: center; justify-content: center; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.egm-grup::-webkit-scrollbar { display: none; }
+.egm-pemisah { width: 1px; height: 22px; background: var(--egm-garis); margin: 0 6px; flex: none; }
+.egm-tbl {
+    width: 40px; height: 40px; flex: none;
+    display: grid; place-items: center;
+    border: 0; border-radius: 50%;
+    background: transparent; color: var(--egm-teks);
+    transition: background .15s, opacity .15s;
+}
+.egm-tbl:hover:not(:disabled) { background: rgba(255, 255, 255, .1); }
+.egm-tbl:disabled { opacity: .3; cursor: default; }
+.egm-selesai {
+    flex: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 40px; padding: 0 18px;
+    border: 0; border-radius: 999px;
+    background: var(--egm-aksen); color: #fff; font-weight: 700;
+}
+.egm-selesai:disabled { opacity: .6; }
+
+.egm-panggung {
+    flex: 1; min-height: 0;
+    display: grid; place-items: center;
+    padding: 12px;
+    overflow: hidden;
+    background:
+        conic-gradient(#1a1e24 25%, #14181d 0 50%, #1a1e24 0 75%, #14181d 0) 0 0 / 20px 20px;
+}
+.egm-bungkus { position: relative; flex: none; box-shadow: 0 8px 40px rgba(0, 0, 0, .55); }
+.egm-kanvas { display: block; cursor: crosshair; touch-action: none; }
+.egm:not(.egm-potong) .egm-kanvas { background: #000; }
+
+.egm-crop {
+    position: absolute;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, .58);
+    cursor: move;
+    touch-action: none;
+}
+.egm-crop[hidden] { display: none; }
+.egm-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(rgba(255,255,255,.4), rgba(255,255,255,.4)) 33.33% 0 / 1px 100% no-repeat,
+        linear-gradient(rgba(255,255,255,.4), rgba(255,255,255,.4)) 66.66% 0 / 1px 100% no-repeat,
+        linear-gradient(rgba(255,255,255,.4), rgba(255,255,255,.4)) 0 33.33% / 100% 1px no-repeat,
+        linear-gradient(rgba(255,255,255,.4), rgba(255,255,255,.4)) 0 66.66% / 100% 1px no-repeat;
+}
+.egm-hdl { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; touch-action: none; }
+.egm-hdl::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px; background: #fff; border-radius: 3px; box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.egm-hdl-nw { left: 0; top: 0; cursor: nwse-resize; } .egm-hdl-n { left: 50%; top: 0; cursor: ns-resize; }
+.egm-hdl-ne { left: 100%; top: 0; cursor: nesw-resize; } .egm-hdl-e { left: 100%; top: 50%; cursor: ew-resize; }
+.egm-hdl-se { left: 100%; top: 100%; cursor: nwse-resize; } .egm-hdl-s { left: 50%; top: 100%; cursor: ns-resize; }
+.egm-hdl-sw { left: 0; top: 100%; cursor: nesw-resize; } .egm-hdl-w { left: 0; top: 50%; cursor: ew-resize; }
+
+.egm-aksi-obj {
+    position: absolute; z-index: 3;
+    transform: translateX(-50%);
+    display: flex; gap: 2px; padding: 4px;
+    background: rgba(20, 24, 29, .92); border: 1px solid var(--egm-garis);
+    border-radius: 999px; backdrop-filter: blur(6px);
+}
+.egm-aksi-obj[hidden] { display: none; }
+.egm-aksi-obj button { width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; }
+.egm-aksi-obj button:hover { background: rgba(255,255,255,.14); }
+.egm-aksi-obj button[data-ob="hapus"] { color: #ff6b6b; }
+
+.egm-opsi {
+    flex: none;
+    min-height: 96px;
+    padding: 10px 14px;
+    background: var(--egm-bar);
+    border-top: 1px solid var(--egm-garis);
+    display: flex; flex-direction: column; justify-content: center; gap: 8px;
+}
+.egm-baris { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.egm-baris-ukuran span { font-size: .78rem; color: var(--egm-redup); }
+.egm-baris-ukuran input[type=range] { flex: 0 1 260px; accent-color: var(--egm-aksen); }
+.egm-contoh { display: block; width: 44px; height: 30px; position: relative; flex: none; }
+.egm-contoh::after { content: ""; position: absolute; left: 50%; top: 50%; width: var(--u); height: var(--u); max-width: 30px; max-height: 30px; transform: translate(-50%, -50%); border-radius: 50%; background: var(--w); box-shadow: 0 0 0 1px rgba(255,255,255,.3); }
+
+.egm-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 14px;
+    border: 1px solid var(--egm-garis); border-radius: 999px;
+    background: transparent; font-size: .84rem; font-weight: 600;
+    transition: background .15s, border-color .15s;
+}
+.egm-chip:hover { background: rgba(255,255,255,.08); }
+.egm-chip.aktif { background: var(--egm-aksen); border-color: var(--egm-aksen); color: #fff; }
+
+.egm-palet { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.egm-warna {
+    width: 28px; height: 28px; border-radius: 50%; padding: 0;
+    border: 2px solid rgba(255,255,255,.7); background: var(--w);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.4);
+    transition: transform .12s;
+}
+.egm-warna:hover { transform: scale(1.12); }
+.egm-warna.aktif { transform: scale(1.18); border-color: #fff; box-shadow: 0 0 0 3px var(--egm-aksen); }
+.egm-warna-bebas { position: relative; overflow: hidden; display: inline-block; background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); }
+.egm-warna-bebas input { position: absolute; inset: -6px; width: 44px; height: 44px; opacity: 0; cursor: pointer; }
+
+.egm-baris-teks { flex-wrap: nowrap; }
+.egm-input-teks {
+    flex: 1; min-width: 0; max-width: 420px; resize: none;
+    padding: 8px 14px; border-radius: 18px;
+    border: 1px solid var(--egm-garis); background: rgba(255,255,255,.07);
+    color: var(--egm-teks); font: inherit; font-size: .95rem;
+    -webkit-user-select: text; user-select: text;
+}
+.egm-input-teks:focus { outline: 2px solid var(--egm-aksen); border-color: transparent; }
+.egm-input-teks:disabled { opacity: .6; }
+
+.egm-emoji-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+    gap: 2px; max-height: 120px; overflow-y: auto; padding: 2px;
+}
+.egm-emoji-grid button { height: 42px; font-size: 1.6rem; line-height: 1; border: 0; border-radius: 10px; background: transparent; }
+.egm-emoji-grid button:hover { background: rgba(255,255,255,.12); }
+
+.egm-filter-baris { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 6px; justify-content: safe center; scrollbar-width: thin; }
+.egm-filter { flex: none; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 2px solid transparent; border-radius: 10px; padding: 3px; background: transparent; font-size: .72rem; color: var(--egm-redup); }
+.egm-filter canvas { width: 56px; height: 56px; border-radius: 8px; background: #000; }
+.egm-filter.aktif { border-color: var(--egm-aksen); color: var(--egm-teks); }
+
+.egm-alat {
+    flex: none; display: flex; justify-content: center; gap: 4px;
+    padding: 6px 10px calc(8px + env(safe-area-inset-bottom));
+    background: var(--egm-bar); border-top: 1px solid var(--egm-garis);
+}
+.egm-alat-tbl {
+    flex: 1 1 0; max-width: 96px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 7px 4px; border: 0; border-radius: var(--egm-r);
+    background: transparent; font-size: .72rem; font-weight: 600; color: var(--egm-redup);
+}
+.egm-alat-tbl:hover { background: rgba(255,255,255,.07); color: var(--egm-teks); }
+.egm-alat-tbl.aktif { color: #fff; background: color-mix(in srgb, var(--egm-aksen) 70%, transparent); }
+
+/* ---- tombol pintas di panel pratinjau ---- */
+.media-preview-stage { position: relative; }
+.egm-pintas {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 2;
+    display: flex; gap: 2px; padding: 4px;
+    background: rgba(20, 24, 29, .82); border-radius: 999px;
+    backdrop-filter: blur(6px); box-shadow: 0 4px 18px rgba(0,0,0,.3);
+}
+.egm-pintas button {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 36px; padding: 0 12px; border: 0; border-radius: 999px;
+    background: transparent; color: #fff; font-size: .8rem; font-weight: 600; cursor: pointer;
+}
+.egm-pintas button:hover { background: rgba(255,255,255,.18); }
+.egm-edit-tbl {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border-warna); background: var(--bg-putih); color: var(--teks-gelap);
+    font: inherit; font-size: .82rem; font-weight: 600;
+}
+.egm-edit-tbl:hover { border-color: var(--warna-utama); color: var(--warna-utama); }
+.egm-tanda { color: var(--warna-utama); font-style: normal; font-weight: 600; }
+
+@media (max-width: 640px) {
+    .egm-pintas button span { display: none; }
+    .egm-pintas button { padding: 0 11px; }
+    .egm-selesai span { display: none; }
+    .egm-selesai { padding: 0 14px; }
+    .egm-tbl { width: 36px; height: 36px; }
+    .egm-opsi { min-height: 84px; padding: 8px 10px; }
+}
+
+/* ---- penyesuaian per tema ---- */
+html[data-theme="pastelparty"] .egm { --egm-bg: #3b2d4f; --egm-bar: #fff4fb; --egm-teks: #3b2d4f; --egm-redup: #7b6890; --egm-garis: #3b2d4f; --egm-aksen: #d6457f; --egm-r: 14px; }
+html[data-theme="pastelparty"] .egm-atas, html[data-theme="pastelparty"] .egm-opsi, html[data-theme="pastelparty"] .egm-alat { border-color: #3b2d4f; border-width: 2px; }
+html[data-theme="pastelparty"] .egm-tbl:hover:not(:disabled), html[data-theme="pastelparty"] .egm-chip:hover, html[data-theme="pastelparty"] .egm-emoji-grid button:hover, html[data-theme="pastelparty"] .egm-alat-tbl:hover { background: rgba(214, 69, 127, .14); }
+html[data-theme="pastelparty"] .egm-chip, html[data-theme="pastelparty"] .egm-input-teks { border: 2px solid #3b2d4f; }
+html[data-theme="pastelparty"] .egm-input-teks { background: #fff; }
+html[data-theme="pastelparty"] .egm-selesai, html[data-theme="pastelparty"] .egm-chip.aktif { border: 2px solid #3b2d4f; box-shadow: 0 3px 0 #3b2d4f; }
+html[data-theme="pastelparty"] .egm-alat-tbl.aktif { background: #d6457f; box-shadow: 0 3px 0 #3b2d4f; }
+html[data-theme="pastelparty"] .egm-aksi-obj { background: #fff4fb; color: #3b2d4f; border: 2px solid #3b2d4f; }
+html[data-theme="pastelparty"] .egm-aksi-obj button:hover { background: rgba(214,69,127,.15); }
+
+html[data-theme="gameboy"] .egm { --egm-bg: #0f380f; --egm-bar: #9bbc0f; --egm-teks: #0f380f; --egm-redup: #306230; --egm-garis: #0f380f; --egm-aksen: #306230; --egm-r: 0; font-family: "Courier New", monospace; }
+html[data-theme="gameboy"] .egm * { border-radius: 0 !important; }
+html[data-theme="gameboy"] .egm-atas, html[data-theme="gameboy"] .egm-opsi, html[data-theme="gameboy"] .egm-alat { border-width: 3px; }
+html[data-theme="gameboy"] .egm-selesai, html[data-theme="gameboy"] .egm-alat-tbl.aktif, html[data-theme="gameboy"] .egm-chip.aktif { background: #0f380f; color: #9bbc0f; border-color: #0f380f; }
+html[data-theme="gameboy"] .egm-input-teks { background: #8bac0f; border: 2px solid #0f380f; color: #0f380f; }
+html[data-theme="gameboy"] .egm-aksi-obj { background: #9bbc0f; color: #0f380f; border: 2px solid #0f380f; }
+
+html[data-theme="terminal"] .egm { --egm-bg: #050805; --egm-bar: #0a120a; --egm-teks: #33ff66; --egm-redup: #1f9d3f; --egm-garis: #1f9d3f; --egm-aksen: #1fbf4a; --egm-r: 2px; font-family: "Courier New", ui-monospace, monospace; }
+html[data-theme="terminal"] .egm * { border-radius: 2px !important; }
+html[data-theme="terminal"] .egm-selesai, html[data-theme="terminal"] .egm-alat-tbl.aktif, html[data-theme="terminal"] .egm-chip.aktif { background: #33ff66; color: #021a07; border-color: #33ff66; }
+html[data-theme="terminal"] .egm-aksi-obj { background: #0a120a; color: #33ff66; border-color: #1f9d3f; }
+html[data-theme="terminal"] .egm-tbl:hover:not(:disabled) { background: rgba(51,255,102,.14); }
+
+html[data-theme="synthwave"] .egm { --egm-bg: #0f0724; --egm-bar: #1a0b3a; --egm-teks: #ffe9ff; --egm-redup: #b69be0; --egm-garis: rgba(255, 79, 216, .4); --egm-aksen: #ff4fd8; }
+html[data-theme="synthwave"] .egm-selesai, html[data-theme="synthwave"] .egm-alat-tbl.aktif { background: linear-gradient(90deg, #ff4fd8, #7a5cff); box-shadow: 0 0 16px rgba(255, 79, 216, .55); }
+html[data-theme="synthwave"] .egm-chip.aktif { background: linear-gradient(90deg, #ff4fd8, #7a5cff); border-color: transparent; }
+html[data-theme="synthwave"] .egm-filter.aktif, html[data-theme="synthwave"] .egm-warna.aktif { box-shadow: 0 0 0 3px #ff4fd8, 0 0 14px rgba(255, 79, 216, .7); }

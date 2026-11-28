@@ -361,6 +361,8 @@
             daftar.push(item("balas", "Balas", function () { mulaiBalasPesan(p.id); }));
         }
         if (teks) daftar.push(item("salin", "Salin", function () { salinTeks(teks); }));
+        // kartu papan gambar: cukup Balas dan Hapus (tidak ada teks untuk disalin/diedit/diteruskan)
+        if (p.papanId) { if (hapusItem) daftar.push(hapusItem); return daftar; }
         var btnPin = baris.querySelector(".btn-pin-message");
         if (btnPin && p.id) {
             var tersemat = typeof ambilPinPesan === "function" && ambilPinPesan(chatAktifId) === p.id;

@@ -2840,7 +2840,20 @@
       send().catch(error);
     }
   };
-  $("ruang-lampiran").onclick = () => $("ruang-files").click();
+  $("ruang-lampiran").onclick = (e) =>
+    window.NgumpulPapan
+      ? window.NgumpulPapan.menuGrup(e.currentTarget, () => $("ruang-files").click())
+      : $("ruang-files").click();
+  window.NgumpulGrupPapan = {
+    konteks: () => (gid && cid && group && !group.keluar ? { gid, cid, anggotaIds: [...group.anggotaIds] } : null),
+    kirim: async (lampiran) => {
+      const id = gid, channel = cid;
+      await D.send(id, channel, "", [lampiran], D.uid());
+      await refresh();
+      box.scrollTop = box.scrollHeight;
+      await renderList();
+    },
+  };
   $("ruang-files").onchange = (e) => {
     const files = [...e.target.files];
     if (files.some((f) => f.size > 25 * 1024 * 1024)) {
